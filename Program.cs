@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Services;
+
+
 namespace ObreshkovLibrary
 {
     public class Program
@@ -8,6 +13,12 @@ namespace ObreshkovLibrary
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddScoped<CardNumberGenerator>();
+
 
             var app = builder.Build();
 

@@ -1,0 +1,204 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.ViewModels;
+
+
+namespace ObreshkovLibrary.Controllers
+{
+    public class CategoriesController : Controller
+    {
+        private readonly ObreshkovLibraryContext _context;
+
+        public CategoriesController(ObreshkovLibraryContext context)
+        {
+            _context = context;
+        }
+
+        // GET: Categories
+        public async Task<IActionResult> Index()
+        {
+            var obreshkovLibraryContext = _context.Categories.Include(c => c.ParentCategory);
+            return View(await obreshkovLibraryContext.ToListAsync());
+        }
+
+        // GET: Categories/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Categories
+                .Include(c => c.ParentCategory)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
+        }
+
+        // GET: Categories/Create
+        public IActionResult Create()
+        {
+            ViewData["ParentCategoryId"] = new SelectList(
+                _context.Categories.OrderBy(c => c.Name),
+                "Id",
+                "Name"
+            );
+
+            return View();
+        }
+
+        // POST: Categories/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Name,ParentCategoryId")] Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(category);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ParentCategoryId"] = new SelectList(
+            _context.Categories.OrderBy(c => c.Name),
+            "Id",
+            "Name",
+            category.ParentCategoryId);
+
+            // ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
+            return View(category);
+        }
+
+        // GET: Categories/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
+            return View(category);
+        }
+
+        // POST: Categories/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ParentCategoryId")] Category category)
+        {
+            if (id != category.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(category);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CategoryExists(category.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
+            return View(category);
+        }
+
+        // GET: Categories/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var category = await _context.Categories
+                .Include(c => c.ParentCategory)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            return View(category);
+        }
+
+        // POST: Categories/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            var category = await _context.Categories
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null)
+                return NotFound();
+
+            bool hasActiveBooks = await _context.BookTitles
+                .IgnoreQueryFilters()
+                .AnyAsync(b => b.CategoryId == id && b.IsActive);
+
+            if (hasActiveBooks)
+            {
+                TempData["Error"] = "Категорията не може да бъде деактивирана, защото има книги в нея.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            bool hasActiveChildren = await _context.Categories
+                .IgnoreQueryFilters()
+                .AnyAsync(c => c.ParentCategoryId == id && c.IsActive);
+
+            if (hasActiveChildren)
+            {
+                TempData["Error"] = "Категорията не може да бъде деактивирана, защото има активни подкатегории.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            category.IsActive = false;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+
+        }
+
+        private bool CategoryExists(int id)
+        {
+            return _context.Categories
+                .IgnoreQueryFilters()
+                .Any(e => e.Id == id);
+        }
+
+    }
+}

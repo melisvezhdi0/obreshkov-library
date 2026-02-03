@@ -15,5 +15,6 @@ namespace ObreshkovLibrary.Models
         public ICollection<Category> Children { get; set; } = new List<Category>();
 
         public ICollection<BookTitle> BookTitles { get; set; } = new List<BookTitle>();
+        public bool IsActive { get; set; } = true;
     }
 }

@@ -29,6 +29,12 @@ namespace ObreshkovLibrary.Data
             modelBuilder.Entity<Client>()
                 .HasIndex(c => c.CardNumber)
                 .IsUnique();
+
+            modelBuilder.Entity<Client>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<BookTitle>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<BookCopy>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<Category>().HasQueryFilter(x => x.IsActive);
+
         }
     }
 }

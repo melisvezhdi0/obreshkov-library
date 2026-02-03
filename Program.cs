@@ -19,6 +19,7 @@ namespace ObreshkovLibrary
 
             builder.Services.AddScoped<CardNumberGenerator>();
 
+            builder.Services.AddScoped<BookDeactivateService>();
 
             var app = builder.Build();
 

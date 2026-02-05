@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ObreshkovLibrary.Data;
 
@@ -11,9 +12,11 @@ using ObreshkovLibrary.Data;
 namespace ObreshkovLibrary.Migrations
 {
     [DbContext(typeof(ObreshkovLibraryContext))]
-    partial class ObreshkovLibraryContextModelSnapshot : ModelSnapshot
+    [Migration("20260205100520_AddClientFields")]
+    partial class AddClientFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,9 +135,6 @@ namespace ObreshkovLibrary.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
-                    b.Property<int?>("Grade")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -151,9 +151,6 @@ namespace ObreshkovLibrary.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Section")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

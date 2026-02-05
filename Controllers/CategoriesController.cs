@@ -28,6 +28,7 @@ namespace ObreshkovLibrary.Controllers
             return View(await obreshkovLibraryContext.ToListAsync());
         }
 
+
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -78,7 +79,6 @@ namespace ObreshkovLibrary.Controllers
             "Name",
             category.ParentCategoryId);
 
-            // ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
             return View(category);
         }
 
@@ -198,6 +198,71 @@ namespace ObreshkovLibrary.Controllers
             return _context.Categories
                 .IgnoreQueryFilters()
                 .Any(e => e.Id == id);
+        }
+
+        [HttpGet]
+        public IActionResult CreatePath()
+        {
+            return View(new CategoryPathVM());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePath(CategoryPathVM vm)
+        {
+            vm.Level1 = (vm.Level1 ?? "").Trim();
+            vm.Level2 = string.IsNullOrWhiteSpace(vm.Level2) ? null : vm.Level2.Trim();
+            vm.Level3 = string.IsNullOrWhiteSpace(vm.Level3) ? null : vm.Level3.Trim();
+
+            if (vm.Level2 == null && vm.Level3 != null)
+                ModelState.AddModelError(nameof(vm.Level2), "Попълни Ниво 2, преди да попълниш Ниво 3.");
+
+            if (!ModelState.IsValid)
+                return View(vm);
+
+            var level1 = await FindOrCreateCategoryAsync(vm.Level1, parentId: null);
+
+            Category? level2 = null;
+            if (vm.Level2 != null)
+                level2 = await FindOrCreateCategoryAsync(vm.Level2, parentId: level1.Id);
+
+            if (vm.Level3 != null)
+            {
+                await FindOrCreateCategoryAsync(vm.Level3, parentId: level2!.Id);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+        private async Task<Category> FindOrCreateCategoryAsync(string name, int? parentId)
+        {
+            var existing = await _context.Categories
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c =>
+                    c.ParentCategoryId == parentId &&
+                    c.Name.ToLower() == name.ToLower());
+
+            if (existing != null)
+            {
+                if (!existing.IsActive)
+                {
+                    existing.IsActive = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                return existing;
+            }
+
+            var category = new Category
+            {
+                Name = name,
+                ParentCategoryId = parentId,
+                IsActive = true
+            };
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return category;
         }
 
     }

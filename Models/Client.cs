@@ -9,14 +9,14 @@ namespace ObreshkovLibrary.Models
         [Required, StringLength(40)]
         public string FirstName { get; set; } = string.Empty;
 
+        [StringLength(50)]
+        public string? MiddleName { get; set; }
+
         [Required, StringLength(40)]
         public string LastName { get; set; } = string.Empty;
 
-        [Required, StringLength(120)]
-        public string Address { get; set; } = string.Empty;
-
         [Required, StringLength(20)]
-        public string Phone { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         [Required, StringLength(20)]
         public string CardNumber { get; set; } = string.Empty;
@@ -24,5 +24,7 @@ namespace ObreshkovLibrary.Models
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
         public bool IsActive { get; set; } = true;
+        public int? Grade { get; set; }  
+        public string? Section { get; set; } 
     }
 }

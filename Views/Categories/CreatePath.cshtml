@@ -1,0 +1,46 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.CategoryPathVM
+
+@{
+    ViewData["Title"] = "Създай категории (3 нива)";
+}
+
+<h1>Създай категории (3 нива)</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="CreatePath" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Level1" class="control-label"></label>
+                <input asp-for="Level1" class="form-control" />
+                <span asp-validation-for="Level1" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Level2" class="control-label"></label>
+                <input asp-for="Level2" class="form-control" />
+                <span asp-validation-for="Level2" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Level3" class="control-label"></label>
+                <input asp-for="Level3" class="form-control" />
+                <span asp-validation-for="Level3" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Запази" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Назад</a>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

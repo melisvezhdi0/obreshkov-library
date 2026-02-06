@@ -18,6 +18,11 @@
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="MiddleName" class="control-label">Презиме</label>
+                <input asp-for="MiddleName" class="form-control" />
+                <span asp-validation-for="MiddleName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="LastName" class="control-label"></label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
@@ -27,11 +32,31 @@
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
+            <div class="form-group">
+                <label asp-for="Grade" class="control-label">Клас</label>
+                <select asp-for="Grade" class="form-control">
+                    <option value="">-- Избери --</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+                <span asp-validation-for="Grade" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label asp-for="Section" class="control-label">Паралелка</label>
+                <select asp-for="Section" class="form-control">
+                    <option value="">-- Избери --</option>
+                    <option value="А">А</option>
+                    <option value="Б">Б</option>
+                    <option value="В">В</option>
+                    <option value="Г">Г</option>
+                </select>
+                <span asp-validation-for="Section" class="text-danger"></span>
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>

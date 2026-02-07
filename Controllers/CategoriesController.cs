@@ -24,8 +24,7 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var obreshkovLibraryContext = _context.Categories.Include(c => c.ParentCategory);
-            return View(await obreshkovLibraryContext.ToListAsync());
+            return View(await _context.Clients.ToListAsync());
         }
 
 

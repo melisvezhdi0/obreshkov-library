@@ -1,0 +1,54 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.LoanCreateVM
+
+@{
+    ViewData["Title"] = "Заемане на книга";
+}
+
+<h2>Заемане на книга</h2>
+
+<div class="mb-3">
+    <strong>Читател:</strong> @Model.ClientName
+    <span class="ms-3"><strong>№ карта:</strong> @Model.CardNumber</span>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="ClientId" />
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Заглавие (задължително)</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Author" class="form-label">Автор (по желание)</label>
+        <input asp-for="Author" class="form-control" />
+        <span asp-validation-for="Author" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Заеми книга</button>
+    <a asp-controller="Home"
+       asp-action="Index"
+       asp-route-cardNumber="@Model.CardNumber"
+       class="btn btn-secondary ms-2">
+        Назад
+    </a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

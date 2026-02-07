@@ -56,19 +56,22 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
         {
-            if (ModelState.IsValid)
-            {
-                client.CardNumber = await GenerateUniqueCardNumberAsync();
-                client.CreatedOn = DateTime.Now;
-                client.IsActive = true;
+            client.CardNumber = await GenerateUniqueCardNumberAsync();
+            client.CreatedOn = DateTime.Now;
+            client.IsActive = true;
 
-                _context.Add(client);
-                await _context.SaveChangesAsync();
+            ModelState.Clear();
+            TryValidateModel(client);
 
-                return RedirectToAction(nameof(Index));
-            }
-            return View(client);
+            if (!ModelState.IsValid)
+                return View(client);
+
+            _context.Add(client);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = client.Id });
         }
+
 
         // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)

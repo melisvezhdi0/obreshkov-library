@@ -1,0 +1,67 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.BookTitleCreateVM
+@using ObreshkovLibrary.Models
+
+@{
+    ViewData["Title"] = "Добави книга";
+    var categories = ViewData["Categories"] as List<Category> ?? new List<Category>();
+}
+
+<h2>Добави книга</h2>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label">Заглавие</label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Author" class="form-label">Автор</label>
+        <input asp-for="Author" class="form-control" />
+        <span asp-validation-for="Author" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Year" class="form-label">Година</label>
+        <input asp-for="Year" type="number" class="form-control" />
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Описание</label>
+        <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CoverUrl" class="form-label">Линк към корица (URL)</label>
+        <input asp-for="CoverUrl" class="form-control" placeholder="https://..." />
+        <span asp-validation-for="CoverUrl" class="text-danger"></span>
+        <div class="form-text">Може да оставиш празно.</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Категории (може повече от една)</label>
+        <select asp-for="CategoryIds" class="form-select" multiple size="8">
+            @foreach (var c in categories)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CategoryIds" class="text-danger"></span>
+        <div class="form-text">Задръж Ctrl за избор на няколко.</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Запази</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Назад</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace ObreshkovLibrary.Models
 {
@@ -13,20 +14,17 @@ namespace ObreshkovLibrary.Models
         [Required, StringLength(120)]
         public string Author { get; set; } = string.Empty;
 
-        public int? PublishYear { get; set; }
+        public int? Year { get; set; }
 
         [StringLength(1000)]
         public string? Description { get; set; }
-
-        [StringLength(200)]
-        public string? CoverImagePath { get; set; }
-
+        public string? CoverUrl { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
 
         public bool IsActive { get; set; } = true;
-
-        public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
+        public ICollection<BookTitleCategory> BookTitleCategories { get; set; } = new List<BookTitleCategory>();
+        public ICollection<BookCopy> BookCopies { get; set; } = new List<BookCopy>();
 
         [NotMapped]
         public int AvailableCopies { get; set; }

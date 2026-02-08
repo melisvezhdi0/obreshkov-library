@@ -14,6 +14,7 @@ namespace ObreshkovLibrary.Data
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
+        public DbSet<BookTitleCategory> BookTitleCategories { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +30,19 @@ namespace ObreshkovLibrary.Data
             modelBuilder.Entity<Client>()
                 .HasIndex(c => c.CardNumber)
                 .IsUnique();
+            modelBuilder.Entity<BookTitleCategory>()
+                .HasKey(x => new { x.BookTitleId, x.CategoryId });
+
+            modelBuilder.Entity<BookTitleCategory>()
+                .HasOne(x => x.BookTitle)
+                .WithMany(bt => bt.BookTitleCategories)
+                .HasForeignKey(x => x.BookTitleId);
+
+            modelBuilder.Entity<BookTitleCategory>()
+                .HasOne(x => x.Category)
+                .WithMany(c => c.BookTitleCategories)
+                .HasForeignKey(x => x.CategoryId);
+
 
             modelBuilder.Entity<Client>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<BookTitle>().HasQueryFilter(x => x.IsActive);

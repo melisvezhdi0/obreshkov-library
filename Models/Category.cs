@@ -13,9 +13,8 @@ namespace ObreshkovLibrary.Models
         [Display(Name = "Родителска категория")]
         public int? ParentCategoryId { get; set; }
         public Category? ParentCategory { get; set; }
-
+        public ICollection<BookTitleCategory> BookTitleCategories { get; set; } = new List<BookTitleCategory>();
         public ICollection<Category> Children { get; set; } = new List<Category>();
-
         public ICollection<BookTitle> BookTitles { get; set; } = new List<BookTitle>();
         public bool IsActive { get; set; } = true;
     }

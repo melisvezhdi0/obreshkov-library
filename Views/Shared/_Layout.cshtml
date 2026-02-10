@@ -8,34 +8,78 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ObreshkovLibrary.styles.css" asp-append-version="true" />
 </head>
+
 <body>
     <header>
+        <div class="mini-sidebar">
+            <button class="btn btn-link text-decoration-none fs-4"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#sidebarMenu"
+                    aria-controls="sidebarMenu">
+                ☰
+            </button>
+        </div>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ObreshkovLibrary</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Ученическа библиотека "Обрешков"</a>
             </div>
         </nav>
     </header>
+    <div class="offcanvas offcanvas-start"
+         tabindex="-1"
+         id="sidebarMenu"
+         aria-labelledby="sidebarMenuLabel">
+
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel">
+                Библиотека
+            </h5>
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <div class="list-group list-group-flush">
+
+                <a class="list-group-item list-group-item-action"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    Начало
+                </a>
+
+                <a class="list-group-item list-group-item-action"
+                   asp-controller="Clients"
+                   asp-action="Index">
+                    Читатели
+                </a>
+
+                <a class="list-group-item list-group-item-action"
+                   asp-controller="BookTitles"
+                   asp-action="Index">
+                    Книги
+                </a>
+
+                <a class="list-group-item list-group-item-action"
+                   asp-controller="Categories"
+                   asp-action="Index">
+                    Категории
+                </a>
+
+                <a class="list-group-item list-group-item-action"
+                   asp-controller="Loans"
+                   asp-action="Index">
+                    Заеми
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 - ObreshkovLibrary - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>

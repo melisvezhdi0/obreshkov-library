@@ -30,18 +30,21 @@ namespace ObreshkovLibrary.Data
             modelBuilder.Entity<Client>()
                 .HasIndex(c => c.CardNumber)
                 .IsUnique();
+
             modelBuilder.Entity<BookTitleCategory>()
-                .HasKey(x => new { x.BookTitleId, x.CategoryId });
+     .HasKey(x => new { x.BookTitleId, x.CategoryId });
 
             modelBuilder.Entity<BookTitleCategory>()
                 .HasOne(x => x.BookTitle)
                 .WithMany(bt => bt.BookTitleCategories)
-                .HasForeignKey(x => x.BookTitleId);
+                .HasForeignKey(x => x.BookTitleId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BookTitleCategory>()
                 .HasOne(x => x.Category)
                 .WithMany(c => c.BookTitleCategories)
-                .HasForeignKey(x => x.CategoryId);
+                .HasForeignKey(x => x.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
             modelBuilder.Entity<Client>().HasQueryFilter(x => x.IsActive);

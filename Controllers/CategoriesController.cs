@@ -24,9 +24,12 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Clients.ToListAsync());
-        }
+            var categories = await _context.Categories
+                .OrderBy(c => c.Name)
+                .ToListAsync();
 
+            return View(categories);
+        }
 
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)

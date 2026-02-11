@@ -1,9 +1,8 @@
 ﻿@model ObreshkovLibrary.Models.ViewModels.BookTitleCreateVM
-@using ObreshkovLibrary.Models
+
 
 @{
     ViewData["Title"] = "Добави книга";
-    var categories = ViewData["Categories"] as List<Category> ?? new List<Category>();
 }
 
 <h2>Добави книга</h2>
@@ -44,16 +43,31 @@
         <div class="form-text">Може да оставиш празно.</div>
     </div>
 
+    <hr />
+
     <div class="mb-3">
-        <label class="form-label">Категории (може повече от една)</label>
-        <select asp-for="CategoryIds" class="form-select" multiple size="8">
-            @foreach (var c in categories)
+        <label class="form-label">Главна категория</label>
+        <select id="level1" class="form-select">
+            <option value="">-- избери --</option>
+            @foreach (var c in Model.Level1Options)
             {
                 <option value="@c.Id">@c.Name</option>
             }
         </select>
-        <span asp-validation-for="CategoryIds" class="text-danger"></span>
-        <div class="form-text">Задръж Ctrl за избор на няколко.</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Подкатегория (тип)</label>
+        <select id="level2" class="form-select" disabled>
+            <option value="">-- избери --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Жанрове (отметки)</label>
+        <div id="level3Box" class="border rounded p-2 bg-light">
+            <small class="text-muted">Първо избери главна категория и подкатегория.</small>
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Запази</button>
@@ -61,6 +75,66 @@
 </form>
 
 @section Scripts {
+    <script>
+        async function loadChildren(parentId) {
+            const res = await fetch(`/Categories/GetChildren?parentId=${parentId}`);
+            return await res.json();
+        }
+
+        const level1 = document.getElementById('level1');
+        const level2 = document.getElementById('level2');
+        const box = document.getElementById('level3Box');
+
+        level1.addEventListener('change', async () => {
+            box.innerHTML = '<small class="text-muted">Избери подкатегория.</small>';
+            level2.innerHTML = '<option value="">-- избери --</option>';
+            level2.disabled = true;
+
+            if (!level1.value) return;
+
+            const children = await loadChildren(level1.value);
+            children.forEach(x => {
+                level2.innerHTML += `<option value="${x.id}">${x.name}</option>`;
+            });
+            level2.disabled = false;
+        });
+
+        level2.addEventListener('change', async () => {
+            box.innerHTML = '';
+
+            if (!level2.value) {
+                box.innerHTML = '<small class="text-muted">Избери подкатегория.</small>';
+                return;
+            }
+
+            const children = await loadChildren(level2.value);
+            if (children.length === 0) {
+                box.innerHTML = '<small class="text-muted">Няма жанрове за тази подкатегория.</small>';
+                return;
+            }
+
+            children.forEach(x => {
+                box.innerHTML += `
+                <div class="form-check">
+                    <input class="form-check-input genre" type="checkbox" value="${x.id}" id="g${x.id}">
+                    <label class="form-check-label" for="g${x.id}">${x.name}</label>
+                </div>`;
+            });
+        });
+
+        document.querySelector('form').addEventListener('submit', () => {
+            document.querySelectorAll('input[name="SelectedCategoryIds"]').forEach(x => x.remove());
+
+            document.querySelectorAll('.genre:checked').forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedCategoryIds';
+                input.value = cb.value;
+                document.querySelector('form').appendChild(input);
+            });
+        });
+    </script>
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

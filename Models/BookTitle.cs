@@ -19,9 +19,6 @@ namespace ObreshkovLibrary.Models
         [StringLength(1000)]
         public string? Description { get; set; }
         public string? CoverUrl { get; set; }
-        public int CategoryId { get; set; }
-        public Category Category { get; set; } = null!;
-
         public bool IsActive { get; set; } = true;
         public ICollection<BookTitleCategory> BookTitleCategories { get; set; } = new List<BookTitleCategory>();
         public ICollection<BookCopy> BookCopies { get; set; } = new List<BookCopy>();

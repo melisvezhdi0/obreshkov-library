@@ -4,6 +4,7 @@ using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 
+
 namespace ObreshkovLibrary.Controllers
 {
     public class BookTitlesController : Controller
@@ -29,11 +30,15 @@ namespace ObreshkovLibrary.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["Categories"] = await _context.Categories
-                .OrderBy(c => c.Name)
-                .ToListAsync();
+            var vm = new BookTitleCreateVM
+            {
+                Level1Options = await _context.Categories
+                    .Where(c => c.ParentCategoryId == null && c.IsActive)
+                    .OrderBy(c => c.Name)
+                    .ToListAsync()
+            };
 
-            return View(new BookTitleCreateVM());
+            return View(vm);
         }
 
         [HttpPost]
@@ -59,14 +64,6 @@ namespace ObreshkovLibrary.Controllers
                 CoverUrl = vm.CoverUrl,
                 IsActive = true
             };
-
-            foreach (var catId in vm.CategoryIds.Distinct())
-            {
-                book.BookTitleCategories.Add(new BookTitleCategory
-                {
-                    CategoryId = catId
-                });
-            }
 
             _context.BookTitles.Add(book);
             await _context.SaveChangesAsync();

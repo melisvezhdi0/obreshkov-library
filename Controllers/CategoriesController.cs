@@ -168,9 +168,9 @@ namespace ObreshkovLibrary.Controllers
             if (category == null)
                 return NotFound();
 
-            bool hasActiveBooks = await _context.BookTitles
-                .IgnoreQueryFilters()
-                .AnyAsync(b => b.CategoryId == id && b.IsActive);
+            bool hasActiveBooks = await _context.BookTitleCategories
+            .AnyAsync(x => x.CategoryId == id && x.BookTitle.IsActive);
+
 
             if (hasActiveBooks)
             {
@@ -267,5 +267,16 @@ namespace ObreshkovLibrary.Controllers
             return category;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetChildren(int parentId)
+        {
+            var items = await _context.Categories
+                .Where(c => c.ParentCategoryId == parentId && c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new { c.Id, c.Name })
+                .ToListAsync();
+
+            return Json(items);
+        }
     }
 }

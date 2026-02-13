@@ -17,5 +17,17 @@ namespace ObreshkovLibrary.Models.ViewModels
         public List<int> SelectedCategoryIds { get; set; } = new();
 
         public List<Category> Level1Options { get; set; } = new();
+
+        public string? CardNumber { get; set; }
+        public string? ErrorMessage { get; set; }
+
+        public List<Loan> LatestLoans { get; set; } = new();
+        public int DueTodayCount { get; set; }
+        public List<Loan> DueTodayLoans { get; set; } = new();
+
+        public int OverdueCount { get; set; }
+        public List<Loan> OverdueLoans { get; set; } = new();
+
+        public List<BookTitle> LatestBookTitles { get; set; } = new();
     }
 }

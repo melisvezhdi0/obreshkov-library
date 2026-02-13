@@ -26,6 +26,17 @@ namespace ObreshkovLibrary.Controllers
 
             return View(books);
         }
+        public IActionResult Details(int id)
+        {
+            var bookTitle = _context.BookTitles
+                .FirstOrDefault(b => b.Id == id);
+
+            if (bookTitle == null)
+                return NotFound();
+
+            return View(bookTitle);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> Create()

@@ -1,72 +1,100 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ObreshkovLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models.ViewModels;
-
 
 namespace ObreshkovLibrary.Controllers
 {
     public class HomeController : Controller
     {
-        public async Task<IActionResult> Index(string? cardNumber)
+        private readonly ObreshkovLibraryContext _context;
+
+        public HomeController(ObreshkovLibraryContext context)
         {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var today = DateTime.Today;
+
             var vm = new HomeDashboardVM();
 
+            // Последни заемания (8)
+            vm.LatestLoans = await _context.Loans
+                .Include(l => l.Client)
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc.BookTitle)
+                .OrderByDescending(l => l.LoanDate)
+                .Take(8)
+                .ToListAsync();
+
+            // За връщане днес (активни)
+            vm.DueTodayLoans = await _context.Loans
+                .Where(l => l.ReturnDate == null && l.DueDate.Date == today)
+                .Include(l => l.Client)
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc.BookTitle)
+                .OrderBy(l => l.DueDate)
+                .Take(50)
+                .ToListAsync();
+            vm.DueTodayCount = vm.DueTodayLoans.Count;
+
+            // Просрочени (активни)
+            vm.OverdueLoans = await _context.Loans
+                .Where(l => l.ReturnDate == null && l.DueDate.Date < today)
+                .Include(l => l.Client)
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc.BookTitle)
+                .OrderBy(l => l.DueDate)
+                .Take(50)
+                .ToListAsync();
+            vm.OverdueCount = vm.OverdueLoans.Count;
+
+            // Последно добавени книги
+            vm.LatestBookTitles = await _context.BookTitles
+                .OrderByDescending(b => b.Id)
+                .Take(4)
+                .ToListAsync();
+
+            return View(vm);
+        }
+        public IActionResult Details(int id)
+        {
+            var book = _context.BookTitles
+                .FirstOrDefault(b => b.Id == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return View(book);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SearchByCardNumber(string cardNumber)
+        {
             if (string.IsNullOrWhiteSpace(cardNumber))
-                return View(vm);
+            {
+                TempData["HomeError"] = "Моля въведи номер на карта.";
+                return RedirectToAction(nameof(Index));
+            }
 
             cardNumber = cardNumber.Trim();
-            vm.CardNumber = cardNumber;
 
             var client = await _context.Clients
                 .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);
 
             if (client == null)
             {
-                vm.ErrorMessage = "Няма читател с такъв номер на карта.";
-                return View(vm);
+                TempData["HomeError"] = "Няма читател с такъв номер на карта.";
+                return RedirectToAction(nameof(Index));
             }
 
-            vm.Client = client;
-
-            vm.ActiveLoans = await _context.Loans
-                .Where(l => l.ClientId == client.Id && l.ReturnDate == null)
-                .Include(l => l.BookCopy)
-                    .ThenInclude(bc => bc.BookTitle)
-                .OrderByDescending(l => l.LoanDate)
-                .ToListAsync();
-
-            return View(vm);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SearchByCardNumber(string cardNumber)
-        {
-            return RedirectToAction(nameof(Index), new { cardNumber });
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        private readonly ILogger<HomeController> _logger;
-        private readonly ObreshkovLibraryContext _context;
-
-        public HomeController(ILogger<HomeController> logger, ObreshkovLibraryContext context)
-        {
-            _logger = logger;
-            _context = context;
-        }
-
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return RedirectToAction("Details", "Clients", new { id = client.Id });
         }
     }
 }

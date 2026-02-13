@@ -4,91 +4,213 @@
     ViewData["Title"] = "Начало";
 }
 
-<h2>Админ панел</h2>
+<div class="home-wrap">
+    <div class="d-flex align-items-end justify-content-center flex-wrap gap-3 mb-3">
+        <div>
+            <h2 class="section-title mb-1">Начало</h2>
+            <div class="accent-line"></div>
+        </div>
 
-<form asp-action="SearchByCardNumber" method="post" class="mb-3">
-    @Html.AntiForgeryToken()
+        <form asp-controller="Home"
+              asp-action="SearchByCardNumber"
+              method="post"
+              class="dashboard-search">
 
-    <div class="input-group" style="max-width: 420px;">
-        <input name="cardNumber" value="@Model.CardNumber" class="form-control" placeholder="Номер на карта (само цифри)" />
-        <button class="btn btn-primary" type="submit">Търси</button>
-    </div>
-</form>
+            @Html.AntiForgeryToken()
 
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
-}
+            <div class="input-group">
+                <input type="text"
+                       name="cardNumber"
+                       class="form-control"
+                       placeholder="Номер на карта (само цифри)"
+                       inputmode="numeric"
+                       pattern="[0-9]*" />
 
-@if (Model.Client != null)
-{
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">
-                @($"{Model.Client.FirstName} {Model.Client.MiddleName} {Model.Client.LastName}".Replace("  ", " ").Trim())
-            </h5>
-
-            <div class="mb-2">
-                <strong>Клас:</strong> @Model.Client.Grade@Model.Client.Section
-                <span class="ms-3"><strong>№ карта:</strong> @Model.Client.CardNumber</span>
+                <button type="submit" class="btn btn-accent">
+                    Търси
+                </button>
             </div>
+        </form>
+    </div>
 
-            @if (Model.ActiveLoans.Any())
-            {
-                <div class="alert alert-warning mb-2">
-                    Има @Model.ActiveLoans.Count книга/книги за връщане.
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-success mb-2">
-                    Няма книги за връщане.
-                </div>
-            }
+    @if (TempData["HomeError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["HomeError"]</div>
+    }
 
-            <a class="btn btn-success"
-               asp-controller="Loans"
-               asp-action="Create"
-               asp-route-clientId="@Model.Client.Id">
-                Заеми книга
-            </a>
+    <div class="row g-3">
+        <!-- Последни заемания -->
+        <div class="col-lg-8">
+            <div class="card-soft card-loans p-3 h-100">
+                <h5 class="section-title mb-2">Последни заемания</h5>
+
+                @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
+                {
+                    <div class="text-muted">Няма записи.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>Книга</th>
+                                    <th>Заета на</th>
+                                    <th>Срок</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.LatestLoans)
+                                {
+                                    <tr>
+                                        <td>
+                                            @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())
+                                            <div class="text-muted small">№ @l.Client?.CardNumber</div>
+                                        </td>
+                                        <td>@l.BookCopy?.BookTitle?.Title</td>
+                                        <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- броячи -->
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-3">
+
+                <div class="card-soft card-due p-3">
+                    <div class="section-title mb-1">Книги за връщане днес</div>
+                    <button type="button" class="count-card" data-bs-toggle="modal" data-bs-target="#dueTodayModal"
+                            style="background:transparent;border:none;text-align:left;width:100%;padding:0;">
+                        <span class="count-number">@Model.DueTodayCount</span>
+                        <span class="count-hint d-block">Виж списъка</span>
+                    </button>
+                </div>
+
+                <div class="card-soft card-overdue p-3">
+                    <div class="section-title mb-1">Просрочени книги</div>
+                    <button type="button" class="count-card" data-bs-toggle="modal" data-bs-target="#overdueModal"
+                            style="background:transparent;border:none;text-align:left;width:100%;padding:0;">
+                        <span class="count-number">@Model.OverdueCount</span>
+                        <span class="count-hint d-block">Виж списъка</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- последно добавени книги -->
+        <div class="col-12">
+            <div class="card-soft card-books p-3">
+                <h5 class="section-title mb-2">Последно добавени книги</h5>
+
+                @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
+                {
+                    <div class="text-muted">Няма книги.</div>
+                }
+                else
+                {
+                    <div class="row g-3 justify-content-center">
+                        @foreach (var b in Model.LatestBookTitles)
+                        {
+                            <div class="col-6 col-md-3">
+                                <a class="text-decoration-none"
+                                   style="color:#0F3D3E;font-weight:600;"
+                                   href="@Url.Action("Details", "BookTitles", new { id = b.Id })">
+                                    <div class="book-thumb">
+                                        <img src="@b.CoverUrl"
+                                             alt="@b.Title"
+                                             class="book-cover"
+                                             onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                                    </div>
+                                    <div class="mt-2 text-center">@b.Title</div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         </div>
     </div>
+</div>
 
-    <h4>Активни заеми</h4>
-
-    @if (!Model.ActiveLoans.Any())
-    {
-        <p>Няма активни заеми.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Книга</th>
-                    <th>Автор</th>
-                    <th>Дата на заемане</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var loan in Model.ActiveLoans)
+<div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content card-soft card-due">
+            <div class="modal-header">
+                <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
                 {
-                    <tr>
-                        <td>@loan.BookCopy.BookTitle.Title</td>
-                        <td>@loan.BookCopy.BookTitle.Author</td>
-                        <td>@loan.LoanDate.ToString("dd.MM.yyyy")</td>
-                        <td>
-                            <a asp-controller="Loans"
-                               asp-action="Return"
-                               asp-route-id="@loan.Id">
-                                Върни
-                            </a>
-                        </td>
-                    </tr>
+                    <div class="text-muted">Няма книги за връщане днес.</div>
                 }
-            </tbody>
-        </table>
-    }
-}
+                else
+                {
+                    <ul class="list-group">
+                        @foreach (var l in Model.DueTodayLoans)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">@l.BookCopy?.BookTitle?.Title</div>
+                                    <div class="text-muted small">
+                                        @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
+                                    </div>
+                                </div>
+                                <a class="link-accent"
+                                   asp-controller="Loans"
+                                   asp-action="Return"
+                                   asp-route-id="@l.Id">Отвори</a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content card-soft card-overdue">
+            <div class="modal-header">
+                <h5 class="modal-title">Просрочени книги (@Model.OverdueCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
+                {
+                    <div class="text-muted">Няма просрочени.</div>
+                }
+                else
+                {
+                    <ul class="list-group">
+                        @foreach (var l in Model.OverdueLoans)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">@l.BookCopy?.BookTitle?.Title</div>
+                                    <div class="text-muted small">
+                                        @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
+                                        • срок: @l.DueDate.ToString("dd.MM.yyyy")
+                                    </div>
+                                </div>
+                                <a class="link-accent"
+                                   asp-controller="Loans"
+                                   asp-action="Return"
+                                   asp-route-id="@l.Id">Отвори</a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>

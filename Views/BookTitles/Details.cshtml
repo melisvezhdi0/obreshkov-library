@@ -1,0 +1,50 @@
+﻿@model ObreshkovLibrary.Models.BookTitle
+
+@{
+    ViewData["Title"] = "Детайли за книга";
+}
+
+<div class="card-soft card-books p-4">
+    <h3 class="section-title mb-2">@Model.Title</h3>
+    <div class="accent-line mb-3"></div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="book-thumb">
+                <img src="@Model.CoverUrl"
+                     alt="@Model.Title"
+                     onerror="this.style.display='none';"
+                     style="max-width:100%;max-height:100%;" />
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <p><strong>Заглавие:</strong> @Model.Title</p>
+
+            @if (!string.IsNullOrEmpty(Model.Author))
+            {
+                <p><strong>Автор:</strong> @Model.Author</p>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p><strong>Описание:</strong><br />@Model.Description</p>
+            }
+
+            <div class="mt-3">
+                <a asp-controller="BookTitles"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-accent me-2">
+                    Редактирай
+                </a>
+
+                <a asp-controller="BookTitles"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Назад
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

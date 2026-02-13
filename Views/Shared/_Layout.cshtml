@@ -8,110 +8,323 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ObreshkovLibrary.styles.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --bg: #F6F7F3;
+            --ink: #0B3B3C;
+            --turq: #0FA3A9;
+            --orange: #F28C28;
+
+            --lemon: #FFF3C4;
+            --orangeSoft: #FFE1C6;
+            --lime: #E9F5E1;
+            --aqua: #E3F6F5;
+
+            --card: #FFFFFF;
+            --line: rgba(0,0,0,.08);
+            --shadow: 0 10px 22px rgba(0,0,0,.08);
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--ink);
+        }
+
+        main {
+            flex: 1 0 auto;
+            padding-bottom: 24px;
+        }
+
+        footer {
+            flex-shrink: 0;
+            position: static !important;
+            margin-top: 24px;
+        }
+
+        .navbar.app-navbar {
+            background: var(--card) !important;
+            border-bottom: 1px solid var(--line) !important;
+        }
+
+            .navbar.app-navbar .navbar-brand {
+                color: var(--turq) !important;
+                font-weight: 800;
+                letter-spacing: .2px;
+            }
+
+            .navbar.app-navbar .nav-link {
+                color: var(--ink) !important;
+                font-weight: 650;
+                position: relative;
+                display: inline-block;
+                padding: .5rem .75rem;
+            }
+
+                .navbar.app-navbar .nav-link::before {
+                    content: "";
+                    position: absolute;
+                    left: .75rem;
+                    right: .75rem;
+                    bottom: .15rem;
+                    height: 2px;
+                    background: var(--orange);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform .2s ease;
+                }
+
+                .navbar.app-navbar .nav-link:hover::before,
+                .navbar.app-navbar .nav-link:focus::before {
+                    transform: scaleX(1);
+                }
+
+            .navbar.app-navbar .dropdown-toggle::after {
+                display: none !important;
+            }
+
+            .navbar.app-navbar .dropdown-menu {
+                background: #FFFDF8;
+                border-radius: 14px;
+                padding: .35rem;
+                border: 1px solid var(--line);
+            }
+
+            .navbar.app-navbar .dropdown-item {
+                border-radius: 10px;
+                font-weight: 550;
+                color: var(--ink);
+                padding: .45rem .65rem;
+            }
+
+                .navbar.app-navbar .dropdown-item:hover,
+                .navbar.app-navbar .dropdown-item:focus {
+                    background: var(--orangeSoft);
+                    color: var(--ink);
+                }
+
+        @@media (hover:hover) and (pointer:fine) {
+            .navbar .nav-item.dropdown:hover > .dropdown-menu {
+                display: block;
+                margin-top: 0;
+            }
+        }
+
+        .card-soft {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,.06);
+        }
+
+        .card-loans {
+            border-left: 6px solid rgba(15,163,169,.35);
+        }
+        .card-books {
+            border-left: 6px solid rgba(242,140,40,.35);
+        }
+        .card-due {
+            border-left: 6px solid rgba(255, 201, 74,.45);
+        }
+        .card-overdue {
+            border-left: 6px solid rgba(95, 184, 104,.35);
+        }
+
+        .section-title {
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .accent-line {
+            width: 56px;
+            height: 3px;
+            border-radius: 2px;
+            background: var(--orange);
+        }
+
+        .dashboard-search .form-control {
+            background: var(--lemon);
+            border: 1px solid rgba(242,140,40,.45);
+        }
+
+            .dashboard-search .form-control:focus {
+                box-shadow: 0 0 0 .2rem rgba(242,140,40,.18);
+            }
+
+        input.form-control, select.form-select, textarea.form-control {
+            background: var(--aqua);
+            border: 1px solid rgba(15,163,169,.35);
+        }
+
+            input.form-control:focus, select.form-select:focus, textarea.form-control:focus {
+                box-shadow: 0 0 0 .2rem rgba(15,163,169,.18);
+            }
+
+        .btn-accent {
+            background: var(--orange);
+            color: #fff;
+            border: none;
+            font-weight: 750;
+        }
+
+            .btn-accent:hover {
+                filter: brightness(.95);
+                color: #fff;
+            }
+
+        .count-number {
+            color: var(--turq);
+            font-weight: 900;
+            font-size: 2rem;
+        }
+
+        .count-hint {
+            color: var(--orange);
+            font-weight: 750;
+            font-size: .9rem;
+        }
+
+        .book-thumb {
+            height: 160px;
+            background: var(--lime);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .link-accent {
+            color: var(--orange);
+            text-decoration: none;
+            font-weight: 750;
+        }
+
+            .link-accent:hover {
+                text-decoration: underline;
+            }
+
+        .dashboard-search {
+            margin: 0 auto; 
+            width: 100%;
+            max-width: 720px;
+        }
+
+            .dashboard-search .input-group {
+                width: 100%;
+            }
+
+            .dashboard-search .form-control {
+                flex: 1 1 auto;
+            }
+
+    </style>
+
 </head>
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom w-100">
-            <div class="container-fluid px-0">
-                <div class="d-flex align-items-center px-3 w-100">
-                    <a class="navbar-brand fw-semibold"
-                       asp-controller="Home"
-                       asp-action="Index">
-                        Ученическа библиотека „Обрешков“
-                    </a>
+        <nav class="navbar navbar-expand-lg app-navbar">
+            <div class="container">
 
-                    <button class="navbar-toggler ms-auto"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#mainNavbar"
-                            aria-controls="mainNavbar"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                <a class="navbar-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+                    Ученическа библиотека „Обрешков“
+                </a>
 
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="Home"
-                                   asp-action="Index">
-                                    Начало
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle"
-                                   href="#"
-                                   role="button"
-                                   data-bs-toggle="dropdown"
-                                   aria-expanded="false">
-                                    Читатели
-                                </a>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Clients"
-                                           asp-action="Create">
-                                            Регистриране
-                                        </a>
-                                    </li>
+                <div class="collapse navbar-collapse justify-content-center" id="mainNavbar">
+                    <ul class="navbar-nav">
 
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Clients"
-                                           asp-action="Index">
-                                            Списък / Редактиране
-                                        </a>
-                                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Начало
+                            </a>
+                        </li>
 
-                                    <li>
-                                        <a class="dropdown-item"
-                                           asp-controller="Clients"
-                                           asp-action="Index">
-                                            Деактивиране
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="BookTitles"
-                                   asp-action="Index">
-                                    Книги
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="Categories"
-                                   asp-action="Index">
-                                    Категории
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="Loans"
-                                   asp-action="Index">
-                                    Заеми
-                                </a>
-                            </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Читатели
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Clients" asp-action="Index">Всички читатели</a></li>
+                                <li><a class="dropdown-item" asp-controller="Clients" asp-action="Create">Регистриране</a></li>
+                                <li><a class="dropdown-item" asp-controller="Clients" asp-action="Index">Редактиране</a></li>
+                            </ul>
+                        </li>
 
-                        </ul>
-                    </div>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Книги
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="BookTitles" asp-action="Index">Всички книги</a></li>
+                                <li><a class="dropdown-item" asp-controller="BookTitles" asp-action="Create">Добавяне</a></li>
+                                <li><a class="dropdown-item" asp-controller="BookTitles" asp-action="Index">Редактиране</a></li>
+                            </ul>
+                        </li>
 
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                Категории
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Всички категории</a></li>
+                                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Create">Добавяне</a></li>
+                                <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Редактиране</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
                 </div>
+
             </div>
         </nav>
     </header>
+
     <div class="container mt-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-muted mt-4">
+
+    <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 – ObreshkovLibrary
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

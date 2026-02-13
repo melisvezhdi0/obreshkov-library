@@ -18,8 +18,6 @@ namespace ObreshkovLibrary.Models
         [Required, StringLength(20)]
         public string PhoneNumber { get; set; } = string.Empty;
 
-
-
         [Required, StringLength(20)]
         public string CardNumber { get; set; } = string.Empty;
 

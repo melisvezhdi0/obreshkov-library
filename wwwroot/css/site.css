@@ -1,45 +1,137 @@
-html {
-  font-size: 14px;
+﻿.navbar .nav-link {
+    position: relative;
+}
+body {
+    background-color: #F6F7F3;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    .navbar .nav-link::before {
+        content: "";
+        position: absolute;
+        left: .75rem;
+        right: .75rem;
+        bottom: .15rem;
+        height: 2px;
+        background-color: #F08A24;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform .2s ease;
+    }
+
+    .navbar .nav-link:hover::before,
+    .navbar .nav-link:focus::before {
+        transform: scaleX(1);
+    }
+
+
+.navbar .dropdown-toggle::after {
+    display: none !important;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+.navbar .nav-item.dropdown:hover > .dropdown-menu {
+    display: block;
+    margin-top: 0;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+.navbar .dropdown-toggle {
+    cursor: pointer;
 }
 
 body {
-  margin-bottom: 60px;
+    background: #F6F7F3;
 }
 
-body {
-    min-width: 1200px;
+.card-soft {
+    border-radius: 18px;
+    padding: 1rem;
+    box-shadow: 0 10px 22px rgba(0,0,0,.08);
+    border: 1px solid rgba(0,0,0,.06);
 }
 
-.mini-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 48px;
-    height: 100vh;
-    background-color: #f8f9fa;
-    border-right: 1px solid #dee2e6;
+/* Последни заемания */
+.card-loans {
+    background-color: #FFF3C4;
+    border-left: 8px solid #FFD23F;
+}
+
+/* Последно добавени книги */
+.card-books {
+    background-color: #E3F6F5;
+    border-left: 8px solid #00A7B3;
+}
+
+/* Броячи (днес) */
+.card-due {
+    background-color: #FFE1C6;
+    border-left: 8px solid #FF8A1F;
+}
+
+/* Просрочени */
+.card-overdue {
+    background-color: #E9F5E1;
+    border-left: 8px solid #6BCF95;
+}
+
+.section-title {
+    font-weight: 800;
+    color: #073638;
+}
+
+.accent-line {
+    width: 56px;
+    height: 3px;
+    border-radius: 2px;
+    background: #FF8A1F;
+}
+
+.btn-accent {
+    background-color: #FF8A1F;
+    color: #fff;
+    font-weight: 700;
+    border: none;
+}
+
+    .btn-accent:hover {
+        filter: brightness(.95);
+    }
+
+.count-number {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #073638;
+}
+
+.count-hint {
+    color: #FF8A1F;
+    font-weight: 700;
+}
+
+.book-thumb {
+    height: 160px;
+    background-color: #DFF6EA;
+    border-radius: 14px;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 10px;
-    z-index: 1030; 
+}
+.book-thumb {
+    width: 100%;
+    height: 180px;
+    border-radius: 14px;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(0,0,0,.08);
+    background: #E3F6F5;
 }
 
-body {
-    padding-left: 48px;
-}
+    .book-thumb img.book-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center;
+        padding: 10px;
+    }

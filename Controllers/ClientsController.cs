@@ -28,20 +28,25 @@ namespace ObreshkovLibrary.Controllers
         // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var client = await _context.Clients
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (client == null)
-            {
-                return NotFound();
-            }
+
+            if (client == null) return NotFound();
+
+            var activeLoans = await _context.Loans
+                .Where(l => l.ClientId == client.Id && l.ReturnDate == null)
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc.BookTitle)
+                .OrderByDescending(l => l.LoanDate)
+                .ToListAsync();
+
+            ViewBag.ActiveLoans = activeLoans;
 
             return View(client);
         }
+
 
         // GET: Clients/Create
         public IActionResult Create()

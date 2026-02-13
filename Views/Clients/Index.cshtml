@@ -2,48 +2,237 @@
 
 @{
     ViewData["Title"] = "Читатели";
+
+    string searchValue = (ViewBag.Search ?? "").ToString();
+    string classValue = (ViewBag.ClassFilter ?? "").ToString();
+    bool hasFilters = !string.IsNullOrWhiteSpace(searchValue) || !string.IsNullOrWhiteSpace(classValue);
+
+    var classes = Model
+        .Select(c => $"{c.Grade}{c.Section}".Replace(" ", "").ToUpper())
+        .Where(x => !string.IsNullOrWhiteSpace(x))
+        .Distinct()
+        .OrderBy(x => x.Length)
+        .ThenBy(x => x)
+        .ToList();
+
+    bool noResults = (Model == null || !Model.Any()) && hasFilters;
 }
 
-<h1>Читатели</h1>
+<div style="padding-top:6px;">
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Добави читател</a>
-</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <h1 style="color:#0F766E;font-weight:900;margin-bottom:6px;">Читатели</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Име</th>
-            <th>Телефон</th>
-            <th>Клас</th>
-            <th>№ карта</th>
-            <th>Регистриран</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @(($"{item.FirstName} {item.MiddleName} {item.LastName}")
-                                    .Replace("  ", " ")
-                                    .Trim())
-            </td>
+            <a asp-action="Create"
+               style="background:#0F766E;color:#fff;padding:10px 16px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                Добави читател
+            </a>
 
-                <td>@item.PhoneNumber</td>
+            @if (hasFilters)
+            {
+                <div style="margin-top:10px;">
+                    <span style="display:inline-flex;gap:8px;align-items:center;background:#E6FFFA;color:#0F766E;padding:8px 12px;border-radius:999px;font-weight:900;border:1px solid rgba(0,0,0,.08);">
+                        Активни филтри:
+                        @if (!string.IsNullOrWhiteSpace(classValue))
+                        {
+                            <span style="background:#FFF3C4;padding:3px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.08);">Клас: @classValue</span>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(searchValue))
+                        {
+                            <span style="background:#FFF3C4;padding:3px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.08);">Търси: @searchValue</span>
+                        }
 
-                <td>@item.Grade@item.Section</td>
+                        <a asp-action="Index"
+                           style="margin-left:6px;background:#FB923C;color:#fff;padding:4px 10px;border-radius:999px;text-decoration:none;font-weight:900;">
+                            Изчисти
+                        </a>
+                    </span>
+                </div>
+            }
+        </div>
 
-                <td>@item.CardNumber</td>
+        <form id="clientsFilterForm" method="get" asp-action="Index"
+              style="min-width:320px;max-width:720px;width:100%;">
 
-                <td>@item.CreatedOn.ToString("dd.MM.yyyy")</td>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
 
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Редакция</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Детайли</a>
-                </td>
-            </tr>
-                }
-    </tbody>
-</table>
+                <!-- Клас dropdown  -->
+                <div class="dropdown" id="classDropdownWrap" style="position:relative;">
+
+                    <input id="classFilter"
+                           name="classFilter"
+                           value="@classValue"
+                           placeholder="Клас"
+                           autocomplete="off"
+                           style="width:140px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.12);outline:none;background:white;font-weight:900;color:#0F766E;box-shadow:0 6px 14px rgba(0,0,0,.06);" />
+
+                    <div id="classMenu"
+                         style="position:absolute;top:46px;left:0;width:140px;background:white;border-radius:12px;border:1px solid rgba(0,0,0,.10);box-shadow:0 14px 30px rgba(0,0,0,.12);padding:6px;display:none;max-height:260px;overflow:auto;z-index:9999;">
+
+                        @if (classes.Count == 0)
+                        {
+                            <div style="padding:9px 10px;color:#64748B;font-weight:800;">Няма класове</div>
+                        }
+                        else
+                        {
+                            @foreach (var cls in classes)
+                            {
+                                <button type="button"
+                                        class="class-item"
+                                        data-value="@cls"
+                                        style="width:100%;text-align:left;background:transparent;border:none;padding:9px 10px;border-radius:10px;font-weight:900;color:#0F766E;"
+                                        onmouseover="this.style.background='#E6FFFA';"
+                                        onmouseout="this.style.background='transparent';">
+                                    @cls
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Търсене -->
+                <input id="searchBox"
+                       name="search"
+                       value="@searchValue"
+                       placeholder="Търси име, телефон или № карта…"
+                       style="flex:1;min-width:260px;padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.12);outline:none;box-shadow:0 6px 14px rgba(0,0,0,.06);" />
+
+                <button type="submit"
+                        style="background:#FB923C;color:white;border:none;padding:10px 14px;border-radius:12px;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.10);white-space:nowrap;">
+                    Търси
+                </button>
+
+                <a asp-action="Index"
+                   style="background:#FFF3C4;color:#0F766E;border:1px solid rgba(0,0,0,.10);padding:10px 12px;border-radius:12px;font-weight:900;text-decoration:none;white-space:nowrap;">
+                    Изчисти
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Empty state при липса на резултати -->
+    @if (noResults)
+    {
+        <div style="
+                margin-top:18px;
+                background:#fff;
+                border-radius:18px;
+                padding:16px 18px;
+                box-shadow:0 10px 25px rgba(0,0,0,0.08);
+                border:1px solid rgba(0,0,0,0.06);
+            ">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+                <div>
+                    <div style="font-weight:950;color:#0F766E;font-size:1.15rem;margin-bottom:4px;">
+                        Няма намерени данни
+                    </div>
+
+                    <div style="color:#64748B;font-weight:800;">
+                        @if (!string.IsNullOrWhiteSpace(classValue) && !string.IsNullOrWhiteSpace(searchValue))
+                        {
+                            <span>по клас <span style="color:#0F766E;">@classValue</span> и търсене <span style="color:#0F766E;">@searchValue</span>.</span>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(classValue))
+                        {
+                            <span>по клас <span style="color:#0F766E;">@classValue</span>.</span>
+                        }
+                        else if (!string.IsNullOrWhiteSpace(searchValue))
+                        {
+                            <span>по търсене <span style="color:#0F766E;">@searchValue</span>.</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="margin-top:18px;background:#fff;border-radius:18px;padding:10px;box-shadow:0 10px 25px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.06);">
+            <div class="table-responsive">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead style="background:#E6FFFA;">
+                        <tr>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Клас</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Име</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Телефон</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">№ карта</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Регистриран</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;text-align:right;">Действия</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr role="button"
+                                tabindex="0"
+                                onclick="window.location.href='@Url.Action("Details", "Clients", new { id = item.Id })';"
+                                onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "Clients", new { id = item.Id })'; }"
+                                onmouseover="this.style.background='#FFF3C4'; this.style.cursor='pointer';"
+                                onmouseout="this.style.background='transparent';"
+                                style="border-bottom:1px solid #eee;">
+
+                                <td style="padding:12px;">
+                                    <span style="background:#E3F6F5;color:#0F766E;padding:4px 10px;border-radius:999px;font-weight:900;display:inline-block;border:1px solid rgba(0,0,0,.06);">
+                                        @item.Grade@item.Section
+                                    </span>
+                                </td>
+
+                                <td style="padding:12px;">
+                                    @(($"{item.FirstName} {item.MiddleName} {item.LastName}")
+                                                                .Replace("  ", " ")
+                                                                .Trim())
+                        </td>
+
+                                <td style="padding:12px;">@item.PhoneNumber</td>
+                                <td style="padding:12px;">@item.CardNumber</td>
+                                <td style="padding:12px;">@item.CreatedOn.ToString("dd.MM.yyyy")</td>
+
+                                <td style="padding:12px;text-align:right;white-space:nowrap;">
+                                    <a asp-action="Edit" asp-route-id="@item.Id"
+                                       onclick="event.stopPropagation();"
+                                       style="color:#FB923C;font-weight:900;text-decoration:none;">
+                                        Редакция
+                                    </a>
+                                </td>
+                            </tr>
+                                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    (function () {
+        const form = document.getElementById('clientsFilterForm');
+        const wrap = document.getElementById('classDropdownWrap');
+        const input = document.getElementById('classFilter');
+        const menu = document.getElementById('classMenu');
+
+        const openMenu = () => { menu.style.display = 'block'; };
+        const closeMenu = () => { menu.style.display = 'none'; };
+
+        wrap.addEventListener('mouseenter', openMenu);
+        wrap.addEventListener('mouseleave', closeMenu);
+
+        input.addEventListener('focus', openMenu);
+        input.addEventListener('blur', () => setTimeout(closeMenu, 120));
+
+        document.querySelectorAll('.class-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                input.value = btn.getAttribute('data-value');
+                form.submit();
+            });
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                form.submit();
+            }
+        });
+    })();
+</script>

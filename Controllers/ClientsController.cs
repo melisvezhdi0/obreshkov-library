@@ -20,10 +20,53 @@ namespace ObreshkovLibrary.Controllers
         }
 
         // GET: Clients
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? search, string? classFilter)
         {
-           return View(await _context.Clients.ToListAsync());
+            var q = _context.Clients.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(classFilter))
+            {
+                var cf = classFilter.Trim().Replace(" ", "").ToUpper();
+
+                q = q.Where(c =>
+                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
+                        .ToUpper()
+                        .Replace(" ", ""))
+                    == cf
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                var sNoSpacesUpper = s.Replace(" ", "").ToUpper();
+
+                q = q.Where(c =>
+                    (c.FirstName ?? "").Contains(s) ||
+                    (c.MiddleName ?? "").Contains(s) ||
+                    (c.LastName ?? "").Contains(s) ||
+                    (c.PhoneNumber ?? "").Contains(s) ||
+                    (c.CardNumber ?? "").Contains(s) ||
+                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
+                        .ToUpper()
+                        .Replace(" ", ""))
+                        .Contains(sNoSpacesUpper)
+                );
+            }
+
+            var clients = await q
+                .OrderBy(c => c.Grade ?? int.MaxValue)
+                .ThenBy(c => c.Section ?? "")
+                .ThenBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .ToListAsync();
+
+            ViewBag.Search = search;
+            ViewBag.ClassFilter = classFilter;
+
+            return View(clients);
         }
+
 
         // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -47,7 +90,6 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-
         // GET: Clients/Create
         public IActionResult Create()
         {
@@ -55,8 +97,6 @@ namespace ObreshkovLibrary.Controllers
         }
 
         // POST: Clients/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
@@ -77,34 +117,26 @@ namespace ObreshkovLibrary.Controllers
             return RedirectToAction(nameof(Details), new { id = client.Id });
         }
 
-
         // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var client = await _context.Clients.FindAsync(id);
             if (client == null)
-            {
                 return NotFound();
-            }
+
             return View(client);
         }
 
         // POST: Clients/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
         {
             if (id != client.Id)
-            {
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
@@ -116,16 +148,13 @@ namespace ObreshkovLibrary.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!ClientExists(client.Id))
-                    {
                         return NotFound();
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             return View(client);
         }
 
@@ -133,16 +162,13 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var client = await _context.Clients
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (client == null)
-            {
                 return NotFound();
-            }
 
             return View(client);
         }
@@ -154,9 +180,7 @@ namespace ObreshkovLibrary.Controllers
         {
             var client = await _context.Clients.FindAsync(id);
             if (client != null)
-            {
                 _context.Clients.Remove(client);
-            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -183,6 +207,7 @@ namespace ObreshkovLibrary.Controllers
 
             throw new InvalidOperationException("Неуспешно генериране на уникален номер на карта.");
         }
+
         public async Task PromoteStudentsAsync()
         {
             var students = await _context.Clients
@@ -192,17 +217,12 @@ namespace ObreshkovLibrary.Controllers
             foreach (var student in students)
             {
                 if (student.Grade < 12)
-                {
                     student.Grade++;
-                }
                 else
-                {
                     student.IsActive = false;
-                }
             }
 
             await _context.SaveChangesAsync();
         }
-
     }
 }

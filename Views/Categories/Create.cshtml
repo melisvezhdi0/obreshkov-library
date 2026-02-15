@@ -1,40 +1,201 @@
 ﻿@model ObreshkovLibrary.Models.Category
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Създай категория";
 }
 
-<h1>Create</h1>
-
-<h4>Category</h4>
+<h1 style="color:#0F766E;font-weight:900;">Създай категория</h1>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="col-md-6">
+
+        <form asp-action="Create" method="post" style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ParentCategoryId" class="control-label">Родителска категория</label>
-                <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId">
-                    <option value="">(Няма)</option>
-                </select>
+
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="control-label" style="font-weight:900;color:#0F766E;"></label>
+                <input asp-for="Name" class="form-control" placeholder="Напр. Романи" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ParentCategoryId" class="control-label" style="font-weight:900;color:#0F766E;">Родителска категория</label>
+
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                    <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId" id="ParentCategoryId" style="max-width:360px;">
+                        <option value="">(Няма)</option>
+                    </select>
+
+                    <button type="button"
+                            class="btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#addCategoryModal"
+                            style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                        + Добави категория
+                    </button>
+                </div>
+
                 <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
+                <div style="margin-top:6px;color:#64748B;font-weight:700;">
+                    Избери родител, ако това е подкатегория.
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="ParentCategoryId" class="control-label"></label>
-                <select asp-for="ParentCategoryId" class ="form-control" asp-items="ViewBag.ParentCategoryId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <input type="submit"
+                       value="Запази"
+                       class="btn"
+                       style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);" />
+                <a asp-action="Index"
+                   class="btn"
+                   style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                    Назад
+                </a>
             </div>
         </form>
+
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<!-- MODAL: Add category -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
+            <div class="modal-header" style="background:#E6FFFA;">
+                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави категория в списъка</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+
+            <div class="modal-body">
+                <div style="color:#64748B;font-weight:700;margin-bottom:10px;">
+                    Категорията ще се добави към избрания родител (ако има избран).
+                </div>
+
+                <label style="font-weight:900;color:#0F766E;">Име</label>
+                <input id="newCategoryName" class="form-control" placeholder="Напр. Фентъзи" />
+
+                <div id="newCategoryError" class="text-danger" style="margin-top:8px;display:none;font-weight:800;"></div>
+            </div>
+
+            <div class="modal-footer" style="background:#F8FAFC;">
+                <button type="button"
+                        class="btn"
+                        data-bs-dismiss="modal"
+                        style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                    Отказ
+                </button>
+
+                <button type="button"
+                        id="btnSaveNewCategory"
+                        class="btn"
+                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                    Добави
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        (function () {
+            const parentSelect = document.getElementById("ParentCategoryId");
+            const nameInput = document.getElementById("newCategoryName");
+            const errorBox = document.getElementById("newCategoryError");
+            const btnSave = document.getElementById("btnSaveNewCategory");
+
+            function showError(msg) {
+                errorBox.textContent = msg;
+                errorBox.style.display = "block";
+            }
+            function clearError() {
+                errorBox.textContent = "";
+                errorBox.style.display = "none";
+            }
+
+            function sortSelectOptions(select) {
+                const options = Array.from(select.options)
+                    .filter(o => o.value !== "");
+
+                options.sort((a, b) => a.text.localeCompare(b.text, 'bg', { sensitivity: 'base' }));
+
+                for (let i = select.options.length - 1; i >= 0; i--) {
+                    if (select.options[i].value !== "") select.remove(i);
+                }
+                options.forEach(o => select.add(o));
+            }
+
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            btnSave.addEventListener("click", async () => {
+                clearError();
+
+                const newName = (nameInput.value || "").trim();
+                if (!newName) {
+                    showError("Моля, въведи име.");
+                    return;
+                }
+
+                const parentId = parentSelect.value || "";
+
+                const data = new URLSearchParams();
+                data.append("name", newName);
+                if (parentId !== "") data.append("parentCategoryId", parentId);
+
+                try {
+                    const res = await fetch("@Url.Action("QuickCreate", "Categories")", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "RequestVerificationToken": token
+                        },
+                        body: data.toString()
+                    });
+
+                    if (!res.ok) {
+                        const text = await res.text();
+                        showError(text || "Грешка при добавяне.");
+                        return;
+                    }
+
+                    const json = await res.json();
+
+                    const opt = document.createElement("option");
+                    opt.value = json.id;
+                    opt.text = json.name;
+                    parentSelect.add(opt);
+
+                    sortSelectOptions(parentSelect);
+
+                    parentSelect.value = String(json.id);
+
+                    nameInput.value = "";
+                    const modalEl = document.getElementById("addCategoryModal");
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+
+                } catch (e) {
+                    showError("Грешка при връзка. Опитай пак.");
+                }
+            });
+
+            nameInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    btnSave.click();
+                }
+            });
+
+            document.getElementById("addCategoryModal").addEventListener("shown.bs.modal", () => {
+                clearError();
+                nameInput.focus();
+            });
+        })();
+    </script>
 }

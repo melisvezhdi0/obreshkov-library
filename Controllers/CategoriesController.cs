@@ -53,13 +53,7 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories/Create
         public IActionResult Create()
         {
-            ViewData["ParentCategoryId"] = new SelectList(
-                _context.Categories.OrderBy(c => c.Name),
-                "Id",
-                "Name"
-            );
-
-            return View();
+            return RedirectToAction(nameof(CreatePath));
         }
 
         // POST: Categories/Create
@@ -232,6 +226,12 @@ namespace ObreshkovLibrary.Controllers
             {
                 await FindOrCreateCategoryAsync(vm.Level3, parentId: level2!.Id);
             }
+            if (!string.IsNullOrWhiteSpace(vm.Level1) &&
+                vm.Level1.Trim().ToLower() == "художествена литература" &&
+                string.IsNullOrWhiteSpace(vm.Level2))
+            {
+                ModelState.AddModelError(nameof(vm.Level2), "Избери жанр (Ниво 2) за „Художествена литература“.");
+            }
 
             return RedirectToAction(nameof(Index));
         }
@@ -265,6 +265,55 @@ namespace ObreshkovLibrary.Controllers
             await _context.SaveChangesAsync();
 
             return category;
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickCreate(string name, int? parentCategoryId)
+        {
+            name = (name ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
+                return BadRequest("Името е задължително.");
+
+            var existing = await _context.Categories
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c =>
+                    c.ParentCategoryId == parentCategoryId &&
+                    c.Name.ToLower() == name.ToLower());
+
+            if (existing != null)
+            {
+                if (!existing.IsActive)
+                {
+                    existing.IsActive = true;
+                    await _context.SaveChangesAsync();
+                }
+
+                return Json(new { id = existing.Id, name = existing.Name });
+            }
+
+            var category = new Category
+            {
+                Name = name,
+                ParentCategoryId = parentCategoryId,
+                IsActive = true
+            };
+
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+
+            return Json(new { id = category.Id, name = category.Name });
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetRoots()
+        {
+            var items = await _context.Categories
+                .Where(c => c.ParentCategoryId == null && c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new { c.Id, c.Name })
+                .ToListAsync();
+
+            return Json(items);
         }
 
         [HttpGet]

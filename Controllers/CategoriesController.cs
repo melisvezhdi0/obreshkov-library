@@ -206,66 +206,44 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePath(CategoryPathVM vm)
         {
-            vm.Level1 = (vm.Level1 ?? "").Trim();
-            vm.Level2 = string.IsNullOrWhiteSpace(vm.Level2) ? null : vm.Level2.Trim();
-            vm.Level3 = string.IsNullOrWhiteSpace(vm.Level3) ? null : vm.Level3.Trim();
+            var l1 = (vm.Level1 ?? "").Trim();
+            var l2 = (vm.Level2 ?? "").Trim();
 
-            if (vm.Level2 == null && vm.Level3 != null)
-                ModelState.AddModelError(nameof(vm.Level2), "Попълни Ниво 2, преди да попълниш Ниво 3.");
-
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(l1))
+            {
+                ModelState.AddModelError(nameof(vm.Level1), "Избери категория.");
                 return View(vm);
-
-            var level1 = await FindOrCreateCategoryAsync(vm.Level1, parentId: null);
-
-            Category? level2 = null;
-            if (vm.Level2 != null)
-                level2 = await FindOrCreateCategoryAsync(vm.Level2, parentId: level1.Id);
-
-            if (vm.Level3 != null)
-            {
-                await FindOrCreateCategoryAsync(vm.Level3, parentId: level2!.Id);
-            }
-            if (!string.IsNullOrWhiteSpace(vm.Level1) &&
-                vm.Level1.Trim().ToLower() == "художествена литература" &&
-                string.IsNullOrWhiteSpace(vm.Level2))
-            {
-                ModelState.AddModelError(nameof(vm.Level2), "Избери жанр (Ниво 2) за „Художествена литература“.");
             }
 
-            return RedirectToAction(nameof(Index));
+            if (string.IsNullOrWhiteSpace(l2))
+            {
+                ModelState.AddModelError(nameof(vm.Level2), "Попълни подкатегория.");
+                return View(vm);
+            }
+
+            var root = await _context.Categories
+                .FirstOrDefaultAsync(c => c.ParentCategoryId == null && c.Name == l1);
+
+            if (root == null)
+            {
+                root = new Category { Name = l1, ParentCategoryId = null, IsActive = true };
+                _context.Categories.Add(root);
+                await _context.SaveChangesAsync();
+            }
+
+            var exists = await _context.Categories
+                .FirstOrDefaultAsync(c => c.ParentCategoryId == root.Id && c.Name == l2);
+
+            if (exists == null)
+            {
+                var child = new Category { Name = l2, ParentCategoryId = root.Id, IsActive = true };
+                _context.Categories.Add(child);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index");
         }
-        private async Task<Category> FindOrCreateCategoryAsync(string name, int? parentId)
-        {
-            var existing = await _context.Categories
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(c =>
-                    c.ParentCategoryId == parentId &&
-                    c.Name.ToLower() == name.ToLower());
 
-            if (existing != null)
-            {
-                if (!existing.IsActive)
-                {
-                    existing.IsActive = true;
-                    await _context.SaveChangesAsync();
-                }
-
-                return existing;
-            }
-
-            var category = new Category
-            {
-                Name = name,
-                ParentCategoryId = parentId,
-                IsActive = true
-            };
-
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return category;
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> QuickCreate(string name, int? parentCategoryId)

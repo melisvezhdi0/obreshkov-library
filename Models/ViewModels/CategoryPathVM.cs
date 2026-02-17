@@ -6,15 +6,12 @@ namespace ObreshkovLibrary.Models.ViewModels
     {
         [Required(ErrorMessage = "Ниво 1 е задължително.")]
         [StringLength(100)]
-        [Display(Name = "Ниво 1 (напр. Художествена литература)")]
+        [Display(Name = "Ниво 1")]
         public string Level1 { get; set; } = string.Empty;
 
         [StringLength(100)]
-        [Display(Name = "Ниво 2 (напр. Романи)")]
+        [Display(Name = "Ниво 2")]
         public string? Level2 { get; set; }
 
-        [StringLength(100)]
-        [Display(Name = "Ниво 3 (напр. Класическа литература)")]
-        public string? Level3 { get; set; }
     }
 }

@@ -1,27 +1,22 @@
 ﻿@model ObreshkovLibrary.Models.ViewModels.CategoryPathVM
 
 @{
-    ViewData["Title"] = "Създай категории (стъпково)";
+    ViewData["Title"] = "Създай категории";
 }
 
-<h1 style="color:#0F766E;font-weight:900;">Създай категории</h1>
-<div style="color:#64748B;font-weight:700;margin-bottom:12px;">
-    Избери основна категория → после продължи към Ниво 2 → (само за художествена) въведи Ниво 3.
-</div>
+<h1 style="color:#0F766E;font-weight:900;margin-bottom:12px;">Създай категории</h1>
 
 <form id="createPathForm" asp-action="CreatePath" method="post"
       style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);max-width:720px;">
 
     @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="font-weight:800;"></div>
 
-    <!-- Ниво 1 -->
+    <!-- Основна категория -->
     <div class="mb-3">
-        <label class="control-label" style="font-weight:900;color:#0F766E;">Ниво 1 (основна категория)</label>
-
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
             <select id="level1Select" class="form-control" style="max-width:420px;">
-                <option value="">-- избери --</option>
+                <option value="">Категория…</option>
             </select>
 
             <button type="button"
@@ -37,65 +32,15 @@
         <span asp-validation-for="Level1" class="text-danger"></span>
     </div>
 
+    <!-- Подкатегория -->
     <div class="mb-3">
-        <label class="control-label" style="font-weight:900;color:#0F766E;">Ниво 2</label>
-
-        <div id="level2ClientError"
-             class="text-danger"
-             style="display:none;font-weight:800;margin-bottom:6px;">
-        </div>
-
-        <!-- Художествена -> dropdown -->
-        <div id="level2FictionWrap" style="display:none;">
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <select id="level2Select" class="form-control" style="max-width:420px;">
-                    <option value="">-- избери жанр --</option>
-                </select>
-
-                <button type="button"
-                        class="btn"
-                        id="btnAddGenre"
-                        data-bs-toggle="modal"
-                        data-bs-target="#addGenreModal"
-                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
-                    + Добави жанр
-                </button>
-            </div>
-        </div>
-
-        <div id="level2OtherWrap" style="display:none;">
-            <input id="level2OtherInput"
-                   asp-for="Level2"
-                   class="form-control"
-                   placeholder="Напр. Психология / Атласи / Митология..."
-                   style="max-width:420px;" />
-        </div>
-
-        <div id="level2LockedWrap">
-            <input class="form-control"
-                   style="max-width:420px;"
-                   placeholder="Първо избери Ниво 1…"
-                   disabled />
-        </div>
-
-        <input type="hidden" asp-for="Level2" id="Level2" />
-        <span asp-validation-for="Level2" class="text-danger"></span>
-    </div>
-
-    <div id="level3Wrap" class="mb-3" style="display:none;">
-        <label class="control-label" style="font-weight:900;color:#0F766E;">Ниво 3 (само за художествена литература)</label>
-
-        <input id="level3Input"
-               asp-for="Level3"
+        <input id="level2Input"
+               asp-for="Level2"
                class="form-control"
-               placeholder="Напр. Фентъзи / Трилъри / Криминални..."
+               placeholder="Подкатегория…"
                style="max-width:420px;" />
 
-        <span asp-validation-for="Level3" class="text-danger"></span>
-
-        <div style="color:#64748B;font-weight:700;margin-top:6px;">
-            (Попълваш само ако ти трябва трето ниво.)
-        </div>
+        <span asp-validation-for="Level2" class="text-danger"></span>
     </div>
 
     <div class="mt-3" style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -113,17 +58,16 @@
     </div>
 </form>
 
-<!-- MODAL: добави root (Ниво 1) -->
+<!-- MODAL: добави основна категория -->
 <div class="modal fade" id="addRootModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="border-radius:16px;overflow:hidden;">
             <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави основна категория (Ниво 1)</h5>
+                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави категория</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
             <div class="modal-body">
-                <label style="font-weight:900;color:#0F766E;">Име</label>
-                <input id="newRootName" class="form-control" placeholder="Напр. Художествена литература" />
+                <input id="newRootName" class="form-control" placeholder="Име…" />
                 <div id="rootErr" class="text-danger" style="margin-top:8px;display:none;font-weight:800;"></div>
             </div>
             <div class="modal-footer" style="background:#F8FAFC;">
@@ -144,41 +88,6 @@
     </div>
 </div>
 
-<!-- MODAL: добави жанр (само художествена) -->
-<div class="modal fade" id="addGenreModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави жанр (Ниво 2)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-            <div class="modal-body">
-                <div style="color:#64748B;font-weight:700;margin-bottom:8px;">
-                    Жанрът ще се добави към „Художествена литература“.
-                </div>
-
-                <label style="font-weight:900;color:#0F766E;">Име</label>
-                <input id="newGenreName" class="form-control" placeholder="Напр. Романи" />
-                <div id="genreErr" class="text-danger" style="margin-top:8px;display:none;font-weight:800;"></div>
-            </div>
-            <div class="modal-footer" style="background:#F8FAFC;">
-                <button type="button"
-                        class="btn"
-                        data-bs-dismiss="modal"
-                        style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
-                    Отказ
-                </button>
-                <button type="button"
-                        id="btnSaveGenre"
-                        class="btn"
-                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
-                    Добави
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
@@ -187,76 +96,21 @@
     <script>
         (function () {
             const urlRoots = '@Url.Action("GetRoots", "Categories")';
-            const urlChildren = '@Url.Action("GetChildren", "Categories")';
             const urlQuickCreate = '@Url.Action("QuickCreate", "Categories")';
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-            const form = document.getElementById('createPathForm');
-
             const level1Select = document.getElementById('level1Select');
-            const level2LockedWrap = document.getElementById('level2LockedWrap');
-            const level2FictionWrap = document.getElementById('level2FictionWrap');
-            const level2OtherWrap = document.getElementById('level2OtherWrap');
-            const level2Select = document.getElementById('level2Select');
-            const level2OtherInput = document.getElementById('level2OtherInput');
-            const level3Wrap = document.getElementById('level3Wrap');
-            const level3Input = document.getElementById('level3Input');
-
             const hLevel1 = document.getElementById('Level1');
-            const hLevel2 = document.getElementById('Level2');
-
-            const level2ClientError = document.getElementById('level2ClientError');
 
             const newRootName = document.getElementById('newRootName');
             const rootErr = document.getElementById('rootErr');
             const btnSaveRoot = document.getElementById('btnSaveRoot');
 
-            const newGenreName = document.getElementById('newGenreName');
-            const genreErr = document.getElementById('genreErr');
-            const btnSaveGenre = document.getElementById('btnSaveGenre');
-
-            function isFictionLevel1(name) {
-                return (name || '').trim().toLowerCase() === 'художествена литература';
-            }
-
-            function setOptions(select, items, emptyText) {
-                select.innerHTML = '';
-                const opt0 = document.createElement('option');
-                opt0.value = '';
-                opt0.textContent = emptyText || '-- избери --';
-                select.appendChild(opt0);
-
-                items.forEach(x => {
-                    const opt = document.createElement('option');
-                    opt.value = x.id;
-                    opt.textContent = x.name;
-                    select.appendChild(opt);
-                });
-            }
-
-            function showErr(el, msg) {
-                el.textContent = msg;
-                el.style.display = 'block';
-            }
-            function clearErr(el) {
-                el.textContent = '';
-                el.style.display = 'none';
-            }
-
-            function showLevel2ClientError(msg) {
-                level2ClientError.textContent = msg;
-                level2ClientError.style.display = 'block';
-            }
-            function clearLevel2ClientError() {
-                level2ClientError.textContent = '';
-                level2ClientError.style.display = 'none';
-            }
-
             async function loadRoots(selectedIdToPick) {
                 const res = await fetch(urlRoots);
                 const data = await res.json();
 
-                level1Select.innerHTML = '<option value="">-- избери --</option>';
+                level1Select.innerHTML = '<option value="">Категория…</option>';
                 data.forEach(x => {
                     const opt = document.createElement('option');
                     opt.value = x.name;
@@ -266,97 +120,25 @@
                 });
 
                 if (selectedIdToPick) {
-                    const optToSelect = Array.from(level1Select.options)
-                        .find(o => o.dataset && o.dataset.id === String(selectedIdToPick));
-                    if (optToSelect) {
-                        level1Select.value = optToSelect.value;
-                        level1Select.dispatchEvent(new Event('change'));
-                    }
+                    const optToSelect = Array.from(level1Select.options).find(o => o.dataset?.id === String(selectedIdToPick));
+                    if (optToSelect) level1Select.value = optToSelect.value;
+                    hLevel1.value = level1Select.value || '';
                 }
             }
 
-            async function loadChildren(parentId) {
-                const res = await fetch(urlChildren + '?parentId=' + encodeURIComponent(parentId));
-                const data = await res.json();
-                setOptions(level2Select, data, '-- избери жанр --');
-            }
-
-            // start
             loadRoots();
 
-            level1Select.addEventListener('change', async () => {
-                clearLevel2ClientError();
-
-                const name = level1Select.value || '';
-                hLevel1.value = name;
-
-                // reset
-                hLevel2.value = '';
-                level2OtherInput.value = '';
-                level3Input.value = '';
-                level3Wrap.style.display = 'none';
-                setOptions(level2Select, [], '-- избери жанр --');
-                level1Select.dataset.level1Id = '';
-
-                if (!name) {
-                    level2LockedWrap.style.display = 'block';
-                    level2FictionWrap.style.display = 'none';
-                    level2OtherWrap.style.display = 'none';
-                    return;
-                }
-
-                level2LockedWrap.style.display = 'none';
-
-                const fiction = isFictionLevel1(name);
-
-                if (fiction) {
-                    level2FictionWrap.style.display = 'block';
-                    level2OtherWrap.style.display = 'none';
-                    level3Wrap.style.display = 'block';
-
-                    const selectedOpt = level1Select.options[level1Select.selectedIndex];
-                    const level1Id = selectedOpt?.dataset?.id || '';
-                    level1Select.dataset.level1Id = level1Id;
-
-                    if (level1Id) await loadChildren(level1Id);
-                } else {
-                    level2FictionWrap.style.display = 'none';
-                    level2OtherWrap.style.display = 'block';
-                    level3Wrap.style.display = 'none';
-                }
+            level1Select.addEventListener('change', () => {
+                hLevel1.value = level1Select.value || '';
             });
 
-            level2Select.addEventListener('change', () => {
-                clearLevel2ClientError();
-                const txt = level2Select.options[level2Select.selectedIndex]?.text || '';
-                hLevel2.value = (level2Select.value ? txt : '');
-            });
-
-            level2OtherInput.addEventListener('input', () => {
-                hLevel2.value = (level2OtherInput.value || '').trim();
-            });
-
-            form.addEventListener('submit', (e) => {
-                clearLevel2ClientError();
-
-                const l1 = (hLevel1.value || '').trim();
-                if (!l1) return;
-
-                if (isFictionLevel1(l1)) {
-                    const genreId = level2Select.value;
-                    if (!genreId) {
-                        e.preventDefault();
-                        showLevel2ClientError('Моля, избери жанр (Ниво 2) за „Художествена литература“.');
-                        level2ClientError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        return;
-                    }
-                }
-            });
+            function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+            function clearErr(el) { el.textContent = ''; el.style.display = 'none'; }
 
             btnSaveRoot.addEventListener('click', async () => {
                 clearErr(rootErr);
                 const nm = (newRootName.value || '').trim();
-                if (!nm) { showErr(rootErr, 'Моля, въведи име.'); return; }
+                if (!nm) { showErr(rootErr, 'Въведи име.'); return; }
 
                 const data = new URLSearchParams();
                 data.append('name', nm);
@@ -372,7 +154,7 @@
 
                 if (!res.ok) {
                     const txt = await res.text();
-                    showErr(rootErr, txt || 'Грешка при добавяне.');
+                    showErr(rootErr, txt || 'Грешка.');
                     return;
                 }
 
@@ -380,79 +162,13 @@
                 await loadRoots(json.id);
 
                 const modalEl = document.getElementById('addRootModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                modal.hide();
-            });
-
-            btnSaveGenre.addEventListener('click', async () => {
-                clearErr(genreErr);
-
-                const nm = (newGenreName.value || '').trim();
-                if (!nm) { showErr(genreErr, 'Моля, въведи име.'); return; }
-
-                if (!isFictionLevel1(hLevel1.value)) {
-                    showErr(genreErr, 'Жанр се добавя само при „Художествена литература“.');
-                    return;
-                }
-
-                const parentId = level1Select.dataset.level1Id;
-                if (!parentId) { showErr(genreErr, 'Грешка: няма избрана основна категория.'); return; }
-
-                const data = new URLSearchParams();
-                data.append('name', nm);
-                data.append('parentCategoryId', parentId);
-
-                const res = await fetch(urlQuickCreate, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                        'RequestVerificationToken': token
-                    },
-                    body: data.toString()
-                });
-
-                if (!res.ok) {
-                    const txt = await res.text();
-                    showErr(genreErr, txt || 'Грешка при добавяне.');
-                    return;
-                }
-
-                const json = await res.json();
-                const opt = document.createElement('option');
-                opt.value = json.id;
-                opt.textContent = json.name;
-                level2Select.appendChild(opt);
-
-                const opts = Array.from(level2Select.options).slice(1);
-                opts.sort((a, b) => a.text.localeCompare(b.text, 'bg', { sensitivity: 'base' }));
-                setOptions(level2Select, opts.map(o => ({ id: o.value, name: o.text })), '-- избери жанр --');
-
-                level2Select.value = String(json.id);
-                hLevel2.value = json.name;
-
-                clearLevel2ClientError();
-
-                const modalEl = document.getElementById('addGenreModal');
-                const modal = bootstrap.Modal.getInstance(modalEl);
-                modal.hide();
+                bootstrap.Modal.getInstance(modalEl).hide();
             });
 
             document.getElementById('addRootModal').addEventListener('shown.bs.modal', () => {
                 clearErr(rootErr);
                 newRootName.value = '';
                 newRootName.focus();
-            });
-            document.getElementById('addGenreModal').addEventListener('shown.bs.modal', () => {
-                clearErr(genreErr);
-                newGenreName.value = '';
-                newGenreName.focus();
-            });
-
-            newRootName.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); btnSaveRoot.click(); }
-            });
-            newGenreName.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); btnSaveGenre.click(); }
             });
 
         })();

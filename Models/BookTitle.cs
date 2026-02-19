@@ -25,5 +25,7 @@ namespace ObreshkovLibrary.Models
 
         [NotMapped]
         public int AvailableCopies { get; set; }
+
+        public ICollection<BookTitleTag> BookTitleTags { get; set; } = new List<BookTitleTag>();
     }
 }

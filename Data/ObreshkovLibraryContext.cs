@@ -15,6 +15,8 @@ namespace ObreshkovLibrary.Data
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
         public DbSet<BookTitleCategory> BookTitleCategories { get; set; } = null!;
+        public DbSet<Tag> Tags { get; set; } = null!;
+        public DbSet<BookTitleTag> BookTitleTags { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -51,6 +53,23 @@ namespace ObreshkovLibrary.Data
             modelBuilder.Entity<BookTitle>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<BookCopy>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Category>().HasQueryFilter(x => x.IsActive);
+
+            modelBuilder.Entity<BookTitleTag>()
+    .HasKey(x => new { x.BookTitleId, x.TagId });
+
+            modelBuilder.Entity<BookTitleTag>()
+                .HasOne(x => x.BookTitle)
+                .WithMany(b => b.BookTitleTags)
+                .HasForeignKey(x => x.BookTitleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BookTitleTag>()
+                .HasOne(x => x.Tag)
+                .WithMany(t => t.BookTitleTags)
+                .HasForeignKey(x => x.TagId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Tag>().HasQueryFilter(x => x.IsActive);
 
         }
     }

@@ -18,6 +18,8 @@ namespace ObreshkovLibrary.Models.ViewModels
 
         public List<Category> Level1Options { get; set; } = new();
 
+        public string? TagsText { get; set; }
+
         public string? CardNumber { get; set; }
         public string? ErrorMessage { get; set; }
 

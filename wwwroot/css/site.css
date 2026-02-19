@@ -135,3 +135,16 @@ body {
         object-position: center;
         padding: 10px;
     }
+.page-title {
+    color: #0F766E;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+}
+
+.page-accent {
+    width: 56px;
+    height: 3px;
+    border-radius: 2px;
+    background: #FB923C;
+    margin-bottom: 1.5rem;
+}

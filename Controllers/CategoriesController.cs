@@ -9,7 +9,6 @@ using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 
-
 namespace ObreshkovLibrary.Controllers
 {
     public class CategoriesController : Controller
@@ -34,18 +33,13 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var category = await _context.Categories
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+
+            if (category == null) return NotFound();
 
             return View(category);
         }
@@ -57,8 +51,6 @@ namespace ObreshkovLibrary.Controllers
         }
 
         // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ParentCategoryId")] Category category)
@@ -69,11 +61,12 @@ namespace ObreshkovLibrary.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["ParentCategoryId"] = new SelectList(
-            _context.Categories.OrderBy(c => c.Name),
-            "Id",
-            "Name",
-            category.ParentCategoryId);
+                _context.Categories.OrderBy(c => c.Name),
+                "Id",
+                "Name",
+                category.ParentCategoryId);
 
             return View(category);
         }
@@ -81,31 +74,21 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+            if (category == null) return NotFound();
+
             ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
             return View(category);
         }
 
         // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ParentCategoryId")] Category category)
         {
-            if (id != category.Id)
-            {
-                return NotFound();
-            }
+            if (id != category.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -116,17 +99,13 @@ namespace ObreshkovLibrary.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CategoryExists(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!CategoryExists(category.Id)) return NotFound();
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
             return View(category);
         }
@@ -134,23 +113,18 @@ namespace ObreshkovLibrary.Controllers
         // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var category = await _context.Categories
                 .Include(c => c.ParentCategory)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
+
+            if (category == null) return NotFound();
 
             return View(category);
         }
 
-        // POST: Categories/Delete/5
+        // POST: Categories/Deactivate/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
@@ -162,9 +136,9 @@ namespace ObreshkovLibrary.Controllers
             if (category == null)
                 return NotFound();
 
-            bool hasActiveBooks = await _context.BookTitleCategories
-            .AnyAsync(x => x.CategoryId == id && x.BookTitle.IsActive);
-
+            // има ли активни книги с CategoryId == id
+            bool hasActiveBooks = await _context.Books
+                .AnyAsync(b => b.CategoryId == id && b.IsActive);
 
             if (hasActiveBooks)
             {
@@ -186,7 +160,6 @@ namespace ObreshkovLibrary.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
-
         }
 
         private bool CategoryExists(int id)
@@ -282,6 +255,7 @@ namespace ObreshkovLibrary.Controllers
 
             return Json(new { id = category.Id, name = category.Name });
         }
+
         [HttpGet]
         public async Task<IActionResult> GetRoots()
         {

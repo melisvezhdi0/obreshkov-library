@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ObreshkovLibrary.Models
 {
-    public class BookTitle
+    public class Book
     {
         public int Id { get; set; }
 
@@ -18,14 +18,19 @@ namespace ObreshkovLibrary.Models
 
         [StringLength(1000)]
         public string? Description { get; set; }
+
         public string? CoverUrl { get; set; }
+
+        public BookTags Tags { get; set; } = BookTags.None;
+
         public bool IsActive { get; set; } = true;
-        public ICollection<BookTitleCategory> BookTitleCategories { get; set; } = new List<BookTitleCategory>();
-        public ICollection<BookCopy> BookCopies { get; set; } = new List<BookCopy>();
+
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }
+
+        public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
 
         [NotMapped]
         public int AvailableCopies { get; set; }
-
-        public ICollection<BookTitleTag> BookTitleTags { get; set; } = new List<BookTitleTag>();
     }
 }

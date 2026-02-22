@@ -12,18 +12,18 @@ namespace ObreshkovLibrary.Services
             _db = db;
         }
 
-        public async Task DeactivateBookTitleAsync(int bookTitleId)
+        public async Task DeactivateBookTitleAsync(int BookId)
         {
             bool hasActiveLoans = await _db.Loans
                 .AnyAsync(l => l.ReturnDate == null &&
-                               l.BookCopy.BookTitleId == bookTitleId);
+                               l.BookCopy.BookId == BookId);
 
             if (hasActiveLoans)
                 throw new InvalidOperationException("Деактивирането е неуспешно, съществуват заети копия.");
 
-            var bookTitle = await _db.BookTitles
+            var bookTitle = await _db.Books
                 .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(b => b.Id == bookTitleId);
+                .FirstOrDefaultAsync(b => b.Id == BookId);
 
             if (bookTitle == null)
                 throw new InvalidOperationException("Книгата не е намерена.");
@@ -35,7 +35,7 @@ namespace ObreshkovLibrary.Services
 
             var copies = await _db.BookCopies
                 .IgnoreQueryFilters()
-                .Where(c => c.BookTitleId == bookTitleId && c.IsActive)
+                .Where(c => c.BookId == BookId && c.IsActive)
                 .ToListAsync();
 
             foreach (var copy in copies)

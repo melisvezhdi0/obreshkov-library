@@ -4,8 +4,8 @@
     {
         public int Id { get; set; }
 
-        public int BookTitleId { get; set; }
-        public BookTitle BookTitle { get; set; } = null!;
+        public int BookId { get; set; }
+        public Book Book { get; set; } = null!;
 
         public bool IsActive { get; set; } = true;
     }

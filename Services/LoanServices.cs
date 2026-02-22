@@ -16,7 +16,8 @@ namespace ObreshkovLibrary.Services
         public async Task<int> LoanByTitleAsync(int clientId, int bookTitleId, int days = 14)
         {
             var availableCopy = await _db.BookCopies
-                .Where(c => c.BookTitleId == bookTitleId && c.IsActive)
+                .Where(c => c.
+               BookId == bookTitleId && c.IsActive)
                 .Where(c => !_db.Loans.Any(l => l.BookCopyId == c.Id && l.ReturnDate == null))
                 .OrderBy(c => c.Id)
                 .FirstOrDefaultAsync();

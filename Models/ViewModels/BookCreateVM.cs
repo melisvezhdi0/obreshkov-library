@@ -3,7 +3,7 @@ using ObreshkovLibrary.Models;
 
 namespace ObreshkovLibrary.Models.ViewModels
 {
-    public class BookTitleCreateVM
+    public class BookCreateVM
     {
         public string Title { get; set; } = "";
         public string Author { get; set; } = "";
@@ -13,8 +13,6 @@ namespace ObreshkovLibrary.Models.ViewModels
 
         public int? Level1Id { get; set; }
         public int? Level2Id { get; set; }
-
-        public List<int> SelectedCategoryIds { get; set; } = new();
 
         public List<Category> Level1Options { get; set; } = new();
 
@@ -30,6 +28,6 @@ namespace ObreshkovLibrary.Models.ViewModels
         public int OverdueCount { get; set; }
         public List<Loan> OverdueLoans { get; set; } = new();
 
-        public List<BookTitle> LatestBookTitles { get; set; } = new();
+        public List<Book> LatestBookTitles { get; set; } = new();
     }
 }

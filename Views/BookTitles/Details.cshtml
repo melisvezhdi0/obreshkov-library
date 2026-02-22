@@ -1,4 +1,4 @@
-﻿@model ObreshkovLibrary.Models.BookTitle
+﻿@model ObreshkovLibrary.Models.Book
 
 @{
     ViewData["Title"] = "Детайли за книга";
@@ -24,6 +24,16 @@
             @if (!string.IsNullOrEmpty(Model.Author))
             {
                 <p><strong>Автор:</strong> @Model.Author</p>
+            }
+
+            @if (Model.Year.HasValue)
+            {
+                <p><strong>Година:</strong> @Model.Year</p>
+            }
+
+            @if (Model.Category != null)
+            {
+                <p><strong>Категория:</strong> @Model.Category.Name</p>
             }
 
             @if (!string.IsNullOrEmpty(Model.Description))

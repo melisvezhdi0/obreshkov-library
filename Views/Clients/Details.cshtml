@@ -82,8 +82,8 @@
                             @foreach (var l in loans)
                             {
                                 <tr>
-                                    <td>@l.BookCopy?.BookTitle?.Title</td>
-                                    <td>@l.BookCopy?.BookTitle?.Author</td>
+                                    <td>@l.BookCopy?.Book?.Title</td>
+                                    <td>@l.BookCopy?.Book?.Author</td>
                                     <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
                                     <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
                                     <td class="text-end">

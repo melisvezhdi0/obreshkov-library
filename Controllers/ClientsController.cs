@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
@@ -67,7 +65,6 @@ namespace ObreshkovLibrary.Controllers
             return View(clients);
         }
 
-
         // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -81,7 +78,7 @@ namespace ObreshkovLibrary.Controllers
             var activeLoans = await _context.Loans
                 .Where(l => l.ClientId == client.Id && l.ReturnDate == null)
                 .Include(l => l.BookCopy)
-                    .ThenInclude(bc => bc.BookTitle)
+                    .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
                 .ToListAsync();
 

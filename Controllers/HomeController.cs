@@ -21,48 +21,45 @@ namespace ObreshkovLibrary.Controllers
 
             var vm = new HomeDashboardVM();
 
-            // Последни заемания (8)
             vm.LatestLoans = await _context.Loans
                 .Include(l => l.Client)
                 .Include(l => l.BookCopy)
-                    .ThenInclude(bc => bc.BookTitle)
+                    .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
                 .Take(8)
                 .ToListAsync();
 
-            // За връщане днес (активни)
             vm.DueTodayLoans = await _context.Loans
                 .Where(l => l.ReturnDate == null && l.DueDate.Date == today)
                 .Include(l => l.Client)
                 .Include(l => l.BookCopy)
-                    .ThenInclude(bc => bc.BookTitle)
+                    .ThenInclude(bc => bc.Book)
                 .OrderBy(l => l.DueDate)
                 .Take(50)
                 .ToListAsync();
             vm.DueTodayCount = vm.DueTodayLoans.Count;
 
-            // Просрочени (активни)
             vm.OverdueLoans = await _context.Loans
                 .Where(l => l.ReturnDate == null && l.DueDate.Date < today)
                 .Include(l => l.Client)
                 .Include(l => l.BookCopy)
-                    .ThenInclude(bc => bc.BookTitle)
+                    .ThenInclude(bc => bc.Book)
                 .OrderBy(l => l.DueDate)
                 .Take(50)
                 .ToListAsync();
             vm.OverdueCount = vm.OverdueLoans.Count;
 
-            // Последно добавени книги
-            vm.LatestBookTitles = await _context.BookTitles
+            vm.LatestBookTitles = await _context.Books
                 .OrderByDescending(b => b.Id)
                 .Take(4)
                 .ToListAsync();
 
             return View(vm);
         }
+
         public IActionResult Details(int id)
         {
-            var book = _context.BookTitles
+            var book = _context.Books
                 .FirstOrDefault(b => b.Id == id);
 
             if (book == null)

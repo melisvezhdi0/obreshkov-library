@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ObreshkovLibrary.Models
 {
@@ -25,12 +26,10 @@ namespace ObreshkovLibrary.Models
 
         public bool IsActive { get; set; } = true;
 
-        [Required]
-        [Range(1, 12)]
+        [Required, Range(1, 12)]
         public int? Grade { get; set; }
 
-        [Required]
-        [StringLength(2)]
-        public string? Section { get; set; } 
+        [Required, StringLength(2)]
+        public string? Section { get; set; }
     }
 }

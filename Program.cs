@@ -14,8 +14,11 @@ namespace ObreshkovLibrary
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            var dbPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "ObreshkovLibrary.db");
+            Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<CardNumberGenerator>();
 

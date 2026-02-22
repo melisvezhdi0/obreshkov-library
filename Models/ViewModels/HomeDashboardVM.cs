@@ -16,6 +16,6 @@ namespace ObreshkovLibrary.Models.ViewModels
         public int OverdueCount { get; set; }
         public List<Loan> OverdueLoans { get; set; } = new();
 
-        public List<BookTitle> LatestBookTitles { get; set; } = new();
+        public List<Book> LatestBookTitles { get; set; } = new();
     }
 }

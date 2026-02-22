@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ObreshkovLibrary.Controllers
@@ -53,22 +55,22 @@ namespace ObreshkovLibrary.Controllers
             vm.ClientName = ($"{client.FirstName} {client.MiddleName} {client.LastName}").Replace("  ", " ").Trim();
             vm.CardNumber = client.CardNumber;
 
-            var query = _context.BookTitles.AsQueryable();
-            query = query.Where(bt => bt.Title.Contains(vm.Title));
+            var query = _context.Books.AsQueryable();
+            query = query.Where(b => b.Title.Contains(vm.Title));
 
             if (vm.Author != null)
-                query = query.Where(bt => bt.Author.Contains(vm.Author));
+                query = query.Where(b => b.Author.Contains(vm.Author));
 
-            var bookTitle = await query.OrderBy(bt => bt.Title).FirstOrDefaultAsync();
+            var book = await query.OrderBy(b => b.Title).FirstOrDefaultAsync();
 
-            if (bookTitle == null)
+            if (book == null)
             {
                 vm.ErrorMessage = "Няма намерена книга по тези данни.";
                 return View(vm);
             }
 
             var availableCopy = await _context.BookCopies
-                .Where(c => c.BookTitleId == bookTitle.Id && c.IsActive)
+                .Where(c => c.BookId == book.Id && c.IsActive)
                 .Where(c => !_context.Loans.Any(l => l.BookCopyId == c.Id && l.ReturnDate == null))
                 .OrderBy(c => c.Id)
                 .FirstOrDefaultAsync();

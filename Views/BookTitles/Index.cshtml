@@ -1,57 +1,411 @@
-﻿@model IEnumerable<ObreshkovLibrary.Models.BookTitle>
+﻿@model IEnumerable<ObreshkovLibrary.Models.Book>
 
 @{
     ViewData["Title"] = "Книги";
+
+    string titleFilter = (ViewBag.TitleFilter ?? "").ToString();
+    string authorValue = (ViewBag.Author ?? "").ToString();
+    string tagValue = (ViewBag.Tag ?? "").ToString();
+    string yearValue = ViewBag.Year == null ? "" : ViewBag.Year.ToString();
+
+    string categoryIdsValue = (ViewBag.CategoryIds ?? "").ToString();
+
+    var allCategories = ViewBag.AllCategories as IEnumerable<ObreshkovLibrary.Models.Category>
+        ?? Enumerable.Empty<ObreshkovLibrary.Models.Category>();
+
+    var parents = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.Name).ToList();
+    var childrenByParent = allCategories
+        .Where(c => c.ParentCategoryId != null)
+        .GroupBy(c => c.ParentCategoryId!.Value)
+        .ToDictionary(g => g.Key, g => g.OrderBy(x => x.Name).ToList());
+
+    var titleSuggestions = ViewBag.TitleSuggestions as IEnumerable<string> ?? Enumerable.Empty<string>();
+    var authorSuggestions = ViewBag.AuthorSuggestions as IEnumerable<string> ?? Enumerable.Empty<string>();
+
+    var selectedIds = new HashSet<int>();
+    if (!string.IsNullOrWhiteSpace(categoryIdsValue))
+    {
+        foreach (var part in categoryIdsValue.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            if (int.TryParse(part.Trim(), out var id)) selectedIds.Add(id);
+    }
+    var selectedCats = allCategories.Where(c => selectedIds.Contains(c.Id)).OrderBy(c => c.Name).ToList();
+
+    bool hasAny =
+        !string.IsNullOrWhiteSpace(titleFilter) ||
+        !string.IsNullOrWhiteSpace(authorValue) ||
+        !string.IsNullOrWhiteSpace(tagValue) ||
+        !string.IsNullOrWhiteSpace(yearValue) ||
+        selectedCats.Count > 0;
+
+    bool noResults = (Model == null || !Model.Any()) && hasAny;
 }
 
-<h2>Книги</h2>
+<div style="padding-top:6px;">
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Добави книга</a>
-</p>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <h1 style="color:#0F766E;font-weight:900;margin:0;">Книги</h1>
+            <div style="width:56px;height:3px;background:#FB923C;border-radius:2px;margin-top:10px;"></div>
+        </div>
 
-<table class="table align-middle">
-    <thead>
-        <tr>
-            <th>Корица</th>
-            <th>Заглавие</th>
-            <th>Автор</th>
-            <th>Категории</th>
-            <th>Налични копия</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var b in Model)
-        {
-            <tr>
-                <td style="width:90px;">
-                    @if (!string.IsNullOrWhiteSpace(b.CoverUrl))
+        <a asp-action="Create"
+           style="background:#0F766E;color:#fff;padding:10px 16px;border-radius:12px;
+                  font-weight:900;text-decoration:none;display:inline-block;
+                  box-shadow:0 8px 18px rgba(0,0,0,.10);">
+            Добави книга
+        </a>
+    </div>
+
+    <div style="margin-top:16px;background:#fff;border-radius:18px;padding:14px;
+                box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+
+        <form id="filterForm" method="get" asp-action="Index">
+            <input type="hidden" name="categoryIds" id="categoryIds" value="@categoryIdsValue" />
+
+            <datalist id="dlTitles">
+                @foreach (var t in titleSuggestions)
+                {
+                    <option value="@t"></option>
+                }
+            </datalist>
+
+            <datalist id="dlAuthors">
+                @foreach (var a in authorSuggestions)
+                {
+                    <option value="@a"></option>
+                }
+            </datalist>
+
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+
+                <input name="title" value="@titleFilter" list="dlTitles"
+                       placeholder="Заглавие…"
+                       style="width:180px;min-width:180px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
+
+                <input name="author" value="@authorValue" list="dlAuthors"
+                       placeholder="Автор…"
+                       style="width:180px;min-width:180px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
+
+                <input name="year" value="@yearValue"
+                       placeholder="Година"
+                       inputmode="numeric"
+                       style="width:120px;min-width:120px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
+
+                <input name="tag" value="@tagValue"
+                       placeholder="# етикет…"
+                       style="width:150px;min-width:150px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
+
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#categoryModal"
+                        style="background:#E6FFFA;color:#0F766E;border:1px solid rgba(0,0,0,.10);
+                               padding:10px 14px;border-radius:12px;font-weight:900;white-space:nowrap;">
+                    Категории (@selectedCats.Count)
+                </button>
+
+                <button type="submit"
+                        style="margin-left:auto;background:#FB923C;color:white;border:none;
+                               padding:10px 16px;border-radius:12px;font-weight:900;
+                               box-shadow:0 8px 18px rgba(0,0,0,.10);white-space:nowrap;">
+                    Търси
+                </button>
+
+                <a asp-action="Index"
+                   style="background:#FFF3C4;color:#0F766E;border:1px solid rgba(0,0,0,.10);
+                          padding:10px 14px;border-radius:12px;font-weight:900;text-decoration:none;white-space:nowrap;">
+                    Изчисти
+                </a>
+            </div>
+
+            <div id="chipsRow" style="margin-top:12px;@(selectedCats.Count > 0 ? "" : "display:none;")">
+                <div id="chipsContainer" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    @foreach (var c in selectedCats)
                     {
-                        <img src="@b.CoverUrl" style="max-height:80px;" />
+                        <span style="display:inline-flex;align-items:center;gap:8px;background:#F8FAFC;border:1px solid rgba(0,0,0,.10);
+                                             padding:6px 10px;border-radius:999px;font-weight:900;color:#0F766E;">
+                            @c.Name
+                            <button type="button"
+                                    class="chipRemove"
+                                    data-id="@c.Id"
+                                    style="border:none;background:transparent;color:#FB923C;font-weight:950;cursor:pointer;line-height:1;">
+                                ×
+                            </button>
+                        </span>
                     }
-                    else
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    @if (noResults)
+    {
+        <div style="margin-top:18px;background:#fff;border-radius:18px;padding:16px 18px;
+                            box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+            <div style="font-weight:950;color:#0F766E;font-size:1.15rem;margin-bottom:4px;">Няма намерени книги</div>
+            <div style="color:#64748B;font-weight:800;">Промени филтрите и опитай пак.</div>
+        </div>
+    }
+    else
+    {
+        <div style="margin-top:18px;background:#fff;border-radius:18px;padding:10px;
+                            box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+            <div class="table-responsive">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead style="background:#E6FFFA;">
+                        <tr>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;width:64px;"></th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Заглавие</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Автор</th>
+                            <th style="padding:12px;color:#0F766E;font-weight:900;">Година</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model)
+                        {
+                            <tr role="button" tabindex="0"
+                                onclick="window.location.href='@Url.Action("Details", "BookTitles", new { id = b.Id })';"
+                                onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "BookTitles", new { id = b.Id })'; }"
+                                onmouseover="this.style.background='#FFF3C4'; this.style.cursor='pointer';"
+                                onmouseout="this.style.background='transparent';"
+                                style="border-bottom:1px solid #eee;">
+                                <td style="padding:10px 12px;">
+                                    <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.08);
+                                                                background:#E3F6F5;display:flex;align-items:center;justify-content:center;">
+                                        @if (!string.IsNullOrWhiteSpace(b.CoverUrl))
+                                        {
+                                            <img src="@b.CoverUrl" style="width:100%;height:100%;object-fit:contain;padding:6px;" />
+                                        }
+                                        else
+                                        {
+                                            <span style="color:#64748B;font-weight:900;">—</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td style="padding:12px;font-weight:900;color:#0B3B3C;">@b.Title</td>
+                                <td style="padding:12px;color:#64748B;font-weight:800;">@b.Author</td>
+                                <td style="padding:12px;color:#64748B;font-weight:800;">@(b.Year?.ToString() ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:18px;overflow:hidden;">
+            <div class="modal-header" style="background:#E6FFFA;">
+                <h5 class="modal-title" style="margin:0;font-weight:950;color:#0F766E;">Категории</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+
+            <div class="modal-body" style="background:#fff;">
+                <input id="catSearch" class="form-control"
+                       placeholder="Търси…"
+                       style="border-radius:12px;border:1px solid rgba(0,0,0,.12);padding:10px 12px;font-weight:700;" />
+
+                <div id="catList" style="margin-top:12px;max-height:420px;overflow:auto;padding-right:6px;">
+                    @foreach (var p in parents)
                     {
-                        <span class="text-muted">—</span>
+                        var kids = childrenByParent.ContainsKey(p.Id) ? childrenByParent[p.Id] : new List<ObreshkovLibrary.Models.Category>();
+
+                        <div class="catGroup" data-text="@((p.Name ?? "").ToLower())"
+                             style="padding:10px 10px;border:1px solid rgba(0,0,0,.08);border-radius:14px;margin-bottom:10px;">
+
+                            <label style="display:flex;align-items:center;gap:10px;font-weight:950;color:#0F766E;">
+                                <input type="checkbox" class="catParent" data-id="@p.Id" style="transform:scale(1.15);" />
+                                <span class="catName">@p.Name</span>
+                            </label>
+
+                            @if (kids.Count > 0)
+                            {
+                                <div style="margin-top:8px;padding-left:28px;display:grid;gap:6px;">
+                                    @foreach (var k in kids)
+                                    {
+                                        <label class="catChildRow" data-text="@((k.Name ?? "").ToLower())"
+                                               style="display:flex;align-items:center;gap:10px;color:#0B3B3C;font-weight:800;">
+                                            <input type="checkbox" class="catChild" data-id="@k.Id" data-parent="@p.Id" style="transform:scale(1.05);" />
+                                            <span class="catName">@k.Name</span>
+                                        </label>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
-                </td>
-                <td>
-                    <strong>@b.Title</strong><br />
-                    <small class="text-muted">@b.Year</small>
-                </td>
-                <td>@b.Author</td>
-                <td>
-                    @foreach (var bc in b.BookTitleCategories)
-                    {
-                        <span class="badge bg-secondary me-1">@bc.Category.Name</span>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="background:#F8FAFC;">
+                <button type="button"
+                        data-bs-dismiss="modal"
+                        style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;">
+                    Готово
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const hidden = document.getElementById("categoryIds");
+            const chipsRow = document.getElementById("chipsRow");
+            const chipsContainer = document.getElementById("chipsContainer");
+
+            const search = document.getElementById("catSearch");
+            const list = document.getElementById("catList");
+
+            function splitIds(v) {
+                return (v || "").split(",").map(x => x.trim()).filter(x => x.length > 0);
+            }
+            function setIds(ids) {
+                hidden.value = Array.from(new Set(ids)).join(",");
+            }
+            function addId(id) {
+                const ids = splitIds(hidden.value);
+                if (!ids.includes(String(id))) ids.push(String(id));
+                setIds(ids);
+            }
+            function removeId(id) {
+                const ids = splitIds(hidden.value).filter(x => x !== String(id));
+                setIds(ids);
+            }
+
+            const idToName = new Map();
+            document.querySelectorAll(".catParent, .catChild").forEach(cb => {
+                const id = cb.getAttribute("data-id");
+                const name = cb.parentElement?.querySelector(".catName")?.textContent?.trim() || "";
+                if (id) idToName.set(id, name);
+            });
+
+            function renderChips() {
+                const ids = splitIds(hidden.value);
+                chipsContainer.innerHTML = "";
+
+                if (ids.length === 0) {
+                    chipsRow.style.display = "none";
+                    return;
+                }
+                chipsRow.style.display = "block";
+
+                ids.forEach(id => {
+                    const name = idToName.get(id) || ("#" + id);
+
+                    const chip = document.createElement("span");
+                    chip.style.cssText = "display:inline-flex;align-items:center;gap:8px;background:#F8FAFC;border:1px solid rgba(0,0,0,.10);padding:6px 10px;border-radius:999px;font-weight:900;color:#0F766E;";
+
+                    const t = document.createElement("span");
+                    t.textContent = name;
+                    chip.appendChild(t);
+
+                    const b = document.createElement("button");
+                    b.type = "button";
+                    b.textContent = "×";
+                    b.style.cssText = "border:none;background:transparent;color:#FB923C;font-weight:950;cursor:pointer;line-height:1;";
+                    b.addEventListener("click", () => {
+                        removeId(id);
+                        const cb = document.querySelector('.catChild[data-id="' + id + '"], .catParent[data-id="' + id + '"]');
+                        if (cb) cb.checked = false;
+                        syncParentsFromChildren();
+                        renderChips();
+                    });
+
+                    chip.appendChild(b);
+                    chipsContainer.appendChild(chip);
+                });
+            }
+
+            function syncCheckboxesFromHidden() {
+                const ids = new Set(splitIds(hidden.value));
+                document.querySelectorAll(".catChild, .catParent").forEach(cb => {
+                    const id = cb.getAttribute("data-id");
+                    if (id) cb.checked = ids.has(id);
+                });
+                syncParentsFromChildren();
+            }
+
+            function syncParentsFromChildren() {
+                document.querySelectorAll(".catParent").forEach(parentCb => {
+                    const pid = parentCb.getAttribute("data-id");
+                    if (!pid) return;
+
+                    const children = Array.from(document.querySelectorAll('.catChild[data-parent="' + pid + '"]'));
+                    if (children.length === 0) { parentCb.indeterminate = false; return; }
+
+                    const checkedCount = children.filter(c => c.checked).length;
+
+                    if (checkedCount === 0) { parentCb.checked = false; parentCb.indeterminate = false; }
+                    else if (checkedCount === children.length) { parentCb.checked = true; parentCb.indeterminate = false; }
+                    else { parentCb.checked = false; parentCb.indeterminate = true; }
+                });
+            }
+
+            document.querySelectorAll(".catParent").forEach(parentCb => {
+                parentCb.addEventListener("change", () => {
+                    const pid = parentCb.getAttribute("data-id");
+                    if (!pid) return;
+
+                    const children = Array.from(document.querySelectorAll('.catChild[data-parent="' + pid + '"]'));
+                    if (parentCb.checked) {
+                        children.forEach(ch => { ch.checked = true; addId(ch.getAttribute("data-id")); });
+                    } else {
+                        children.forEach(ch => { ch.checked = false; removeId(ch.getAttribute("data-id")); });
                     }
-                </td>
-                <td>
-                    @{
-                        var available = b.BookCopies.Count(c => c.IsActive);
-                    }
-                    @available
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+                    syncParentsFromChildren();
+                    renderChips();
+                });
+            });
+
+            document.querySelectorAll(".catChild").forEach(childCb => {
+                childCb.addEventListener("change", () => {
+                    const id = childCb.getAttribute("data-id");
+                    if (!id) return;
+                    if (childCb.checked) addId(id); else removeId(id);
+                    syncParentsFromChildren();
+                    renderChips();
+                });
+            });
+
+            document.querySelectorAll(".chipRemove").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const id = btn.getAttribute("data-id");
+                    if (!id) return;
+                    removeId(id);
+                    const cb = document.querySelector('.catChild[data-id="' + id + '"], .catParent[data-id="' + id + '"]');
+                    if (cb) cb.checked = false;
+                    syncParentsFromChildren();
+                    renderChips();
+                });
+            });
+
+            search?.addEventListener("input", () => {
+                const q = (search.value || "").trim().toLowerCase();
+                const groups = Array.from(list.querySelectorAll(".catGroup"));
+
+                groups.forEach(g => {
+                    const parentText = (g.getAttribute("data-text") || "");
+                    const childRows = Array.from(g.querySelectorAll(".catChildRow"));
+                    let anyChildVisible = false;
+
+                    childRows.forEach(r => {
+                        const t = (r.getAttribute("data-text") || "");
+                        const show = !q || t.includes(q) || parentText.includes(q);
+                        r.style.display = show ? "" : "none";
+                        if (show) anyChildVisible = true;
+                    });
+
+                    const showGroup = !q || parentText.includes(q) || anyChildVisible;
+                    g.style.display = showGroup ? "" : "none";
+                });
+            });
+
+            syncCheckboxesFromHidden();
+            renderChips();
+        })();
+    </script>
+}

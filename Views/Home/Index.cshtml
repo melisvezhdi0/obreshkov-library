@@ -68,7 +68,7 @@
                                             @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())
                                             <div class="text-muted small">№ @l.Client?.CardNumber</div>
                                         </td>
-                                        <td>@l.BookCopy?.BookTitle?.Title</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
                                         <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
                                         <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
                                     </tr>
@@ -159,7 +159,7 @@
                         {
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="fw-semibold">@l.BookCopy?.BookTitle?.Title</div>
+                                    <div class="fw-semibold">@l.BookCopy?.Book?.Title</div>
                                     <div class="text-muted small">
                                         @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
                                     </div>
@@ -196,7 +196,7 @@
                         {
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="fw-semibold">@l.BookCopy?.BookTitle?.Title</div>
+                                    <div class="fw-semibold">@l.BookCopy?.Book?.Title</div>
                                     <div class="text-muted small">
                                         @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
                                         • срок: @l.DueDate.ToString("dd.MM.yyyy")

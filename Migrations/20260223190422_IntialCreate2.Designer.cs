@@ -11,8 +11,8 @@ using ObreshkovLibrary.Data;
 namespace ObreshkovLibrary.Migrations
 {
     [DbContext(typeof(ObreshkovLibraryContext))]
-    [Migration("20260222174054_InitialSqlite")]
-    partial class InitialSqlite
+    [Migration("20260223190422_IntialCreate2")]
+    partial class IntialCreate2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -59,7 +59,7 @@ namespace ObreshkovLibrary.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("BookTitles");
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("ObreshkovLibrary.Models.BookCopy", b =>

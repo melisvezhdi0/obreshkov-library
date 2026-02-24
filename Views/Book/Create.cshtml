@@ -1,0 +1,212 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.BookCreateVM
+
+@{
+    ViewData["Title"] = "Добави книга";
+}
+
+<div style="padding-top:6px;max-width:920px;">
+
+    <h1 style="color:#0F766E;font-weight:900;margin-bottom:14px;">Добави книга</h1>
+
+    <form asp-action="Create" method="post"
+          style="background:#fff;border-radius:18px;padding:16px;
+                 box-shadow:0 10px 25px rgba(0,0,0,.08);
+                 border:1px solid rgba(0,0,0,.06);">
+
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger" style="font-weight:800;"></div>
+
+        <div class="mb-3">
+            <label asp-for="Title" style="font-weight:900;color:#0F766E;">Заглавие</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Author" style="font-weight:900;color:#0F766E;">Автор</label>
+            <input asp-for="Author" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Year" style="font-weight:900;color:#0F766E;">Година</label>
+            <input asp-for="Year" type="number" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CopiesCount" style="font-weight:900;color:#0F766E;">Брой копия</label>
+            <input asp-for="CopiesCount" type="number" min="1" max="50" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" style="font-weight:900;color:#0F766E;">Описание</label>
+            <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CoverUrl" style="font-weight:900;color:#0F766E;">Линк към корица</label>
+            <input asp-for="CoverUrl" class="form-control" placeholder="https://..." />
+        </div>
+
+        <hr />
+
+        <div class="mb-3">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong style="color:#0F766E;">Категория</strong>
+                <button type="button" class="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#categoryModal"
+                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;">
+                    Избери категория
+                </button>
+            </div>
+
+            <div id="categoryPreview" style="margin-top:10px;"></div>
+
+            <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
+            <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
+        </div>
+
+        <div class="mb-3">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong style="color:#0F766E;">Етикети</strong>
+                <button type="button" class="btn"
+                        data-bs-toggle="modal"
+                        data-bs-target="#tagsModal"
+                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;">
+                    Избери етикети
+                </button>
+            </div>
+
+            <div id="tagsPreview" style="margin-top:10px;"></div>
+            <div style="color:#64748B;">Избрани: <span id="tagsCount">0</span></div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn"
+                    style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;">
+                Запази
+            </button>
+            <a asp-action="Index" class="btn"
+               style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;">
+                Назад
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Категории</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input id="catSearch" class="form-control mb-3" placeholder="Търси категория..." />
+
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Главни</strong>
+                        <div id="level1List">
+                            @foreach (var c in Model.Level1Options.OrderBy(x => x.Name))
+                            {
+                                <button type="button"
+                                        class="btn w-100 text-start level1"
+                                        data-id="@c.Id"
+                                        data-name="@c.Name">
+                                    @c.Name
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <strong>Подкатегории</strong>
+                        <div id="level2List" style="margin-top:6px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tagsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Етикети</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input id="tagSearch" class="form-control mb-3" placeholder="Търси етикет..." />
+
+                @foreach (var t in Model.TagOptions.OrderBy(x => x.Text))
+                {
+                    <label class="d-flex gap-2 align-items-center">
+                        <input type="checkbox"
+                               class="tag-check"
+                               name="SelectedTagValues"
+                               value="@t.Value"
+                               data-name="@t.Text"
+                               @(Model.SelectedTagValues.Contains(int.Parse(t.Value)) ? "checked" : "") />
+                        <strong>@t.Text</strong>
+                    </label>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const tagChecks = document.querySelectorAll('.tag-check');
+        const tagsPreview = document.getElementById('tagsPreview');
+        const tagsCount = document.getElementById('tagsCount');
+
+        function renderTags() {
+            tagsPreview.innerHTML = '';
+            const sel = [...tagChecks].filter(c => c.checked);
+            tagsCount.textContent = sel.length;
+            sel.forEach(c => {
+                const s = document.createElement('span');
+                s.textContent = c.dataset.name;
+                s.style.cssText = "margin-right:6px;padding:4px 8px;background:#E6FFFA;border-radius:999px;";
+                tagsPreview.appendChild(s);
+            });
+        }
+        tagChecks.forEach(c => c.addEventListener('change', renderTags));
+        renderTags();
+
+        const level1Btns = document.querySelectorAll('.level1');
+        const level2List = document.getElementById('level2List');
+        const preview = document.getElementById('categoryPreview');
+        const h1 = document.getElementById('Level1Hidden');
+        const h2 = document.getElementById('Level2Hidden');
+
+        async function loadChildren(id) {
+            const r = await fetch(`/Categories/GetChildren?parentId=${id}`);
+            return await r.json();
+        }
+
+        level1Btns.forEach(b => {
+            b.addEventListener('click', async () => {
+                h1.value = b.dataset.id;
+                h2.value = '';
+                preview.innerHTML = `<span>${b.dataset.name}</span>`;
+                const children = await loadChildren(b.dataset.id);
+                level2List.innerHTML = '';
+                children.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.textContent = c.name;
+                    btn.className = 'btn w-100 text-start';
+                    btn.onclick = () => {
+                        h2.value = c.id;
+                        preview.innerHTML = `<span>${b.dataset.name} → ${c.name}</span>`;
+                    };
+                    level2List.appendChild(btn);
+                });
+            });
+        });
+    </script>
+}

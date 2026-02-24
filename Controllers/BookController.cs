@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
@@ -10,13 +11,52 @@ using System.Collections.Generic;
 
 namespace ObreshkovLibrary.Controllers
 {
-    public class BookTitlesController : Controller
+    public class BookController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
 
-        public BookTitlesController(ObreshkovLibraryContext context)
+        public BookController(ObreshkovLibraryContext context)
         {
             _context = context;
+        }
+        private static List<SelectListItem> BuildTagOptions()
+        {
+            return Enum.GetValues(typeof(BookTags))
+                .Cast<BookTags>()
+                .Where(t => t != BookTags.None)
+                .Select(t => new SelectListItem
+                {
+                    Value = ((int)t).ToString(),
+                    Text = TagToBg(t)
+                })
+                .ToList();
+        }
+        private static string TagToBg(BookTags t) => t switch
+        {
+            BookTags.Classic => "Класика",
+            BookTags.Romance => "Любовен",
+            BookTags.Drama => "Драма",
+            BookTags.Fantasy => "Фентъзи",
+            BookTags.Horror => "Ужаси",
+            BookTags.Bulgarian => "Българска литература",
+            BookTags.Foreign => "Чужда литература",
+            BookTags.SchoolLiterature => "Училищна литература",
+            _ => t.ToString()
+        };
+
+        private static BookTags BuildTagsFromSelected(List<int> selected)
+        {
+            if (selected == null || selected.Count == 0)
+                return BookTags.None;
+
+            BookTags tags = BookTags.None;
+
+            foreach (var v in selected.Distinct())
+            {
+                tags |= (BookTags)v;
+            }
+
+            return tags;
         }
 
         private static BookTags ParseTagsToEnum(string? tagsText)
@@ -91,6 +131,7 @@ namespace ObreshkovLibrary.Controllers
             if (hasYear) q = q.Where(b => b.Year == year);
             if (hasTag) q = q.Where(b => (b.Tags & tagEnum) != BookTags.None);
             if (hasCats) q = q.Where(b => b.CategoryId.HasValue && selectedCategoryIds.Contains(b.CategoryId.Value));
+
             var books = await q
                 .OrderBy(b => b.Title)
                 .ThenBy(b => b.Author)
@@ -149,7 +190,9 @@ namespace ObreshkovLibrary.Controllers
                 Level1Options = await _context.Categories
                     .Where(c => c.ParentCategoryId == null && c.IsActive)
                     .OrderBy(c => c.Name)
-                    .ToListAsync()
+                    .ToListAsync(),
+
+                TagOptions = BuildTagOptions()
             };
 
             return View(vm);
@@ -162,13 +205,10 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? "").Trim();
             vm.Author = (vm.Author ?? "").Trim();
             vm.CoverUrl = string.IsNullOrWhiteSpace(vm.CoverUrl) ? null : vm.CoverUrl.Trim();
-            vm.TagsText = string.IsNullOrWhiteSpace(vm.TagsText) ? null : vm.TagsText.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
             if (!finalCategoryId.HasValue)
-            {
                 ModelState.AddModelError("", "Моля, изберете категория.");
-            }
 
             if (!ModelState.IsValid)
             {
@@ -177,8 +217,12 @@ namespace ObreshkovLibrary.Controllers
                     .OrderBy(c => c.Name)
                     .ToListAsync();
 
+                vm.TagOptions = BuildTagOptions();
+
                 return View(vm);
             }
+
+            using var tx = await _context.Database.BeginTransactionAsync();
 
             var book = new Book
             {
@@ -188,12 +232,26 @@ namespace ObreshkovLibrary.Controllers
                 Description = vm.Description,
                 CoverUrl = vm.CoverUrl,
                 CategoryId = finalCategoryId!.Value,
-                Tags = ParseTagsToEnum(vm.TagsText),
+
+                Tags = BuildTagsFromSelected(vm.SelectedTagValues),
+
                 IsActive = true
             };
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
+
+            for (int i = 0; i < vm.CopiesCount; i++)
+            {
+                _context.BookCopies.Add(new BookCopy
+                {
+                    BookId = book.Id,
+                    IsActive = true
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
 
             return RedirectToAction(nameof(Index));
         }

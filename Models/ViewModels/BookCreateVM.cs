@@ -1,12 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using ObreshkovLibrary.Models;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace ObreshkovLibrary.Models.ViewModels
 {
     public class BookCreateVM
     {
+        [Required]
         public string Title { get; set; } = "";
+
+        [Required]
         public string Author { get; set; } = "";
+
         public int? Year { get; set; }
         public string? Description { get; set; }
         public string? CoverUrl { get; set; }
@@ -16,18 +22,11 @@ namespace ObreshkovLibrary.Models.ViewModels
 
         public List<Category> Level1Options { get; set; } = new();
 
-        public string? TagsText { get; set; }
+        public List<int> SelectedTagValues { get; set; } = new();
+        public List<SelectListItem> TagOptions { get; set; } = new();
 
-        public string? CardNumber { get; set; }
-        public string? ErrorMessage { get; set; }
-
-        public List<Loan> LatestLoans { get; set; } = new();
-        public int DueTodayCount { get; set; }
-        public List<Loan> DueTodayLoans { get; set; } = new();
-
-        public int OverdueCount { get; set; }
-        public List<Loan> OverdueLoans { get; set; } = new();
-
-        public List<Book> LatestBookTitles { get; set; } = new();
+        [Required]
+        [Range(1, 50)]
+        public int CopiesCount { get; set; } = 1;
     }
 }

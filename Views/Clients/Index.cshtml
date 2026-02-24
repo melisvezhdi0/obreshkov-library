@@ -22,11 +22,16 @@
 
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div>
-            <h1 style="color:#0F766E;font-weight:900;margin-bottom:6px;">Читатели</h1>
-
+            <h2 class="section-title mb-1">Читатели<</h2>
+            <div class="accent-line"></div>
             <a asp-action="Create"
                style="background:#0F766E;color:#fff;padding:10px 16px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-block;box-shadow:0 8px 18px rgba(0,0,0,.10);">
                 Добави читател
+            </a>
+
+            <a asp-action="Archived"
+               style="background:#FFF3C4;color:#0F766E;padding:10px 16px;border-radius:10px;font-weight:800;text-decoration:none;display:inline-block;border:1px solid rgba(0,0,0,.10);margin-left:8px;">
+                Архив
             </a>
 
             @if (hasFilters)
@@ -116,13 +121,13 @@
     @if (noResults)
     {
         <div style="
-                margin-top:18px;
-                background:#fff;
-                border-radius:18px;
-                padding:16px 18px;
-                box-shadow:0 10px 25px rgba(0,0,0,0.08);
-                border:1px solid rgba(0,0,0,0.06);
-            ">
+                    margin-top:18px;
+                    background:#fff;
+                    border-radius:18px;
+                    padding:16px 18px;
+                    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+                    border:1px solid rgba(0,0,0,0.06);
+                ">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
                 <div>
                     <div style="font-weight:950;color:#0F766E;font-size:1.15rem;margin-bottom:4px;">

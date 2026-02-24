@@ -237,7 +237,7 @@
                 <a class="navbar-brand"
                    asp-controller="Home"
                    asp-action="Index">
-                    Ученическа библиотека „Обрешков“
+                    Училищна библиотека „Обрешков“
                 </a>
 
                 <button class="navbar-toggler"
@@ -330,5 +330,48 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        document.addEventListener('submit', async function (e) {
+
+            const form = e.target;
+
+            if (!form.matches('form[data-gate="1"]')) return;
+
+            const submitter = e.submitter;
+
+            e.preventDefault();
+
+            const pwd = prompt('Парола:');
+            if (!pwd) return;
+
+            const tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            const body = new URLSearchParams();
+            body.set('password', pwd);
+            if (token) body.set('__RequestVerificationToken', token);
+
+            const res = await fetch('/Gate/Unlock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body
+            });
+
+            if (!res.ok) {
+                alert('Грешна парола');
+                return;
+            }
+
+            if (submitter) {
+                const fa = submitter.getAttribute('formaction');
+                if (fa) form.setAttribute('action', fa);
+
+                const fm = submitter.getAttribute('formmethod');
+                if (fm) form.setAttribute('method', fm);
+            }
+
+            form.submit();
+        });
+    </script>
 </body>
 </html>

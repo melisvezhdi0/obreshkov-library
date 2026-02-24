@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
+using ObreshkovLibrary.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,11 +15,14 @@ namespace ObreshkovLibrary.Controllers
     public class BookController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly BookDeactivateService _bookDeactivate;
 
-        public BookController(ObreshkovLibraryContext context)
+        public BookController(ObreshkovLibraryContext context, BookDeactivateService bookDeactivate)
         {
             _context = context;
+            _bookDeactivate = bookDeactivate;
         }
+
         private static List<SelectListItem> BuildTagOptions()
         {
             return Enum.GetValues(typeof(BookTags))
@@ -31,6 +35,7 @@ namespace ObreshkovLibrary.Controllers
                 })
                 .ToList();
         }
+
         private static string TagToBg(BookTags t) => t switch
         {
             BookTags.Classic => "Класика",
@@ -52,11 +57,21 @@ namespace ObreshkovLibrary.Controllers
             BookTags tags = BookTags.None;
 
             foreach (var v in selected.Distinct())
-            {
                 tags |= (BookTags)v;
-            }
 
             return tags;
+        }
+
+        private static List<int> TagsToSelectedValues(BookTags tags)
+        {
+            if (tags == BookTags.None) return new List<int>();
+
+            return Enum.GetValues(typeof(BookTags))
+                .Cast<BookTags>()
+                .Where(t => t != BookTags.None && (tags & t) == t)
+                .Select(t => (int)t)
+                .Distinct()
+                .ToList();
         }
 
         private static BookTags ParseTagsToEnum(string? tagsText)
@@ -170,9 +185,38 @@ namespace ObreshkovLibrary.Controllers
             return View(books);
         }
 
+        // GET: Book/Archived
+        [HttpGet]
+        public async Task<IActionResult> Archived(string? title, string? author)
+        {
+            title = (title ?? "").Trim();
+            author = (author ?? "").Trim();
+
+            var q = _context.Books
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .Where(b => !b.IsActive)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(title)) q = q.Where(b => b.Title.Contains(title));
+            if (!string.IsNullOrWhiteSpace(author)) q = q.Where(b => b.Author.Contains(author));
+
+            var books = await q
+                .OrderBy(b => b.Title)
+                .ThenBy(b => b.Author)
+                .ToListAsync();
+
+            ViewBag.TitleFilter = title;
+            ViewBag.Author = author;
+
+            return View(books);
+        }
+
         public IActionResult Details(int id)
         {
             var book = _context.Books
+                .IgnoreQueryFilters()
                 .Include(b => b.Category)
                 .FirstOrDefault(b => b.Id == id);
 
@@ -232,9 +276,7 @@ namespace ObreshkovLibrary.Controllers
                 Description = vm.Description,
                 CoverUrl = vm.CoverUrl,
                 CategoryId = finalCategoryId!.Value,
-
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
-
                 IsActive = true
             };
 
@@ -254,6 +296,157 @@ namespace ObreshkovLibrary.Controllers
             await tx.CommitAsync();
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Book/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var book = await _context.Books
+                .IgnoreQueryFilters()
+                .Include(b => b.Category)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            int? level1Id = null;
+            int? level2Id = null;
+            if (book.CategoryId.HasValue)
+            {
+                var cat = await _context.Categories
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(c => c.Id == book.CategoryId.Value);
+
+                if (cat != null)
+                {
+                    if (cat.ParentCategoryId.HasValue)
+                    {
+                        level1Id = cat.ParentCategoryId.Value;
+                        level2Id = cat.Id;
+                    }
+                    else
+                    {
+                        level1Id = cat.Id;
+                        level2Id = null;
+                    }
+                }
+            }
+
+            var vm = new BookCreateVM
+            {
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year,
+                Description = book.Description,
+                CoverUrl = book.CoverUrl,
+                Level1Id = level1Id,
+                Level2Id = level2Id,
+
+                CopiesCount = Math.Max(1, await _context.BookCopies
+                    .IgnoreQueryFilters()
+                    .CountAsync(c => c.BookId == book.Id)),
+
+                Level1Options = await _context.Categories
+                    .Where(c => c.ParentCategoryId == null && c.IsActive)
+                    .OrderBy(c => c.Name)
+                    .ToListAsync(),
+
+                TagOptions = BuildTagOptions(),
+                SelectedTagValues = TagsToSelectedValues(book.Tags)
+            };
+
+            ViewBag.BookId = book.Id;
+            ViewBag.IsBookActive = book.IsActive;
+
+            return View(vm);
+        }
+
+        // POST: Book/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, BookCreateVM vm)
+        {
+            var book = await _context.Books
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            vm.Title = (vm.Title ?? "").Trim();
+            vm.Author = (vm.Author ?? "").Trim();
+            vm.CoverUrl = string.IsNullOrWhiteSpace(vm.CoverUrl) ? null : vm.CoverUrl.Trim();
+
+            var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
+            if (!finalCategoryId.HasValue)
+                ModelState.AddModelError("", "Моля, изберете категория.");
+
+            if (!ModelState.IsValid)
+            {
+                vm.Level1Options = await _context.Categories
+                    .Where(c => c.ParentCategoryId == null && c.IsActive)
+                    .OrderBy(c => c.Name)
+                    .ToListAsync();
+
+                vm.TagOptions = BuildTagOptions();
+                ViewBag.BookId = book.Id;
+                ViewBag.IsBookActive = book.IsActive;
+
+                return View(vm);
+            }
+
+            book.Title = vm.Title;
+            book.Author = vm.Author;
+            book.Year = vm.Year;
+            book.Description = vm.Description;
+            book.CoverUrl = vm.CoverUrl;
+            book.CategoryId = finalCategoryId!.Value;
+            book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
+
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = book.Id });
+        }
+
+        // POST: Book/Deactivate/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(int id)
+        {
+            try
+            {
+                await _bookDeactivate.DeactivateBookTitleAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Edit), new { id });
+            }
+        }
+
+        // POST: Book/Reactivate/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reactivate(int id)
+        {
+            var book = await _context.Books
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null) return NotFound();
+
+            book.IsActive = true;
+
+            var copies = await _context.BookCopies
+                .IgnoreQueryFilters()
+                .Where(c => c.BookId == id)
+                .ToListAsync();
+
+            foreach (var c in copies)
+                c.IsActive = true;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Archived));
         }
     }
 }

@@ -1,73 +1,144 @@
 ﻿@model ObreshkovLibrary.Models.Client
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактиране на читател";
 }
+<h2 class="section-title mb-1">Редактиране на читател</h2>
+<div class="accent-line"></div>
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
 
-<h1>Edit</h1>
+        <div style="
+            background:#ffffff;
+            border-radius:20px;
+            padding:32px;
+            border:1px solid rgba(0,0,0,.08);
+            box-shadow:0 12px 28px rgba(0,0,0,.10);
+        ">
 
-<h4>Client</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MiddleName" class="control-label">Презиме</label>
-                <input asp-for="MiddleName" class="form-control" />
-                <span asp-validation-for="MiddleName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Grade" class="control-label">Клас</label>
-                <select asp-for="Grade" class="form-control">
-                    <option value="">-- Избери --</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                </select>
-                <span asp-validation-for="Grade" class="text-danger"></span>
-            </div>
+            <form asp-action="Edit" method="post" data-gate="1">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="form-group">
-                <label asp-for="Section" class="control-label">Паралелка</label>
-                <select asp-for="Section" class="form-control">
-                    <option value="">-- Избери --</option>
-                    <option value="А">А</option>
-                    <option value="Б">Б</option>
-                    <option value="В">В</option>
-                    <option value="Г">Г</option>
-                </select>
-                <span asp-validation-for="Section" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Име</label>
+                    <input asp-for="FirstName" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Презиме</label>
+                    <input asp-for="MiddleName" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="MiddleName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Фамилия</label>
+                    <input asp-for="LastName" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Телефонен номер</label>
+                    <input asp-for="PhoneNumber" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label style="font-weight:900;color:#0F766E;">Клас</label>
+                        <select asp-for="Grade" class="form-select"
+                                style="background:#EFFFFC;border-color:#9FE3DA;">
+                            <option value="">-- Избери --</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                        </select>
+                        <span asp-validation-for="Grade" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label style="font-weight:900;color:#0F766E;">Паралелка</label>
+                        <select asp-for="Section" class="form-select"
+                                style="background:#EFFFFC;border-color:#9FE3DA;">
+                            <option value="">-- Избери --</option>
+                            <option value="А">А</option>
+                            <option value="Б">Б</option>
+                            <option value="В">В</option>
+                            <option value="Г">Г</option>
+                        </select>
+                        <span asp-validation-for="Section" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <button type="submit"
+                            style="
+                                background:#FB923C;
+                                color:#fff;
+                                font-weight:900;
+                                border:none;
+                                border-radius:12px;
+                                padding:10px 16px;
+                                box-shadow:0 8px 18px rgba(0,0,0,.10);
+                            ">
+                        Запази
+                    </button>
+
+                    <a asp-action="Index"
+                       style="
+                            background:#FFF3C4;
+                            color:#0F766E;
+                            font-weight:900;
+                            border-radius:12px;
+                            border:1px solid rgba(0,0,0,.10);
+                            padding:10px 16px;
+                            text-decoration:none;
+                       ">
+                        Назад
+                    </a>
+
+                    <div style="flex:1;"></div>
+
+                    @if (Model.IsActive)
+                    {
+                        <button type="submit"
+                                formaction="@Url.Action("Deactivate", "Clients")"
+                                formmethod="post"
+                                style="
+                                            background:#EF4444;
+                                            color:#fff;
+                                            font-weight:900;
+                                            border:none;
+                                            border-radius:12px;
+                                            padding:10px 16px;
+                                            box-shadow:0 8px 18px rgba(0,0,0,.10);
+                                        ">
+                            Деактивирай
+                        </button>
+                    }
+                    else
+                    {
+                        <span style="font-weight:900;color:#64748B;">Деактивиран</span>
+                    }
+                </div>
+
+            </form>
+
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

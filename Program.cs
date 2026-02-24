@@ -22,6 +22,14 @@ namespace ObreshkovLibrary
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
 
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(o =>
+            {
+                o.IdleTimeout = TimeSpan.FromHours(2);
+                o.Cookie.HttpOnly = true;
+                o.Cookie.IsEssential = true;
+            });
+
             var app = builder.Build();
 
             if (!app.Environment.IsDevelopment())
@@ -35,6 +43,35 @@ namespace ObreshkovLibrary
 
             app.UseRouting();
             app.UseAuthorization();
+            app.UseSession();
+
+            app.Use(async (context, next) =>
+            {
+                var path = (context.Request.Path.Value ?? "").ToLowerInvariant();
+                var method = (context.Request.Method ?? "GET").ToUpperInvariant();
+
+                if (path.StartsWith("/gate") ||
+                    path.StartsWith("/css") || path.StartsWith("/js") ||
+                    path.StartsWith("/lib") || path.StartsWith("/images") ||
+                    path.StartsWith("/favicon"))
+                {
+                    await next();
+                    return;
+                }
+
+                bool isWrite = method != "GET";
+
+                if (isWrite)
+                {
+                    if (context.Session.GetString("GateOk") != "1")
+                    {
+                        context.Response.StatusCode = 403;
+                        return;
+                    }
+                }
+
+                await next();
+            });
 
             app.MapControllerRoute(
                 name: "default",

@@ -1,0 +1,115 @@
+﻿@model IEnumerable<ObreshkovLibrary.Models.Book>
+
+@{
+    ViewData["Title"] = "Архив книги";
+
+    string titleFilter = (ViewBag.TitleFilter ?? "").ToString();
+    string authorValue = (ViewBag.Author ?? "").ToString();
+
+    bool hasAny = !string.IsNullOrWhiteSpace(titleFilter) || !string.IsNullOrWhiteSpace(authorValue);
+    bool noResults = (Model == null || !Model.Any()) && hasAny;
+}
+
+<div style="padding-top:6px;">
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <h2 class="section-title mb-1">Архив — книги</h2>
+            <div class="accent-line"></div>
+        </div>
+
+        <a asp-action="Index"
+           style="background:#0F766E;color:#fff;padding:10px 16px;border-radius:12px;
+                  font-weight:900;text-decoration:none;display:inline-block;
+                  box-shadow:0 8px 18px rgba(0,0,0,.10);">
+            Към активни
+        </a>
+    </div>
+
+    <div style="margin-top:16px;background:#fff;border-radius:18px;padding:14px;
+                box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+
+        <form id="filterForm" method="get" asp-action="Archived">
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+
+                <input name="title"
+                       value="@titleFilter"
+                       placeholder="Заглавие"
+                       style="flex:1;min-width:220px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;box-shadow:0 6px 14px rgba(0,0,0,.06);" />
+
+                <input name="author"
+                       value="@authorValue"
+                       placeholder="Автор"
+                       style="flex:1;min-width:220px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;box-shadow:0 6px 14px rgba(0,0,0,.06);" />
+
+                <button type="submit"
+                        style="background:#FB923C;color:white;border:none;padding:10px 14px;border-radius:12px;font-weight:900;box-shadow:0 8px 18px rgba(0,0,0,.10);white-space:nowrap;">
+                    Търси
+                </button>
+
+                <a asp-action="Archived"
+                   style="background:#FFF3C4;color:#0F766E;border:1px solid rgba(0,0,0,.10);padding:10px 12px;border-radius:12px;font-weight:900;text-decoration:none;white-space:nowrap;">
+                    Изчисти
+                </a>
+            </div>
+        </form>
+
+        @if (noResults)
+        {
+            <div style="margin-top:14px;color:#64748B;font-weight:800;">Няма резултати в архива по тези филтри.</div>
+        }
+
+    </div>
+
+    <div style="margin-top:16px;background:#fff;border-radius:18px;padding:14px;
+                box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+
+        @if (Model == null || !Model.Any())
+        {
+            <div style="color:#64748B;font-weight:800;">Архивът е празен.</div>
+        }
+        else
+        {
+            <div style="overflow:auto;">
+                <table style="width:100%;border-collapse:separate;border-spacing:0 10px;">
+                    <thead>
+                        <tr style="color:#0F766E;font-weight:900;text-align:left;">
+                            <th style="padding:6px 10px;">Заглавие</th>
+                            <th style="padding:6px 10px;">Автор</th>
+                            <th style="padding:6px 10px;">Година</th>
+                            <th style="padding:6px 10px;">Категория</th>
+                            <th style="padding:6px 10px;text-align:right;">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model)
+                        {
+                            <tr style="background:#F8FAFC;border:1px solid rgba(0,0,0,.06);">
+                                <td style="padding:10px 10px;border-top-left-radius:12px;border-bottom-left-radius:12px;font-weight:900;color:#0F766E;">
+                                    @b.Title
+                                </td>
+                                <td style="padding:10px 10px;">@b.Author</td>
+                                <td style="padding:10px 10px;">@b.Year</td>
+                                <td style="padding:10px 10px;">@(b.Category?.Name ?? "-")</td>
+                                <td style="padding:10px 10px;border-top-right-radius:12px;border-bottom-right-radius:12px;text-align:right;white-space:nowrap;">
+                                    <a asp-action="Details" asp-route-id="@b.Id"
+                                       style="background:#0F766E;color:#fff;padding:8px 12px;border-radius:10px;font-weight:900;text-decoration:none;display:inline-block;">
+                                        Детайли
+                                    </a>
+
+                                    <form asp-action="Reactivate" asp-route-id="@b.Id" method="post" data-gate="1" style="display:inline;margin-left:8px;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                                style="background:#FB923C;color:#fff;border:none;padding:8px 12px;border-radius:10px;font-weight:900;">
+                                            Възстанови
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

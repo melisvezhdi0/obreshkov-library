@@ -1,0 +1,536 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.BookCreateVM
+
+@{
+    ViewData["Title"] = "Редактиране на книга";
+}
+<h2 class="section-title mb-1">Редактиране на книга</h2>
+<div class="accent-line"></div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+        <div style="
+            background:#ffffff;
+            border-radius:20px;
+            padding:32px;
+            border:1px solid rgba(0,0,0,.08);
+            box-shadow:0 12px 28px rgba(0,0,0,.10);
+        ">
+
+            <form asp-action="Edit" method="post" data-gate="1">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" name="Id" value="@ViewBag.BookId" />
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Заглавие</label>
+                    <input asp-for="Title" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Автор</label>
+                    <input asp-for="Author" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="Author" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Година</label>
+                    <input asp-for="Year" type="number" class="form-control"
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="Year" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight:900;color:#0F766E;">Описание</label>
+                    <textarea asp-for="Description" rows="4" class="form-control"
+                              style="background:#EFFFFC;border-color:#9FE3DA;"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label style="font-weight:900;color:#0F766E;">Линк към корица</label>
+                    <input asp-for="CoverUrl" class="form-control"
+                           placeholder="https://..."
+                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                    <span asp-validation-for="CoverUrl" class="text-danger"></span>
+                </div>
+
+                <!-- Категория -->
+                <div class="mb-3">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                        <div style="font-weight:900;color:#0F766E;">Категория</div>
+
+                        <button type="button"
+                                class="btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#categoryPickerModal"
+                                style="
+                                    background:#FB923C;
+                                    color:#fff;
+                                    font-weight:900;
+                                    border:none;
+                                    border-radius:12px;
+                                    padding:10px 16px;
+                                    box-shadow:0 8px 18px rgba(0,0,0,.10);
+                                ">
+                            Избери категория
+                        </button>
+                    </div>
+
+                    <div id="categoryPreview" style="margin-top:10px;"></div>
+
+                    <input asp-for="Level1Id" type="hidden" id="Level1IdHidden" />
+                    <input asp-for="Level2Id" type="hidden" id="Level2IdHidden" />
+
+                    <div style="margin-top:6px;">
+                        <span asp-validation-for="Level1Id" class="text-danger"></span>
+                        <span asp-validation-for="Level2Id" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- Етикети -->
+                <div class="mb-4">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                        <div style="font-weight:900;color:#0F766E;">Етикети</div>
+
+                        <button type="button"
+                                class="btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#tagsPickerModal"
+                                style="
+                                    background:#FB923C;
+                                    color:#fff;
+                                    font-weight:900;
+                                    border:none;
+                                    border-radius:12px;
+                                    padding:10px 16px;
+                                    box-shadow:0 8px 18px rgba(0,0,0,.10);
+                                ">
+                            Избери етикети
+                        </button>
+                    </div>
+
+                    <div id="selectedTagsPreview" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+                    <div style="color:#64748B;">Избрани: <span id="selectedTagsCount">0</span></div>
+                </div>
+
+                <!-- бутони -->
+                <div class="d-flex align-items-center gap-2">
+                    <button type="submit"
+                            style="
+                                background:#FB923C;
+                                color:#fff;
+                                font-weight:900;
+                                border:none;
+                                border-radius:12px;
+                                padding:10px 16px;
+                                box-shadow:0 8px 18px rgba(0,0,0,.10);
+                            ">
+                        Запази
+                    </button>
+
+                    <a asp-action="Index"
+                       style="
+                            background:#FFF3C4;
+                            color:#0F766E;
+                            font-weight:900;
+                            border-radius:12px;
+                            border:1px solid rgba(0,0,0,.10);
+                            padding:10px 16px;
+                            text-decoration:none;
+                       ">
+                        Назад
+                    </a>
+
+                    <div style="flex:1;"></div>
+
+                    @if (ViewBag.IsBookActive == true)
+                    {
+                        <button type="submit"
+                                formaction="@Url.Action("Deactivate", "Book")"
+                                formmethod="post"
+                                style="
+                                                background:#EF4444;
+                                                color:#fff;
+                                                font-weight:900;
+                                                border:none;
+                                                border-radius:12px;
+                                                padding:10px 16px;
+                                                box-shadow:0 8px 18px rgba(0,0,0,.10);
+                                            ">
+                            Деактивирай
+                        </button>
+                    }
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: Категории ===== -->
+<div class="modal fade" id="categoryPickerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
+            <div class="modal-header" style="background:#E6FFFA;">
+                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Категории</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input id="catSearch"
+                           type="text"
+                           class="form-control"
+                           placeholder="Търси категория..."
+                           style="border-radius:12px;background:#EFFFFC;border-color:#9FE3DA;" />
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                    <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
+                        <div style="font-weight:900;color:#0F766E;margin-bottom:8px;">Главни категории</div>
+
+                        <div id="level1List" style="display:flex;flex-direction:column;gap:8px;">
+                            @{
+                                var level1 = (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>())
+                                .OrderBy(x => x.Name)
+                                .ToList();
+
+                                for (int i = 0; i < level1.Count; i++)
+                                {
+                                    var c = level1[i];
+                                    <button type="button"
+                                            class="btn level1-item"
+                                            data-id="@c.Id"
+                                            data-name="@c.Name"
+                                            style="text-align:left;background:#fff;border:1px solid rgba(0,0,0,.06);
+                                                                   border-radius:12px;padding:10px 12px;font-weight:900;color:#0F766E;">
+                                        @c.Name
+                                    </button>
+                                }
+                            }
+                        </div>
+
+                        <div id="noLevel1Found"
+                             style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                            Няма резултат.
+                        </div>
+                    </div>
+
+                    <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
+                        <div style="font-weight:900;color:#0F766E;margin-bottom:8px;">Подкатегории</div>
+
+                        <div id="level2Hint" style="color:#64748B;font-weight:800;">
+                            Избери главна категория, за да се покажат подкатегориите.
+                        </div>
+
+                        <div id="level2List" style="display:none;flex-direction:column;gap:8px;"></div>
+
+                        <div id="noLevel2Found"
+                             style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                            Няма подкатегории по това търсене.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                    <button type="button"
+                            id="btnClearCategory"
+                            class="btn"
+                            style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                        Изчисти
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            data-bs-dismiss="modal"
+                            style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                        Готово
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL: Етикети ===== -->
+<div class="modal fade" id="tagsPickerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
+            <div class="modal-header" style="background:#E6FFFA;">
+                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Етикети</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input id="tagsSearch"
+                           type="text"
+                           class="form-control"
+                           placeholder="Търси етикет..."
+                           style="border-radius:12px;background:#EFFFFC;border-color:#9FE3DA;" />
+                </div>
+
+                <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
+                    <div id="tagsList" style="display:flex;flex-direction:column;gap:8px;">
+                        @{
+                            var ordered = (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                            .OrderBy(x => x.Text)
+                            .ToList();
+
+                            for (int i = 0; i < ordered.Count; i++)
+                            {
+                                var opt = ordered[i];
+                                var isChecked = Model.SelectedTagValues != null
+                                && Model.SelectedTagValues.Contains(int.Parse(opt.Value));
+
+                                <label class="form-check tag-item"
+                                       data-tag-text="@opt.Text"
+                                       style="display:flex;align-items:center;gap:10px;background:#fff;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.06);">
+                                    <input class="form-check-input tag-checkbox"
+                                           type="checkbox"
+                                           name="SelectedTagValues"
+                                           value="@opt.Value"
+                                           id="tagopt_@i"
+                                           data-label="@opt.Text"
+                                           @(isChecked ? "checked" : "") />
+                                    <span style="font-weight:900;color:#0F766E;">@opt.Text</span>
+                                </label>
+                            }
+                        }
+                    </div>
+
+                    <div id="noTagsFound"
+                         style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                        Няма етикети по това търсене.
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                    <button type="button"
+                            id="btnClearAllTags"
+                            class="btn"
+                            style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                        Изчисти
+                    </button>
+
+                    <button type="button"
+                            class="btn"
+                            data-bs-dismiss="modal"
+                            style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                        Готово
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        async function loadChildren(parentId) {
+            const res = await fetch(`/Categories/GetChildren?parentId=${parentId}`);
+            return await res.json();
+        }
+
+        (function () {
+            const level1Hidden = document.getElementById('Level1IdHidden');
+            const level2Hidden = document.getElementById('Level2IdHidden');
+
+            const preview = document.getElementById('categoryPreview');
+            const catSearch = document.getElementById('catSearch');
+
+            const level1Btns = Array.from(document.querySelectorAll('.level1-item'));
+            const noLevel1Found = document.getElementById('noLevel1Found');
+
+            const level2Hint = document.getElementById('level2Hint');
+            const level2List = document.getElementById('level2List');
+            const noLevel2Found = document.getElementById('noLevel2Found');
+
+            const btnClearCategory = document.getElementById('btnClearCategory');
+
+            let selectedLevel1 = { id: level1Hidden.value || null, name: null };
+            let selectedLevel2 = { id: level2Hidden.value || null, name: null };
+            let currentChildren = [];
+
+            function pill(text) {
+                const s = document.createElement('span');
+                s.style.cssText = "display:inline-flex;align-items:center;background:#E6FFFA;color:#0F766E;padding:6px 10px;border-radius:999px;font-weight:900;border:1px solid rgba(0,0,0,.08);margin-right:6px;";
+                s.textContent = text;
+                return s;
+            }
+
+            function renderPreview() {
+                preview.innerHTML = "";
+                if (!selectedLevel1.id) {
+                    preview.appendChild(pill("Няма избрана категория"));
+                    preview.firstChild.style.background = "#F8FAFC";
+                    preview.firstChild.style.color = "#64748B";
+                    return;
+                }
+                if (selectedLevel1.name) preview.appendChild(pill(selectedLevel1.name));
+                if (selectedLevel2.id && selectedLevel2.name) preview.appendChild(pill("→ " + selectedLevel2.name));
+            }
+
+            function applyLevel1Filter() {
+                const q = (catSearch.value || '').trim().toLowerCase();
+                let visible = 0;
+                level1Btns.forEach(b => {
+                    const name = (b.getAttribute('data-name') || '').toLowerCase();
+                    const show = !q || name.includes(q);
+                    b.style.display = show ? '' : 'none';
+                    if (show) visible++;
+                });
+                noLevel1Found.style.display = visible === 0 ? '' : 'none';
+            }
+
+            catSearch.addEventListener('input', applyLevel1Filter);
+
+            level1Btns.forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    selectedLevel1.id = btn.getAttribute('data-id');
+                    selectedLevel1.name = btn.getAttribute('data-name');
+                    level1Hidden.value = selectedLevel1.id;
+
+                    selectedLevel2.id = null;
+                    selectedLevel2.name = null;
+                    level2Hidden.value = "";
+
+                    level2Hint.style.display = "none";
+                    level2List.style.display = "flex";
+                    level2List.innerHTML = "";
+                    noLevel2Found.style.display = "none";
+
+                    currentChildren = await loadChildren(selectedLevel1.id);
+
+                    currentChildren.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'bg'));
+
+                    if (currentChildren.length === 0) {
+                        level2Hint.style.display = "block";
+                        level2Hint.textContent = "Няма подкатегории.";
+                        level2List.style.display = "none";
+                    } else {
+                        currentChildren.forEach(c => {
+                            const b = document.createElement('button');
+                            b.type = "button";
+                            b.className = "btn";
+                            b.textContent = c.name;
+                            b.style.cssText = "text-align:left;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:10px 12px;font-weight:900;color:#0F766E;";
+                            b.addEventListener('click', () => {
+                                selectedLevel2.id = c.id;
+                                selectedLevel2.name = c.name;
+                                level2Hidden.value = c.id;
+                                renderPreview();
+                            });
+                            level2List.appendChild(b);
+                        });
+                    }
+
+                    renderPreview();
+                });
+            });
+
+            btnClearCategory.addEventListener('click', () => {
+                selectedLevel1 = { id: null, name: null };
+                selectedLevel2 = { id: null, name: null };
+                level1Hidden.value = "";
+                level2Hidden.value = "";
+                catSearch.value = "";
+                applyLevel1Filter();
+
+                level2Hint.style.display = "block";
+                level2Hint.textContent = "Избери главна категория, за да се покажат подкатегориите.";
+                level2List.style.display = "none";
+                level2List.innerHTML = "";
+                noLevel2Found.style.display = "none";
+
+                renderPreview();
+            });
+
+            // init
+            renderPreview();
+            applyLevel1Filter();
+
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const searchInput = document.getElementById('tagsSearch');
+            const noFound = document.getElementById('noTagsFound');
+            const clearBtn = document.getElementById('btnClearAllTags');
+
+            const preview = document.getElementById('selectedTagsPreview');
+            const countEl = document.getElementById('selectedTagsCount');
+
+            function getCheckboxes() {
+                return Array.from(document.querySelectorAll('.tag-checkbox'));
+            }
+
+            function renderPreview() {
+                const checked = getCheckboxes().filter(x => x.checked);
+
+                preview.innerHTML = '';
+                checked
+                    .map(cb => cb.dataset.label || 'Етикет')
+                    .sort((a, b) => a.localeCompare(b, 'bg'))
+                    .forEach(label => {
+                        const pill = document.createElement('span');
+                        pill.style.cssText = "display:inline-flex;align-items:center;background:#E6FFFA;color:#0F766E;padding:6px 10px;border-radius:999px;font-weight:900;border:1px solid rgba(0,0,0,.08);";
+                        pill.textContent = label;
+                        preview.appendChild(pill);
+                    });
+
+                countEl.textContent = checked.length.toString();
+            }
+
+            function applyFilter() {
+                const q = (searchInput.value || '').trim().toLowerCase();
+                const items = Array.from(document.querySelectorAll('.tag-item'));
+                let visibleCount = 0;
+
+                items.forEach(item => {
+                    const text = (item.getAttribute('data-tag-text') || '').toLowerCase();
+                    const show = !q || text.includes(q);
+                    item.style.display = show ? '' : 'none';
+                    if (show) visibleCount++;
+                });
+
+                noFound.style.display = visibleCount === 0 ? '' : 'none';
+            }
+
+            searchInput.addEventListener('input', applyFilter);
+
+            document.addEventListener('change', (e) => {
+                const t = e.target;
+                if (t && t.classList && t.classList.contains('tag-checkbox')) {
+                    renderPreview();
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                getCheckboxes().forEach(cb => cb.checked = false);
+                renderPreview();
+                searchInput.value = '';
+                applyFilter();
+            });
+
+            document.getElementById('tagsPickerModal').addEventListener('shown.bs.modal', () => {
+                searchInput.value = '';
+                applyFilter();
+                searchInput.focus();
+            });
+
+            renderPreview();
+            applyFilter();
+        })();
+    </script>
+}

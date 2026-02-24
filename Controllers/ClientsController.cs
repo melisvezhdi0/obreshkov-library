@@ -17,10 +17,62 @@ namespace ObreshkovLibrary.Controllers
             _context = context;
         }
 
-        // GET: Clients
+        // GET: Clients (активни)
         public async Task<IActionResult> Index(string? search, string? classFilter)
         {
             var q = _context.Clients.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(classFilter))
+            {
+                var cf = classFilter.Trim().Replace(" ", "").ToUpper();
+
+                q = q.Where(c =>
+                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
+                        .ToUpper()
+                        .Replace(" ", ""))
+                    == cf
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim();
+                var sNoSpacesUpper = s.Replace(" ", "").ToUpper();
+
+                q = q.Where(c =>
+                    (c.FirstName ?? "").Contains(s) ||
+                    (c.MiddleName ?? "").Contains(s) ||
+                    (c.LastName ?? "").Contains(s) ||
+                    (c.PhoneNumber ?? "").Contains(s) ||
+                    (c.CardNumber ?? "").Contains(s) ||
+                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
+                        .ToUpper()
+                        .Replace(" ", ""))
+                        .Contains(sNoSpacesUpper)
+                );
+            }
+
+            var clients = await q
+                .OrderBy(c => c.Grade ?? int.MaxValue)
+                .ThenBy(c => c.Section ?? "")
+                .ThenBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
+                .Where(c => c.IsActive)
+                .ToListAsync();
+
+            ViewBag.Search = search;
+            ViewBag.ClassFilter = classFilter;
+
+            return View(clients);
+        }
+
+        // GET: Clients/Archived (архив)
+        public async Task<IActionResult> Archived(string? search, string? classFilter)
+        {
+            var q = _context.Clients
+                .IgnoreQueryFilters()
+                .Where(c => !c.IsActive)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {
@@ -71,6 +123,7 @@ namespace ObreshkovLibrary.Controllers
             if (id == null) return NotFound();
 
             var client = await _context.Clients
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (client == null) return NotFound();
@@ -120,7 +173,10 @@ namespace ObreshkovLibrary.Controllers
             if (id == null)
                 return NotFound();
 
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (client == null)
                 return NotFound();
 
@@ -130,29 +186,37 @@ namespace ObreshkovLibrary.Controllers
         // POST: Clients/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != client.Id)
+            var clientToUpdate = await _context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (clientToUpdate == null)
                 return NotFound();
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync(clientToUpdate, "",
+                c => c.FirstName,
+                c => c.MiddleName,
+                c => c.LastName,
+                c => c.PhoneNumber,
+                c => c.Grade,
+                c => c.Section))
             {
                 try
                 {
-                    _context.Update(client);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClientExists(client.Id))
+                    if (!ClientExists(clientToUpdate.Id))
                         return NotFound();
-                    else
-                        throw;
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
 
-            return View(client);
+            return View(clientToUpdate);
         }
 
         // GET: Clients/Delete/5
@@ -162,6 +226,7 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
 
             var client = await _context.Clients
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (client == null)
@@ -170,22 +235,59 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // POST: Clients/Delete/5
+        // POST: Clients/Delete/5  -> Soft delete (архив)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
+
             if (client != null)
-                _context.Clients.Remove(client);
+                client.IsActive = false;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Deactivate(int Id)
+        {
+            var client = await _context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == Id);
+
+            if (client == null) return NotFound();
+
+            client.IsActive = false;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reactivate(int Id)
+        {
+            var client = await _context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == Id);
+
+            if (client == null) return NotFound();
+
+            client.IsActive = true;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Archived));
+        }
+
         private bool ClientExists(int id)
         {
-            return _context.Clients.Any(e => e.Id == id);
+            return _context.Clients
+                .IgnoreQueryFilters()
+                .Any(e => e.Id == id);
         }
 
         private async Task<string> GenerateUniqueCardNumberAsync()

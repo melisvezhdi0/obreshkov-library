@@ -304,6 +304,9 @@
                                 <li><a class="dropdown-item" asp-controller="Categories" asp-action="Create">Добавяне</a></li>
                                 <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Редактиране</a></li>
                             </ul>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Archive" asp-action="Index">Архив</a>
+                        </li>
                         </li>
 
                     </ul>
@@ -331,13 +334,20 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
-        document.addEventListener('submit', async function (e) {
+        (function () {
+          let lastSubmitter = null;
 
+          document.addEventListener('click', function (e) {
+            const btn = e.target.closest('button[type="submit"], input[type="submit"]');
+            if (btn) lastSubmitter = btn;
+          }, true);
+
+          document.addEventListener('submit', async function (e) {
             const form = e.target;
-
             if (!form.matches('form[data-gate="1"]')) return;
 
-            const submitter = e.submitter;
+            // e.submitter понякога е null -> fallback
+            const submitter = e.submitter || lastSubmitter;
 
             e.preventDefault();
 
@@ -352,26 +362,28 @@
             if (token) body.set('__RequestVerificationToken', token);
 
             const res = await fetch('/Gate/Unlock', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+              body: body.toString()
             });
 
             if (!res.ok) {
-                alert('Грешна парола');
-                return;
+              alert('Грешна парола');
+              return;
             }
 
             if (submitter) {
-                const fa = submitter.getAttribute('formaction');
-                if (fa) form.setAttribute('action', fa);
+              const fa = submitter.getAttribute('formaction');
+              if (fa) form.setAttribute('action', fa);
 
-                const fm = submitter.getAttribute('formmethod');
-                if (fm) form.setAttribute('method', fm);
+              const fm = submitter.getAttribute('formmethod');
+              if (fm) form.setAttribute('method', fm);
             }
 
+            lastSubmitter = null;
             form.submit();
-        });
+          }, true);
+        })();
     </script>
 </body>
 </html>

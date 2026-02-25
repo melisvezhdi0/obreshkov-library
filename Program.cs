@@ -47,19 +47,29 @@ namespace ObreshkovLibrary
 
             app.Use(async (context, next) =>
             {
-                var path = (context.Request.Path.Value ?? "").ToLowerInvariant();
-                var method = (context.Request.Method ?? "GET").ToUpperInvariant();
+                var path = context.Request.Path;
+                var method = context.Request.Method;
 
-                if (path.StartsWith("/gate") ||
-                    path.StartsWith("/css") || path.StartsWith("/js") ||
-                    path.StartsWith("/lib") || path.StartsWith("/images") ||
-                    path.StartsWith("/favicon"))
+                if (path.StartsWithSegments("/gate") ||
+                    path.StartsWithSegments("/css") ||
+                    path.StartsWithSegments("/js") ||
+                    path.StartsWithSegments("/lib") ||
+                    path.StartsWithSegments("/images") ||
+                    path.StartsWithSegments("/favicon"))
                 {
                     await next();
                     return;
                 }
 
-                bool isWrite = method != "GET";
+                if (path.StartsWithSegments("/Categories/QuickCreate") ||
+                    path.StartsWithSegments("/Categories/Create") ||
+                    path.StartsWithSegments("/Categories/CreatePath"))
+                {
+                    await next();
+                    return;
+                }
+
+                bool isWrite = !HttpMethods.IsGet(method);
 
                 if (isWrite)
                 {

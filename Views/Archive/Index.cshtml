@@ -1,0 +1,25 @@
+﻿@{
+    ViewData["Title"] = "Архив";
+}
+
+<h1 class="page-title">Архив</h1>
+<div class="accent-line"></div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <a class="text-decoration-none" asp-controller="Book" asp-action="Archived">
+            <div style="background:#fff;border-radius:16px;padding:18px;border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 25px rgba(0,0,0,.06);">
+                <div style="font-weight:900;font-size:18px;color:#000;">Архив книги</div>
+                <div style="margin-top:6px;color:#64748B;font-weight:700;">Преглед и възстановяване на деактивирани книги</div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6">
+        <a class="text-decoration-none" asp-controller="Clients" asp-action="Archived">
+            <div style="background:#fff;border-radius:16px;padding:18px;border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 25px rgba(0,0,0,.06);">
+                <div style="font-weight:900;font-size:18px;color:#000;">Архив читатели</div>
+            </div>
+        </a>
+    </div>
+</div>

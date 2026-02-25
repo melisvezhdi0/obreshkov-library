@@ -8,11 +8,8 @@
     <h2 class="section-title mb-1">Добави книга</h2>
     <div class="accent-line"></div>
 
-    <form asp-action="Create" method="post"
-          style="background:#fff;border-radius:18px;padding:16px;
-                 box-shadow:0 10px 25px rgba(0,0,0,.08);
-                 border:1px solid rgba(0,0,0,.06);">
-
+    <form asp-action="Create" method="post" data-gate="1">
+   
         @Html.AntiForgeryToken()
         <div asp-validation-summary="All" class="text-danger" style="font-weight:800;"></div>
 

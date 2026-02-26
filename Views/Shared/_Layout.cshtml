@@ -15,12 +15,10 @@
             --ink: #0B3B3C;
             --turq: #0FA3A9;
             --orange: #F28C28;
-
             --lemon: #FFF3C4;
             --orangeSoft: #FFE1C6;
             --lime: #E9F5E1;
             --aqua: #E3F6F5;
-
             --card: #FFFFFF;
             --line: rgba(0,0,0,.08);
             --shadow: 0 10px 22px rgba(0,0,0,.08);
@@ -127,12 +125,15 @@
         .card-loans {
             border-left: 6px solid rgba(15,163,169,.35);
         }
+
         .card-books {
             border-left: 6px solid rgba(242,140,40,.35);
         }
+
         .card-due {
             border-left: 6px solid rgba(255, 201, 74,.45);
         }
+
         .card-overdue {
             border-left: 6px solid rgba(95, 184, 104,.35);
         }
@@ -191,14 +192,86 @@
             font-size: .9rem;
         }
 
-        .book-thumb {
-            height: 160px;
+        .book-detail-grid {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @@media (max-width: 992px) {
+            .book-detail-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        .book-cover-box {
             background: var(--lime);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(0,0,0,.06);
+            box-shadow: 0 10px 22px rgba(0,0,0,.06);
+            padding: 16px;
+        }
+
+            .book-cover-box img {
+                width: 100%;
+                height: auto;
+                max-height: 560px;
+                object-fit: contain;
+                display: block;
+                border-radius: 12px;
+                background: #fff;
+            }
+
+        .book-meta {
+            padding-top: 6px;
+        }
+
+            .book-meta .meta-title {
+                font-size: 1.8rem;
+                font-weight: 850;
+                margin-bottom: 12px;
+                line-height: 1.15;
+            }
+
+            .book-meta .meta-row {
+                font-size: 1.15rem;
+                line-height: 1.5;
+                margin-bottom: 10px;
+            }
+
+            .book-meta .meta-label {
+                font-weight: 850;
+                margin-right: 6px;
+            }
+
+        .book-chip {
+            display: inline-block;
+            padding: .35rem .7rem;
+            border-radius: 999px;
+            background: var(--orangeSoft);
+            border: 1px solid rgba(242,140,40,.35);
+            font-weight: 750;
+            font-size: 1rem;
+        }
+
+        .book-divider {
+            height: 1px;
+            background: rgba(0,0,0,.08);
+            margin: 18px 0;
+        }
+
+        .book-desc {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .book-actions .btn {
+            padding: .65rem 1.05rem;
+            font-weight: 750;
         }
 
         .link-accent {
@@ -212,7 +285,7 @@
             }
 
         .dashboard-search {
-            margin: 0 auto; 
+            margin: 0 auto;
             width: 100%;
             max-width: 720px;
         }
@@ -224,16 +297,13 @@
             .dashboard-search .form-control {
                 flex: 1 1 auto;
             }
-
     </style>
-
 </head>
 
 <body>
     <header>
         <nav class="navbar navbar-expand-lg app-navbar">
             <div class="container">
-
                 <a class="navbar-brand"
                    asp-controller="Home"
                    asp-action="Index">
@@ -252,7 +322,6 @@
 
                 <div class="collapse navbar-collapse justify-content-center" id="mainNavbar">
                     <ul class="navbar-nav">
-
                         <li class="nav-item">
                             <a class="nav-link"
                                asp-controller="Home"
@@ -304,14 +373,13 @@
                                 <li><a class="dropdown-item" asp-controller="Categories" asp-action="Create">Добавяне</a></li>
                                 <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Редактиране</a></li>
                             </ul>
+                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Archive" asp-action="Index">Архив</a>
                         </li>
-                        </li>
-
                     </ul>
                 </div>
-
             </div>
         </nav>
     </header>
@@ -346,7 +414,6 @@
             const form = e.target;
             if (!form.matches('form[data-gate="1"]')) return;
 
-            // e.submitter понякога е null -> fallback
             const submitter = e.submitter || lastSubmitter;
 
             e.preventDefault();

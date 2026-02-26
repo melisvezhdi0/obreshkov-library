@@ -5,43 +5,54 @@
 }
 
 <div class="card-soft card-books p-4">
-    <h2 class="section-title mb-1">@Model.Title</h2>
-    <div class="accent-line"></div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="book-thumb">
-                <img src="@Model.CoverUrl"
-                     alt="@Model.Title"
-                     onerror="this.style.display='none';"
-                     style="max-width:100%;max-height:100%;" />
-            </div>
+    <h2 class="section-title mb-1">@Model.Title</h2>
+    <div class="accent-line mb-4"></div>
+
+    <div class="book-detail-grid">
+
+        <div class="book-cover-box">
+            <img src="@Model.CoverUrl"
+                 alt="@Model.Title"
+                 onerror="this.style.display='none';" />
         </div>
 
-        <div class="col-md-8">
-            <p><strong>Заглавие:</strong> @Model.Title</p>
+        <div class="book-meta">
+            <div class="meta-title">@Model.Title</div>
 
             @if (!string.IsNullOrEmpty(Model.Author))
             {
-                <p><strong>Автор:</strong> @Model.Author</p>
-            }
-
-            @if (Model.Year.HasValue)
-            {
-                <p><strong>Година:</strong> @Model.Year</p>
+                <div class="meta-row">
+                    <span class="meta-label">Автор:</span> @Model.Author
+                </div>
             }
 
             @if (Model.Category != null)
             {
-                <p><strong>Категория:</strong> @Model.Category.Name</p>
+                <div class="meta-row">
+                    <span class="meta-label">Жанр:</span>
+                    <span class="book-chip">@Model.Category.Name</span>
+                </div>
             }
+
+            @if (Model.Year.HasValue)
+            {
+                <div class="meta-row">
+                    <span class="meta-label">Година:</span> @Model.Year
+                </div>
+            }
+
+            <div class="book-divider"></div>
 
             @if (!string.IsNullOrEmpty(Model.Description))
             {
-                <p><strong>Описание:</strong><br />@Model.Description</p>
+                <div class="meta-row mb-2">
+                    <span class="meta-label">Описание:</span>
+                </div>
+                <div class="book-desc">@Model.Description</div>
             }
 
-            <div class="mt-3">
+            <div class="book-actions mt-4">
                 <a asp-controller="Book"
                    asp-action="Edit"
                    asp-route-id="@Model.Id"
@@ -49,12 +60,13 @@
                     Редактирай
                 </a>
 
-                <a asp-controller="BookTitles"
+                <a asp-controller="Home"
                    asp-action="Index"
                    class="btn btn-outline-secondary">
                     Назад
                 </a>
             </div>
         </div>
+
     </div>
 </div>

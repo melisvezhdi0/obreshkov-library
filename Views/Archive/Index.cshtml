@@ -1,25 +1,157 @@
 ﻿@{
     ViewData["Title"] = "Архив";
+
+    var books = ViewBag.ArchivedBooks as IEnumerable<ObreshkovLibrary.Models.Book>
+        ?? Enumerable.Empty<ObreshkovLibrary.Models.Book>();
+
+    var clients = ViewBag.ArchivedClients as IEnumerable<ObreshkovLibrary.Models.Client>
+        ?? Enumerable.Empty<ObreshkovLibrary.Models.Client>();
+
+    string search = (ViewBag.Search ?? "").ToString();
 }
 
-<h1 class="page-title">Архив</h1>
-<div class="accent-line"></div>
+<div class="card-soft p-4" style="max-width:1100px;margin:0 auto;">
 
-<div class="row g-3">
-    <div class="col-md-6">
-        <a class="text-decoration-none" asp-controller="Book" asp-action="Archived">
-            <div style="background:#fff;border-radius:16px;padding:18px;border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 25px rgba(0,0,0,.06);">
-                <div style="font-weight:900;font-size:18px;color:#000;">Архив книги</div>
-                <div style="margin-top:6px;color:#64748B;font-weight:700;">Преглед и възстановяване на деактивирани книги</div>
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+            <h1 class="section-title" style="margin:0;font-size:2.2rem;">Архив</h1>
+            <div class="accent-line" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <div style="margin-top:18px;">
+        <form method="get" asp-controller="Archive" asp-action="Index">
+            <div class="input-group">
+                <input name="search" value="@search"
+                       placeholder="Търси по име, номер на карта, телефон, заглавие…"
+                       class="form-control"
+                       style="padding:14px 14px;border-radius:14px 0 0 14px;font-weight:800;" />
+
+                <button type="submit" class="btn archive-btn"
+                        style="border-radius:0 14px 14px 0;padding:14px 18px;font-weight:900;">
+                    Търси
+                </button>
             </div>
+        </form>
+    </div>
+
+    <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <a asp-controller="Book" asp-action="Archived"
+           class="btn archive-btn"
+           style="border-radius:14px;padding:14px 16px;">
+            Архив книги
+        </a>
+
+        <a asp-controller="Clients" asp-action="Archived"
+           class="btn archive-btn"
+           style="border-radius:14px;padding:14px 16px;">
+            Архив читатели
         </a>
     </div>
 
-    <div class="col-md-6">
-        <a class="text-decoration-none" asp-controller="Clients" asp-action="Archived">
-            <div style="background:#fff;border-radius:16px;padding:18px;border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 25px rgba(0,0,0,.06);">
-                <div style="font-weight:900;font-size:18px;color:#000;">Архив читатели</div>
+    <div class="book-divider" style="margin:22px 0;"></div>
+
+    <h3 class="section-title" style="margin:0 0 14px 0;font-size:1.45rem;">Последно архивирани</h3>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="card-soft p-3" style="border:1px solid rgba(0,0,0,.06);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="font-weight:950;color:#0F766E;font-size:1.1rem;">Книги</div>
+                <div style="color:#64748B;font-weight:900;">@books.Count()</div>
             </div>
-        </a>
+
+            <div style="margin-top:10px;display:grid;gap:8px;">
+                @if (!books.Any())
+                {
+                    <div style="color:#64748B;font-weight:800;">Няма архивирани книги.</div>
+                }
+                else
+                {
+                    foreach (var b in books)
+                    {
+                        <div style="padding:10px 12px;border-radius:14px;background:#F8FAFC;border:1px solid rgba(0,0,0,.07);">
+                            <div style="font-weight:950;color:#0B3B3C;">@b.Title</div>
+                            <div style="color:#64748B;font-weight:800;">
+                                @(string.IsNullOrWhiteSpace(b.Author) ? "—" : b.Author)
+                                · @(b.Year?.ToString() ?? "—")
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="card-soft p-3"
+             style="background:#F3F7F7;border:1px solid rgba(0,0,0,.06);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="font-weight:950;color:#0F766E;font-size:1.1rem;">Читатели</div>
+                <div style="color:#64748B;font-weight:900;">@clients.Count()</div>
+            </div>
+
+            <div style="margin-top:10px;display:grid;gap:8px;">
+                @if (!clients.Any())
+                {
+                    <div style="color:#64748B;font-weight:800;">Няма архивирани читатели.</div>
+                }
+                else
+                {
+                    foreach (var c in clients)
+                    {
+                        <div style="padding:10px 12px;border-radius:14px;background:#F8FAFC;border:1px solid rgba(0,0,0,.07);">
+                            <div style="font-weight:950;color:#0B3B3C;">@c.FirstName @c.LastName</div>
+                            <div style="color:#64748B;font-weight:800;">
+                                @(string.IsNullOrWhiteSpace(c.CardNumber) ? "—" : c.CardNumber)
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+        </div>
     </div>
+    @if (!string.IsNullOrWhiteSpace(search) && !(ViewBag.HasResults ?? false))
+    {
+        <div class="modal fade" id="noResultsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius:18px; overflow:hidden; border:1px solid rgba(0,0,0,.08);">
+
+                    <div class="modal-header" style="background: var(--aqua); border-bottom: 1px solid rgba(0,0,0,.08);">
+                        <h5 class="modal-title" style="margin:0; font-weight:950; color: var(--ink);">
+                            Няма намерени данни
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+                    </div>
+
+                    <div class="modal-body" style="background:#fff;">
+                        <div style="font-weight:800; color:#64748B; line-height:1.6;">
+                            Няма резултати за: <span style="font-weight:950; color: var(--ink);">@search</span>
+                        </div>
+                        <div style="margin-top:10px; font-weight:800; color:#64748B;">
+                            Опитай с друго име, номер на карта или телефон.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="background:#F8FAFC; border-top:1px solid rgba(0,0,0,.08);">
+                        <button type="button" class="btn archive-btn"
+                                data-bs-dismiss="modal"
+                                style="border-radius:14px; padding:10px 16px; font-weight:900;">
+                            OK
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
 </div>
+@section Scripts {
+    <script>
+        (function () {
+            const modalEl = document.getElementById("noResultsModal");
+            if (!modalEl) return;
+
+            const m = new bootstrap.Modal(modalEl, { backdrop: "static", keyboard: true });
+            m.show();
+        })();
+    </script>
+}

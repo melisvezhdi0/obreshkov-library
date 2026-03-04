@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: column;
             color: var(--ink);
+            padding-top: 60px;
         }
 
         main {
@@ -50,6 +51,9 @@
         .navbar.app-navbar {
             background: var(--card) !important;
             border-bottom: 1px solid var(--line) !important;
+            z-index: 1030;
+            backdrop-filter: none;
+            z-index: 1050;
         }
 
             .navbar.app-navbar .navbar-brand {
@@ -108,6 +112,12 @@
                     color: var(--ink);
                 }
 
+        .navbar-scrolled {
+            box-shadow: 0 10px 24px rgba(0,0,0,.15);
+            backdrop-filter: blur(6px);
+            background: rgba(255,255,255,.88) !important;
+        }
+
         @@media (hover:hover) and (pointer:fine) {
             .navbar .nav-item.dropdown:hover > .dropdown-menu {
                 display: block;
@@ -154,6 +164,7 @@
             background: var(--lemon);
             border: 1px solid rgba(242,140,40,.45);
         }
+
 
             .dashboard-search .form-control:focus {
                 box-shadow: 0 0 0 .2rem rgba(242,140,40,.18);
@@ -302,7 +313,7 @@
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg app-navbar">
+        <nav class="navbar navbar-expand-lg app-navbar fixed-top" id="topNav">
             <div class="container">
                 <a class="navbar-brand"
                    asp-controller="Home"
@@ -450,6 +461,20 @@
             lastSubmitter = null;
             form.submit();
           }, true);
+        })();
+    </script>
+    <script>
+        (function () {
+          const nav = document.getElementById("topNav");
+          if (!nav) return;
+
+          function onScroll() {
+            if (window.scrollY > 10) nav.classList.add("navbar-scrolled");
+            else nav.classList.remove("navbar-scrolled");
+          }
+
+          window.addEventListener("scroll", onScroll, { passive: true });
+          onScroll();
         })();
     </script>
 </body>

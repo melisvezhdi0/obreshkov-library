@@ -6,100 +6,371 @@
     var loans = ViewBag.ActiveLoans as List<Loan> ?? new List<Loan>();
 }
 
-<div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mb-3">
-    <div>
-        <h2 class="section-title mb-1">
-            @($"{Model.FirstName} {Model.MiddleName} {Model.LastName}".Replace("  ", " ").Trim())
-        </h2>
-        <div class="accent-line"></div>
-    </div>
+<div class="client-details-page">
 
-    <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary"
-           asp-action="Index">Назад</a>
+    <div class="client-details-header">
+        <div>
+            <h2 class="section-title mb-1">
+                @($"{Model.FirstName} {Model.MiddleName} {Model.LastName}".Replace("  ", " ").Trim())
+            </h2>
+            <div class="accent-line"></div>
+        </div>
 
-        <a class="btn btn-accent"
-           asp-controller="Loans"
-           asp-action="Create"
-           asp-route-clientId="@Model.Id">
-            Нов заем
-        </a>
-    </div>
-</div>
+        <div class="client-details-actions">
+            <a class="btn btn-outline-primary"
+               asp-action="Index">
+                Назад
+            </a>
 
-<div class="row g-3">
-    <div class="col-lg-5">
-        <div class="card-soft p-3">
-            <h5 class="section-title mb-3">Данни</h5>
-
-            <div class="mb-2"><strong>№ карта:</strong> @Model.CardNumber</div>
-            <div class="mb-2"><strong>Име:</strong> @Model.FirstName</div>
-            <div class="mb-2"><strong>Фамилия:</strong> @Model.LastName</div>
-
-            @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
-            {
-                <div class="mb-2"><strong>Телефон:</strong> @Model.PhoneNumber</div>
-            }
-
-            <div class="mb-2"><strong>Създаден:</strong> @Model.CreatedOn.ToString("dd.MM.yyyy")</div>
-            <div class="mb-2"><strong>Активен:</strong> @(Model.IsActive ? "Да" : "Не")</div>
-
-            <div class="mt-3">
-                <a class="btn btn-outline-primary"
-                   asp-action="Edit"
-                   asp-route-id="@Model.Id">
-                    Редактиране
-                </a>
-            </div>
+            <a class="btn btn-accent"
+               asp-controller="Loans"
+               asp-action="Create"
+               asp-route-clientId="@Model.Id">
+                Нов заем
+            </a>
         </div>
     </div>
 
-    <div class="col-lg-7">
-        <div class="card-soft p-3">
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <h5 class="section-title mb-0">Активни заеми</h5>
-                <span class="badge badge-accent">@loans.Count</span>
-            </div>
-
-            @if (!loans.Any())
-            {
-                <div class="alert alert-success mb-0">Няма активни заеми.</div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Книга</th>
-                                <th>Автор</th>
-                                <th>Заета на</th>
-                                <th>Срок</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var l in loans)
-                            {
-                                <tr>
-                                    <td>@l.BookCopy?.Book?.Title</td>
-                                    <td>@l.BookCopy?.Book?.Author</td>
-                                    <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
-                                    <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                    <td class="text-end">
-                                        <a class="btn btn-sm btn-outline-danger"
-                                           asp-controller="Loans"
-                                           asp-action="Return"
-                                           asp-route-id="@l.Id">
-                                            Върни
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <section class="details-panel card-soft">
+                <div class="details-panel-head">
+                    <h5 class="section-title mb-0">Данни</h5>
                 </div>
-            }
+
+                <div class="details-info-list">
+                    <div class="details-info-row">
+                        <span class="details-label">№ карта</span>
+                        <span class="details-value">@Model.CardNumber</span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Име</span>
+                        <span class="details-value">@Model.FirstName</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.MiddleName))
+                    {
+                        <div class="details-info-row">
+                            <span class="details-label">Презиме</span>
+                            <span class="details-value">@Model.MiddleName</span>
+                        </div>
+                    }
+
+                    <div class="details-info-row">
+                        <span class="details-label">Фамилия</span>
+                        <span class="details-value">@Model.LastName</span>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+                    {
+                        <div class="details-info-row">
+                            <span class="details-label">Телефон</span>
+                            <span class="details-value">@Model.PhoneNumber</span>
+                        </div>
+                    }
+
+                    <div class="details-info-row">
+                        <span class="details-label">Създаден</span>
+                        <span class="details-value">@Model.CreatedOn.ToString("dd.MM.yyyy")</span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Статус</span>
+                        <span class="details-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="status-badge status-active">Активен</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Неактивен</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <div class="details-panel-footer">
+                    <a class="btn btn-outline-primary w-100"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id">
+                        Редактиране
+                    </a>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-8">
+            <section class="details-panel card-soft">
+                <div class="details-panel-head details-panel-head-flex">
+                    <h5 class="section-title mb-0">Активни заеми</h5>
+                    <span class="count-badge">@loans.Count</span>
+                </div>
+
+                @if (!loans.Any())
+                {
+                    <div class="details-empty-state">
+                        Няма активни заеми.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table details-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Книга</th>
+                                    <th>Автор</th>
+                                    <th>Заета на</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in loans)
+                                {
+                                    <tr>
+                                        <td class="details-book-title">@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.BookCopy?.Book?.Author</td>
+                                        <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end">
+                                            <form asp-controller="Loans"
+                                                  asp-action="Return"
+                                                  method="post"
+                                                  style="display:inline;">
+
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@l.Id" />
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#returnModal"
+                                                        data-loan-id="@l.Id">
+                                                    Върни
+                                                </button>
+
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+    <div class="modal fade" id="returnModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Потвърждение</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    Сигурни ли сте, че книгата е върната в библиотеката?
+                </div>
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Отказ
+                    </button>
+
+                    <form id="returnForm"
+                          asp-controller="Loans"
+                          asp-action="Return"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" name="id" id="returnLoanId" />
+
+                        <button type="submit" class="btn btn-accent">
+                            Да
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .client-details-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .client-details-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .client-details-actions {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .details-panel {
+        padding: 0;
+        overflow: hidden;
+        background: #FFFFFF;
+    }
+
+    .details-panel-head {
+        padding: 1.05rem 1.15rem .9rem;
+        border-bottom: 1px solid #D9E0E7;
+        background: #FBFCFD;
+    }
+
+    .details-panel-head-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .details-info-list {
+        padding: .35rem 1.15rem 0;
+    }
+
+    .details-info-row {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .85rem 0;
+        border-bottom: 1px solid #E5EAF0;
+    }
+
+        .details-info-row:last-child {
+            border-bottom: none;
+        }
+
+    .details-label {
+        color: #6B7280;
+        font-weight: 700;
+        min-width: 110px;
+    }
+
+    .details-value {
+        color: #1F2937;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    .details-panel-footer {
+        padding: 1rem 1.15rem 1.15rem;
+        border-top: 1px solid #E5EAF0;
+        background: #FBFCFD;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        font-size: .88rem;
+        font-weight: 800;
+    }
+
+    .status-active {
+        background: #EEF4FF;
+        color: #2563EB;
+        border: 1px solid #D6E4FF;
+    }
+
+    .status-inactive {
+        background: #F3F4F6;
+        color: #6B7280;
+        border: 1px solid #D1D5DB;
+    }
+
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 .7rem;
+        border-radius: 999px;
+        background: #EEF4FF;
+        color: #2563EB;
+        border: 1px solid #D6E4FF;
+        font-weight: 800;
+    }
+
+    .details-empty-state {
+        padding: 1.15rem;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .details-table {
+        margin-bottom: 0;
+    }
+
+        .details-table thead th {
+            background: #F3F6F9;
+            color: #6B7280;
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            font-weight: 800;
+            padding: .95rem 1rem;
+            border-bottom: 1px solid #D9E0E7;
+            white-space: nowrap;
+        }
+
+        .details-table tbody td {
+            padding: 1rem;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5EAF0;
+            vertical-align: middle;
+        }
+
+        .details-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .details-book-title {
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+    @@media (max-width: 767.98px) {
+        .client-details-header {
+            align-items: stretch;
+        }
+
+        .client-details-actions {
+            width: 100%;
+        }
+
+            .client-details-actions .btn {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+
+        .details-info-row {
+            flex-direction: column;
+            gap: .35rem;
+        }
+
+        .details-value {
+            text-align: left;
+        }
+    }
+</style>

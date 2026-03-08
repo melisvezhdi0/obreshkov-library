@@ -11,21 +11,22 @@
 
     <style>
         :root {
-            --bg: #F6F7F3;
-            --ink: #0B3B3C;
-            --turq: #0FA3A9;
-            --orange: #F28C28;
-            --lemon: #FFF3C4;
-            --orangeSoft: #FFE1C6;
-            --lime: #E9F5E1;
-            --aqua: #E3F6F5;
-            --card: #FFFFFF;
-            --line: rgba(0,0,0,.08);
-            --shadow: 0 10px 22px rgba(0,0,0,.08);
+            --bg: #F5F7FA;
+            --surface: #FFFFFF;
+            --surface-soft: #F0F3F6;
+            --surface-muted: #E8EDF2;
+            --line: #D9E0E7;
+            --line-strong: #C8D1DB;
+            --text: #1F2937;
+            --text-soft: #6B7280;
+            --accent: #3B82F6;
+            --accent-dark: #2563EB;
+            --accent-soft: #DBEAFE;
         }
 
         html, body {
             height: 100%;
+            margin: 0;
         }
 
         body {
@@ -33,8 +34,9 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            color: var(--ink);
-            padding-top: 60px;
+            color: var(--text);
+            padding-top: 70px;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         main {
@@ -42,80 +44,186 @@
             padding-bottom: 24px;
         }
 
-        footer {
-            flex-shrink: 0;
-            position: static !important;
-            margin-top: 24px;
-        }
-
-        .navbar.app-navbar {
-            background: var(--card) !important;
+        .app-navbar {
+            background: rgba(255,255,255,.96) !important;
             border-bottom: 1px solid var(--line) !important;
-            z-index: 1030;
-            backdrop-filter: none;
-            z-index: 1050;
+            backdrop-filter: blur(8px);
+            min-height: 70px;
         }
 
-            .navbar.app-navbar .navbar-brand {
-                color: var(--turq) !important;
+            .app-navbar .navbar-brand {
+                color: var(--text) !important;
                 font-weight: 800;
-                letter-spacing: .2px;
+                font-size: 1.2rem;
+                letter-spacing: -.2px;
             }
 
-            .navbar.app-navbar .nav-link {
-                color: var(--ink) !important;
-                font-weight: 650;
+            .app-navbar .navbar-collapse {
+                flex-grow: 0;
+            }
+
+            .app-navbar .navbar-nav {
+                gap: .15rem;
+            }
+
+            .app-navbar .nav-link {
+                color: var(--text) !important;
+                font-weight: 700;
                 position: relative;
-                display: inline-block;
-                padding: .5rem .75rem;
+                padding: .65rem .8rem;
+                border-radius: 8px;
+                transition: background-color .18s ease, color .18s ease;
             }
 
-                .navbar.app-navbar .nav-link::before {
-                    content: "";
-                    position: absolute;
-                    left: .75rem;
-                    right: .75rem;
-                    bottom: .15rem;
-                    height: 2px;
-                    background: var(--orange);
-                    transform: scaleX(0);
-                    transform-origin: left;
-                    transition: transform .2s ease;
+                .app-navbar .nav-link:hover,
+                .app-navbar .nav-link:focus {
+                    background: var(--surface-soft);
+                    color: var(--accent-dark) !important;
                 }
 
-                .navbar.app-navbar .nav-link:hover::before,
-                .navbar.app-navbar .nav-link:focus::before {
-                    transform: scaleX(1);
-                }
-
-            .navbar.app-navbar .dropdown-toggle::after {
+            .app-navbar .dropdown-toggle::after {
                 display: none !important;
             }
 
-            .navbar.app-navbar .dropdown-menu {
-                background: #FFFDF8;
-                border-radius: 14px;
-                padding: .35rem;
+            .app-navbar .dropdown-menu {
+                background: var(--surface);
                 border: 1px solid var(--line);
+                border-radius: 12px;
+                padding: .35rem;
+                box-shadow: 0 8px 22px rgba(17, 24, 39, 0.08);
+                min-width: 220px;
             }
 
-            .navbar.app-navbar .dropdown-item {
-                border-radius: 10px;
-                font-weight: 550;
-                color: var(--ink);
-                padding: .45rem .65rem;
+            .app-navbar .dropdown-item {
+                color: var(--text);
+                font-weight: 600;
+                border-radius: 8px;
+                padding: .55rem .7rem;
             }
 
-                .navbar.app-navbar .dropdown-item:hover,
-                .navbar.app-navbar .dropdown-item:focus {
-                    background: var(--orangeSoft);
-                    color: var(--ink);
+                .app-navbar .dropdown-item:hover,
+                .app-navbar .dropdown-item:focus {
+                    background: var(--surface-soft);
+                    color: var(--accent-dark);
                 }
 
-        .navbar-scrolled {
-            box-shadow: 0 10px 24px rgba(0,0,0,.15);
-            backdrop-filter: blur(6px);
-            background: rgba(255,255,255,.88) !important;
+        .page-wrap {
+            width: 100%;
+            flex: 1 0 auto;
+        }
+
+        .page-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 18px;
+        }
+
+        .section-title {
+            color: var(--text);
+            font-weight: 800;
+            letter-spacing: -.2px;
+        }
+
+        .accent-line {
+            width: 54px;
+            height: 3px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .card-soft {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(17, 24, 39, 0.03);
+        }
+
+        input.form-control,
+        select.form-select,
+        textarea.form-control {
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            color: var(--text);
+            box-shadow: none;
+        }
+
+            input.form-control:focus,
+            select.form-select:focus,
+            textarea.form-control:focus {
+                border-color: #9FC3F7;
+                box-shadow: 0 0 0 .2rem rgba(59,130,246,.10);
+            }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #fff;
+            border: 1px solid var(--accent);
+            font-weight: 700;
+            border-radius: 12px;
+        }
+
+            .btn-accent:hover {
+                background: var(--accent-dark);
+                border-color: var(--accent-dark);
+                color: #fff;
+            }
+
+        .btn-outline-primary {
+            color: var(--accent);
+            border-color: var(--accent);
+            font-weight: 700;
+            border-radius: 12px;
+        }
+
+            .btn-outline-primary:hover {
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #fff;
+            }
+
+        .link-accent {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+            .link-accent:hover {
+                color: var(--accent-dark);
+                text-decoration: underline;
+            }
+
+        .table th,
+        .table td {
+            border-color: var(--line);
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            color: var(--text-soft);
+        }
+
+        .modal-content {
+            border: 1px solid var(--line);
+            border-radius: 16px;
+        }
+
+        .list-group-item {
+            border-color: var(--line);
+        }
+
+        .footer {
+            flex-shrink: 0;
+            margin-top: auto;
+            padding: 14px 0;
+            font-size: 0.95rem;
+            line-height: normal;
+            background: transparent;
+            border-top: 1px solid var(--line) !important;
+            color: var(--text-soft) !important;
+            position: static !important;
+            bottom: auto !important;
+            width: 100%;
         }
 
         @@media (hover:hover) and (pointer:fine) {
@@ -125,196 +233,40 @@
             }
         }
 
-        .card-soft {
-            background: var(--card);
-            border-radius: 18px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,.06);
-        }
-
-        .card-loans {
-            border-left: 6px solid rgba(15,163,169,.35);
-        }
-
-        .card-books {
-            border-left: 6px solid rgba(242,140,40,.35);
-        }
-
-        .card-due {
-            border-left: 6px solid rgba(255, 201, 74,.45);
-        }
-
-        .card-overdue {
-            border-left: 6px solid rgba(95, 184, 104,.35);
-        }
-
-        .section-title {
-            color: var(--ink);
-            font-weight: 800;
-        }
-
-        .accent-line {
-            width: 56px;
-            height: 3px;
-            border-radius: 2px;
-            background: var(--orange);
-        }
-
-        .dashboard-search .form-control {
-            background: var(--lemon);
-            border: 1px solid rgba(242,140,40,.45);
-        }
-
-
-            .dashboard-search .form-control:focus {
-                box-shadow: 0 0 0 .2rem rgba(242,140,40,.18);
+        @@media (max-width: 991.98px) {
+            body {
+                padding-top: 64px;
             }
 
-        input.form-control, select.form-select, textarea.form-control {
-            background: var(--aqua);
-            border: 1px solid rgba(15,163,169,.35);
-        }
-
-            input.form-control:focus, select.form-select:focus, textarea.form-control:focus {
-                box-shadow: 0 0 0 .2rem rgba(15,163,169,.18);
+            .app-navbar {
+                min-height: 64px;
             }
 
-        .btn-accent {
-            background: var(--orange);
-            color: #fff;
-            border: none;
-            font-weight: 750;
-        }
+                .app-navbar .navbar-brand {
+                    font-size: 1.02rem;
+                }
 
-            .btn-accent:hover {
-                filter: brightness(.95);
-                color: #fff;
+                .app-navbar .navbar-collapse {
+                    margin-top: .6rem;
+                    padding-top: .6rem;
+                    border-top: 1px solid var(--line);
+                }
+
+                .app-navbar .navbar-nav {
+                    gap: .1rem;
+                }
+
+            .page-container {
+                padding: 0 14px;
             }
-
-        .count-number {
-            color: var(--turq);
-            font-weight: 900;
-            font-size: 2rem;
         }
-
-        .count-hint {
-            color: var(--orange);
-            font-weight: 750;
-            font-size: .9rem;
-        }
-
-        .book-detail-grid {
-            display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 28px;
-            align-items: start;
-        }
-
-        @@media (max-width: 992px) {
-            .book-detail-grid
-
-        {
-            grid-template-columns: 1fr;
-        }
-
-        }
-
-        .book-cover-box {
-            background: var(--lime);
-            border-radius: 18px;
-            border: 1px solid rgba(0,0,0,.06);
-            box-shadow: 0 10px 22px rgba(0,0,0,.06);
-            padding: 16px;
-        }
-
-            .book-cover-box img {
-                width: 100%;
-                height: auto;
-                max-height: 560px;
-                object-fit: contain;
-                display: block;
-                border-radius: 12px;
-                background: #fff;
-            }
-
-        .book-meta {
-            padding-top: 6px;
-        }
-
-            .book-meta .meta-title {
-                font-size: 1.8rem;
-                font-weight: 850;
-                margin-bottom: 12px;
-                line-height: 1.15;
-            }
-
-            .book-meta .meta-row {
-                font-size: 1.15rem;
-                line-height: 1.5;
-                margin-bottom: 10px;
-            }
-
-            .book-meta .meta-label {
-                font-weight: 850;
-                margin-right: 6px;
-            }
-
-        .book-chip {
-            display: inline-block;
-            padding: .35rem .7rem;
-            border-radius: 999px;
-            background: var(--orangeSoft);
-            border: 1px solid rgba(242,140,40,.35);
-            font-weight: 750;
-            font-size: 1rem;
-        }
-
-        .book-divider {
-            height: 1px;
-            background: rgba(0,0,0,.08);
-            margin: 18px 0;
-        }
-
-        .book-desc {
-            font-size: 1.1rem;
-            line-height: 1.7;
-        }
-
-        .book-actions .btn {
-            padding: .65rem 1.05rem;
-            font-weight: 750;
-        }
-
-        .link-accent {
-            color: var(--orange);
-            text-decoration: none;
-            font-weight: 750;
-        }
-
-            .link-accent:hover {
-                text-decoration: underline;
-            }
-
-        .dashboard-search {
-            margin: 0 auto;
-            width: 100%;
-            max-width: 720px;
-        }
-
-            .dashboard-search .input-group {
-                width: 100%;
-            }
-
-            .dashboard-search .form-control {
-                flex: 1 1 auto;
-            }
     </style>
 </head>
 
 <body>
     <header>
         <nav class="navbar navbar-expand-lg app-navbar fixed-top" id="topNav">
-            <div class="container">
+            <div class="container-fluid page-container">
                 <a class="navbar-brand"
                    asp-controller="Home"
                    asp-action="Index">
@@ -331,7 +283,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse justify-content-center" id="mainNavbar">
+                <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link"
@@ -395,14 +347,16 @@
         </nav>
     </header>
 
-    <div class="container mt-4 page-wrap">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="page-wrap mt-4">
+        <div class="page-container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
+    <footer class="border-top footer">
+        <div class="page-container">
             &copy; 2026 – ObreshkovLibrary
         </div>
     </footer>
@@ -412,6 +366,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
     <script>
         (function () {
           let lastSubmitter = null;
@@ -463,6 +418,7 @@
           }, true);
         })();
     </script>
+
     <script>
         (function () {
           const nav = document.getElementById("topNav");

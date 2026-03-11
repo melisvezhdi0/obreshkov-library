@@ -1,46 +1,240 @@
-﻿@model ObreshkovLibrary.Models.Category
+﻿@model ObreshkovLibrary.Models.Client
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактиране на читател";
 }
 
-<h1>Edit</h1>
+<div class="client-edit-page">
 
-<h4>Category</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="ParentCategoryId" class="control-label">Родителска категория</label>
-                <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId">
-                    <option value="">(Няма)</option>
-                </select>
-                <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
+    <h2 class="section-title mb-1">Редактиране на читател</h2>
+    <div class="accent-line"></div>
+
+    <div class="card-soft client-edit-card">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="edit-layout">
+
+            <form asp-action="Edit" method="post" class="edit-form">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div class="edit-section">
+                    <div class="edit-section-title">Лични данни</div>
+
+                    <div class="form-grid form-grid-3">
+
+                        <div class="form-field">
+                            <label asp-for="FirstName">Име</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="MiddleName">Презиме</label>
+                            <input asp-for="MiddleName" class="form-control" />
+                            <span asp-validation-for="MiddleName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="LastName">Фамилия</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="form-grid form-grid-2 mt-3">
+                        <div class="form-field">
+                            <label asp-for="PhoneNumber">Телефонен номер</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-section">
+                    <div class="edit-section-title">Училищна информация</div>
+
+                    <div class="form-grid form-grid-2">
+
+                        <div class="form-field">
+                            <label asp-for="Grade">Клас</label>
+                            <select asp-for="Grade" class="form-select">
+                                <option value="">-- Избери --</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                            <span asp-validation-for="Grade" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="Section">Паралелка</label>
+                            <select asp-for="Section" class="form-select">
+                                <option value="">-- Избери --</option>
+                                <option value="А">А</option>
+                                <option value="Б">Б</option>
+                                <option value="В">В</option>
+                                <option value="Г">Г</option>
+                            </select>
+                            <span asp-validation-for="Section" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="left-actions">
+                    <button type="submit" class="btn btn-accent">
+                        Запази
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-outline-primary">
+                        Назад
+                    </a>
+                </div>
+            </form>
+
+            <div class="right-actions">
+                @if (Model.IsActive)
+                {
+                    <form asp-action="Deactivate" method="post" data-gate="1" class="deactivate-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+
+                        <button type="submit" class="btn btn-danger">
+                            Деактивирай
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <span class="client-status-muted">Деактивиран</span>
+                }
             </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ParentCategoryId" class="control-label"></label>
-                <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId"></select>
-                <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<style>
+    .client-edit-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .client-edit-card {
+        padding: 20px;
+        margin-top: 10px;
+    }
+
+    .edit-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .edit-form {
+        margin: 0;
+    }
+
+    .edit-section {
+        background: #F9FBFD;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .edit-section-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .form-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .form-field label {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+    .left-actions {
+        display: flex;
+        gap: 10px;
+        padding-top: 14px;
+        border-top: 1px solid #D9E0E7;
+    }
+
+    .right-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: -58px;
+    }
+
+    .deactivate-inline {
+        margin: 0;
+    }
+
+    .client-status-muted {
+        color: #6B7280;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 900px) {
+        .form-grid-3 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .right-actions {
+            margin-top: 0;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .form-grid-3, .form-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .left-actions,
+        .right-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .left-actions .btn,
+            .right-actions .btn {
+                width: 100%;
+            }
+
+        .right-actions {
+            margin-top: 0;
+        }
+    }
+</style>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

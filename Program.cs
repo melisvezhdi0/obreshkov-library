@@ -69,9 +69,14 @@ namespace ObreshkovLibrary
                     return;
                 }
 
-                bool isWrite = !HttpMethods.IsGet(method);
+                bool needsGate =
+                    HttpMethods.IsPost(method) &&
+                    (
+                        path.StartsWithSegments("/Clients/Deactivate") ||
+                        path.StartsWithSegments("/Categories/Deactivate")
+                    );
 
-                if (isWrite)
+                if (needsGate)
                 {
                     if (context.Session.GetString("GateOk") != "1")
                     {

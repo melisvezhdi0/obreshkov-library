@@ -4,100 +4,275 @@
     ViewData["Title"] = "Създай категория";
 }
 
-<h2 class="section-title mb-1">Създай категория</h2>
-<div class="accent-line"></div>
-<hr />
+<div class="category-create-page">
 
-<div class="row">
-    <div class="col-md-6">
+    <div class="category-create-header">
+        <h2 class="section-title mb-1">Създай категория</h2>
+        <div class="accent-line"></div>
+    </div>
 
-        <form asp-action="Create" method="post" style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+    <section class="category-create-panel card-soft">
+        <form asp-action="Create" method="post" class="category-create-form">
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Name" class="control-label" style="font-weight:900;color:#0F766E;"></label>
-                <input asp-for="Name" class="form-control" placeholder="Напр. Романи" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-section">
+                <div class="form-section-title">Основна информация</div>
+
+                <div class="form-grid form-grid-1">
+                    <div class="form-field">
+                        <label asp-for="Name" class="form-label-strong"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Напр. Романи" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label asp-for="ParentCategoryId" class="form-label-strong">Родителска категория</label>
+
+                        <div class="parent-category-row">
+                            <select asp-for="ParentCategoryId"
+                                    class="form-select"
+                                    asp-items="ViewBag.ParentCategoryId"
+                                    id="ParentCategoryId">
+                                <option value="">(Няма)</option>
+                            </select>
+
+                            <button type="button"
+                                    class="btn btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addCategoryModal">
+                                Добави категория
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
+
+                        <div class="field-help-text">
+                            Избери родител, ако това е подкатегория.
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="ParentCategoryId" class="control-label" style="font-weight:900;color:#0F766E;">Родителска категория</label>
-
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                    <select asp-for="ParentCategoryId" class="form-control" asp-items="ViewBag.ParentCategoryId" id="ParentCategoryId" style="max-width:360px;">
-                        <option value="">(Няма)</option>
-                    </select>
-
-                    <button type="button"
-                            class="btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#addCategoryModal"
-                            style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
-                        + Добави категория
+            <div class="form-actions-bar">
+                <div class="left-actions">
+                    <button type="submit" class="btn btn-accent">
+                        Запази
                     </button>
-                </div>
 
-                <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
-                <div style="margin-top:6px;color:#64748B;font-weight:700;">
-                    Избери родител, ако това е подкатегория.
+                    <a asp-action="Index" class="btn btn-outline-primary">
+                        Назад
+                    </a>
                 </div>
-            </div>
-
-            <div class="form-group mt-3">
-                <input type="submit"
-                       value="Запази"
-                       class="btn"
-                       style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);" />
-                <a asp-action="Index"
-                   class="btn"
-                   style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
-                    Назад
-                </a>
             </div>
         </form>
+    </section>
 
-    </div>
 </div>
 
 <!-- MODAL: Add category -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави категория в списъка</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content category-modal-content">
+            <div class="modal-header category-modal-header">
+                <h5 class="modal-title">Добави категория в списъка</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
 
             <div class="modal-body">
-                <div style="color:#64748B;font-weight:700;margin-bottom:10px;">
-                    Категорията ще се добави към избрания родител (ако има избран).
+                <div class="modal-help-text">
+                    Категорията ще се добави към избрания родител, ако има избран такъв.
                 </div>
 
-                <label style="font-weight:900;color:#0F766E;">Име</label>
-                <input id="newCategoryName" class="form-control" placeholder="Напр. Фентъзи" />
+                <div class="form-field">
+                    <label class="form-label-strong">Име</label>
+                    <input id="newCategoryName" class="form-control" placeholder="Напр. Фентъзи" />
+                </div>
 
-                <div id="newCategoryError" class="text-danger" style="margin-top:8px;display:none;font-weight:800;"></div>
+                <div id="newCategoryError" class="text-danger modal-error-text"></div>
             </div>
 
-            <div class="modal-footer" style="background:#F8FAFC;">
+            <div class="modal-footer category-modal-footer">
                 <button type="button"
-                        class="btn"
-                        data-bs-dismiss="modal"
-                        style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
                     Отказ
                 </button>
 
                 <button type="button"
                         id="btnSaveNewCategory"
-                        class="btn"
-                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                        class="btn btn-accent">
                     Добави
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .category-create-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .category-create-header {
+        margin-bottom: 1rem;
+    }
+
+    .category-create-panel {
+        padding: 1.25rem;
+        background: #FFFFFF;
+    }
+
+    .category-create-form {
+        margin: 0;
+    }
+
+    .form-section {
+        background: #F9FBFD;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 16px;
+    }
+
+    .form-section-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .form-grid-1 {
+        grid-template-columns: 1fr;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label-strong {
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #374151;
+    }
+
+    .parent-category-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .parent-category-row .form-select {
+            flex: 1 1 360px;
+            min-width: 240px;
+        }
+
+    .field-help-text {
+        margin-top: 6px;
+        color: #6B7280;
+        font-weight: 600;
+        font-size: .95rem;
+    }
+
+    .form-actions-bar {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #D9E0E7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .left-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .category-modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #D9E0E7;
+    }
+
+    .category-modal-header {
+        background: #F3F6F9;
+        border-bottom: 1px solid #D9E0E7;
+    }
+
+        .category-modal-header .modal-title {
+            margin: 0;
+            font-weight: 800;
+            color: #1F2937;
+        }
+
+    .category-modal-footer {
+        background: #FBFCFD;
+        border-top: 1px solid #D9E0E7;
+    }
+
+    .modal-help-text {
+        color: #6B7280;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .modal-error-text {
+        margin-top: 8px;
+        display: none;
+        font-weight: 700;
+    }
+
+    @@media (max-width: 767.98px) {
+        .category-create-panel {
+            padding: 1rem;
+        }
+
+        .form-section {
+            padding: .9rem;
+        }
+
+        .parent-category-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .parent-category-row .form-select,
+            .parent-category-row .btn {
+                width: 100%;
+            }
+
+        .left-actions {
+            width: 100%;
+        }
+
+            .left-actions .btn {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+    }
+
+    @@media (max-width: 575.98px) {
+        .left-actions {
+            flex-direction: column;
+        }
+
+            .left-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
 
 @section Scripts {
     @{
@@ -115,6 +290,7 @@
                 errorBox.textContent = msg;
                 errorBox.style.display = "block";
             }
+
             function clearError() {
                 errorBox.textContent = "";
                 errorBox.style.display = "none";
@@ -129,6 +305,7 @@
                 for (let i = select.options.length - 1; i >= 0; i--) {
                     if (select.options[i].value !== "") select.remove(i);
                 }
+
                 options.forEach(o => select.add(o));
             }
 
@@ -173,10 +350,10 @@
                     parentSelect.add(opt);
 
                     sortSelectOptions(parentSelect);
-
                     parentSelect.value = String(json.id);
 
                     nameInput.value = "";
+
                     const modalEl = document.getElementById("addCategoryModal");
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     modal.hide();

@@ -94,5 +94,24 @@ namespace ObreshkovLibrary.Controllers
 
             return RedirectToAction("Index", "Home", new { cardNumber = client.CardNumber });
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Return(int id)
+        {
+            var loan = await _context.Loans
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (loan == null)
+                return NotFound();
+
+            if (loan.ReturnDate == null)
+            {
+                loan.ReturnDate = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", "Clients", new { id = loan.ClientId });
+        }
     }
 }

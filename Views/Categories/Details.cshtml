@@ -1,36 +1,458 @@
 ﻿@model ObreshkovLibrary.Models.Category
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Категория";
+
+    var childCategories = (Model.Children ?? new List<ObreshkovLibrary.Models.Category>())
+        .Where(c => c.IsActive)
+        .OrderBy(c => c.Name)
+        .ToList();
+
+    var books = (Model.Books ?? new List<ObreshkovLibrary.Models.Book>())
+        .Where(b => b.IsActive)
+        .OrderBy(b => b.Title)
+        .ToList();
+
+    var isRoot = Model.ParentCategoryId == null;
 }
 
-<h1>Details</h1>
+<div class="category-details-page">
 
-<div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ParentCategory)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ParentCategory.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-    </dl>
+    <div class="category-details-header">
+        <div>
+            <h2 class="section-title mb-1">@Model.Name</h2>
+            <div class="accent-line"></div>
+        </div>
+
+        <div class="category-details-actions">
+            <a class="btn btn-outline-primary"
+               asp-action="Index">
+                Назад
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger mb-4">@TempData["Error"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <section class="details-panel card-soft">
+                <div class="details-panel-head">
+                    <h5 class="section-title mb-0">Данни</h5>
+                </div>
+
+                <div class="details-info-list">
+                    <div class="details-info-row">
+                        <span class="details-label">Име</span>
+                        <span class="details-value">@Model.Name</span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Тип</span>
+                        <span class="details-value">
+                            @if (isRoot)
+                            {
+                                <span class="status-badge status-active">Основна категория</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Подкатегория</span>
+                            }
+                        </span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Родител</span>
+                        <span class="details-value">
+                            @(Model.ParentCategory != null ? Model.ParentCategory.Name : "Няма")
+                        </span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Подкатегории</span>
+                        <span class="details-value">
+                            @(childCategories.Any() ? childCategories.Count.ToString() : "Няма")
+                        </span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Книги</span>
+                        <span class="details-value">
+                            @(books.Any() ? books.Count.ToString() : "Няма")
+                        </span>
+                    </div>
+
+                    <div class="details-info-row">
+                        <span class="details-label">Статус</span>
+                        <span class="details-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="status-badge status-active">Активна</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Неактивна</span>
+                            }
+                        </span>
+                    </div>
+
+                    @if (childCategories.Any())
+                    {
+                        <div class="details-subsection">
+                            <div class="details-subsection-title">Подкатегории</div>
+
+                            <div class="subcategories-list">
+                                @foreach (var child in childCategories)
+                                {
+                                    <a asp-action="Details"
+                                       asp-route-id="@child.Id"
+                                       class="subcategory-chip">
+                                        @child.Name
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="details-panel-footer category-footer-actions">
+                    <a class="btn btn-outline-primary flex-grow-1"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id">
+                        Редактирай
+                    </a>
+
+                    @if (Model.IsActive)
+                    {
+                        <form asp-action="Deactivate"
+                              asp-route-id="@Model.Id"
+                              method="post"
+                              data-gate="1"
+                              class="m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger">
+                                Деактивирай
+                            </button>
+                        </form>
+                    }
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-8">
+            <section class="details-panel card-soft">
+                <div class="details-panel-head details-panel-head-flex">
+                    <h5 class="section-title mb-0">Книги в категорията</h5>
+                    <span class="count-badge">@books.Count</span>
+                </div>
+
+                @if (!books.Any())
+                {
+                    <div class="details-empty-state">
+                        Няма книги в тази категория.
+                    </div>
+                }
+                else
+                {
+                    <div class="category-books-grid">
+                        @foreach (var book in books)
+                        {
+                            <a class="category-book-card"
+                               asp-controller="Book"
+                               asp-action="Details"
+                               asp-route-id="@book.Id">
+
+                                <div class="category-book-cover">
+                                    @if (!string.IsNullOrWhiteSpace(book.CoverUrl))
+                                    {
+                                        <img src="@book.CoverUrl"
+                                             alt="@book.Title"
+                                             onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                                    }
+                                </div>
+
+                                <div class="category-book-title">@book.Title</div>
+                            </a>
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+<style>
+    .category-details-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .category-details-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .category-details-actions {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .details-panel {
+        padding: 0;
+        overflow: hidden;
+        background: #FFFFFF;
+    }
+
+    .details-panel-head {
+        padding: 1.05rem 1.15rem .9rem;
+        border-bottom: 1px solid #D9E0E7;
+        background: #FBFCFD;
+    }
+
+    .details-panel-head-flex {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .details-info-list {
+        padding: .35rem 1.15rem 0;
+    }
+
+    .details-info-row {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 1rem;
+        align-items: center;
+        padding: .85rem 0;
+        border-bottom: 1px solid #E5EAF0;
+    }
+
+        .details-info-row:last-of-type {
+            border-bottom: none;
+        }
+
+    .details-label {
+        color: #6B7280;
+        font-weight: 700;
+    }
+
+    .details-value {
+        color: #1F2937;
+        font-weight: 700;
+        text-align: right;
+        justify-self: end;
+    }
+
+    .details-subsection {
+        padding: 1rem 0 1rem;
+        border-top: 1px solid #E5EAF0;
+    }
+
+    .details-subsection-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: .75rem;
+    }
+
+    .subcategories-list {
+        display: flex;
+        gap: .55rem;
+        flex-wrap: wrap;
+    }
+
+    .subcategory-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: .45rem .75rem;
+        border-radius: 999px;
+        background: #EEF4FF;
+        color: #2563EB;
+        border: 1px solid #D6E4FF;
+        font-size: .9rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .subcategory-chip:hover {
+            color: #1D4ED8;
+            background: #E7F0FF;
+        }
+
+    .details-panel-footer {
+        padding: 1rem 1.15rem 1.15rem;
+        border-top: 1px solid #E5EAF0;
+        background: #FBFCFD;
+    }
+
+    .category-footer-actions {
+        display: flex;
+        gap: .75rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        font-size: .88rem;
+        font-weight: 800;
+    }
+
+    .status-active {
+        background: #EEF4FF;
+        color: #2563EB;
+        border: 1px solid #D6E4FF;
+    }
+
+    .status-inactive {
+        background: #F3F4F6;
+        color: #6B7280;
+        border: 1px solid #D1D5DB;
+    }
+
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 .7rem;
+        border-radius: 999px;
+        background: #EEF4FF;
+        color: #2563EB;
+        border: 1px solid #D6E4FF;
+        font-weight: 800;
+    }
+
+    .details-empty-state {
+        padding: 1.15rem;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .category-books-grid {
+        padding: 1rem 1.15rem 1.15rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 1rem;
+        justify-items: start;
+    }
+
+    .category-book-card {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        width: 120px;
+    }
+
+    .category-book-cover {
+        width: 120px;
+        height: 170px;
+        border-radius: 12px;
+        background: #F3F6F9;
+        border: 1px solid #D9E0E7;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .category-book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .category-book-cover.no-cover::after {
+            content: "Няма корица";
+            color: #6B7280;
+            font-size: .86rem;
+            font-weight: 600;
+            text-align: center;
+            padding: .5rem;
+        }
+
+    .category-book-title {
+        font-weight: 700;
+        color: #1F2937;
+        line-height: 1.3;
+        text-align: left;
+        word-break: break-word;
+    }
+
+    @@media (max-width: 767.98px) {
+        .category-details-header
+
+    {
+        align-items: stretch;
+    }
+
+    .category-details-actions {
+        width: 100%;
+    }
+
+        .category-details-actions .btn {
+            flex: 1 1 auto;
+            text-align: center;
+        }
+
+    .details-info-row {
+        grid-template-columns: 1fr;
+        gap: .35rem;
+    }
+
+    .details-value {
+        text-align: left;
+        justify-self: start;
+    }
+
+    .category-footer-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .category-footer-actions .btn,
+        .category-footer-actions form {
+            width: 100%;
+        }
+
+            .category-footer-actions form .btn {
+                width: 100%;
+            }
+
+    .category-books-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        justify-items: center;
+    }
+
+    .category-book-card {
+        width: 100%;
+        max-width: 130px;
+    }
+
+    .category-book-cover {
+        width: 100%;
+        height: 180px;
+    }
+
+    }
+</style>

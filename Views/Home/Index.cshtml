@@ -5,72 +5,258 @@
 }
 
 <div class="home-wrap">
-    <div class="d-flex align-items-end justify-content-center flex-wrap gap-3 mb-3">
-        <div>
-            <h2 class="section-title mb-1">Начало</h2>
-            <div class="accent-line"></div>
-        </div>
-
-        <form asp-controller="Home"
-              asp-action="SearchByCardNumber"
-              method="post"
-              class="dashboard-search">
-
-            @Html.AntiForgeryToken()
-
-            <div class="input-group">
-                <input type="text"
-                       name="cardNumber"
-                       class="form-control"
-                       placeholder="Номер на карта (само цифри)"
-                       inputmode="numeric"
-                       pattern="[0-9]*" />
-
-                <button type="submit" class="btn btn-accent">
-                    Търси
-                </button>
+    <section class="hero-panel card-soft mb-4">
+        <div class="hero-grid">
+            <div class="hero-title-wrap">
+                <h2 class="section-title mb-1">Начало</h2>
+                <div class="accent-line"></div>
+                <div class="hero-subtitle">Административен преглед на библиотеката</div>
             </div>
-        </form>
-    </div>
+
+            <div class="search-panel">
+                <div class="search-panel-label">Бързо търсене по номер на карта</div>
+
+                <form asp-controller="Home"
+                      asp-action="SearchByCardNumber"
+                      method="post"
+                      class="dashboard-search">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group search-group">
+                        <input type="text"
+                               name="cardNumber"
+                               class="form-control search-input-main"
+                               placeholder="Въведи номер на карта"
+                               inputmode="numeric"
+                               pattern="[0-9]*" />
+
+                        <button type="submit" class="btn btn-accent search-btn-main">
+                            Търси
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
 
     @if (TempData["HomeError"] != null)
     {
-        <div class="alert alert-danger">@TempData["HomeError"]</div>
+        <div class="alert alert-danger mb-4">@TempData["HomeError"]</div>
     }
 
-    <div class="row g-3">
-        <!-- Последни заемания -->
-        <div class="col-lg-8">
-            <div class="card-soft card-loans p-3 h-100">
-                <h5 class="section-title mb-2">Последни заемания</h5>
+    <section class="content-panel content-panel-muted card-soft mb-4">
+        <div class="panel-head">
+            <h5 class="section-title mb-0">Последни заемания</h5>
+        </div>
 
-                @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
+        @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
+        {
+            <div class="empty-block">Няма записи.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-doc align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Читател</th>
+                            <th>№ карта</th>
+                            <th>Книга</th>
+                            <th>Заета на</th>
+                            <th>Срок</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.LatestLoans)
+                        {
+                            <tr>
+                                <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                <td>@l.Client?.CardNumber</td>
+                                <td>@l.BookCopy?.Book?.Title</td>
+                                <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
+                                <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <section class="content-panel small-panel card-soft h-100">
+                <div class="small-panel-top">
+                    <div>
+                        <div class="small-panel-label">Книги за връщане днес</div>
+                        <div class="small-panel-number">@Model.DueTodayCount</div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#dueTodayModal">
+                        Виж списъка
+                    </button>
+                </div>
+
+                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
                 {
-                    <div class="text-muted">Няма записи.</div>
+                    <div class="small-panel-note">Няма книги за връщане днес.</div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-sm align-middle mb-0">
+                        <table class="table table-doc table-doc-compact align-middle mb-0">
                             <thead>
                                 <tr>
                                     <th>Читател</th>
                                     <th>Книга</th>
-                                    <th>Заета на</th>
                                     <th>Срок</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var l in Model.LatestLoans)
+                                @foreach (var l in Model.DueTodayLoans.Take(4))
                                 {
                                     <tr>
-                                        <td>
-                                            @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())
-                                            <div class="text-muted small">№ @l.Client?.CardNumber</div>
-                                        </td>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                         <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
                                         <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="content-panel small-panel card-soft h-100">
+                <div class="small-panel-top">
+                    <div>
+                        <div class="small-panel-label">Просрочени книги</div>
+                        <div class="small-panel-number">@Model.OverdueCount</div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#overdueModal">
+                        Виж списъка
+                    </button>
+                </div>
+
+                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
+                {
+                    <div class="small-panel-note">Няма просрочени книги.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc table-doc-compact align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.OverdueLoans.Take(4))
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+
+    <section class="content-panel content-panel-books card-soft">
+        <div class="panel-head books-head">
+            <h5 class="section-title mb-0">Последно добавени книги</h5>
+
+            <a class="btn btn-outline-primary btn-sm"
+               asp-controller="Book"
+               asp-action="Index">
+                Още
+            </a>
+        </div>
+
+        @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
+        {
+            <div class="empty-block">Няма книги.</div>
+        }
+        else
+        {
+            <div class="latest-books-grid">
+                @foreach (var b in Model.LatestBookTitles.Take(5))
+                {
+                    <a class="latest-book-card text-decoration-none"
+                       href="@Url.Action("Details", "Book", new { id = b.Id })">
+                        <div class="latest-book-cover-wrap">
+                            <img src="@b.CoverUrl"
+                                 alt="@b.Title"
+                                 class="latest-book-cover"
+                                 onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                        </div>
+
+                        <div class="latest-book-title">@b.Title</div>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
+                {
+                    <div class="empty-block p-0">Няма книги за връщане днес.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>№ карта</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.DueTodayLoans)
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.Client?.CardNumber</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end">
+                                            <a class="link-accent"
+                                               asp-controller="Loans"
+                                               asp-action="Return"
+                                               asp-route-id="@l.Id">
+                                                Отвори
+                                            </a>
+                                        </td>
                                     </tr>
                                 }
                             </tbody>
@@ -79,107 +265,12 @@
                 }
             </div>
         </div>
-
-        <!-- броячи -->
-        <div class="col-lg-4">
-            <div class="d-flex flex-column gap-3">
-
-                <div class="card-soft card-due p-3">
-                    <div class="section-title mb-1">Книги за връщане днес</div>
-                    <button type="button" class="count-card" data-bs-toggle="modal" data-bs-target="#dueTodayModal"
-                            style="background:transparent;border:none;text-align:left;width:100%;padding:0;">
-                        <span class="count-number">@Model.DueTodayCount</span>
-                        <span class="count-hint d-block">Виж списъка</span>
-                    </button>
-                </div>
-
-                <div class="card-soft card-overdue p-3">
-                    <div class="section-title mb-1">Просрочени книги</div>
-                    <button type="button" class="count-card" data-bs-toggle="modal" data-bs-target="#overdueModal"
-                            style="background:transparent;border:none;text-align:left;width:100%;padding:0;">
-                        <span class="count-number">@Model.OverdueCount</span>
-                        <span class="count-hint d-block">Виж списъка</span>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- последно добавени книги -->
-        <div class="col-12">
-            <div class="card-soft card-books p-3">
-                <h5 class="section-title mb-2">Последно добавени книги</h5>
-
-                @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
-                {
-                    <div class="text-muted">Няма книги.</div>
-                }
-                else
-                {
-                    <div class="row g-3 justify-content-center">
-                        @foreach (var b in Model.LatestBookTitles)
-                        {
-                            <div class="col-6 col-md-3">
-                                <a class="text-decoration-none"
-                                   style="color:#0F3D3E;font-weight:600;"
-                                   href="@Url.Action("Details", "Book", new { id = b.Id })">
-                                    <div class="book-thumb">
-                                        <img src="@b.CoverUrl"
-                                             alt="@b.Title"
-                                             class="book-cover"
-                                             onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
-                                    </div>
-                                    <div class="mt-2 text-center">@b.Title</div>
-                                </a>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content card-soft card-due">
-            <div class="modal-header">
-                <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-            <div class="modal-body">
-                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
-                {
-                    <div class="text-muted">Няма книги за връщане днес.</div>
-                }
-                else
-                {
-                    <ul class="list-group">
-                        @foreach (var l in Model.DueTodayLoans)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-semibold">@l.BookCopy?.Book?.Title</div>
-                                    <div class="text-muted small">
-                                        @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
-                                    </div>
-                                </div>
-                                <a class="link-accent"
-                                   asp-controller="Loans"
-                                   asp-action="Return"
-                                   asp-route-id="@l.Id">Отвори</a>
-                            </li>
-                        }
-                    </ul>
-                }
-            </div>
-        </div>
     </div>
 </div>
 
 <div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content card-soft card-overdue">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Просрочени книги (@Model.OverdueCount)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
@@ -187,30 +278,313 @@
             <div class="modal-body">
                 @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
                 {
-                    <div class="text-muted">Няма просрочени.</div>
+                    <div class="empty-block p-0">Няма просрочени.</div>
                 }
                 else
                 {
-                    <ul class="list-group">
-                        @foreach (var l in Model.OverdueLoans)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-semibold">@l.BookCopy?.Book?.Title</div>
-                                    <div class="text-muted small">
-                                        @($"{l.Client?.FirstName} {l.Client?.LastName}".Trim()) • № @l.Client?.CardNumber
-                                        • срок: @l.DueDate.ToString("dd.MM.yyyy")
-                                    </div>
-                                </div>
-                                <a class="link-accent"
-                                   asp-controller="Loans"
-                                   asp-action="Return"
-                                   asp-route-id="@l.Id">Отвори</a>
-                            </li>
-                        }
-                    </ul>
+                    <div class="table-responsive">
+                        <table class="table table-doc align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>№ карта</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.OverdueLoans)
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.Client?.CardNumber</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end">
+                                            <a class="link-accent"
+                                               asp-controller="Loans"
+                                               asp-action="Return"
+                                               asp-route-id="@l.Id">
+                                                Отвори
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .home-wrap {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .hero-panel {
+        padding: 1.5rem;
+        background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFD 100%);
+    }
+
+    .hero-grid {
+        display: grid;
+        grid-template-columns: 1fr minmax(340px, 520px);
+        gap: 1.5rem;
+        align-items: end;
+    }
+
+    .hero-subtitle {
+        color: #6B7280;
+        margin-top: .85rem;
+        font-size: .98rem;
+    }
+
+    .search-panel {
+        background: #F0F4F8;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 1rem;
+    }
+
+    .search-panel-label {
+        font-size: .82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #6B7280;
+        margin-bottom: .65rem;
+    }
+
+    .search-group .search-input-main {
+        min-height: 50px;
+        border-right: 0;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        background: #FFFFFF;
+    }
+
+    .search-group .search-btn-main {
+        min-width: 120px;
+        min-height: 50px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .content-panel {
+        padding: 1.25rem 1.25rem 1.15rem;
+    }
+
+    .content-panel-muted {
+        background: #FBFCFD;
+    }
+
+    .content-panel-books {
+        background: #F8FAFC;
+    }
+
+    .panel-head {
+        padding-bottom: .85rem;
+        border-bottom: 1px solid #D9E0E7;
+        margin-bottom: 1rem;
+    }
+
+    .books-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .empty-block {
+        color: #6B7280;
+        padding: .35rem 0;
+    }
+
+    .table-doc {
+        margin-bottom: 0;
+        border: 1px solid #D9E0E7;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .table-doc thead th {
+            font-size: .8rem;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            color: #6B7280;
+            background: #F3F6F9;
+            border-bottom: 1px solid #D9E0E7;
+            padding-top: .85rem;
+            padding-bottom: .85rem;
+            font-weight: 800;
+        }
+
+        .table-doc tbody td {
+            background: #FFFFFF;
+            padding-top: .9rem;
+            padding-bottom: .9rem;
+        }
+
+        .table-doc tbody tr:hover td {
+            background: #FAFCFF;
+        }
+
+    .table-doc-compact thead th {
+        padding-top: .72rem;
+        padding-bottom: .72rem;
+    }
+
+    .table-doc-compact tbody td {
+        padding-top: .75rem;
+        padding-bottom: .75rem;
+    }
+
+    .small-panel {
+        background: #F7F9FC;
+    }
+
+    .small-panel-top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 1rem;
+        border-bottom: 1px solid #D9E0E7;
+        padding-bottom: .85rem;
+        margin-bottom: .85rem;
+    }
+
+    .small-panel-label {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: #1F2937;
+        line-height: 1.25;
+        margin-bottom: .35rem;
+    }
+
+    .small-panel-number {
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: 800;
+        color: #3B82F6;
+    }
+
+    .small-panel-note {
+        color: #6B7280;
+        padding-top: .15rem;
+    }
+
+    .latest-books-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(130px, 1fr));
+        gap: 1.25rem;
+        align-items: start;
+    }
+
+    .latest-book-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 120px;
+    }
+
+        .latest-book-card:hover .latest-book-title {
+            color: #2563EB;
+        }
+
+    .latest-book-cover-wrap {
+        width: 120px;
+        height: 170px;
+        background: #EEF2F7;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .latest-book-cover {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .latest-book-cover-wrap.no-cover::after {
+        content: "Няма корица";
+        font-size: .78rem;
+        color: #6B7280;
+    }
+
+    .latest-book-title {
+        margin-top: 6px;
+        font-size: .82rem;
+        font-weight: 600;
+        text-align: center;
+        width: 100%;
+    }
+
+    @@media (max-width: 1199.98px) {
+        .latest-books-grid {
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        .hero-grid {
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
+
+        .latest-books-grid {
+            display: flex;
+            gap: 22px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .latest-books-grid {
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+        }
+
+        .small-panel-top {
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .hero-panel, .content-panel {
+            padding: 1rem;
+        }
+
+        .search-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .search-group .search-input-main {
+                border-right: 1px solid #C8D1DB;
+                border-radius: 12px;
+                margin-bottom: .55rem;
+            }
+
+            .search-group .search-btn-main {
+                width: 100%;
+                border-radius: 12px;
+            }
+
+        .latest-books-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 120px);
+            gap: 18px;
+        }
+    }
+</style>

@@ -1,49 +1,275 @@
-﻿@model IEnumerable<ObreshkovLibrary.Models.Category>
+﻿@using ObreshkovLibrary.Models
+@model IEnumerable<ObreshkovLibrary.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Категории";
+
+    var allCategories = (Model ?? Enumerable.Empty<Category>()).ToList();
+
+    var byParent = allCategories
+        .OrderBy(c => c.Name)
+        .ToLookup(c => c.ParentCategoryId);
+
+    var orderedRows = new List<(Category Category, int Level, string Path)>();
+
+    void AddBranch(int? parentId, int level, string? parentPath = null)
+    {
+        var children = byParent[parentId];
+
+        foreach (var child in children)
+        {
+            var path = string.IsNullOrWhiteSpace(parentPath)
+                ? child.Name
+                : $"{parentPath} / {child.Name}";
+
+            orderedRows.Add((child, level, path));
+            AddBranch(child.Id, level + 1, path);
+        }
+    }
+
+    AddBranch(null, 0);
+
+    var addedIds = orderedRows.Select(x => x.Category.Id).ToHashSet();
+    var orphanCategories = allCategories
+        .Where(c => !addedIds.Contains(c.Id))
+        .OrderBy(c => c.Name)
+        .ToList();
+
+    foreach (var orphan in orphanCategories)
+    {
+        orderedRows.Add((orphan, 0, orphan.Name));
+    }
 }
 
-<h1>Index</h1>
+<div class="categories-page">
 
-<p>
-    <a asp-action="CreatePath">Добави категории</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ParentCategory)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ParentCategory.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <form asp-action="Deactivate" asp-route-id="@item.Id" method="post" style="display:inline">
-                        <button type="submit" class="btn btn-link p-0">Деактивирай</button>
-                    </form>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="categories-header">
+        <div>
+            <h2 class="section-title mb-1">Категории</h2>
+            <div class="accent-line"></div>
+        </div>
+
+        <div class="categories-header-actions">
+            <a asp-action="CreatePath" class="categories-add-btn">
+                Добави категории
+            </a>
+        </div>
+    </div>
+
+    <section class="categories-panel card-soft">
+        @if (!orderedRows.Any())
+        {
+            <div class="categories-empty-state">
+                Няма добавени категории.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table categories-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 55%;">Категория</th>
+                            <th style="width: 30%;">Път</th>
+                            <th style="width: 15%;" class="text-end">Преглед</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var row in orderedRows)
+                        {
+                            var item = row.Category;
+                            var level = row.Level;
+                            var indent = level * 28;
+
+                            <tr class="category-row @(level == 0 ? "category-root-row" : "")">
+                                <td>
+                                    <div class="category-tree-cell" style="padding-left:@(indent)px;">
+                                        @if (level > 0)
+                                        {
+                                            <span class="tree-branch" aria-hidden="true"></span>
+                                        }
+
+                                        <span class="category-name-cell">@item.Name</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="category-path-text">@row.Path</span>
+                                </td>
+
+                                <td class="text-end">
+                                    <a asp-action="Details"
+                                       asp-route-id="@item.Id"
+                                       class="category-view-link">
+                                        Виж
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+</div>
+
+<style>
+    .categories-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .categories-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .categories-header-actions {
+        display: flex;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .categories-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 1.2rem;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #4D8AF7 0%, #3B82F6 100%);
+        color: #FFFFFF;
+        text-decoration: none;
+        font-weight: 800;
+        border: 1px solid #3B82F6;
+        box-shadow: 0 8px 18px rgba(59, 130, 246, .18);
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+        .categories-add-btn:hover {
+            color: #FFFFFF;
+            background: linear-gradient(180deg, #4381EE 0%, #2F74EA 100%);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, .24);
+            transform: translateY(-1px);
+        }
+
+    .categories-panel {
+        padding: 0;
+        overflow: hidden;
+        background: #FFFFFF;
+    }
+
+    .categories-empty-state {
+        padding: 1.15rem;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .categories-table {
+        margin-bottom: 0;
+    }
+
+        .categories-table thead th {
+            background: #F3F6F9;
+            color: #6B7280;
+            font-size: .82rem;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+            font-weight: 800;
+            padding: .95rem 1rem;
+            border-bottom: 1px solid #D9E0E7;
+            white-space: nowrap;
+        }
+
+        .categories-table tbody td {
+            padding: 1rem;
+            background: #FFFFFF;
+            border-bottom: 1px solid #E5EAF0;
+            vertical-align: middle;
+        }
+
+        .categories-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+    .category-row {
+        transition: background-color .15s ease;
+    }
+
+        .category-row:hover td {
+            background: #FAFCFF;
+        }
+
+    .category-root-row td {
+        background: #FCFDFE;
+    }
+
+    .category-tree-cell {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        position: relative;
+    }
+
+    .tree-branch {
+        width: 18px;
+        height: 18px;
+        border-left: 1.5px solid #C9D4E3;
+        border-bottom: 1.5px solid #C9D4E3;
+        margin-right: 10px;
+        margin-top: -8px;
+        flex: 0 0 auto;
+    }
+
+    .category-name-cell {
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+    .category-path-text {
+        color: #6B7280;
+        font-size: .93rem;
+        font-weight: 600;
+    }
+
+    .category-view-link {
+        color: #3B82F6;
+        font-weight: 800;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+        .category-view-link:hover {
+            color: #2563EB;
+            text-decoration: underline;
+        }
+
+    @@media (max-width: 767.98px) {
+        .categories-header {
+            align-items: stretch;
+        }
+
+        .categories-header-actions {
+            width: 100%;
+        }
+
+        .categories-add-btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .categories-table thead th,
+        .categories-table tbody td {
+            padding-left: .9rem;
+            padding-right: .9rem;
+        }
+    }
+</style>

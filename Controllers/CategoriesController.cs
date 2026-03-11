@@ -36,7 +36,10 @@ namespace ObreshkovLibrary.Controllers
             if (id == null) return NotFound();
 
             var category = await _context.Categories
+                .IgnoreQueryFilters()
                 .Include(c => c.ParentCategory)
+                .Include(c => c.Children)
+                .Include(c => c.Books)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (category == null) return NotFound();
@@ -136,7 +139,6 @@ namespace ObreshkovLibrary.Controllers
             if (category == null)
                 return NotFound();
 
-            // има ли активни книги с CategoryId == id
             bool hasActiveBooks = await _context.Books
                 .AnyAsync(b => b.CategoryId == id && b.IsActive);
 

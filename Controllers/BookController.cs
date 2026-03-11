@@ -92,13 +92,13 @@ namespace ObreshkovLibrary.Controllers
                 result |= t switch
                 {
                     "classic" or "класика" => BookTags.Classic,
-                    "romance" or "любовен" or "любовна" or "любовен роман" => BookTags.Romance,
+                    "romance" or "любовен" => BookTags.Romance,
                     "drama" or "драма" => BookTags.Drama,
                     "fantasy" or "фентъзи" => BookTags.Fantasy,
-                    "horror" or "ужас" or "ужаси" => BookTags.Horror,
-                    "bulgarian" or "българска" or "българска литература" => BookTags.Bulgarian,
-                    "foreign" or "чужда" or "чужда литература" => BookTags.Foreign,
-                    "school" or "училищна" or "училищна литература" => BookTags.SchoolLiterature,
+                    "horror" or "ужаси" => BookTags.Horror,
+                    "bulgarian" or "българска" => BookTags.Bulgarian,
+                    "foreign" or "чужда" => BookTags.Foreign,
+                    "school" or "училищна" => BookTags.SchoolLiterature,
                     _ => BookTags.None
                 };
             }
@@ -107,121 +107,51 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? title, string? author, int? year, string? tag, string? categoryIds)
+        public async Task<IActionResult> Index()
         {
-            title = (title ?? "").Trim();
-            author = (author ?? "").Trim();
-            tag = (tag ?? "").Trim();
-
-            var selectedCategoryIds = new List<int>();
-            if (!string.IsNullOrWhiteSpace(categoryIds))
-            {
-                selectedCategoryIds = categoryIds
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Select(x => int.TryParse(x, out var id) ? id : (int?)null)
-                    .Where(id => id.HasValue)
-                    .Select(id => id!.Value)
-                    .Distinct()
-                    .Take(50)
-                    .ToList();
-            }
-
-            bool hasTitle = !string.IsNullOrWhiteSpace(title);
-            bool hasAuthor = !string.IsNullOrWhiteSpace(author);
-            bool hasYear = year.HasValue;
-
-            var tagEnum = ParseTagsToEnum(tag);
-            bool hasTag = tagEnum != BookTags.None;
-
-            bool hasCats = selectedCategoryIds.Count > 0;
-
-            var q = _context.Books
+            var books = await _context.Books
                 .AsNoTracking()
                 .Include(b => b.Category)
-                .AsQueryable();
-
-            if (hasTitle) q = q.Where(b => b.Title.Contains(title));
-            if (hasAuthor) q = q.Where(b => b.Author.Contains(author));
-            if (hasYear) q = q.Where(b => b.Year == year);
-            if (hasTag) q = q.Where(b => (b.Tags & tagEnum) != BookTags.None);
-            if (hasCats) q = q.Where(b => b.CategoryId.HasValue && selectedCategoryIds.Contains(b.CategoryId.Value));
-
-            var books = await q
+                .Where(b => b.IsActive)
                 .OrderBy(b => b.Title)
                 .ThenBy(b => b.Author)
-                .ToListAsync();
-
-            ViewBag.TitleFilter = title;
-            ViewBag.Author = author;
-            ViewBag.Year = year;
-            ViewBag.Tag = tag;
-            ViewBag.CategoryIds = string.Join(",", selectedCategoryIds);
-
-            ViewBag.AllCategories = await _context.Categories
-                .Where(c => c.IsActive)
-                .OrderBy(c => c.ParentCategoryId == null ? 0 : 1)
-                .ThenBy(c => c.Name)
-                .ToListAsync();
-
-            ViewBag.TitleSuggestions = await _context.Books
-                .AsNoTracking()
-                .Where(b => b.IsActive)
-                .Select(b => b.Title)
-                .Distinct()
-                .OrderBy(x => x)
-                .Take(300)
-                .ToListAsync();
-
-            ViewBag.AuthorSuggestions = await _context.Books
-                .AsNoTracking()
-                .Where(b => b.IsActive)
-                .Select(b => b.Author)
-                .Distinct()
-                .OrderBy(x => x)
-                .Take(300)
                 .ToListAsync();
 
             return View(books);
         }
 
-        // GET: Book/Archived
         [HttpGet]
-        public async Task<IActionResult> Archived(string? title, string? author)
+        public async Task<IActionResult> Archived()
         {
-            title = (title ?? "").Trim();
-            author = (author ?? "").Trim();
-
-            var q = _context.Books
+            var books = await _context.Books
                 .IgnoreQueryFilters()
-                .AsNoTracking()
-                .Include(b => b.Category)
                 .Where(b => !b.IsActive)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(title)) q = q.Where(b => b.Title.Contains(title));
-            if (!string.IsNullOrWhiteSpace(author)) q = q.Where(b => b.Author.Contains(author));
-
-            var books = await q
+                .Include(b => b.Category)
                 .OrderBy(b => b.Title)
-                .ThenBy(b => b.Author)
                 .ToListAsync();
-
-            ViewBag.TitleFilter = title;
-            ViewBag.Author = author;
 
             return View(books);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var book = _context.Books
+            var book = await _context.Books
                 .IgnoreQueryFilters()
                 .Include(b => b.Category)
-                .FirstOrDefault(b => b.Id == id);
+                .Include(b => b.Copies)
+                .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
                 return NotFound();
+
+            var copyIds = book.Copies.Select(c => c.Id).ToList();
+
+            var activeLoanCopyIds = await _context.Loans
+                .Where(l => copyIds.Contains(l.BookCopyId) && l.ReturnDate == null)
+                .Select(l => l.BookCopyId)
+                .ToListAsync();
+
+            ViewBag.ActiveLoanCopyIds = activeLoanCopyIds;
 
             return View(book);
         }
@@ -248,23 +178,14 @@ namespace ObreshkovLibrary.Controllers
         {
             vm.Title = (vm.Title ?? "").Trim();
             vm.Author = (vm.Author ?? "").Trim();
-            vm.CoverUrl = string.IsNullOrWhiteSpace(vm.CoverUrl) ? null : vm.CoverUrl.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
+
             if (!finalCategoryId.HasValue)
                 ModelState.AddModelError("", "Моля, изберете категория.");
 
             if (!ModelState.IsValid)
-            {
-                vm.Level1Options = await _context.Categories
-                    .Where(c => c.ParentCategoryId == null && c.IsActive)
-                    .OrderBy(c => c.Name)
-                    .ToListAsync();
-
-                vm.TagOptions = BuildTagOptions();
-
                 return View(vm);
-            }
 
             using var tx = await _context.Database.BeginTransactionAsync();
 
@@ -275,7 +196,7 @@ namespace ObreshkovLibrary.Controllers
                 Year = vm.Year,
                 Description = vm.Description,
                 CoverUrl = vm.CoverUrl,
-                CategoryId = finalCategoryId!.Value,
+                CategoryId = finalCategoryId.Value,
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
                 IsActive = true
             };
@@ -297,8 +218,6 @@ namespace ObreshkovLibrary.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-        // GET: Book/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -311,6 +230,7 @@ namespace ObreshkovLibrary.Controllers
 
             int? level1Id = null;
             int? level2Id = null;
+
             if (book.CategoryId.HasValue)
             {
                 var cat = await _context.Categories
@@ -361,7 +281,6 @@ namespace ObreshkovLibrary.Controllers
             return View(vm);
         }
 
-        // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, BookCreateVM vm)
@@ -399,15 +318,12 @@ namespace ObreshkovLibrary.Controllers
             book.Year = vm.Year;
             book.Description = vm.Description;
             book.CoverUrl = vm.CoverUrl;
-            book.CategoryId = finalCategoryId!.Value;
+            book.CategoryId = finalCategoryId.Value;
             book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
-
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = book.Id });
         }
-
-        // POST: Book/Deactivate/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
@@ -424,7 +340,50 @@ namespace ObreshkovLibrary.Controllers
             }
         }
 
-        // POST: Book/Reactivate/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeactivateCopy(int id)
+        {
+            var copy = await _context.BookCopies
+                .Include(c => c.Book)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (copy == null)
+                return NotFound();
+
+            bool hasActiveLoan = await _context.Loans
+                .AnyAsync(l => l.BookCopyId == id && l.ReturnDate == null);
+
+            if (hasActiveLoan)
+            {
+                TempData["Error"] = "Копието не може да бъде деактивирано, защото е заето.";
+                return RedirectToAction(nameof(Details), new { id = copy.BookId });
+            }
+
+            copy.IsActive = false;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = copy.BookId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReactivateCopy(int id)
+        {
+            var copy = await _context.BookCopies
+                .Include(c => c.Book)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (copy == null)
+                return NotFound();
+
+            copy.IsActive = true;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = copy.BookId });
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(int id)
@@ -433,7 +392,8 @@ namespace ObreshkovLibrary.Controllers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-            if (book == null) return NotFound();
+            if (book == null)
+                return NotFound();
 
             book.IsActive = true;
 
@@ -446,6 +406,7 @@ namespace ObreshkovLibrary.Controllers
                 c.IsActive = true;
 
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Archived));
         }
     }

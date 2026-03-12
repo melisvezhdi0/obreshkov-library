@@ -3,181 +3,152 @@
 @{
     ViewData["Title"] = "Редактиране на книга";
 }
-<h2 class="section-title mb-1">Редактиране на книга</h2>
-<div class="accent-line"></div>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8 col-xl-7">
+<div class="book-edit-page">
 
-        <div style="
-            background:#ffffff;
-            border-radius:20px;
-            padding:32px;
-            border:1px solid rgba(0,0,0,.08);
-            box-shadow:0 12px 28px rgba(0,0,0,.10);
-        ">
+    <div class="book-edit-header">
+        <div>
+            <h2 class="section-title mb-1">Редактиране на книга</h2>
+            <div class="accent-line"></div>
+        </div>
+    </div>
 
-            <form asp-action="Edit" method="post" data-gate="1">
-                @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <section class="book-edit-panel card-soft">
+        <form asp-action="Edit"
+              asp-route-id="@ViewBag.BookId"
+              method="post"
+              class="book-edit-form">
+            @Html.AntiForgeryToken()
 
-                <input type="hidden" name="Id" value="@ViewBag.BookId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Заглавие</label>
-                    <input asp-for="Title" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+            <input type="hidden" name="Id" value="@ViewBag.BookId" />
+
+            <div class="form-section">
+                <div class="form-section-title">Основна информация</div>
+
+                <div class="form-grid form-grid-2">
+                    <div class="form-field">
+                        <label asp-for="Title" class="form-label-strong">Заглавие</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label asp-for="Author" class="form-label-strong">Автор</label>
+                        <input asp-for="Author" class="form-control" />
+                        <span asp-validation-for="Author" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label asp-for="Year" class="form-label-strong">Година</label>
+                        <input asp-for="Year" type="number" class="form-control" />
+                        <span asp-validation-for="Year" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-field">
+                        <label asp-for="CopiesCount" class="form-label-strong">Брой копия</label>
+                        <input asp-for="CopiesCount" type="number" min="1" class="form-control" />
+                        <span asp-validation-for="CopiesCount" class="text-danger"></span>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Автор</label>
-                    <input asp-for="Author" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="Author" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Година</label>
-                    <input asp-for="Year" type="number" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="Year" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Описание</label>
-                    <textarea asp-for="Description" rows="4" class="form-control"
-                              style="background:#EFFFFC;border-color:#9FE3DA;"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-
-                <div class="mb-4">
-                    <label style="font-weight:900;color:#0F766E;">Линк към корица</label>
-                    <input asp-for="CoverUrl" class="form-control"
-                           placeholder="https://..."
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
+                <div class="form-field mt-3">
+                    <label asp-for="CoverUrl" class="form-label-strong">Линк към корица</label>
+                    <input asp-for="CoverUrl" class="form-control" placeholder="https://..." />
                     <span asp-validation-for="CoverUrl" class="text-danger"></span>
                 </div>
 
-                <!-- Категория -->
-                <div class="mb-3">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-                        <div style="font-weight:900;color:#0F766E;">Категория</div>
+                <div class="form-field mt-3">
+                    <label asp-for="Description" class="form-label-strong">Описание</label>
+                    <textarea asp-for="Description" rows="5" class="form-control form-textarea"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
 
-                        <button type="button"
-                                class="btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#categoryPickerModal"
-                                style="
-                                    background:#FB923C;
-                                    color:#fff;
-                                    font-weight:900;
-                                    border:none;
-                                    border-radius:12px;
-                                    padding:10px 16px;
-                                    box-shadow:0 8px 18px rgba(0,0,0,.10);
-                                ">
-                            Избери категория
-                        </button>
-                    </div>
+            <div class="form-section">
+                <div class="form-section-title">Категория</div>
 
-                    <div id="categoryPreview" style="margin-top:10px;"></div>
+                <div class="picker-head">
+                    <div id="categoryPreview" class="picker-preview"></div>
 
-                    <input asp-for="Level1Id" type="hidden" id="Level1IdHidden" />
-                    <input asp-for="Level2Id" type="hidden" id="Level2IdHidden" />
-
-                    <div style="margin-top:6px;">
-                        <span asp-validation-for="Level1Id" class="text-danger"></span>
-                        <span asp-validation-for="Level2Id" class="text-danger"></span>
-                    </div>
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#categoryPickerModal">
+                        Избери категория
+                    </button>
                 </div>
 
-                <!-- Етикети -->
-                <div class="mb-4">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-                        <div style="font-weight:900;color:#0F766E;">Етикети</div>
+                <input asp-for="Level1Id" type="hidden" id="Level1IdHidden" />
+                <input asp-for="Level2Id" type="hidden" id="Level2IdHidden" />
 
-                        <button type="button"
-                                class="btn"
-                                data-bs-toggle="modal"
-                                data-bs-target="#tagsPickerModal"
-                                style="
-                                    background:#FB923C;
-                                    color:#fff;
-                                    font-weight:900;
-                                    border:none;
-                                    border-radius:12px;
-                                    padding:10px 16px;
-                                    box-shadow:0 8px 18px rgba(0,0,0,.10);
-                                ">
-                            Избери етикети
-                        </button>
+                <div class="validation-inline">
+                    <span asp-validation-for="Level1Id" class="text-danger"></span>
+                    <span asp-validation-for="Level2Id" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Етикети</div>
+
+                <div class="picker-head">
+                    <div>
+                        <div id="selectedTagsPreview" class="tags-preview"></div>
+                        <div class="picker-help-text">
+                            Избрани: <span id="selectedTagsCount">0</span>
+                        </div>
                     </div>
 
-                    <div id="selectedTagsPreview" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-                    <div style="color:#64748B;">Избрани: <span id="selectedTagsCount">0</span></div>
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tagsPickerModal">
+                        Избери етикети
+                    </button>
                 </div>
+            </div>
 
-                <!-- бутони -->
-                <div class="d-flex align-items-center gap-2">
-                    <button type="submit"
-                            style="
-                                background:#FB923C;
-                                color:#fff;
-                                font-weight:900;
-                                border:none;
-                                border-radius:12px;
-                                padding:10px 16px;
-                                box-shadow:0 8px 18px rgba(0,0,0,.10);
-                            ">
+            <div class="form-actions-bar">
+                <div class="left-actions">
+                    <button type="submit" class="btn btn-accent">
                         Запази
                     </button>
 
-                    <a asp-action="Index"
-                       style="
-                            background:#FFF3C4;
-                            color:#0F766E;
-                            font-weight:900;
-                            border-radius:12px;
-                            border:1px solid rgba(0,0,0,.10);
-                            padding:10px 16px;
-                            text-decoration:none;
-                       ">
+                    <a asp-action="Details"
+                       asp-route-id="@ViewBag.BookId"
+                       class="btn btn-outline-primary">
                         Назад
                     </a>
-
-                    <div style="flex:1;"></div>
-
-                    @if (ViewBag.IsBookActive == true)
-                    {
-                        <button type="submit"
-                                formaction="@Url.Action("Deactivate", "Book")"
-                                formmethod="post"
-                                style="
-                                                background:#EF4444;
-                                                color:#fff;
-                                                font-weight:900;
-                                                border:none;
-                                                border-radius:12px;
-                                                padding:10px 16px;
-                                                box-shadow:0 8px 18px rgba(0,0,0,.10);
-                                            ">
-                            Деактивирай
-                        </button>
-                    }
                 </div>
+            </div>
+        </form>
 
-            </form>
-        </div>
-    </div>
+        @if (ViewBag.IsBookActive == true)
+        {
+            <div class="danger-actions-row">
+                <form asp-action="Deactivate"
+                      asp-route-id="@ViewBag.BookId"
+                      method="post"
+                      data-gate="1"
+                      class="m-0">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="btn btn-outline-danger">
+                        Деактивирай заглавието
+                    </button>
+                </form>
+            </div>
+        }
+    </section>
 </div>
 
 <!-- ===== MODAL: Категории ===== -->
 <div class="modal fade" id="categoryPickerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Категории</h5>
+        <div class="modal-content picker-modal-content">
+            <div class="modal-header picker-modal-header">
+                <h5 class="modal-title">Категории</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
 
@@ -186,15 +157,14 @@
                     <input id="catSearch"
                            type="text"
                            class="form-control"
-                           placeholder="Търси категория..."
-                           style="border-radius:12px;background:#EFFFFC;border-color:#9FE3DA;" />
+                           placeholder="Търси категория..." />
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-                    <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
-                        <div style="font-weight:900;color:#0F766E;margin-bottom:8px;">Главни категории</div>
+                <div class="picker-columns">
+                    <div class="picker-column">
+                        <div class="picker-column-title">Главни категории</div>
 
-                        <div id="level1List" style="display:flex;flex-direction:column;gap:8px;">
+                        <div id="level1List" class="picker-list">
                             @{
                                 var level1 = (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>())
                                 .OrderBy(x => x.Name)
@@ -204,51 +174,45 @@
                                 {
                                     var c = level1[i];
                                     <button type="button"
-                                            class="btn level1-item"
+                                            class="btn picker-item-btn level1-item"
                                             data-id="@c.Id"
-                                            data-name="@c.Name"
-                                            style="text-align:left;background:#fff;border:1px solid rgba(0,0,0,.06);
-                                                                   border-radius:12px;padding:10px 12px;font-weight:900;color:#0F766E;">
+                                            data-name="@c.Name">
                                         @c.Name
                                     </button>
                                 }
                             }
                         </div>
 
-                        <div id="noLevel1Found"
-                             style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                        <div id="noLevel1Found" class="picker-empty" style="display:none;">
                             Няма резултат.
                         </div>
                     </div>
 
-                    <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
-                        <div style="font-weight:900;color:#0F766E;margin-bottom:8px;">Подкатегории</div>
+                    <div class="picker-column">
+                        <div class="picker-column-title">Подкатегории</div>
 
-                        <div id="level2Hint" style="color:#64748B;font-weight:800;">
+                        <div id="level2Hint" class="picker-hint">
                             Избери главна категория, за да се покажат подкатегориите.
                         </div>
 
-                        <div id="level2List" style="display:none;flex-direction:column;gap:8px;"></div>
+                        <div id="level2List" class="picker-list" style="display:none;"></div>
 
-                        <div id="noLevel2Found"
-                             style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                        <div id="noLevel2Found" class="picker-empty" style="display:none;">
                             Няма подкатегории по това търсене.
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                <div class="picker-footer-actions">
                     <button type="button"
                             id="btnClearCategory"
-                            class="btn"
-                            style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                            class="btn btn-outline-secondary">
                         Изчисти
                     </button>
 
                     <button type="button"
-                            class="btn"
-                            data-bs-dismiss="modal"
-                            style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                            class="btn btn-accent"
+                            data-bs-dismiss="modal">
                         Готово
                     </button>
                 </div>
@@ -260,9 +224,9 @@
 <!-- ===== MODAL: Етикети ===== -->
 <div class="modal fade" id="tagsPickerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Етикети</h5>
+        <div class="modal-content picker-modal-content">
+            <div class="modal-header picker-modal-header">
+                <h5 class="modal-title">Етикети</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
 
@@ -271,12 +235,11 @@
                     <input id="tagsSearch"
                            type="text"
                            class="form-control"
-                           placeholder="Търси етикет..."
-                           style="border-radius:12px;background:#EFFFFC;border-color:#9FE3DA;" />
+                           placeholder="Търси етикет..." />
                 </div>
 
-                <div style="border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:10px;background:#F8FAFC;">
-                    <div id="tagsList" style="display:flex;flex-direction:column;gap:8px;">
+                <div class="tags-picker-box">
+                    <div id="tagsList" class="tags-list">
                         @{
                             var ordered = (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
                             .OrderBy(x => x.Text)
@@ -289,39 +252,35 @@
                                 && Model.SelectedTagValues.Contains(int.Parse(opt.Value));
 
                                 <label class="form-check tag-item"
-                                       data-tag-text="@opt.Text"
-                                       style="display:flex;align-items:center;gap:10px;background:#fff;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.06);">
+                                       data-tag-text="@opt.Text">
                                     <input class="form-check-input tag-checkbox"
                                            type="checkbox"
                                            name="SelectedTagValues"
                                            value="@opt.Value"
                                            id="tagopt_@i"
                                            data-label="@opt.Text"
-                                           @(isChecked ? "checked" : "") />
-                                    <span style="font-weight:900;color:#0F766E;">@opt.Text</span>
+                                           @(isChecked ? "checked" : null) />
+                                    <span>@opt.Text</span>
                                 </label>
                             }
                         }
                     </div>
 
-                    <div id="noTagsFound"
-                         style="display:none;margin-top:10px;color:#64748B;font-weight:800;">
+                    <div id="noTagsFound" class="picker-empty" style="display:none;">
                         Няма етикети по това търсене.
                     </div>
                 </div>
 
-                <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+                <div class="picker-footer-actions">
                     <button type="button"
                             id="btnClearAllTags"
-                            class="btn"
-                            style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                            class="btn btn-outline-secondary">
                         Изчисти
                     </button>
 
                     <button type="button"
-                            class="btn"
-                            data-bs-dismiss="modal"
-                            style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                            class="btn btn-accent"
+                            data-bs-dismiss="modal">
                         Готово
                     </button>
                 </div>
@@ -329,6 +288,253 @@
         </div>
     </div>
 </div>
+
+<style>
+    .book-edit-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .book-edit-header {
+        margin-bottom: 1rem;
+    }
+
+    .book-edit-panel {
+        padding: 1.25rem;
+        background: #FFFFFF;
+    }
+
+    .book-edit-form {
+        margin: 0;
+    }
+
+    .validation-summary {
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .form-section {
+        background: #F9FBFD;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-section-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .form-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label-strong {
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #374151;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .picker-head {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .picker-preview,
+    .tags-preview {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-height: 24px;
+    }
+
+    .picker-help-text {
+        margin-top: 8px;
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .validation-inline {
+        margin-top: 8px;
+    }
+
+    .form-actions-bar {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #D9E0E7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .left-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .danger-actions-row {
+        margin-top: .5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #E5EAF0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .picker-modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #D9E0E7;
+    }
+
+    .picker-modal-header {
+        background: #F3F6F9;
+        border-bottom: 1px solid #D9E0E7;
+    }
+
+        .picker-modal-header .modal-title {
+            margin: 0;
+            font-weight: 800;
+            color: #1F2937;
+        }
+
+    .picker-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .picker-column {
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 10px;
+        background: #F8FAFC;
+    }
+
+    .picker-column-title {
+        font-weight: 800;
+        color: #374151;
+        margin-bottom: 8px;
+    }
+
+    .picker-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .picker-item-btn {
+        text-align: left;
+        justify-content: flex-start;
+        background: #FFFFFF;
+        border: 1px solid #D9E0E7;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+        .picker-item-btn:hover {
+            background: #EEF4FF;
+            border-color: #BFDBFE;
+            color: #1D4ED8;
+        }
+
+    .picker-hint,
+    .picker-empty {
+        color: #6B7280;
+        font-weight: 600;
+    }
+
+    .picker-footer-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .tags-picker-box {
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 10px;
+        background: #F8FAFC;
+    }
+
+    .tags-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .tag-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #FFFFFF;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #D9E0E7;
+        font-weight: 700;
+        color: #1F2937;
+    }
+
+    @@media (max-width: 767.98px) {
+        .book-edit-panel {
+            padding: 1rem;
+        }
+
+        .form-section {
+            padding: .9rem;
+        }
+
+        .form-grid-2,
+        .picker-columns {
+            grid-template-columns: 1fr;
+        }
+
+        .picker-head,
+        .form-actions-bar {
+            align-items: stretch;
+        }
+
+        .left-actions,
+        .danger-actions-row {
+            width: 100%;
+        }
+
+            .left-actions .btn,
+            .danger-actions-row .btn,
+            .picker-head .btn {
+                width: 100%;
+                text-align: center;
+            }
+    }
+</style>
 
 @section Scripts {
     @{
@@ -363,19 +569,26 @@
 
             function pill(text) {
                 const s = document.createElement('span');
-                s.style.cssText = "display:inline-flex;align-items:center;background:#E6FFFA;color:#0F766E;padding:6px 10px;border-radius:999px;font-weight:900;border:1px solid rgba(0,0,0,.08);margin-right:6px;";
+                s.className = "status-badge status-active";
+                s.textContent = text;
+                return s;
+            }
+
+            function neutralPill(text) {
+                const s = document.createElement('span');
+                s.className = "status-badge status-inactive";
                 s.textContent = text;
                 return s;
             }
 
             function renderPreview() {
                 preview.innerHTML = "";
+
                 if (!selectedLevel1.id) {
-                    preview.appendChild(pill("Няма избрана категория"));
-                    preview.firstChild.style.background = "#F8FAFC";
-                    preview.firstChild.style.color = "#64748B";
+                    preview.appendChild(neutralPill("Няма избрана категория"));
                     return;
                 }
+
                 if (selectedLevel1.name) preview.appendChild(pill(selectedLevel1.name));
                 if (selectedLevel2.id && selectedLevel2.name) preview.appendChild(pill("→ " + selectedLevel2.name));
             }
@@ -383,12 +596,14 @@
             function applyLevel1Filter() {
                 const q = (catSearch.value || '').trim().toLowerCase();
                 let visible = 0;
+
                 level1Btns.forEach(b => {
                     const name = (b.getAttribute('data-name') || '').toLowerCase();
                     const show = !q || name.includes(q);
                     b.style.display = show ? '' : 'none';
                     if (show) visible++;
                 });
+
                 noLevel1Found.style.display = visible === 0 ? '' : 'none';
             }
 
@@ -410,7 +625,6 @@
                     noLevel2Found.style.display = "none";
 
                     currentChildren = await loadChildren(selectedLevel1.id);
-
                     currentChildren.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'bg'));
 
                     if (currentChildren.length === 0) {
@@ -421,15 +635,16 @@
                         currentChildren.forEach(c => {
                             const b = document.createElement('button');
                             b.type = "button";
-                            b.className = "btn";
+                            b.className = "btn picker-item-btn";
                             b.textContent = c.name;
-                            b.style.cssText = "text-align:left;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:10px 12px;font-weight:900;color:#0F766E;";
+
                             b.addEventListener('click', () => {
                                 selectedLevel2.id = c.id;
                                 selectedLevel2.name = c.name;
                                 level2Hidden.value = c.id;
                                 renderPreview();
                             });
+
                             level2List.appendChild(b);
                         });
                     }
@@ -457,7 +672,6 @@
 
             renderPreview();
             applyLevel1Filter();
-
         })();
     </script>
 
@@ -474,18 +688,23 @@
                 return Array.from(document.querySelectorAll('.tag-checkbox'));
             }
 
+            function pill(text) {
+                const s = document.createElement('span');
+                s.className = "status-badge status-active";
+                s.textContent = text;
+                return s;
+            }
+
             function renderPreview() {
                 const checked = getCheckboxes().filter(x => x.checked);
 
                 preview.innerHTML = '';
+
                 checked
                     .map(cb => cb.dataset.label || 'Етикет')
                     .sort((a, b) => a.localeCompare(b, 'bg'))
                     .forEach(label => {
-                        const pill = document.createElement('span');
-                        pill.style.cssText = "display:inline-flex;align-items:center;background:#E6FFFA;color:#0F766E;padding:6px 10px;border-radius:999px;font-weight:900;border:1px solid rgba(0,0,0,.08);";
-                        pill.textContent = label;
-                        preview.appendChild(pill);
+                        preview.appendChild(pill(label));
                     });
 
                 countEl.textContent = checked.length.toString();

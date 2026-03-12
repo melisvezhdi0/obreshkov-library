@@ -3,139 +3,241 @@
 @{
     ViewData["Title"] = "Редактиране на читател";
 }
-<h2 class="section-title mb-1">Редактиране на читател</h2>
-<div class="accent-line"></div>
-<div class="row justify-content-center">
-    <div class="col-lg-8 col-xl-7">
 
-        <div style="
-            background:#ffffff;
-            border-radius:20px;
-            padding:32px;
-            border:1px solid rgba(0,0,0,.08);
-            box-shadow:0 12px 28px rgba(0,0,0,.10);
-        ">
+<div class="client-edit-page">
 
-            <form asp-action="Edit" method="post" data-gate="1">
+    <h2 class="section-title mb-1">Редактиране на читател</h2>
+    <div class="accent-line"></div>
+
+    <div class="card-soft client-edit-card">
+
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="edit-layout">
+
+            <form asp-action="Edit" method="post" class="edit-form">
                 @Html.AntiForgeryToken()
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
                 <input type="hidden" asp-for="Id" />
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Име</label>
-                    <input asp-for="FirstName" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="FirstName" class="text-danger"></span>
-                </div>
+                <div class="edit-section">
+                    <div class="edit-section-title">Лични данни</div>
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Презиме</label>
-                    <input asp-for="MiddleName" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="MiddleName" class="text-danger"></span>
-                </div>
+                    <div class="form-grid form-grid-3">
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Фамилия</label>
-                    <input asp-for="LastName" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="LastName" class="text-danger"></span>
-                </div>
+                        <div class="form-field">
+                            <label asp-for="FirstName">Име</label>
+                            <input asp-for="FirstName" class="form-control" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
 
-                <div class="mb-3">
-                    <label style="font-weight:900;color:#0F766E;">Телефонен номер</label>
-                    <input asp-for="PhoneNumber" class="form-control"
-                           style="background:#EFFFFC;border-color:#9FE3DA;" />
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
+                        <div class="form-field">
+                            <label asp-for="MiddleName">Презиме</label>
+                            <input asp-for="MiddleName" class="form-control" />
+                            <span asp-validation-for="MiddleName" class="text-danger"></span>
+                        </div>
 
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label style="font-weight:900;color:#0F766E;">Клас</label>
-                        <select asp-for="Grade" class="form-select"
-                                style="background:#EFFFFC;border-color:#9FE3DA;">
-                            <option value="">-- Избери --</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                        <span asp-validation-for="Grade" class="text-danger"></span>
+                        <div class="form-field">
+                            <label asp-for="LastName">Фамилия</label>
+                            <input asp-for="LastName" class="form-control" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
                     </div>
 
-                    <div class="col-md-6">
-                        <label style="font-weight:900;color:#0F766E;">Паралелка</label>
-                        <select asp-for="Section" class="form-select"
-                                style="background:#EFFFFC;border-color:#9FE3DA;">
-                            <option value="">-- Избери --</option>
-                            <option value="А">А</option>
-                            <option value="Б">Б</option>
-                            <option value="В">В</option>
-                            <option value="Г">Г</option>
-                        </select>
-                        <span asp-validation-for="Section" class="text-danger"></span>
+                    <div class="form-grid form-grid-2 mt-3">
+                        <div class="form-field">
+                            <label asp-for="PhoneNumber">Телефонен номер</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-2">
-                    <button type="submit"
-                            style="
-                                background:#FB923C;
-                                color:#fff;
-                                font-weight:900;
-                                border:none;
-                                border-radius:12px;
-                                padding:10px 16px;
-                                box-shadow:0 8px 18px rgba(0,0,0,.10);
-                            ">
+                <div class="edit-section">
+                    <div class="edit-section-title">Училищна информация</div>
+
+                    <div class="form-grid form-grid-2">
+
+                        <div class="form-field">
+                            <label asp-for="Grade">Клас</label>
+                            <select asp-for="Grade" class="form-select">
+                                <option value="">-- Избери --</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                            <span asp-validation-for="Grade" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field">
+                            <label asp-for="Section">Паралелка</label>
+                            <select asp-for="Section" class="form-select">
+                                <option value="">-- Избери --</option>
+                                <option value="А">А</option>
+                                <option value="Б">Б</option>
+                                <option value="В">В</option>
+                                <option value="Г">Г</option>
+                            </select>
+                            <span asp-validation-for="Section" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="left-actions">
+                    <button type="submit" class="btn btn-accent">
                         Запази
                     </button>
 
-                    <a asp-action="Index"
-                       style="
-                            background:#FFF3C4;
-                            color:#0F766E;
-                            font-weight:900;
-                            border-radius:12px;
-                            border:1px solid rgba(0,0,0,.10);
-                            padding:10px 16px;
-                            text-decoration:none;
-                       ">
+                    <a asp-action="Index" class="btn btn-outline-primary">
                         Назад
                     </a>
+                </div>
+            </form>
 
-                    <div style="flex:1;"></div>
+            <div class="right-actions">
+                @if (Model.IsActive)
+                {
+                    <form asp-action="Deactivate" method="post" data-gate="1" class="deactivate-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
 
-                    @if (Model.IsActive)
-                    {
-                        <button type="submit"
-                                formaction="@Url.Action("Deactivate", "Clients")"
-                                formmethod="post"
-                                style="
-                                            background:#EF4444;
-                                            color:#fff;
-                                            font-weight:900;
-                                            border:none;
-                                            border-radius:12px;
-                                            padding:10px 16px;
-                                            box-shadow:0 8px 18px rgba(0,0,0,.10);
-                                        ">
+                        <button type="submit" class="btn btn-danger">
                             Деактивирай
                         </button>
-                    }
-                    else
-                    {
-                        <span style="font-weight:900;color:#64748B;">Деактивиран</span>
-                    }
-                </div>
-
-            </form>
+                    </form>
+                }
+                else
+                {
+                    <span class="client-status-muted">Деактивиран</span>
+                }
+            </div>
 
         </div>
     </div>
 </div>
+
+<style>
+    .client-edit-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .client-edit-card {
+        padding: 20px;
+        margin-top: 10px;
+    }
+
+    .edit-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .edit-form {
+        margin: 0;
+    }
+
+    .edit-section {
+        background: #F9FBFD;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .edit-section-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: 10px;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .form-grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .form-field label {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+    .left-actions {
+        display: flex;
+        gap: 10px;
+        padding-top: 14px;
+        border-top: 1px solid #D9E0E7;
+    }
+
+    .right-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: -58px;
+    }
+
+    .deactivate-inline {
+        margin: 0;
+    }
+
+    .client-status-muted {
+        color: #6B7280;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 900px) {
+        .form-grid-3
+
+    {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .right-actions {
+        margin-top: 0;
+    }
+
+    }
+
+    @@media (max-width: 600px) {
+        .form-grid-3, .form-grid-2
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .left-actions,
+    .right-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .left-actions .btn,
+        .right-actions .btn {
+            width: 100%;
+        }
+
+    .right-actions {
+        margin-top: 0;
+    }
+
+    }
+</style>
 
 @section Scripts {
     @{

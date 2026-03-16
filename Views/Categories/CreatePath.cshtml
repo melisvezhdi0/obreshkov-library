@@ -4,90 +4,252 @@
     ViewData["Title"] = "Създай категории";
 }
 
-<h1 class="page-title">Създай категория</h1>
-<div class="page-accent"></div>
+<div class="category-path-page">
 
-<form id="createPathForm" asp-action="CreatePath" method="post" 
-      style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);max-width:720px;">
-
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger" style="font-weight:800;"></div>
-
-    <!-- Основна категория -->
-    <div class="mb-3">
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <select id="level1Select" class="form-control" style="max-width:420px;">
-                <option value="">Категория…</option>
-            </select>
-
-            <button type="button"
-                    class="btn"
-                    data-bs-toggle="modal"
-                    data-bs-target="#addRootModal"
-                    style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
-                + Добави
-            </button>
-        </div>
-
-        <input type="hidden" asp-for="Level1" id="Level1" />
-        <span asp-validation-for="Level1" class="text-danger"></span>
+    <div class="category-path-header">
+        <h2 class="section-title mb-1">Създай категории</h2>
+        <div class="accent-line"></div>
     </div>
 
-    <!-- Подкатегория -->
-    <div class="mb-3">
-        <input id="level2Input"
-               asp-for="Level2"
-               class="form-control"
-               placeholder="Подкатегория…"
-               style="max-width:420px;" />
+    <section class="category-path-panel card-soft">
+        <form id="createPathForm" asp-action="CreatePath" method="post" class="category-path-form">
+            @Html.AntiForgeryToken()
 
-        <span asp-validation-for="Level2" class="text-danger"></span>
-    </div>
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
 
-    <div class="mt-3" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button type="submit"
-                class="btn"
-                style="background:#0F766E;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
-            Запази
-        </button>
+            <div class="form-section">
+                <div class="form-section-title">Основна категория</div>
 
-        <a asp-action="Index"
-           class="btn"
-           style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
-            Назад
-        </a>
-    </div>
-</form>
+                <div class="form-field">
+                    <div class="category-select-row">
+                        <select id="level1Select" class="form-select">
+                            <option value="">Категория…</option>
+                        </select>
+
+                        <button type="button"
+                                class="btn btn-outline-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addRootModal">
+                            Добави
+                        </button>
+                    </div>
+
+                    <input type="hidden" asp-for="Level1" id="Level1" />
+                    <span asp-validation-for="Level1" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">Подкатегория</div>
+
+                <div class="form-field">
+                    <input id="level2Input"
+                           asp-for="Level2"
+                           class="form-control"
+                           placeholder="Подкатегория…" />
+                    <span asp-validation-for="Level2" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-actions-bar">
+                <div class="left-actions">
+                    <button type="submit" class="btn btn-accent">
+                        Запази
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-outline-primary">
+                        Назад
+                    </a>
+                </div>
+            </div>
+        </form>
+    </section>
+
+</div>
 
 <!-- MODAL: добави основна категория -->
 <div class="modal fade" id="addRootModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content" style="border-radius:16px;overflow:hidden;">
-            <div class="modal-header" style="background:#E6FFFA;">
-                <h5 class="modal-title" style="margin:0;font-weight:900;color:#0F766E;">Добави категория</h5>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content category-modal-content">
+            <div class="modal-header category-modal-header">
+                <h5 class="modal-title">Добави категория</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
+
             <div class="modal-body">
-                <input id="newRootName" class="form-control" placeholder="Име…" />
-                <div id="rootErr" class="text-danger" style="margin-top:8px;display:none;font-weight:800;"></div>
+                <div class="form-field">
+                    <label class="form-label-strong">Име</label>
+                    <input id="newRootName" class="form-control" placeholder="Име…" />
+                </div>
+
+                <div id="rootErr" class="text-danger modal-error-text"></div>
             </div>
-            <div class="modal-footer" style="background:#F8FAFC;">
+
+            <div class="modal-footer category-modal-footer">
                 <button type="button"
-                        class="btn"
-                        data-bs-dismiss="modal"
-                        style="background:#FFF3C4;color:#0F766E;font-weight:900;border-radius:12px;border:1px solid rgba(0,0,0,.10);padding:10px 14px;">
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
                     Отказ
                 </button>
+
                 <button type="button"
                         id="btnSaveRoot"
-                        class="btn"
-                        style="background:#FB923C;color:#fff;font-weight:900;border-radius:12px;border:none;padding:10px 14px;box-shadow:0 8px 18px rgba(0,0,0,.10);">
+                        class="btn btn-accent">
                     Добави
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .category-path-page {
+        width: 100%;
+        padding-top: 6px;
+    }
+
+    .category-path-header {
+        margin-bottom: 1rem;
+    }
+
+    .category-path-panel {
+        padding: 1.25rem;
+        background: #FFFFFF;
+        max-width: 760px;
+    }
+
+    .category-path-form {
+        margin: 0;
+    }
+
+    .validation-summary {
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .form-section {
+        background: #F9FBFD;
+        border: 1px solid #D9E0E7;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .form-section-title {
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 800;
+        color: #6B7280;
+        margin-bottom: 10px;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-label-strong {
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #374151;
+    }
+
+    .category-select-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+        .category-select-row .form-select {
+            flex: 1 1 420px;
+            min-width: 240px;
+        }
+
+    .form-actions-bar {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #D9E0E7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .left-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .category-modal-content {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #D9E0E7;
+    }
+
+    .category-modal-header {
+        background: #F3F6F9;
+        border-bottom: 1px solid #D9E0E7;
+    }
+
+        .category-modal-header .modal-title {
+            margin: 0;
+            font-weight: 800;
+            color: #1F2937;
+        }
+
+    .category-modal-footer {
+        background: #FBFCFD;
+        border-top: 1px solid #D9E0E7;
+    }
+
+    .modal-error-text {
+        margin-top: 8px;
+        display: none;
+        font-weight: 700;
+    }
+
+    @@media (max-width: 767.98px) {
+        .category-path-panel {
+            padding: 1rem;
+        }
+
+        .form-section {
+            padding: .9rem;
+        }
+
+        .category-select-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+            .category-select-row .form-select,
+            .category-select-row .btn {
+                width: 100%;
+            }
+
+        .left-actions {
+            width: 100%;
+        }
+
+            .left-actions .btn {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+    }
+
+    @@media (max-width: 575.98px) {
+        .left-actions {
+            flex-direction: column;
+        }
+
+            .left-actions .btn {
+                width: 100%;
+            }
+    }
+</style>
 
 @section Scripts {
     @{
@@ -133,13 +295,24 @@
                 hLevel1.value = level1Select.value || '';
             });
 
-            function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
-            function clearErr(el) { el.textContent = ''; el.style.display = 'none'; }
+            function showErr(el, msg) {
+                el.textContent = msg;
+                el.style.display = 'block';
+            }
+
+            function clearErr(el) {
+                el.textContent = '';
+                el.style.display = 'none';
+            }
 
             btnSaveRoot.addEventListener('click', async () => {
                 clearErr(rootErr);
+
                 const nm = (newRootName.value || '').trim();
-                if (!nm) { showErr(rootErr, 'Въведи име.'); return; }
+                if (!nm) {
+                    showErr(rootErr, 'Въведи име.');
+                    return;
+                }
 
                 const data = new URLSearchParams();
                 data.append('name', nm);

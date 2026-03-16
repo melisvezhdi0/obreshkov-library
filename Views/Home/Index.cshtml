@@ -531,21 +531,16 @@
     }
 
     @@media (max-width: 1199.98px) {
-        .latest-books-grid
-
-    {
-        grid-template-columns: repeat(4, minmax(130px, 1fr));
-    }
-
+        .latest-books-grid {
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+        }
     }
 
     @@media (max-width: 991.98px) {
-        .hero-grid
-
-    {
-        grid-template-columns: 1fr;
-        align-items: stretch;
-    }
+        .hero-grid {
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
 
         .latest-books-grid {
             display: flex;
@@ -553,44 +548,38 @@
             justify-content: center;
             flex-wrap: wrap;
         }
-
     }
 
     @@media (max-width: 767.98px) {
-        .latest-books-grid
+        .latest-books-grid {
+            grid-template-columns: repeat(2, minmax(120px, 1fr));
+        }
 
-    {
-        grid-template-columns: repeat(2, minmax(120px, 1fr));
-    }
-
-    .small-panel-top {
-        align-items: flex-start;
-    }
-
+        .small-panel-top {
+            align-items: flex-start;
+        }
     }
 
     @@media (max-width: 575.98px) {
-        .hero-panel, .content-panel
-
-    {
-        padding: 1rem;
-    }
-
-    .search-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-        .search-group .search-input-main {
-            border-right: 1px solid #C8D1DB;
-            border-radius: 12px;
-            margin-bottom: .55rem;
+        .hero-panel, .content-panel {
+            padding: 1rem;
         }
 
-        .search-group .search-btn-main {
-            width: 100%;
-            border-radius: 12px;
+        .search-group {
+            display: flex;
+            flex-direction: column;
         }
+
+            .search-group .search-input-main {
+                border-right: 1px solid #C8D1DB;
+                border-radius: 12px;
+                margin-bottom: .55rem;
+            }
+
+            .search-group .search-btn-main {
+                width: 100%;
+                border-radius: 12px;
+            }
 
         .latest-books-grid {
             display: grid;

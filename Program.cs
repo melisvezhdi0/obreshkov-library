@@ -72,7 +72,8 @@ namespace ObreshkovLibrary
                 bool needsGate =
                     HttpMethods.IsPost(method) &&
                     (
-                        path.StartsWithSegments("/Clients/Deactivate")
+                        path.StartsWithSegments("/Clients/Deactivate") ||
+                        path.StartsWithSegments("/Categories/Deactivate")
                     );
 
                 if (needsGate)

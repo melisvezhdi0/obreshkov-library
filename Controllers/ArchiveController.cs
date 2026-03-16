@@ -37,7 +37,6 @@ namespace ObreshkovLibrary.Controllers
             {
                 var s = search.ToLower();
 
-                // Нормализиран вариант за номера (махаме интервали/тирета)
                 var sNum = s.Replace(" ", "").Replace("-", "");
 
                 booksQ = booksQ.Where(b =>

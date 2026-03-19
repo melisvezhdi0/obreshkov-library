@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace ObreshkovLibrary
 {
@@ -15,6 +16,8 @@ namespace ObreshkovLibrary
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentException("Conection string was not found."); ;
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
                 options.UseSqlServer(connectionString));
+
+            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ObreshkovLibraryContext>();
 
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
@@ -88,6 +91,8 @@ namespace ObreshkovLibrary
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.MapRazorPages();
 
             app.Run();
         }

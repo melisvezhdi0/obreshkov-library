@@ -2,7 +2,7 @@
 
 namespace ObreshkovLibrary.Controllers
 {
-    public class HomeController : Controller
+    public class CatalogController : Controller
     {
         [HttpGet]
         public IActionResult Index()

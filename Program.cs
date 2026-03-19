@@ -44,7 +44,8 @@ namespace ObreshkovLibrary
             app.UseRouting();
             app.UseAuthorization();
             app.UseSession();
-
+            app.UseAuthentication();
+            
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path;

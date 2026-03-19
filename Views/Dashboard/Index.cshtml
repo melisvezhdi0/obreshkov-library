@@ -1,0 +1,323 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.HomeDashboardVM
+
+@{
+    ViewData["Title"] = "Начало";
+}
+
+<div class="home-wrap">
+    <section class="hero-panel card-soft mb-4">
+        <div class="hero-grid">
+            <div class="hero-title-wrap">
+                <h2 class="section-title mb-1">Начало</h2>
+                <div class="accent-line"></div>
+                <div class="hero-subtitle">Административен преглед на библиотеката</div>
+            </div>
+
+            <div class="search-panel">
+                <div class="search-panel-label">Бързо търсене по номер на карта</div>
+
+                <form asp-controller="Home"
+                      asp-action="SearchByCardNumber"
+                      method="post"
+                      class="dashboard-search">
+                    @Html.AntiForgeryToken()
+
+                    <div class="input-group search-group">
+                        <input type="text"
+                               name="cardNumber"
+                               class="form-control search-input-main"
+                               placeholder="Въведи номер на карта"
+                               inputmode="numeric"
+                               pattern="[0-9]*" />
+
+                        <button type="submit" class="btn btn-accent search-btn-main">
+                            Търси
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["HomeError"] != null)
+    {
+        <div class="alert alert-danger mb-4">@TempData["HomeError"]</div>
+    }
+
+    <section class="content-panel content-panel-muted card-soft mb-4">
+        <div class="panel-head">
+            <h5 class="section-title mb-0">Последни заемания</h5>
+        </div>
+
+        @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
+        {
+            <div class="empty-block">Няма записи.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-doc align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Читател</th>
+                            <th>№ карта</th>
+                            <th>Книга</th>
+                            <th>Заета на</th>
+                            <th>Срок</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in Model.LatestLoans)
+                        {
+                            <tr>
+                                <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                <td>@l.Client?.CardNumber</td>
+                                <td>@l.BookCopy?.Book?.Title</td>
+                                <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
+                                <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <section class="content-panel small-panel card-soft h-100">
+                <div class="small-panel-top">
+                    <div>
+                        <div class="small-panel-label">Книги за връщане днес</div>
+                        <div class="small-panel-number">@Model.DueTodayCount</div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#dueTodayModal">
+                        Виж списъка
+                    </button>
+                </div>
+
+                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
+                {
+                    <div class="small-panel-note">Няма книги за връщане днес.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc table-doc-compact align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.DueTodayLoans.Take(4))
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+
+        <div class="col-lg-6">
+            <section class="content-panel small-panel card-soft h-100">
+                <div class="small-panel-top">
+                    <div>
+                        <div class="small-panel-label">Просрочени книги</div>
+                        <div class="small-panel-number">@Model.OverdueCount</div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#overdueModal">
+                        Виж списъка
+                    </button>
+                </div>
+
+                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
+                {
+                    <div class="small-panel-note">Няма просрочени книги.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc table-doc-compact align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.OverdueLoans.Take(4))
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        </div>
+    </div>
+
+    <section class="content-panel content-panel-books card-soft">
+        <div class="panel-head books-head">
+            <h5 class="section-title mb-0">Последно добавени книги</h5>
+
+            <a class="btn btn-outline-primary btn-sm"
+               asp-controller="Book"
+               asp-action="Index">
+                Още
+            </a>
+        </div>
+
+        @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
+        {
+            <div class="empty-block">Няма книги.</div>
+        }
+        else
+        {
+            <div class="latest-books-grid">
+                @foreach (var b in Model.LatestBookTitles.Take(5))
+                {
+                    <a class="latest-book-card text-decoration-none"
+                       href="@Url.Action("Details", "Book", new { id = b.Id })">
+                        <div class="latest-book-cover-wrap">
+                            <img src="@b.CoverUrl"
+                                 alt="@b.Title"
+                                 class="latest-book-cover"
+                                 onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                        </div>
+
+                        <div class="latest-book-title">@b.Title</div>
+                    </a>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+<div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
+                {
+                    <div class="empty-block p-0">Няма книги за връщане днес.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>№ карта</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.DueTodayLoans)
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.Client?.CardNumber</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end">
+                                            <a class="link-accent"
+                                               asp-controller="Loans"
+                                               asp-action="Return"
+                                               asp-route-id="@l.Id">
+                                                Отвори
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Просрочени книги (@Model.OverdueCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
+                {
+                    <div class="empty-block p-0">Няма просрочени.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-doc align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Читател</th>
+                                    <th>№ карта</th>
+                                    <th>Книга</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in Model.OverdueLoans)
+                                {
+                                    <tr>
+                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td>@l.Client?.CardNumber</td>
+                                        <td>@l.BookCopy?.Book?.Title</td>
+                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td class="text-end">
+                                            <a class="link-accent"
+                                               asp-controller="Loans"
+                                               asp-action="Return"
+                                               asp-route-id="@l.Id">
+                                                Отвори
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+V

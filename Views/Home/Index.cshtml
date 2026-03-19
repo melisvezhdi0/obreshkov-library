@@ -1,590 +1,538 @@
-﻿@model ObreshkovLibrary.Models.ViewModels.HomeDashboardVM
-
-@{
+﻿@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Начало";
 }
 
-<div class="home-wrap">
-    <section class="hero-panel card-soft mb-4">
-        <div class="hero-grid">
-            <div class="hero-title-wrap">
-                <h2 class="section-title mb-1">Начало</h2>
-                <div class="accent-line"></div>
-                <div class="hero-subtitle">Административен преглед на библиотеката</div>
-            </div>
-
-            <div class="search-panel">
-                <div class="search-panel-label">Бързо търсене по номер на карта</div>
-
-                <form asp-controller="Home"
-                      asp-action="SearchByCardNumber"
-                      method="post"
-                      class="dashboard-search">
-                    @Html.AntiForgeryToken()
-
-                    <div class="input-group search-group">
-                        <input type="text"
-                               name="cardNumber"
-                               class="form-control search-input-main"
-                               placeholder="Въведи номер на карта"
-                               inputmode="numeric"
-                               pattern="[0-9]*" />
-
-                        <button type="submit" class="btn btn-accent search-btn-main">
-                            Търси
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    @if (TempData["HomeError"] != null)
-    {
-        <div class="alert alert-danger mb-4">@TempData["HomeError"]</div>
-    }
-
-    <section class="content-panel content-panel-muted card-soft mb-4">
-        <div class="panel-head">
-            <h5 class="section-title mb-0">Последни заемания</h5>
-        </div>
-
-        @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
-        {
-            <div class="empty-block">Няма записи.</div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-doc align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Читател</th>
-                            <th>№ карта</th>
-                            <th>Книга</th>
-                            <th>Заета на</th>
-                            <th>Срок</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var l in Model.LatestLoans)
-                        {
-                            <tr>
-                                <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                <td>@l.Client?.CardNumber</td>
-                                <td>@l.BookCopy?.Book?.Title</td>
-                                <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
-                                <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <section class="content-panel small-panel card-soft h-100">
-                <div class="small-panel-top">
-                    <div>
-                        <div class="small-panel-label">Книги за връщане днес</div>
-                        <div class="small-panel-number">@Model.DueTodayCount</div>
-                    </div>
-
-                    <button type="button"
-                            class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#dueTodayModal">
-                        Виж списъка
-                    </button>
-                </div>
-
-                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
-                {
-                    <div class="small-panel-note">Няма книги за връщане днес.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc table-doc-compact align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.DueTodayLoans.Take(4))
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </section>
-        </div>
-
-        <div class="col-lg-6">
-            <section class="content-panel small-panel card-soft h-100">
-                <div class="small-panel-top">
-                    <div>
-                        <div class="small-panel-label">Просрочени книги</div>
-                        <div class="small-panel-number">@Model.OverdueCount</div>
-                    </div>
-
-                    <button type="button"
-                            class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#overdueModal">
-                        Виж списъка
-                    </button>
-                </div>
-
-                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
-                {
-                    <div class="small-panel-note">Няма просрочени книги.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc table-doc-compact align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.OverdueLoans.Take(4))
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </section>
-        </div>
-    </div>
-
-    <section class="content-panel content-panel-books card-soft">
-        <div class="panel-head books-head">
-            <h5 class="section-title mb-0">Последно добавени книги</h5>
-
-            <a class="btn btn-outline-primary btn-sm"
-               asp-controller="Book"
-               asp-action="Index">
-                Още
-            </a>
-        </div>
-
-        @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
-        {
-            <div class="empty-block">Няма книги.</div>
-        }
-        else
-        {
-            <div class="latest-books-grid">
-                @foreach (var b in Model.LatestBookTitles.Take(5))
-                {
-                    <a class="latest-book-card text-decoration-none"
-                       href="@Url.Action("Details", "Book", new { id = b.Id })">
-                        <div class="latest-book-cover-wrap">
-                            <img src="@b.CoverUrl"
-                                 alt="@b.Title"
-                                 class="latest-book-cover"
-                                 onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
-                        </div>
-
-                        <div class="latest-book-title">@b.Title</div>
-                    </a>
-                }
-            </div>
-        }
-    </section>
-</div>
-
-<div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-            <div class="modal-body">
-                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
-                {
-                    <div class="empty-block p-0">Няма книги за връщане днес.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>№ карта</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                    <th class="text-end">Действие</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.DueTodayLoans)
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.Client?.CardNumber</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                        <td class="text-end">
-                                            <a class="link-accent"
-                                               asp-controller="Loans"
-                                               asp-action="Return"
-                                               asp-route-id="@l.Id">
-                                                Отвори
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Просрочени книги (@Model.OverdueCount)</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-            <div class="modal-body">
-                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
-                {
-                    <div class="empty-block p-0">Няма просрочени.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>№ карта</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                    <th class="text-end">Действие</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.OverdueLoans)
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.Client?.CardNumber</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                        <td class="text-end">
-                                            <a class="link-accent"
-                                               asp-controller="Loans"
-                                               asp-action="Return"
-                                               asp-route-id="@l.Id">
-                                                Отвори
-                                            </a>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
-    .home-wrap {
-        width: 100%;
-        padding-top: 6px;
+    .home-page {
+        background: linear-gradient(180deg, #eef4fa 0%, #e8f0f7 100%);
+        min-height: 100vh;
+        color: #1f2937;
     }
 
-    .hero-panel {
-        padding: 1.5rem;
-        background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFD 100%);
+    /* ГОРНА БЯЛА ЛЕНТА */
+    .top-strip {
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+        position: relative;
+        z-index: 50;
     }
 
-    .hero-grid {
-        display: grid;
-        grid-template-columns: 1fr minmax(340px, 520px);
-        gap: 1.5rem;
-        align-items: end;
-    }
-
-    .hero-subtitle {
-        color: #6B7280;
-        margin-top: .85rem;
-        font-size: .98rem;
-    }
-
-    .search-panel {
-        background: #F0F4F8;
-        border: 1px solid #D9E0E7;
-        border-radius: 14px;
-        padding: 1rem;
-    }
-
-    .search-panel-label {
-        font-size: .82rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        color: #6B7280;
-        margin-bottom: .65rem;
-    }
-
-    .search-group .search-input-main {
-        min-height: 50px;
-        border-right: 0;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-        background: #FFFFFF;
-    }
-
-    .search-group .search-btn-main {
-        min-width: 120px;
-        min-height: 50px;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-    }
-
-    .content-panel {
-        padding: 1.25rem 1.25rem 1.15rem;
-    }
-
-    .content-panel-muted {
-        background: #FBFCFD;
-    }
-
-    .content-panel-books {
-        background: #F8FAFC;
-    }
-
-    .panel-head {
-        padding-bottom: .85rem;
-        border-bottom: 1px solid #D9E0E7;
-        margin-bottom: 1rem;
-    }
-
-    .books-head {
+    .top-strip-inner {
+        min-height: 74px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 1rem;
-        flex-wrap: wrap;
+        gap: 20px;
     }
 
-    .empty-block {
-        color: #6B7280;
-        padding: .35rem 0;
-    }
-
-    .table-doc {
-        margin-bottom: 0;
-        border: 1px solid #D9E0E7;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-        .table-doc thead th {
-            font-size: .8rem;
-            text-transform: uppercase;
-            letter-spacing: .03em;
-            color: #6B7280;
-            background: #F3F6F9;
-            border-bottom: 1px solid #D9E0E7;
-            padding-top: .85rem;
-            padding-bottom: .85rem;
-            font-weight: 800;
-        }
-
-        .table-doc tbody td {
-            background: #FFFFFF;
-            padding-top: .9rem;
-            padding-bottom: .9rem;
-        }
-
-        .table-doc tbody tr:hover td {
-            background: #FAFCFF;
-        }
-
-    .table-doc-compact thead th {
-        padding-top: .72rem;
-        padding-bottom: .72rem;
-    }
-
-    .table-doc-compact tbody td {
-        padding-top: .75rem;
-        padding-bottom: .75rem;
-    }
-
-    .small-panel {
-        background: #F7F9FC;
-    }
-
-    .small-panel-top {
-        display: flex;
-        align-items: start;
-        justify-content: space-between;
-        gap: 1rem;
-        border-bottom: 1px solid #D9E0E7;
-        padding-bottom: .85rem;
-        margin-bottom: .85rem;
-    }
-
-    .small-panel-label {
-        font-size: 1.02rem;
+    .top-strip-brand {
+        color: #0f172a;
+        text-decoration: none;
+        font-size: 1.7rem;
         font-weight: 800;
-        color: #1F2937;
-        line-height: 1.25;
-        margin-bottom: .35rem;
+        letter-spacing: 0.01em;
     }
 
-    .small-panel-number {
-        font-size: 2rem;
-        line-height: 1;
-        font-weight: 800;
-        color: #3B82F6;
-    }
-
-    .small-panel-note {
-        color: #6B7280;
-        padding-top: .15rem;
-    }
-
-    .latest-books-grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(130px, 1fr));
-        gap: 1.25rem;
-        align-items: start;
-    }
-
-    .latest-book-card {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 120px;
-    }
-
-        .latest-book-card:hover .latest-book-title {
-            color: #2563EB;
+        .top-strip-brand:hover {
+            color: #2563eb;
         }
 
-    .latest-book-cover-wrap {
-        width: 120px;
-        height: 170px;
-        background: #EEF2F7;
-        border: 1px solid #D9E0E7;
-        border-radius: 14px;
+    .top-strip-login {
+        color: #334155;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: .2s ease;
+    }
+
+        .top-strip-login:hover {
+            color: #2563eb;
+        }
+
+    /* ОБЩ КОНТЕЙНЕР */
+    .home-shell {
+        padding-top: 26px;
+        padding-bottom: 70px;
+    }
+
+    /* HERO */
+    .hero-wrap {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 0 12px;
+    }
+
+    .hero-card {
+        position: relative;
+        min-height: 620px;
+        border-radius: 30px;
         overflow: hidden;
+        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.10), rgba(15, 23, 42, 0.22)), url('/images/school-main.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
+    }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 180px;
+            background: linear-gradient(to bottom, rgba(238, 244, 250, 0), rgba(238, 244, 250, 0.95));
+            pointer-events: none;
+            z-index: 2;
+        }
+
+    /* СИН NAVBAR */
+    .hero-nav {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 5;
         display: flex;
-        align-items: center;
         justify-content: center;
     }
 
-    .latest-book-cover {
+    .hero-nav-inner {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        background: linear-gradient(180deg, rgba(61, 146, 225, 0.82) 0%, rgba(37, 99, 235, 0.78) 100%);
+        backdrop-filter: blur(6px);
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden;
     }
 
-    .latest-book-cover-wrap.no-cover::after {
-        content: "Няма корица";
-        font-size: .78rem;
-        color: #6B7280;
-    }
-
-    .latest-book-title {
-        margin-top: 6px;
-        font-size: .82rem;
-        font-weight: 600;
-        text-align: center;
-        width: 100%;
-    }
-
-    @@media (max-width: 1199.98px) {
-        .latest-books-grid {
-            grid-template-columns: repeat(4, minmax(130px, 1fr));
-        }
-    }
-
-    @@media (max-width: 991.98px) {
-        .hero-grid {
-            grid-template-columns: 1fr;
-            align-items: stretch;
+        .hero-nav-inner a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 18px 34px;
+            border-right: 1px solid rgba(255,255,255,0.16);
+            transition: background .2s ease;
         }
 
-        .latest-books-grid {
-            display: flex;
-            gap: 22px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    }
-
-    @@media (max-width: 767.98px) {
-        .latest-books-grid {
-            grid-template-columns: repeat(2, minmax(120px, 1fr));
-        }
-
-        .small-panel-top {
-            align-items: flex-start;
-        }
-    }
-
-    @@media (max-width: 575.98px) {
-        .hero-panel, .content-panel {
-            padding: 1rem;
-        }
-
-        .search-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-            .search-group .search-input-main {
-                border-right: 1px solid #C8D1DB;
-                border-radius: 12px;
-                margin-bottom: .55rem;
+            .hero-nav-inner a:last-child {
+                border-right: none;
             }
 
-            .search-group .search-btn-main {
-                width: 100%;
-                border-radius: 12px;
+            .hero-nav-inner a:hover {
+                background: rgba(255,255,255,0.08);
             }
 
-        .latest-books-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 120px);
-            gap: 18px;
+    /* ТЪРСАЧКА */
+    .hero-search-wrap {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 1180px;
+        padding: 0 18px 22px;
+        z-index: 6;
+    }
+
+    .hero-search-panel {
+        background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%);
+        backdrop-filter: blur(14px);
+        border-radius: 0;
+        padding: 16px;
+        box-shadow: none;
+    }
+
+    .hero-search-form {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+    }
+
+    .hero-search-input {
+        flex: 1;
+        height: 66px;
+        border: 1px solid rgba(255,255,255,0.22);
+        border-radius: 0;
+        background: rgba(255,255,255,0.78);
+        outline: none;
+        padding: 0 22px;
+        font-size: 1.06rem;
+        color: #1f2937;
+        box-shadow: none;
+    }
+
+        .hero-search-input::placeholder {
+            color: #64748b;
         }
+
+    .hero-search-button {
+        min-width: 150px;
+        height: 66px;
+        border: none;
+        border-radius: 0;
+        background: linear-gradient(180deg, rgba(75,149,234,0.90) 0%, rgba(37,99,235,0.88) 100%);
+        color: white;
+        font-size: 1rem;
+        font-weight: 800;
+        box-shadow: none;
+        transition: .2s ease;
+    }
+
+        .hero-search-button:hover {
+            background: linear-gradient(180deg, rgba(75,149,234,0.98) 0%, rgba(29,78,216,0.94) 100%);
+            transform: none;
+            box-shadow: none;
+        }
+
+    /* ИНФО СЕКЦИИ */
+    .info-area {
+        max-width: 1200px;
+        margin: 26px auto 0;
+        padding: 0 12px;
+    }
+
+    .info-block {
+        background: linear-gradient(180deg, rgba(223, 238, 250, 0.72) 0%, rgba(235, 244, 251, 0.88) 100%);
+        border: 1px solid rgba(90, 140, 190, 0.10);
+        border-radius: 24px;
+        padding: 30px 34px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+        margin-bottom: 18px;
+    }
+
+    .info-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .info-line {
+        width: 60px;
+        height: 4px;
+        border-radius: 999px;
+        background: #4b95ea;
+        margin-bottom: 22px;
+    }
+
+    .info-text {
+        font-size: 1.08rem;
+        line-height: 1.95;
+        color: #334155;
+    }
+
+        .info-text p {
+            margin-bottom: 16px;
+        }
+
+    /* ВРЪЗКИ */
+    .links-section {
+        max-width: 1200px;
+        margin: 34px auto 0;
+        padding: 0 12px;
+    }
+
+    .links-divider {
+        height: 1px;
+        background: linear-gradient(90deg, rgba(75,149,234,0) 0%, rgba(75,149,234,0.35) 50%, rgba(75,149,234,0) 100%);
+        margin-bottom: 28px;
+    }
+
+    .links-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr 1fr;
+        gap: 36px;
+        align-items: start;
+    }
+
+    .links-col {
+        min-width: 0;
+    }
+
+    .links-heading {
+        margin: 0 0 20px;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+        color: #355b86;
+    }
+
+    .links-text {
+        margin: 0 0 18px;
+        color: #475569;
+        font-size: 1.02rem;
+        line-height: 1.85;
+    }
+
+    .links-main {
+        display: inline-block;
+        color: #2563eb;
+        text-decoration: none;
+        font-size: .95rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        transition: .2s ease;
+    }
+
+        .links-main:hover {
+            color: #1d4ed8;
+        }
+
+    .social-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 10px;
+    }
+
+    .social-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 1.6px solid #355b86;
+        color: #355b86;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        background: rgba(255,255,255,0.55);
+        transition: .2s ease;
+    }
+
+        .social-circle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .social-circle:hover {
+            background: #355b86;
+            color: #ffffff;
+        }
+
+    .social-labels {
+        display: flex;
+        gap: 18px;
+        color: #64748b;
+        font-size: .83rem;
+    }
+
+    /* RESPONSIVE */
+    @@media (max-width: 1100px) {
+        .links-grid
+
+    {
+        grid-template-columns: 1fr;
+        gap: 26px;
+    }
+
+    }
+
+    @@media (max-width: 900px) {
+        .hero-card
+
+    {
+        min-height: 560px;
+    }
+
+    .hero-nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+        .hero-nav-inner a {
+            padding: 14px 22px;
+        }
+
+    .hero-search-wrap {
+        width: calc(100% - 40px);
+        padding: 0 0 18px;
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .top-strip-inner
+
+    {
+        min-height: 66px;
+    }
+
+    .top-strip-brand {
+        font-size: 1.35rem;
+    }
+
+    .hero-card {
+        min-height: 520px;
+        border-radius: 22px;
+    }
+
+    .hero-nav {
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .hero-nav-inner {
+        width: 100%;
+    }
+
+        .hero-nav-inner a {
+            flex: 1 1 auto;
+            text-align: center;
+            font-size: .95rem;
+            padding: 14px 12px;
+        }
+
+    .hero-search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-search-button {
+        width: 100%;
+    }
+
+    .info-block {
+        padding: 24px 22px;
+    }
+
+    .info-title {
+        font-size: 1.7rem;
+    }
+
+    .info-text {
+        font-size: 1rem;
+        line-height: 1.85;
+    }
+
     }
 </style>
+<div class="home-page">
+    <div class="home-shell">
+
+        <div class="hero-wrap">
+            <section class="hero-card">
+
+                <div class="hero-nav">
+                    <div class="hero-nav-inner">
+                        <a asp-controller="Catalog" asp-action="Index">Каталог</a>
+                        <a href="#school-info">За училището</a>
+                        <a href="#library-info">За библиотеката</a>
+                    </div>
+                </div>
+
+                <div class="hero-search-wrap">
+                    <div class="hero-search-panel">
+                        <form method="get" asp-controller="Home" asp-action="Index" class="hero-search-form">
+                            <input type="text"
+                                   name="searchTerm"
+                                   class="hero-search-input"
+                                   placeholder="Търсене по книга, автор, категория или клас..." />
+                            <button type="submit" class="hero-search-button">Търси</button>
+                        </form>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <section id="school-info" class="info-area">
+            <div class="info-block">
+                <div class="info-title">За училището</div>
+                <div class="info-line"></div>
+
+                <div class="info-text">
+                    <p>
+                        ППМГ „Акад. Никола Обрешков“ – Разград е училище с утвърдени традиции и силен акцент
+                        върху качественото образование, развитието на учениците и постиженията им в различни области.
+                    </p>
+                    <p>
+                        Училищната среда насърчава стремежа към знание, активното участие в събития,
+                        състезания и инициативи, както и развитието на интереси в различни направления.
+                    </p>
+                </div>
+            </div>
+
+            <div id="library-info" class="info-block">
+                <div class="info-title">За библиотеката</div>
+                <div class="info-line"></div>
+
+                <div class="info-text">
+                    <p>
+                        Училищната библиотека предоставя достъп до книги, учебни издания, сборници
+                        и допълнителна литература, подходяща за различни класове и интереси.
+                    </p>
+                    <p>
+                        Гостите на системата могат свободно да разглеждат каталога и да преглеждат
+                        информация за наличните книги. Регистрацията в системата се извършва на място от библиотекар.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="links-info" class="links-section">
+            <div class="links-divider"></div>
+
+            <div class="links-grid">
+                <div class="links-col">
+                    <div class="links-heading">Локация</div>
+                    <p class="links-text">
+                        ППМГ „Акад. Никола Обрешков“ – Разград
+                    </p>
+                    <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
+                       target="_blank"
+                       class="links-main">
+                        Отвори в Google Maps
+                    </a>
+                </div>
+
+                <div class="links-col">
+                    <div class="links-heading">За училището</div>
+                    <p class="links-text">
+                        Училище с традиции, силна подготовка и активен училищен живот.
+                        Официалният сайт съдържа новини, прием, събития и полезна информация.
+                    </p>
+                    <a href="https://www.pmgrz.net/"
+                       target="_blank"
+                       class="links-main">
+                        Към официалния сайт
+                    </a>
+                </div>
+
+                <div class="links-col">
+                    <div class="links-heading">Последвайте ни</div>
+
+                    <div class="social-row">
+                        <a href="https://www.instagram.com/" target="_blank" class="social-circle" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="2"></rect>
+                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
+                                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"></circle>
+                            </svg>
+                        </a>
+
+                        <a href="https://www.facebook.com/" target="_blank" class="social-circle" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24" fill="none">
+                                <path d="M14 8H16V5H13.5C10.8 5 9 6.7 9 9.8V12H7V15H9V21H12.5V15H15.2L15.7 12H12.5V10.2C12.5 8.9 13 8 14 8Z" fill="currentColor"></path>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="social-labels">
+                        <span>Instagram</span>
+                        <span>Facebook</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>

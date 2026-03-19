@@ -12,12 +12,9 @@ namespace ObreshkovLibrary
 
             builder.Services.AddControllersWithViews();
 
-            // SQLite file in project folder (App_Data)
-            var dbPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "ObreshkovLibrary.db");
-            Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentException("Conection string was not found."); ;
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
-                options.UseSqlite($"Data Source={dbPath}"));
+                options.UseSqlServer(connectionString));
 
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();

@@ -202,7 +202,7 @@
                     <a class="latest-book-card text-decoration-none"
                        href="@Url.Action("Details", "Book", new { id = b.Id })">
                         <div class="latest-book-cover-wrap">
-                            <img src="@b.CoverUrl"
+                            <img src="@b.CoverPath"
                                  alt="@b.Title"
                                  class="latest-book-cover"
                                  onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />

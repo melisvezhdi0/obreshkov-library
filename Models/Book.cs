@@ -19,7 +19,7 @@ namespace ObreshkovLibrary.Models
         [StringLength(1000)]
         public string? Description { get; set; }
 
-        public string? CoverUrl { get; set; }
+        public string? CoverPath { get; set; }
 
         public BookTags Tags { get; set; } = BookTags.None;
 

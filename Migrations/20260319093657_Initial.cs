@@ -62,7 +62,7 @@ namespace ObreshkovLibrary.Migrations
                     Author = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
                     Year = table.Column<int>(type: "int", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    CoverUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CoverPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Tags = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: true)

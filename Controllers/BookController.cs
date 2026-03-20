@@ -6,6 +6,7 @@ using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 using ObreshkovLibrary.Services;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -16,11 +17,16 @@ namespace ObreshkovLibrary.Controllers
     {
         private readonly ObreshkovLibraryContext _context;
         private readonly BookDeactivateService _bookDeactivate;
+        private readonly IWebHostEnvironment _environment;
 
-        public BookController(ObreshkovLibraryContext context, BookDeactivateService bookDeactivate)
+        public BookController(
+            ObreshkovLibraryContext context,
+            BookDeactivateService bookDeactivate,
+            IWebHostEnvironment environment)
         {
             _context = context;
             _bookDeactivate = bookDeactivate;
+            _environment = environment;
         }
 
         private static List<SelectListItem> BuildTagOptions()
@@ -74,36 +80,53 @@ namespace ObreshkovLibrary.Controllers
                 .ToList();
         }
 
-        private static BookTags ParseTagsToEnum(string? tagsText)
+        private async Task PopulateBookVmAsync(BookCreateVM vm)
         {
-            if (string.IsNullOrWhiteSpace(tagsText)) return BookTags.None;
+            vm.Level1Options = await _context.Categories
+                .Where(c => c.ParentCategoryId == null && c.IsActive)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
 
-            BookTags result = BookTags.None;
+            vm.TagOptions = BuildTagOptions();
+        }
 
-            var tokens = tagsText
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim().ToLowerInvariant())
-                .Where(x => x.Length > 0)
-                .Distinct()
-                .Take(12);
+        private bool IsAllowedImageExtension(string extension)
+        {
+            var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            return allowed.Contains(extension.ToLowerInvariant());
+        }
 
-            foreach (var t in tokens)
-            {
-                result |= t switch
-                {
-                    "classic" or "класика" => BookTags.Classic,
-                    "romance" or "любовен" => BookTags.Romance,
-                    "drama" or "драма" => BookTags.Drama,
-                    "fantasy" or "фентъзи" => BookTags.Fantasy,
-                    "horror" or "ужаси" => BookTags.Horror,
-                    "bulgarian" or "българска" => BookTags.Bulgarian,
-                    "foreign" or "чужда" => BookTags.Foreign,
-                    "school" or "училищна" => BookTags.SchoolLiterature,
-                    _ => BookTags.None
-                };
-            }
+        private async Task<string?> SaveCoverFileAsync(IFormFile? coverFile)
+        {
+            if (coverFile == null || coverFile.Length == 0)
+                return null;
 
-            return result;
+            var extension = Path.GetExtension(coverFile.FileName);
+            if (string.IsNullOrWhiteSpace(extension) || !IsAllowedImageExtension(extension))
+                return null;
+
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploadsimages");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await coverFile.CopyToAsync(stream);
+
+            return $"/uploadsimages/{fileName}";
+        }
+
+        private void DeleteCoverFile(string? coverPath)
+        {
+            if (string.IsNullOrWhiteSpace(coverPath) || !coverPath.StartsWith("/uploadsimages/"))
+                return;
+
+            var relativePath = coverPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var absolutePath = Path.Combine(_environment.WebRootPath, relativePath);
+
+            if (System.IO.File.Exists(absolutePath))
+                System.IO.File.Delete(absolutePath);
         }
 
         [HttpGet]
@@ -138,6 +161,7 @@ namespace ObreshkovLibrary.Controllers
             var book = await _context.Books
                 .IgnoreQueryFilters()
                 .Include(b => b.Category)
+                .ThenInclude(c => c.ParentCategory)
                 .Include(b => b.Copies)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
@@ -159,16 +183,8 @@ namespace ObreshkovLibrary.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var vm = new BookCreateVM
-            {
-                Level1Options = await _context.Categories
-                    .Where(c => c.ParentCategoryId == null && c.IsActive)
-                    .OrderBy(c => c.Name)
-                    .ToListAsync(),
-
-                TagOptions = BuildTagOptions()
-            };
-
+            var vm = new BookCreateVM();
+            await PopulateBookVmAsync(vm);
             return View(vm);
         }
 
@@ -176,16 +192,29 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BookCreateVM vm)
         {
-            vm.Title = (vm.Title ?? "").Trim();
-            vm.Author = (vm.Author ?? "").Trim();
+            vm.Title = (vm.Title ?? string.Empty).Trim();
+            vm.Author = (vm.Author ?? string.Empty).Trim();
+            vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
 
             if (!finalCategoryId.HasValue)
                 ModelState.AddModelError("", "Моля, изберете категория.");
 
+            if (vm.CoverFile != null)
+            {
+                var extension = Path.GetExtension(vm.CoverFile.FileName);
+                if (string.IsNullOrWhiteSpace(extension) || !IsAllowedImageExtension(extension))
+                    ModelState.AddModelError(nameof(vm.CoverFile), "Позволени са само файлове: .jpg, .jpeg, .png, .webp");
+            }
+
             if (!ModelState.IsValid)
+            {
+                await PopulateBookVmAsync(vm);
                 return View(vm);
+            }
+
+            var savedCoverPath = await SaveCoverFileAsync(vm.CoverFile);
 
             using var tx = await _context.Database.BeginTransactionAsync();
 
@@ -195,7 +224,7 @@ namespace ObreshkovLibrary.Controllers
                 Author = vm.Author,
                 Year = vm.Year,
                 Description = vm.Description,
-                CoverUrl = vm.CoverUrl,
+                CoverPath = savedCoverPath,
                 CategoryId = finalCategoryId.Value,
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
                 IsActive = true
@@ -218,6 +247,7 @@ namespace ObreshkovLibrary.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -258,22 +288,17 @@ namespace ObreshkovLibrary.Controllers
                 Author = book.Author,
                 Year = book.Year,
                 Description = book.Description,
-                CoverUrl = book.CoverUrl,
+                CoverPath = book.CoverPath,
+                CurrentCoverPath = book.CoverPath,
                 Level1Id = level1Id,
                 Level2Id = level2Id,
-
                 CopiesCount = Math.Max(1, await _context.BookCopies
                     .IgnoreQueryFilters()
                     .CountAsync(c => c.BookId == book.Id)),
-
-                Level1Options = await _context.Categories
-                    .Where(c => c.ParentCategoryId == null && c.IsActive)
-                    .OrderBy(c => c.Name)
-                    .ToListAsync(),
-
-                TagOptions = BuildTagOptions(),
                 SelectedTagValues = TagsToSelectedValues(book.Tags)
             };
+
+            await PopulateBookVmAsync(vm);
 
             ViewBag.BookId = book.Id;
             ViewBag.IsBookActive = book.IsActive;
@@ -291,39 +316,50 @@ namespace ObreshkovLibrary.Controllers
 
             if (book == null) return NotFound();
 
-            vm.Title = (vm.Title ?? "").Trim();
-            vm.Author = (vm.Author ?? "").Trim();
-            vm.CoverUrl = string.IsNullOrWhiteSpace(vm.CoverUrl) ? null : vm.CoverUrl.Trim();
+            vm.Title = (vm.Title ?? string.Empty).Trim();
+            vm.Author = (vm.Author ?? string.Empty).Trim();
+            vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
             if (!finalCategoryId.HasValue)
                 ModelState.AddModelError("", "Моля, изберете категория.");
 
+            if (vm.CoverFile != null)
+            {
+                var extension = Path.GetExtension(vm.CoverFile.FileName);
+                if (string.IsNullOrWhiteSpace(extension) || !IsAllowedImageExtension(extension))
+                    ModelState.AddModelError(nameof(vm.CoverFile), "Позволени са само файлове: .jpg, .jpeg, .png, .webp");
+            }
+
             if (!ModelState.IsValid)
             {
-                vm.Level1Options = await _context.Categories
-                    .Where(c => c.ParentCategoryId == null && c.IsActive)
-                    .OrderBy(c => c.Name)
-                    .ToListAsync();
-
-                vm.TagOptions = BuildTagOptions();
+                vm.CurrentCoverPath = book.CoverPath;
+                await PopulateBookVmAsync(vm);
                 ViewBag.BookId = book.Id;
                 ViewBag.IsBookActive = book.IsActive;
-
                 return View(vm);
             }
+
+            var oldCoverPath = book.CoverPath;
+            var newCoverPath = await SaveCoverFileAsync(vm.CoverFile);
 
             book.Title = vm.Title;
             book.Author = vm.Author;
             book.Year = vm.Year;
             book.Description = vm.Description;
-            book.CoverUrl = vm.CoverUrl;
             book.CategoryId = finalCategoryId.Value;
             book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
+
+            if (!string.IsNullOrWhiteSpace(newCoverPath))
+            {
+                book.CoverPath = newCoverPath;
+                DeleteCoverFile(oldCoverPath);
+            }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = book.Id });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
@@ -378,7 +414,6 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
 
             copy.IsActive = true;
-
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Details), new { id = copy.BookId });

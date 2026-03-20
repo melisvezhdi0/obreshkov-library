@@ -8,45 +8,54 @@
     <h2 class="section-title mb-1">Добави книга</h2>
     <div class="accent-line"></div>
 
-    <form asp-action="Create" method="post" data-gate="1">
-   
+    <form id="bookForm" asp-action="Create" method="post" enctype="multipart/form-data" data-gate="1">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="All" class="text-danger" style="font-weight:800;"></div>
 
         <div class="mb-3">
             <label asp-for="Title" style="font-weight:900;color:#0F766E;">Заглавие</label>
             <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Author" style="font-weight:900;color:#0F766E;">Автор</label>
             <input asp-for="Author" class="form-control" />
+            <span asp-validation-for="Author" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Year" style="font-weight:900;color:#0F766E;">Година</label>
             <input asp-for="Year" type="number" class="form-control" />
+            <span asp-validation-for="Year" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="CopiesCount" style="font-weight:900;color:#0F766E;">Брой копия</label>
             <input asp-for="CopiesCount" type="number" min="1" max="50" class="form-control" />
+            <span asp-validation-for="CopiesCount" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Description" style="font-weight:900;color:#0F766E;">Описание</label>
             <textarea asp-for="Description" rows="4" class="form-control"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
-            <label asp-for="CoverUrl" style="font-weight:900;color:#0F766E;">Линк към корица</label>
-            <input asp-for="CoverUrl" class="form-control" placeholder="https://..." />
+            <label asp-for="CoverFile" style="font-weight:900;color:#0F766E;">Корица</label>
+            <input asp-for="CoverFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" class="form-control" id="coverFileInput" />
+            <span asp-validation-for="CoverFile" class="text-danger"></span>
+            <div style="color:#64748B;margin-top:6px;">Избери изображение от устройството.</div>
+            <div id="coverPreviewBox" style="margin-top:12px;display:none;">
+                <img id="coverPreviewImage" src="" alt="Преглед на корица" style="max-width:180px;max-height:240px;border-radius:12px;border:1px solid #E2E8F0;object-fit:cover;" />
+            </div>
         </div>
 
         <hr />
 
         <div class="mb-3">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
                 <strong style="color:#0F766E;">Категория</strong>
                 <button type="button" class="btn"
                         data-bs-toggle="modal"
@@ -63,7 +72,7 @@
         </div>
 
         <div class="mb-3">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
                 <strong style="color:#0F766E;">Етикети</strong>
                 <button type="button" class="btn"
                         data-bs-toggle="modal"
@@ -87,123 +96,203 @@
                 Назад
             </a>
         </div>
-    </form>
-</div>
 
-<div class="modal fade" id="categoryModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Категории</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <input id="catSearch" class="form-control mb-3" placeholder="Търси категория..." />
-
-                <div class="row">
-                    <div class="col-6">
-                        <strong>Главни</strong>
-                        <div id="level1List">
-                            @foreach (var c in Model.Level1Options.OrderBy(x => x.Name))
-                            {
-                                <button type="button"
-                                        class="btn w-100 text-start level1"
-                                        data-id="@c.Id"
-                                        data-name="@c.Name">
-                                    @c.Name
-                                </button>
-                            }
-                        </div>
+        <div class="modal fade" id="categoryModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Категории</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="col-6">
-                        <strong>Подкатегории</strong>
-                        <div id="level2List" style="margin-top:6px;"></div>
+                    <div class="modal-body">
+                        <input id="catSearch" class="form-control mb-3" placeholder="Търси категория..." />
+
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Главни</strong>
+                                <div id="level1List">
+                                    @foreach (var c in (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>()).OrderBy(x => x.Name))
+                                    {
+                                        <button type="button"
+                                                class="btn w-100 text-start level1 mb-1"
+                                                data-id="@c.Id"
+                                                data-name="@c.Name">
+                                            @c.Name
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <strong>Подкатегории</strong>
+                                <div id="level2List" style="margin-top:6px;"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="modal fade" id="tagsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Етикети</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+        <div class="modal fade" id="tagsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Етикети</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
 
-            <div class="modal-body">
-                <input id="tagSearch" class="form-control mb-3" placeholder="Търси етикет..." />
+                    <div class="modal-body">
+                        <input id="tagSearch" class="form-control mb-3" placeholder="Търси етикет..." />
 
-                @foreach (var t in Model.TagOptions.OrderBy(x => x.Text))
-                {
-                    <label class="d-flex gap-2 align-items-center">
-                        <input type="checkbox"
-                               class="tag-check"
-                               name="SelectedTagValues"
-                               value="@t.Value"
-                               data-name="@t.Text"
-                               @(Model.SelectedTagValues.Contains(int.Parse(t.Value)) ? "checked" : "") />
-                        <strong>@t.Text</strong>
-                    </label>
-                }
+                        <div id="tagsList">
+                            @foreach (var t in (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()).OrderBy(x => x.Text))
+                            {
+                                <label class="d-flex gap-2 align-items-center mb-2 tag-item" data-tag-text="@t.Text.ToLowerInvariant()">
+                                    <input type="checkbox"
+                                           class="tag-check"
+                                           name="SelectedTagValues"
+                                           value="@t.Value"
+                                           data-name="@t.Text"
+                                           @(Model.SelectedTagValues.Contains(int.Parse(t.Value)) ? "checked" : "") />
+                                    <strong>@t.Text</strong>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
         const tagChecks = document.querySelectorAll('.tag-check');
         const tagsPreview = document.getElementById('tagsPreview');
         const tagsCount = document.getElementById('tagsCount');
+        const tagSearch = document.getElementById('tagSearch');
+        const tagItems = document.querySelectorAll('.tag-item');
 
         function renderTags() {
             tagsPreview.innerHTML = '';
             const sel = [...tagChecks].filter(c => c.checked);
             tagsCount.textContent = sel.length;
+
             sel.forEach(c => {
                 const s = document.createElement('span');
                 s.textContent = c.dataset.name;
-                s.style.cssText = "margin-right:6px;padding:4px 8px;background:#E6FFFA;border-radius:999px;";
+                s.style.cssText = 'display:inline-block;margin:0 6px 6px 0;padding:4px 10px;background:#E6FFFA;border-radius:999px;';
                 tagsPreview.appendChild(s);
             });
         }
+
         tagChecks.forEach(c => c.addEventListener('change', renderTags));
         renderTags();
+
+        if (tagSearch) {
+            tagSearch.addEventListener('input', () => {
+                const q = tagSearch.value.trim().toLowerCase();
+                tagItems.forEach(item => {
+                    item.style.display = item.dataset.tagText.includes(q) ? 'flex' : 'none';
+                });
+            });
+        }
 
         const level1Btns = document.querySelectorAll('.level1');
         const level2List = document.getElementById('level2List');
         const preview = document.getElementById('categoryPreview');
         const h1 = document.getElementById('Level1Hidden');
         const h2 = document.getElementById('Level2Hidden');
+        const catSearch = document.getElementById('catSearch');
+
+        function renderCategoryPreview(level1Name, level2Name) {
+            if (!level1Name) {
+                preview.innerHTML = '';
+                return;
+            }
+
+            const text = level2Name ? `${level1Name} → ${level2Name}` : level1Name;
+            preview.innerHTML = `<span style="display:inline-block;padding:6px 10px;background:#EEF2FF;border-radius:999px;">${text}</span>`;
+        }
 
         async function loadChildren(id) {
             const r = await fetch(`/Categories/GetChildren?parentId=${id}`);
             return await r.json();
         }
 
-        level1Btns.forEach(b => {
-            b.addEventListener('click', async () => {
-                h1.value = b.dataset.id;
+        async function selectLevel1(btn, preserveLevel2 = false) {
+            h1.value = btn.dataset.id;
+            if (!preserveLevel2) {
                 h2.value = '';
-                preview.innerHTML = `<span>${b.dataset.name}</span>`;
-                const children = await loadChildren(b.dataset.id);
-                level2List.innerHTML = '';
-                children.forEach(c => {
-                    const btn = document.createElement('button');
-                    btn.textContent = c.name;
-                    btn.className = 'btn w-100 text-start';
-                    btn.onclick = () => {
-                        h2.value = c.id;
-                        preview.innerHTML = `<span>${b.dataset.name} → ${c.name}</span>`;
-                    };
-                    level2List.appendChild(btn);
+                renderCategoryPreview(btn.dataset.name, '');
+            }
+
+            const children = await loadChildren(btn.dataset.id);
+            level2List.innerHTML = '';
+
+            children.forEach(c => {
+                const childBtn = document.createElement('button');
+                childBtn.type = 'button';
+                childBtn.textContent = c.name;
+                childBtn.className = 'btn w-100 text-start mb-1';
+
+                if (String(h2.value) === String(c.id)) {
+                    renderCategoryPreview(btn.dataset.name, c.name);
+                }
+
+                childBtn.onclick = () => {
+                    h2.value = c.id;
+                    renderCategoryPreview(btn.dataset.name, c.name);
+                };
+
+                level2List.appendChild(childBtn);
+            });
+        }
+
+        level1Btns.forEach(b => {
+            b.addEventListener('click', () => selectLevel1(b));
+        });
+
+        if (catSearch) {
+            catSearch.addEventListener('input', () => {
+                const q = catSearch.value.trim().toLowerCase();
+                level1Btns.forEach(btn => {
+                    btn.style.display = btn.dataset.name.toLowerCase().includes(q) ? 'block' : 'none';
                 });
             });
-        });
+        }
+
+        const selectedLevel1Btn = [...level1Btns].find(b => String(b.dataset.id) === String(h1.value));
+        if (selectedLevel1Btn) {
+            selectLevel1(selectedLevel1Btn, true);
+            if (!h2.value) {
+                renderCategoryPreview(selectedLevel1Btn.dataset.name, '');
+            }
+        }
+
+        const coverInput = document.getElementById('coverFileInput');
+        const coverPreviewBox = document.getElementById('coverPreviewBox');
+        const coverPreviewImage = document.getElementById('coverPreviewImage');
+
+        if (coverInput) {
+            coverInput.addEventListener('change', () => {
+                const file = coverInput.files && coverInput.files[0];
+                if (!file) {
+                    coverPreviewImage.src = '';
+                    coverPreviewBox.style.display = 'none';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = e => {
+                    coverPreviewImage.src = e.target.result;
+                    coverPreviewBox.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     </script>
 }

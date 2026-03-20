@@ -3,423 +3,24 @@
     ViewData["Title"] = "Начало";
 }
 
-<style>
-    .home-page {
-        background: linear-gradient(180deg, #eef4fa 0%, #e8f0f7 100%);
-        min-height: 100vh;
-        color: #1f2937;
-    }
-
-    /* ГОРНА БЯЛА ЛЕНТА */
-    .top-strip {
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
-        position: relative;
-        z-index: 50;
-    }
-
-    .top-strip-inner {
-        min-height: 74px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-    }
-
-    .top-strip-brand {
-        color: #0f172a;
-        text-decoration: none;
-        font-size: 1.7rem;
-        font-weight: 800;
-        letter-spacing: 0.01em;
-    }
-
-        .top-strip-brand:hover {
-            color: #2563eb;
-        }
-
-    .top-strip-login {
-        color: #334155;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 1rem;
-        transition: .2s ease;
-    }
-
-        .top-strip-login:hover {
-            color: #2563eb;
-        }
-
-    /* ОБЩ КОНТЕЙНЕР */
-    .home-shell {
-        padding-top: 26px;
-        padding-bottom: 70px;
-    }
-
-    /* HERO */
-    .hero-wrap {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 0 12px;
-    }
-
-    .hero-card {
-        position: relative;
-        min-height: 620px;
-        border-radius: 30px;
-        overflow: hidden;
-        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.10), rgba(15, 23, 42, 0.22)), url('/images/school-main.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
-    }
-
-        .hero-card::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 180px;
-            background: linear-gradient(to bottom, rgba(238, 244, 250, 0), rgba(238, 244, 250, 0.95));
-            pointer-events: none;
-            z-index: 2;
-        }
-
-    /* СИН NAVBAR */
-    .hero-nav {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 5;
-        display: flex;
-        justify-content: center;
-    }
-
-    .hero-nav-inner {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0;
-        background: linear-gradient(180deg, rgba(61, 146, 225, 0.82) 0%, rgba(37, 99, 235, 0.78) 100%);
-        backdrop-filter: blur(6px);
-        border-radius: 0;
-        box-shadow: none;
-        overflow: hidden;
-    }
-
-        .hero-nav-inner a {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-            padding: 18px 34px;
-            border-right: 1px solid rgba(255,255,255,0.16);
-            transition: background .2s ease;
-        }
-
-            .hero-nav-inner a:last-child {
-                border-right: none;
-            }
-
-            .hero-nav-inner a:hover {
-                background: rgba(255,255,255,0.08);
-            }
-
-    /* ТЪРСАЧКА */
-    .hero-search-wrap {
-        position: absolute;
-        left: 50%;
-        bottom: 0;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 1180px;
-        padding: 0 18px 22px;
-        z-index: 6;
-    }
-
-    .hero-search-panel {
-        background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%);
-        backdrop-filter: blur(14px);
-        border-radius: 0;
-        padding: 16px;
-        box-shadow: none;
-    }
-
-    .hero-search-form {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-    }
-
-    .hero-search-input {
-        flex: 1;
-        height: 66px;
-        border: 1px solid rgba(255,255,255,0.22);
-        border-radius: 0;
-        background: rgba(255,255,255,0.78);
-        outline: none;
-        padding: 0 22px;
-        font-size: 1.06rem;
-        color: #1f2937;
-        box-shadow: none;
-    }
-
-        .hero-search-input::placeholder {
-            color: #64748b;
-        }
-
-    .hero-search-button {
-        min-width: 150px;
-        height: 66px;
-        border: none;
-        border-radius: 0;
-        background: linear-gradient(180deg, rgba(75,149,234,0.90) 0%, rgba(37,99,235,0.88) 100%);
-        color: white;
-        font-size: 1rem;
-        font-weight: 800;
-        box-shadow: none;
-        transition: .2s ease;
-    }
-
-        .hero-search-button:hover {
-            background: linear-gradient(180deg, rgba(75,149,234,0.98) 0%, rgba(29,78,216,0.94) 100%);
-            transform: none;
-            box-shadow: none;
-        }
-
-    /* ИНФО СЕКЦИИ */
-    .info-area {
-        max-width: 1200px;
-        margin: 26px auto 0;
-        padding: 0 12px;
-    }
-
-    .info-block {
-        background: linear-gradient(180deg, rgba(223, 238, 250, 0.72) 0%, rgba(235, 244, 251, 0.88) 100%);
-        border: 1px solid rgba(90, 140, 190, 0.10);
-        border-radius: 24px;
-        padding: 30px 34px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-        margin-bottom: 18px;
-    }
-
-    .info-title {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 8px;
-    }
-
-    .info-line {
-        width: 60px;
-        height: 4px;
-        border-radius: 999px;
-        background: #4b95ea;
-        margin-bottom: 22px;
-    }
-
-    .info-text {
-        font-size: 1.08rem;
-        line-height: 1.95;
-        color: #334155;
-    }
-
-        .info-text p {
-            margin-bottom: 16px;
-        }
-
-    /* ВРЪЗКИ */
-    .links-section {
-        max-width: 1200px;
-        margin: 34px auto 0;
-        padding: 0 12px;
-    }
-
-    .links-divider {
-        height: 1px;
-        background: linear-gradient(90deg, rgba(75,149,234,0) 0%, rgba(75,149,234,0.35) 50%, rgba(75,149,234,0) 100%);
-        margin-bottom: 28px;
-    }
-
-    .links-grid {
-        display: grid;
-        grid-template-columns: 1fr 1.2fr 1fr;
-        gap: 36px;
-        align-items: start;
-    }
-
-    .links-col {
-        min-width: 0;
-    }
-
-    .links-heading {
-        margin: 0 0 20px;
-        font-size: 1rem;
-        font-weight: 800;
-        letter-spacing: .18em;
-        text-transform: uppercase;
-        color: #355b86;
-    }
-
-    .links-text {
-        margin: 0 0 18px;
-        color: #475569;
-        font-size: 1.02rem;
-        line-height: 1.85;
-    }
-
-    .links-main {
-        display: inline-block;
-        color: #2563eb;
-        text-decoration: none;
-        font-size: .95rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .12em;
-        transition: .2s ease;
-    }
-
-        .links-main:hover {
-            color: #1d4ed8;
-        }
-
-    .social-row {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 10px;
-    }
-
-    .social-circle {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 1.6px solid #355b86;
-        color: #355b86;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        background: rgba(255,255,255,0.55);
-        transition: .2s ease;
-    }
-
-        .social-circle svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .social-circle:hover {
-            background: #355b86;
-            color: #ffffff;
-        }
-
-    .social-labels {
-        display: flex;
-        gap: 18px;
-        color: #64748b;
-        font-size: .83rem;
-    }
-
-    /* RESPONSIVE */
-    @@media (max-width: 1100px) {
-        .links-grid
-
-    {
-        grid-template-columns: 1fr;
-        gap: 26px;
-    }
-
-    }
-
-    @@media (max-width: 900px) {
-        .hero-card
-
-    {
-        min-height: 560px;
-    }
-
-    .hero-nav-inner {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-        .hero-nav-inner a {
-            padding: 14px 22px;
-        }
-
-    .hero-search-wrap {
-        width: calc(100% - 40px);
-        padding: 0 0 18px;
-    }
-
-    }
-
-    @@media (max-width: 768px) {
-        .top-strip-inner
-
-    {
-        min-height: 66px;
-    }
-
-    .top-strip-brand {
-        font-size: 1.35rem;
-    }
-
-    .hero-card {
-        min-height: 520px;
-        border-radius: 22px;
-    }
-
-    .hero-nav {
-        top: 0;
-        left: 0;
-        right: 0;
-    }
-
-    .hero-nav-inner {
-        width: 100%;
-    }
-
-        .hero-nav-inner a {
-            flex: 1 1 auto;
-            text-align: center;
-            font-size: .95rem;
-            padding: 14px 12px;
-        }
-
-    .hero-search-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .hero-search-button {
-        width: 100%;
-    }
-
-    .info-block {
-        padding: 24px 22px;
-    }
-
-    .info-title {
-        font-size: 1.7rem;
-    }
-
-    .info-text {
-        font-size: 1rem;
-        line-height: 1.85;
-    }
-
-    }
-</style>
 <div class="home-page">
     <div class="home-shell">
 
         <div class="hero-wrap">
             <section class="hero-card">
+
+                <div class="hero-images">
+                    <img src="~/images/school1.png" class="hero-img active" />
+                    <img src="~/images/school2.png" class="hero-img" />
+                    <img src="~/images/school3.png" class="hero-img" />
+                    <img src="~/images/school4.png" class="hero-img" />
+                    <img src="~/images/school5.png" class="hero-img" />
+                    <img src="~/images/school6.png" class="hero-img" />
+                    <img src="~/images/school7.png" class="hero-img" />                  
+                </div>
+
+                <div class="hero-fade-left"></div>
+                <div class="hero-fade-right"></div>
 
                 <div class="hero-nav">
                     <div class="hero-nav-inner">
@@ -431,7 +32,7 @@
 
                 <div class="hero-search-wrap">
                     <div class="hero-search-panel">
-                        <form method="get" asp-controller="Home" asp-action="Index" class="hero-search-form">
+                        <form method="get" asp-controller="Catalog" asp-action="Index" class="hero-search-form">
                             <input type="text"
                                    name="searchTerm"
                                    class="hero-search-input"
@@ -536,3 +137,17 @@
 
     </div>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const images = document.querySelectorAll('.hero-img');
+        let current = 0;
+
+        if (images.length > 1) {
+            setInterval(() => {
+                images[current].classList.remove('active');
+                current = (current + 1) % images.length;
+                images[current].classList.add('active');
+            }, 4000);
+        }
+    });
+</script>

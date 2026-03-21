@@ -6,9 +6,11 @@ using ObreshkovLibrary.Models.ViewModels;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ObreshkovLibrary.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class LoansController : Controller
     {
         private readonly ObreshkovLibraryContext _context;

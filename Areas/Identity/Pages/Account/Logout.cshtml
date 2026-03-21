@@ -1,7 +1,7 @@
 ﻿@page
-@model LogoutModel
+@model ObreshkovLibrary.Areas.Identity.Pages.Account.LogoutModel
 @{
-    ViewData["Title"] = "Log out";
+    ViewData["Title"] = "Изход";
 }
 
 <header>
@@ -9,13 +9,19 @@
     @{
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
+            <form class="form-inline"
+                  asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+                  method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                    Натисни тук за изход
+                </button>
             </form>
         }
         else
         {
-            <p>You have successfully logged out of the application.</p>
+            <p>Успешно излезе от профила си.</p>
         }
     }
 </header>

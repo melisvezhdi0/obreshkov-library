@@ -1,7 +1,7 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Services;
-using Microsoft.AspNetCore.Identity;
 
 namespace ObreshkovLibrary
 {
@@ -13,14 +13,30 @@ namespace ObreshkovLibrary
 
             builder.Services.AddControllersWithViews();
 
-            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentException("Conection string was not found."); ;
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new ArgumentException("Connection string was not found.");
+
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ObreshkovLibraryContext>();
+            builder.Services
+                .AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.User.RequireUniqueEmail = true;
+                })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ObreshkovLibraryContext>();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Home/Index";
+            });
 
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
+            builder.Services.AddScoped<TemporaryPasswordService>();
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(o =>
@@ -42,10 +58,11 @@ namespace ObreshkovLibrary
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseAuthorization();
+
             app.UseSession();
             app.UseAuthentication();
-            
+            app.UseAuthorization();
+
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path;

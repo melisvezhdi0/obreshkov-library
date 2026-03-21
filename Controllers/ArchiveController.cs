@@ -1,12 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ObreshkovLibrary.Data;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ArchiveController : Controller
     {
         private readonly ObreshkovLibraryContext _context;

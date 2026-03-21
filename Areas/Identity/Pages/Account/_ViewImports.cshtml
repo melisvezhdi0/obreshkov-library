@@ -1,1 +1,137 @@
-﻿@using ObreshkovLibrary.Areas.Identity.Pages.Account
+﻿#nullable disable
+
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace ObreshkovLibrary.Areas.Identity.Pages.Account
+{
+    public class LoginModel : PageModel
+    {
+        private readonly SignInManager<IdentityUser>
+    _signInManager;
+    private readonly UserManager<IdentityUser>
+        _userManager;
+        private readonly ILogger<LoginModel>
+            _logger;
+
+            public LoginModel(
+            SignInManager<IdentityUser>
+                signInManager,
+                UserManager<IdentityUser>
+                    userManager,
+                    ILogger<LoginModel>
+                        logger)
+                        {
+                        _signInManager = signInManager;
+                        _userManager = userManager;
+                        _logger = logger;
+                        }
+
+                        [BindProperty]
+                        public InputModel Input { get; set; }
+
+                        public IList<AuthenticationScheme>
+                            ExternalLogins { get; set; }
+
+                            public string ReturnUrl { get; set; }
+
+                            [TempData]
+                            public string ErrorMessage { get; set; }
+
+                            public class InputModel
+                            {
+                            [Required(ErrorMessage = "Полето за имейл е задължително.")]
+                            [EmailAddress(ErrorMessage = "Въведи валиден имейл.")]
+                            public string Email { get; set; }
+
+                            [Required(ErrorMessage = "Полето за парола е задължително.")]
+                            [DataType(DataType.Password)]
+                            public string Password { get; set; }
+
+                            [Display(Name = "Запомни ме")]
+                            public bool RememberMe { get; set; }
+
+                            [Required(ErrorMessage = "Избери роля за вход.")]
+                            public string SelectedRole { get; set; }
+                            }
+
+                            public async Task OnGetAsync(string returnUrl = null)
+                            {
+                            if (!string.IsNullOrEmpty(ErrorMessage))
+                            {
+                            ModelState.AddModelError(string.Empty, ErrorMessage);
+                            }
+
+                            returnUrl ??= Url.Content("~/");
+
+                            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+                            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                            ReturnUrl = returnUrl;
+                            }
+
+                            public async Task<IActionResult>
+                                OnPostAsync(string returnUrl = null)
+                                {
+                                returnUrl ??= Url.Content("~/");
+                                ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+                                if (!ModelState.IsValid)
+                                {
+                                return Page();
+                                }
+
+                                var user = await _userManager.FindByEmailAsync(Input.Email);
+                                if (user == null)
+                                {
+                                ModelState.AddModelError(string.Empty, "Невалиден вход.");
+                                return Page();
+                                }
+
+                                var result = await _signInManager.PasswordSignInAsync(
+                                Input.Email,
+                                Input.Password,
+                                Input.RememberMe,
+                                lockoutOnFailure: false);
+
+                                if (result.Succeeded)
+                                {
+                                var isInSelectedRole = await _userManager.IsInRoleAsync(user, Input.SelectedRole);
+
+                                if (!isInSelectedRole)
+                                {
+                                await _signInManager.SignOutAsync();
+                                ModelState.AddModelError(string.Empty, "Този акаунт не принадлежи към избраната роля.");
+                                return Page();
+                                }
+
+                                _logger.LogInformation("User logged in.");
+
+                                if (Input.SelectedRole == "Admin")
+                                {
+                                return LocalRedirect(Url.Action("Index", "Dashboard") ?? "/Dashboard");
+                                }
+
+                                if (Input.SelectedRole == "Student")
+                                {
+                                return LocalRedirect(Url.Action("Index", "Catalog") ?? "/Catalog");
+                                }
+
+                                return LocalRedirect(returnUrl);
+                                }
+
+                                if (result.IsLockedOut)
+                                {
+                                _logger.LogWarning("User account locked out.");
+                                ModelState.AddModelError(string.Empty, "Профилът е заключен.");
+                                return Page();
+                                }
+
+                                ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
+                                return Page();
+                                }
+                                }
+                                }

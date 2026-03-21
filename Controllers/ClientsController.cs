@@ -1,20 +1,31 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ClientsController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly TemporaryPasswordService _temporaryPasswordService;
 
-        public ClientsController(ObreshkovLibraryContext context)
+        public ClientsController(
+            ObreshkovLibraryContext context,
+            UserManager<IdentityUser> userManager,
+            TemporaryPasswordService temporaryPasswordService)
         {
             _context = context;
+            _userManager = userManager;
+            _temporaryPasswordService = temporaryPasswordService;
         }
 
         public async Task<IActionResult> Index(string? search, string? classFilter)
@@ -141,7 +152,6 @@ namespace ObreshkovLibrary.Controllers
             return View(clients);
         }
 
-
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -169,7 +179,6 @@ namespace ObreshkovLibrary.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
@@ -186,6 +195,50 @@ namespace ObreshkovLibrary.Controllers
 
             _context.Add(client);
             await _context.SaveChangesAsync();
+
+            var generatedPassword = _temporaryPasswordService.Generate();
+
+            var studentUser = new IdentityUser
+            {
+                UserName = client.CardNumber.Trim().ToUpper(),
+                Email = $"student_{client.CardNumber.Trim().Replace("-", "").ToLower()}@obreshkov.local",
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await _userManager.CreateAsync(studentUser, generatedPassword);
+
+            if (!createUserResult.Succeeded)
+            {
+                _context.Clients.Remove(client);
+                await _context.SaveChangesAsync();
+
+                foreach (var error in createUserResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(client);
+            }
+
+            var addRoleResult = await _userManager.AddToRoleAsync(studentUser, "Student");
+
+            if (!addRoleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(studentUser);
+                _context.Clients.Remove(client);
+                await _context.SaveChangesAsync();
+
+                foreach (var error in addRoleResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(client);
+            }
+
+            TempData["CreatedStudentPassword"] = generatedPassword;
+            TempData["CreatedStudentCard"] = client.CardNumber;
+            TempData["CreatedStudentName"] = $"{client.FirstName} {client.LastName}";
 
             return RedirectToAction(nameof(Details), new { id = client.Id });
         }
@@ -300,6 +353,68 @@ namespace ObreshkovLibrary.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Archived));
+        }
+
+        public async Task<IActionResult> PasswordResetRequests()
+        {
+            var requests = await _context.PasswordResetRequests
+                .Include(r => r.Client)
+                .OrderBy(r => r.IsCompleted)
+                .ThenByDescending(r => r.RequestedOn)
+                .ToListAsync();
+
+            return View(requests);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateTemporaryPassword(int id)
+        {
+            var request = await _context.PasswordResetRequests
+                .Include(r => r.Client)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+                return NotFound();
+
+            if (request.IsCompleted)
+            {
+                TempData["ResetError"] = "Тази заявка вече е изпълнена.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            var cardNumber = request.CardNumber.Trim().ToUpper();
+            var studentUser = await _userManager.FindByNameAsync(cardNumber);
+
+            if (studentUser == null)
+            {
+                TempData["ResetError"] = "Няма ученически профил за тази карта.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            var tempPassword = _temporaryPasswordService.Generate();
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(studentUser);
+            var resetResult = await _userManager.ResetPasswordAsync(studentUser, token, tempPassword);
+
+            if (!resetResult.Succeeded)
+            {
+                TempData["ResetError"] = string.Join(" ", resetResult.Errors.Select(e => e.Description));
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            request.IsCompleted = true;
+            request.Notes = "Генерирана е нова временна парола.";
+            await _context.SaveChangesAsync();
+
+            TempData["GeneratedPassword"] = tempPassword;
+            TempData["GeneratedPasswordCard"] = request.CardNumber;
+            TempData["GeneratedPasswordName"] =
+                request.Client != null
+                    ? $"{request.Client.FirstName} {request.Client.LastName}"
+                    : request.CardNumber;
+
+            return RedirectToAction(nameof(PasswordResetRequests));
         }
 
         private bool ClientExists(int id)

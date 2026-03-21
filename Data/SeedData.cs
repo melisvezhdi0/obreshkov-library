@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Models;
 
 namespace ObreshkovLibrary.Data
@@ -8,10 +9,109 @@ namespace ObreshkovLibrary.Data
         public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
+
             var context = scope.ServiceProvider.GetRequiredService<ObreshkovLibraryContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
             await context.Database.MigrateAsync();
 
+            await SeedRolesAsync(roleManager);
+            await SeedUsersAsync(context, userManager);
+            await SeedLibraryDataAsync(context);
+        }
+
+        private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        {
+            string[] roles = { "Admin", "Student" };
+
+            foreach (var role in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(role))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
+        }
+
+        private static async Task SeedUsersAsync(
+            ObreshkovLibraryContext context,
+            UserManager<IdentityUser> userManager)
+        {
+            const string adminEmail = "admin@obreshkov.bg";
+            const string adminPassword = "Admin123!";
+
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
+            {
+                adminUser = new IdentityUser
+                {
+                    UserName = adminEmail,
+                    Email = adminEmail,
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+                }
+            }
+            else if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
+
+            const string studentCardNumber = "LIB-2026-0001";
+            const string studentPassword = "Student123!";
+
+            var client = await context.Clients
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.CardNumber == studentCardNumber);
+
+            if (client == null)
+            {
+                client = new Client
+                {
+                    FirstName = "Мелис",
+                    MiddleName = "Т.",
+                    LastName = "Ученик",
+                    PhoneNumber = "0888000000",
+                    CardNumber = studentCardNumber,
+                    Grade = 11,
+                    Section = "А",
+                    IsActive = true,
+                    CreatedOn = DateTime.Now
+                };
+
+                context.Clients.Add(client);
+                await context.SaveChangesAsync();
+            }
+
+            var studentUser = await userManager.FindByNameAsync(studentCardNumber);
+            if (studentUser == null)
+            {
+                studentUser = new IdentityUser
+                {
+                    UserName = studentCardNumber,
+                    Email = $"student_{studentCardNumber.Replace("-", "").ToLower()}@obreshkov.local",
+                    EmailConfirmed = true
+                };
+
+                var result = await userManager.CreateAsync(studentUser, studentPassword);
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(studentUser, "Student");
+                }
+            }
+            else if (!await userManager.IsInRoleAsync(studentUser, "Student"))
+            {
+                await userManager.AddToRoleAsync(studentUser, "Student");
+            }
+        }
+
+        private static async Task SeedLibraryDataAsync(ObreshkovLibraryContext context)
+        {
             var fictionCategory = await context.Categories
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c =>
@@ -63,7 +163,7 @@ namespace ObreshkovLibrary.Data
                     Title = "Железният светилник",
                     Author = "Димитър Талев",
                     Year = 1952,
-                    Description = "„Железният светилник“ е исторически роман и първата книга от известната тетралогия на Димитър Талев („Железният светилник“, „Преспанските камбани“, „Илинден“ и „Гласовете ви чувам“).",
+                    Description = "„Железният светилник“ е исторически роман и първата книга от известната тетралогия на Димитър Талев.",
                     CoverPath = "/uploadsimages/zhelezniat-svetilnik.jpg",
                     CategoryId = novelsCategory.Id,
                     Tags = BookTags.Bulgarian | BookTags.SchoolLiterature,
@@ -73,42 +173,11 @@ namespace ObreshkovLibrary.Data
                 context.Books.Add(book);
                 await context.SaveChangesAsync();
 
-                var copies = new List<BookCopy>
-                {
+                context.BookCopies.AddRange(
                     new BookCopy { BookId = book.Id, IsActive = true },
                     new BookCopy { BookId = book.Id, IsActive = true },
                     new BookCopy { BookId = book.Id, IsActive = true }
-                };
-
-                context.BookCopies.AddRange(copies);
-                await context.SaveChangesAsync();
-            }
-            else
-            {
-                existingBook.Year = 1952;
-                existingBook.Description = "„Железният светилник“ е исторически роман и първата книга от известната тетралогия на Димитър Талев („Железният светилник“, „Преспанските камбани“, „Илинден“ и „Гласовете ви чувам“).";
-                existingBook.CoverPath = "/uploadsimages/zhelezniat-svetilnik.jpg";
-                existingBook.CategoryId = novelsCategory.Id;
-                existingBook.Tags = BookTags.Bulgarian | BookTags.SchoolLiterature;
-                existingBook.IsActive = true;
-
-                var copiesCount = await context.BookCopies
-                    .IgnoreQueryFilters()
-                    .CountAsync(c => c.BookId == existingBook.Id);
-
-                if (copiesCount < 3)
-                {
-                    var missingCopies = 3 - copiesCount;
-
-                    for (int i = 0; i < missingCopies; i++)
-                    {
-                        context.BookCopies.Add(new BookCopy
-                        {
-                            BookId = existingBook.Id,
-                            IsActive = true
-                        });
-                    }
-                }
+                );
 
                 await context.SaveChangesAsync();
             }

@@ -17,6 +17,7 @@ namespace ObreshkovLibrary.Data
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +40,12 @@ namespace ObreshkovLibrary.Data
                 .HasOne(bc => bc.Book)
                 .WithMany(b => b.Copies)
                 .HasForeignKey(bc => bc.BookId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PasswordResetRequest>()
+                .HasOne(r => r.Client)
+                .WithMany()
+                .HasForeignKey(r => r.ClientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Client>().HasQueryFilter(x => x.IsActive);

@@ -4,175 +4,271 @@
     ViewData["Title"] = "Редактиране на книга";
 }
 
-<div class="book-edit-page">
-    <div class="book-edit-header">
-        <div>
-            <h2 class="section-title mb-1">Редактиране на книга</h2>
-            <div class="accent-line"></div>
-        </div>
+<div class="book-edit-page" style="width:100%; padding-top:6px;">
+
+    <div style="margin-bottom:16px;">
+        <h2 class="section-title mb-1">Редактиране на книга</h2>
+        <div class="accent-line"></div>
     </div>
 
-    <section class="book-edit-panel card-soft">
+    <section class="card-soft"
+             style="margin-top:10px; padding:22px; border-radius:18px; overflow:hidden; background:#FFFFFF;">
+
         <form id="bookEditForm"
               asp-action="Edit"
               asp-route-id="@ViewBag.BookId"
               method="post"
               enctype="multipart/form-data"
-              class="book-edit-form">
+              style="margin:0;">
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="font-weight:700; margin-bottom:14px;"></div>
 
             <input type="hidden" name="Id" value="@ViewBag.BookId" />
             <input asp-for="CurrentCoverPath" type="hidden" />
 
-            <div class="form-section">
-                <div class="form-section-title">Основна информация</div>
+            <div style="display:grid; grid-template-columns:minmax(0, 1.8fr) minmax(300px, 0.95fr); gap:22px; align-items:start;"
+                 class="book-edit-main-layout">
 
-                <div class="form-grid form-grid-2">
-                    <div class="form-field">
-                        <label asp-for="Title" class="form-label-strong">Заглавие</label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
+                <div style="min-width:0;">
 
-                    <div class="form-field">
-                        <label asp-for="Author" class="form-label-strong">Автор</label>
-                        <input asp-for="Author" class="form-control" />
-                        <span asp-validation-for="Author" class="text-danger"></span>
-                    </div>
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Основна информация
+                        </div>
 
-                    <div class="form-field">
-                        <label asp-for="Year" class="form-label-strong">Година</label>
-                        <input asp-for="Year" type="number" class="form-control" />
-                        <span asp-validation-for="Year" class="text-danger"></span>
-                    </div>
+                        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                             class="book-edit-two-col">
 
-                    <div class="form-field">
-                        <label asp-for="CopiesCount" class="form-label-strong">Брой копия</label>
-                        <input asp-for="CopiesCount" type="number" min="1" class="form-control" />
-                        <span asp-validation-for="CopiesCount" class="text-danger"></span>
-                    </div>
-                </div>
+                            <div style="display:flex; flex-direction:column; grid-column:1 / -1;">
+                                <label asp-for="Title" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Заглавие</label>
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
 
-                <div class="form-field mt-3">
-                    <label asp-for="CoverFile" class="form-label-strong">Корица</label>
-                    <input asp-for="CoverFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" class="form-control" id="coverFileInput" />
-                    <span asp-validation-for="CoverFile" class="text-danger"></span>
+                            <div style="display:flex; flex-direction:column;">
+                                <label asp-for="Author" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Автор</label>
+                                <input asp-for="Author"
+                                       class="form-control"
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                <span asp-validation-for="Author" class="text-danger"></span>
+                            </div>
 
-                    <div class="mt-3" id="coverPreviewBox" style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:block;")">
-                        <div class="picker-help-text mb-2">Текуща / нова корица</div>
-                        <img id="coverPreviewImage"
-                             src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
-                             alt="Корица"
-                             style="max-width:180px;max-height:240px;border-radius:14px;border:1px solid #E2E8F0;object-fit:cover;" />
-                    </div>
-                </div>
+                            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                                 class="book-edit-two-col-nested">
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="Year" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Година</label>
+                                    <input asp-for="Year"
+                                           type="number"
+                                           class="form-control"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="Year" class="text-danger"></span>
+                                </div>
 
-                <div class="form-field mt-3">
-                    <label asp-for="Description" class="form-label-strong">Описание</label>
-                    <textarea asp-for="Description" rows="5" class="form-control form-textarea"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
-            </div>
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="CopiesCount" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Брой копия</label>
+                                    <input asp-for="CopiesCount"
+                                           type="number"
+                                           min="1"
+                                           class="form-control"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="CopiesCount" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="form-section">
-                <div class="form-section-title">Категория</div>
-
-                <div class="picker-head">
-                    <div id="categoryPreview" class="picker-preview"></div>
-
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#categoryPickerModal">
-                        Избери категория
-                    </button>
-                </div>
-
-                <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
-                <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
-            </div>
-
-            <div class="form-section">
-                <div class="form-section-title">Етикети</div>
-
-                <div class="picker-head">
-                    <div>
-                        <div id="selectedTagsPreview" class="tags-preview"></div>
-                        <div class="picker-help-text">
-                            Избрани: <span id="selectedTagsCount">0</span>
+                        <div style="display:flex; flex-direction:column; margin-top:16px;">
+                            <label asp-for="Description" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Описание</label>
+                            <textarea asp-for="Description"
+                                      rows="6"
+                                      class="form-control"
+                                      style="min-height:160px; resize:vertical; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
                     </div>
 
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#tagsPickerModal">
-                        Избери етикети
-                    </button>
-                </div>
-            </div>
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Категория
+                        </div>
 
-            <div class="form-actions-bar">
-                <div class="left-actions">
-                    <button type="submit" class="btn btn-accent">
-                        Запази
-                    </button>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                            <div style="flex:1 1 320px; min-width:0;">
+                                <div id="categoryPreview" style="min-height:28px; margin-bottom:8px;"></div>
+                                <div style="color:#64748B; font-size:.95rem;">
+                                    Избери главна категория и при нужда подкатегория.
+                                </div>
+                            </div>
 
-                    <a asp-action="Details"
-                       asp-route-id="@ViewBag.BookId"
-                       class="btn btn-outline-primary">
-                        Назад
-                    </a>
+                            <button type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#categoryPickerModal"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                Избери категория
+                            </button>
+                        </div>
+
+                        <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
+                        <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
+                    </div>
+
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Етикети
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                            <div style="flex:1 1 320px; min-width:0;">
+                                <div id="selectedTagsPreview" style="display:flex; flex-wrap:wrap; gap:8px; min-height:28px; margin-bottom:8px;"></div>
+                                <div style="color:#64748B; font-size:.95rem;">
+                                    Избрани: <span id="selectedTagsCount">0</span>
+                                </div>
+                            </div>
+
+                            <button type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#tagsPickerModal"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                Избери етикети
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="padding-top:2px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; padding-top:14px; border-top:1px solid #D9E2EC;"
+                             class="book-edit-actions">
+                            <button type="submit"
+                                    style="min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18);">
+                                Запази
+                            </button>
+
+                            <a asp-action="Details"
+                               asp-route-id="@ViewBag.BookId"
+                               style="display:inline-flex; align-items:center; justify-content:center; min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; text-decoration:none;">
+                                Назад
+                            </a>
+                        </div>
+                    </div>
                 </div>
+
+                <aside style="min-width:0;" class="book-edit-side-panel">
+
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Корица
+                        </div>
+
+                        <div style="display:flex; flex-direction:column;">
+                            <label asp-for="CoverFile" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Качи нова корица</label>
+                            <input asp-for="CoverFile"
+                                   type="file"
+                                   accept=".jpg,.jpeg,.png,.webp,image/*"
+                                   class="form-control"
+                                   id="coverFileInput"
+                                   style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:10px 14px; background:#FFFFFF;" />
+                            <span asp-validation-for="CoverFile" class="text-danger"></span>
+                        </div>
+
+                        <div style="color:#64748B; font-size:.95rem; margin-top:8px; margin-bottom:14px;">
+                            Поддържани формати: JPG, PNG, WEBP
+                        </div>
+
+                        <div id="coverPreviewBox"
+                             style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:flex;") flex-direction:column; gap:12px; margin-top:8px;">
+                            <div style="font-weight:700; color:#334155;">Текуща / нова корица</div>
+
+                            <div style="width:100%; padding:16px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; display:flex; justify-content:center; align-items:center; min-height:280px;">
+                                <img id="coverPreviewImage"
+                                     src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
+                                     alt="Корица"
+                                     style="max-width:100%; max-height:320px; border-radius:14px; object-fit:cover; border:1px solid #E2E8F0;" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (ViewBag.IsBookActive == true)
+                    {
+                        <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px;">
+                            <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                                Опасна зона
+                            </div>
+
+                            <div style="color:#64748B; margin-bottom:14px; line-height:1.55;">
+                                Деактивирай заглавието, ако искаш да го скриеш от активните записи.
+                            </div>
+
+                            <form asp-action="Deactivate"
+                                  asp-route-id="@ViewBag.BookId"
+                                  method="post"
+                                  data-gate="1"
+                                  style="margin:0;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800;">
+                                    Деактивирай заглавието
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </aside>
             </div>
 
             <div class="modal fade" id="categoryPickerModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content picker-modal-content">
-                        <div class="modal-header picker-modal-header">
+                    <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
+                        <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
                             <h5 class="modal-title">Категории</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
                         </div>
 
                         <div class="modal-body">
-                            <div class="mb-3">
+                            <div style="margin-bottom:16px;">
                                 <input id="catSearch"
                                        type="text"
                                        class="form-control"
-                                       placeholder="Търси категория..." />
+                                       placeholder="Търси категория..."
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
                             </div>
 
-                            <div class="picker-columns">
-                                <div class="picker-column">
-                                    <div class="picker-column-title">Главни категории</div>
+                            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                                 class="book-edit-modal-two-col">
+                                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                    <div style="font-weight:800; color:#1F2937; margin-bottom:10px;">Главни категории</div>
 
-                                    <div id="level1List" class="picker-list">
+                                    <div id="level1List" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto;">
                                         @foreach (var c in (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>()).OrderBy(x => x.Name))
                                         {
                                             <button type="button"
-                                                    class="btn picker-item-btn level1-item"
+                                                    class="level1-item"
                                                     data-id="@c.Id"
-                                                    data-name="@c.Name">
+                                                    data-name="@c.Name"
+                                                    style="width:100%; text-align:left; background:#FFFFFF; border:1px solid #D6E0EA; color:#1F2937; border-radius:12px; font-weight:700; padding:10px 12px;">
                                                 @c.Name
                                             </button>
                                         }
                                     </div>
                                 </div>
 
-                                <div class="picker-column">
-                                    <div class="picker-column-title">Подкатегории</div>
-                                    <div id="level2List" class="picker-list"></div>
+                                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                    <div style="font-weight:800; color:#1F2937; margin-bottom:10px;">Подкатегории</div>
+                                    <div id="level2List" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto;"></div>
                                 </div>
                             </div>
 
-                            <div class="picker-footer-actions mt-3">
-                                <button type="button" id="btnClearCategory" class="btn btn-outline-secondary">
+                            <div style="display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:16px;"
+                                 class="book-edit-modal-actions">
+                                <button type="button"
+                                        id="btnClearCategory"
+                                        style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #CBD5E1; background:#FFFFFF; color:#475569; font-weight:700;">
                                     Изчисти
                                 </button>
 
-                                <button type="button" class="btn btn-accent" data-bs-dismiss="modal">
+                                <button type="button"
+                                        data-bs-dismiss="modal"
+                                        style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
                                     Готово
                                 </button>
                             </div>
@@ -183,21 +279,24 @@
 
             <div class="modal fade" id="tagsPickerModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
-                    <div class="modal-content picker-modal-content">
-                        <div class="modal-header picker-modal-header">
+                    <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
+                        <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
                             <h5 class="modal-title">Етикети</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
                         </div>
 
                         <div class="modal-body">
-                            <div class="mb-3">
+                            <div style="margin-bottom:16px;">
                                 <input id="tagsSearch"
                                        type="text"
                                        class="form-control"
-                                       placeholder="Търси етикет..." />
+                                       placeholder="Търси етикет..."
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
                             </div>
 
-                            <div id="tagsList" class="tags-list">
+                            <div id="tagsList"
+                                 style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 14px;"
+                                 class="book-edit-tags-grid">
                                 @{
                                     var ordered = (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
                                     .OrderBy(x => x.Text)
@@ -209,15 +308,18 @@
                                     var opt = ordered[i];
                                     var isChecked = Model.SelectedTagValues != null && Model.SelectedTagValues.Contains(int.Parse(opt.Value));
 
-                                    <label class="form-check tag-item" data-tag-text="@opt.Text.ToLowerInvariant()">
-                                        <input class="form-check-input tag-checkbox"
+                                    <label class="tag-item"
+                                           data-tag-text="@opt.Text.ToLowerInvariant()"
+                                           style="margin:0; padding:12px 14px; border:1px solid #E2E8F0; border-radius:12px; background:#F8FAFC; display:flex; align-items:center;">
+                                        <input class="tag-checkbox"
                                                type="checkbox"
                                                name="SelectedTagValues"
                                                value="@opt.Value"
                                                id="tagopt_@i"
                                                data-name="@opt.Text"
+                                               style="width:16px; height:16px;"
                                                @(isChecked ? "checked" : "") />
-                                        <span class="form-check-label ms-2" for="tagopt_@i">@opt.Text</span>
+                                        <span style="margin-left:10px;">@opt.Text</span>
                                     </label>
                                 }
                             </div>
@@ -226,23 +328,6 @@
                 </div>
             </div>
         </form>
-
-        @if (ViewBag.IsBookActive == true)
-        {
-            <div class="danger-actions-row">
-                <form asp-action="Deactivate"
-                      asp-route-id="@ViewBag.BookId"
-                      method="post"
-                      data-gate="1"
-                      class="m-0">
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit" class="btn btn-outline-danger">
-                        Деактивирай заглавието
-                    </button>
-                </form>
-            </div>
-        }
     </section>
 </div>
 
@@ -265,7 +350,8 @@
             }
 
             const text = level2Name ? `${level1Name} → ${level2Name}` : level1Name;
-            categoryPreview.innerHTML = `<span style="display:inline-block;padding:6px 10px;background:#EEF2FF;border-radius:999px;">${text}</span>`;
+            categoryPreview.innerHTML =
+                `<span style="display:inline-block;padding:7px 12px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:999px;font-weight:700;color:#1E3A8A;">${text}</span>`;
         }
 
         async function loadChildren(id) {
@@ -288,7 +374,14 @@
                 const childBtn = document.createElement('button');
                 childBtn.type = 'button';
                 childBtn.textContent = c.name;
-                childBtn.className = 'btn picker-item-btn w-100 text-start mb-1';
+                childBtn.style.width = '100%';
+                childBtn.style.textAlign = 'left';
+                childBtn.style.background = '#FFFFFF';
+                childBtn.style.border = '1px solid #D6E0EA';
+                childBtn.style.color = '#1F2937';
+                childBtn.style.borderRadius = '12px';
+                childBtn.style.fontWeight = '700';
+                childBtn.style.padding = '10px 12px';
 
                 if (String(level2Hidden.value) === String(c.id)) {
                     renderCategoryPreview(btn.dataset.name, c.name);
@@ -347,7 +440,13 @@
             selected.forEach(item => {
                 const chip = document.createElement('span');
                 chip.textContent = item.dataset.name;
-                chip.style.cssText = 'display:inline-block;margin:0 6px 6px 0;padding:4px 10px;background:#E6FFFA;border-radius:999px;';
+                chip.style.display = 'inline-block';
+                chip.style.padding = '7px 12px';
+                chip.style.background = '#ECFEFF';
+                chip.style.border = '1px solid #A5F3FC';
+                chip.style.borderRadius = '999px';
+                chip.style.fontWeight = '700';
+                chip.style.color = '#155E75';
                 tagsPreview.appendChild(chip);
             });
         }
@@ -359,7 +458,7 @@
             tagsSearch.addEventListener('input', () => {
                 const q = tagsSearch.value.trim().toLowerCase();
                 tagItems.forEach(item => {
-                    item.style.display = item.dataset.tagText.includes(q) ? 'block' : 'none';
+                    item.style.display = item.dataset.tagText.includes(q) ? 'flex' : 'none';
                 });
             });
         }
@@ -371,11 +470,13 @@
         if (coverInput) {
             coverInput.addEventListener('change', () => {
                 const file = coverInput.files && coverInput.files[0];
+
                 if (!file) {
                     const currentSrc = '@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")';
+
                     if (currentSrc) {
                         coverPreviewImage.src = currentSrc;
-                        coverPreviewBox.style.display = 'block';
+                        coverPreviewBox.style.display = 'flex';
                     } else {
                         coverPreviewImage.src = '';
                         coverPreviewBox.style.display = 'none';
@@ -386,10 +487,59 @@
                 const reader = new FileReader();
                 reader.onload = e => {
                     coverPreviewImage.src = e.target.result;
-                    coverPreviewBox.style.display = 'block';
+                    coverPreviewBox.style.display = 'flex';
                 };
                 reader.readAsDataURL(file);
             });
         }
+
+        function applyResponsiveEditLayout() {
+            const mainLayout = document.querySelector('.book-edit-main-layout');
+            const sidePanel = document.querySelector('.book-edit-side-panel');
+            const twoCols = document.querySelectorAll('.book-edit-two-col, .book-edit-two-col-nested, .book-edit-modal-two-col, .book-edit-tags-grid');
+            const actionBars = document.querySelectorAll('.book-edit-actions, .book-edit-modal-actions');
+
+            if (window.innerWidth <= 1100) {
+                if (mainLayout) {
+                    mainLayout.style.gridTemplateColumns = '1fr';
+                }
+
+                if (sidePanel) {
+                    sidePanel.style.display = 'grid';
+                    sidePanel.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+                    sidePanel.style.gap = '18px';
+                }
+            } else {
+                if (mainLayout) {
+                    mainLayout.style.gridTemplateColumns = 'minmax(0, 1.8fr) minmax(300px, 0.95fr)';
+                }
+
+                if (sidePanel) {
+                    sidePanel.style.display = 'block';
+                    sidePanel.style.gridTemplateColumns = '';
+                    sidePanel.style.gap = '';
+                }
+            }
+
+            if (window.innerWidth <= 760) {
+                twoCols.forEach(x => x.style.gridTemplateColumns = '1fr');
+                actionBars.forEach(x => {
+                    x.style.flexDirection = 'column';
+                    x.style.alignItems = 'stretch';
+                });
+            } else {
+                document.querySelectorAll('.book-edit-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-two-col-nested').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-modal-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-tags-grid').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                actionBars.forEach(x => {
+                    x.style.flexDirection = 'row';
+                    x.style.alignItems = '';
+                });
+            }
+        }
+
+        applyResponsiveEditLayout();
+        window.addEventListener('resize', applyResponsiveEditLayout);
     </script>
 }

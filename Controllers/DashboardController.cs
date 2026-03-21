@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
@@ -5,6 +6,7 @@ using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DashboardController : Controller
     {
         private readonly ObreshkovLibraryContext _context;

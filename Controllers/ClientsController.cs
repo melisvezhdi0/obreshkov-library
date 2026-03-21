@@ -17,56 +17,80 @@ namespace ObreshkovLibrary.Controllers
             _context = context;
         }
 
-        // GET: Clients (активни)
         public async Task<IActionResult> Index(string? search, string? classFilter)
         {
-            var q = _context.Clients.AsQueryable();
+            var clients = await _context.Clients
+                .Where(c => c.IsActive)
+                .ToListAsync();
+
+            var availableClasses = clients
+                .Where(c => c.Grade.HasValue)
+                .Select(c =>
+                {
+                    var grade = c.Grade.Value.ToString();
+                    var section = (c.Section ?? "").Trim();
+
+                    return string.IsNullOrWhiteSpace(section)
+                        ? grade
+                        : $"{grade}{section}".Replace(" ", "").ToUpper();
+                })
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {
-                var cf = classFilter.Trim().Replace(" ", "").ToUpper();
+                var normalizedClass = classFilter.Trim().Replace(" ", "").ToUpper();
 
-                q = q.Where(c =>
-                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
-                        .ToUpper()
-                        .Replace(" ", ""))
-                    == cf
-                );
+                clients = clients
+                    .Where(c =>
+                    {
+                        var grade = c.Grade.HasValue ? c.Grade.Value.ToString() : "";
+                        var section = (c.Section ?? "").Trim();
+
+                        var clientClass = string.IsNullOrWhiteSpace(section)
+                            ? grade
+                            : $"{grade}{section}".Replace(" ", "").ToUpper();
+
+                        return clientClass == normalizedClass;
+                    })
+                    .ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var s = search.Trim();
-                var sNoSpacesUpper = s.Replace(" ", "").ToUpper();
+                var normalizedSearch = search.Trim();
 
-                q = q.Where(c =>
-                    (c.FirstName ?? "").Contains(s) ||
-                    (c.MiddleName ?? "").Contains(s) ||
-                    (c.LastName ?? "").Contains(s) ||
-                    (c.PhoneNumber ?? "").Contains(s) ||
-                    (c.CardNumber ?? "").Contains(s) ||
-                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
-                        .ToUpper()
-                        .Replace(" ", ""))
-                        .Contains(sNoSpacesUpper)
-                );
+                clients = clients
+                    .Where(c =>
+                    {
+                        var fullName = $"{c.FirstName} {c.MiddleName} {c.LastName}"
+                            .Replace("  ", " ")
+                            .Trim();
+
+                        return
+                            fullName.Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.PhoneNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.CardNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase);
+                    })
+                    .ToList();
             }
 
-            var clients = await q
+            clients = clients
                 .OrderBy(c => c.Grade ?? int.MaxValue)
                 .ThenBy(c => c.Section ?? "")
                 .ThenBy(c => c.LastName)
                 .ThenBy(c => c.FirstName)
-                .Where(c => c.IsActive)
-                .ToListAsync();
+                .ToList();
 
-            ViewBag.Search = search;
-            ViewBag.ClassFilter = classFilter;
+            ViewBag.Search = search ?? "";
+            ViewBag.ClassFilter = classFilter ?? "";
+            ViewBag.AvailableClasses = availableClasses;
 
             return View(clients);
         }
 
-        // GET: Clients/Archived (архив)
         public async Task<IActionResult> Archived(string? search, string? classFilter)
         {
             var q = _context.Clients
@@ -117,7 +141,7 @@ namespace ObreshkovLibrary.Controllers
             return View(clients);
         }
 
-        // GET: Clients/Details/5
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -140,13 +164,12 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // GET: Clients/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Clients/Create
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
@@ -167,7 +190,6 @@ namespace ObreshkovLibrary.Controllers
             return RedirectToAction(nameof(Details), new { id = client.Id });
         }
 
-        // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -183,7 +205,6 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // POST: Clients/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id)
@@ -219,7 +240,6 @@ namespace ObreshkovLibrary.Controllers
             return View(clientToUpdate);
         }
 
-        // GET: Clients/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -235,7 +255,6 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // POST: Clients/Delete/5  -> Soft delete (архив)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

@@ -130,19 +130,45 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> Index(string? search, string? schoolClass)
         {
-            var books = await _context.Books
+            var query = _context.Books
                 .AsNoTracking()
                 .Include(b => b.Category)
+                    .ThenInclude(c => c.ParentCategory)
                 .Where(b => b.IsActive)
-                .OrderBy(b => b.Title)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var normalizedSearch = search.Trim().ToLower();
+
+                query = query.Where(b =>
+                    (b.Title != null && b.Title.ToLower().Contains(normalizedSearch)) ||
+                    (b.Author != null && b.Author.ToLower().Contains(normalizedSearch)) ||
+                    (b.Category != null && b.Category.Name.ToLower().Contains(normalizedSearch)) ||
+                    (b.Category != null &&
+                     b.Category.ParentCategory != null &&
+                     b.Category.ParentCategory.Name.ToLower().Contains(normalizedSearch)) ||
+                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch))
+                );
+            }
+
+            var books = await query
+                .OrderBy(b => b.Category != null && b.Category.ParentCategory != null
+                    ? b.Category.ParentCategory.Name
+                    : "")
+                .ThenBy(b => b.Category != null ? b.Category.Name : "")
+                .ThenBy(b => b.Title)
                 .ThenBy(b => b.Author)
                 .ToListAsync();
 
+            ViewBag.Search = search ?? "";
+            ViewBag.SchoolClass = schoolClass ?? "";
+
             return View(books);
         }
-
         [HttpGet]
         public async Task<IActionResult> Archived()
         {

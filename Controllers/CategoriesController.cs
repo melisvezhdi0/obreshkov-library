@@ -24,8 +24,17 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> Index()
         {
             var categories = await _context.Categories
+                .IgnoreQueryFilters()
                 .OrderBy(c => c.Name)
                 .ToListAsync();
+
+            var directBookCounts = await _context.Books
+                .Where(b => b.IsActive && b.CategoryId != null)
+                .GroupBy(b => b.CategoryId!.Value)
+                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CategoryId, x => x.Count);
+
+            ViewBag.DirectBookCounts = directBookCounts;
 
             return View(categories);
         }

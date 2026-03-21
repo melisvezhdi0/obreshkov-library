@@ -82,6 +82,7 @@
 
 .category-row {
     transition: background-color .15s ease;
+    cursor: pointer;
 }
 
     .category-row:hover td {
@@ -114,10 +115,10 @@
     color: #1F2937;
 }
 
-.category-path-text {
-    color: #6B7280;
-    font-size: .93rem;
-    font-weight: 600;
+.category-count-text {
+    color: #1F2937;
+    font-size: .95rem;
+    font-weight: 700;
 }
 
 .category-view-link {
@@ -134,7 +135,7 @@
         text-decoration: underline;
     }
 
-@@media (max-width: 767.98px) {
+@media (max-width: 767.98px) {
     .categories-header {
         align-items: stretch;
     }
@@ -154,4 +155,3 @@
         padding-right: .9rem;
     }
 }
-

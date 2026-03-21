@@ -3,166 +3,208 @@
 @{
     ViewData["Title"] = "Книги";
 
-    string titleFilter = (ViewBag.TitleFilter ?? "").ToString();
-    string authorValue = (ViewBag.Author ?? "").ToString();
-    string tagValue = (ViewBag.Tag ?? "").ToString();
-    string yearValue = ViewBag.Year == null ? "" : ViewBag.Year.ToString();
+    string? search = Context.Request.Query["search"];
+    string? selectedClass = Context.Request.Query["schoolClass"];
 
-    string categoryIdsValue = (ViewBag.CategoryIds ?? "").ToString();
-
-    var allCategories = ViewBag.AllCategories as IEnumerable<ObreshkovLibrary.Models.Category>
-        ?? Enumerable.Empty<ObreshkovLibrary.Models.Category>();
-
-    var parents = allCategories.Where(c => c.ParentCategoryId == null).OrderBy(c => c.Name).ToList();
-    var childrenByParent = allCategories
-        .Where(c => c.ParentCategoryId != null)
-        .GroupBy(c => c.ParentCategoryId!.Value)
-        .ToDictionary(g => g.Key, g => g.OrderBy(x => x.Name).ToList());
-
-    var titleSuggestions = ViewBag.TitleSuggestions as IEnumerable<string> ?? Enumerable.Empty<string>();
-    var authorSuggestions = ViewBag.AuthorSuggestions as IEnumerable<string> ?? Enumerable.Empty<string>();
-
-    var selectedIds = new HashSet<int>();
-    if (!string.IsNullOrWhiteSpace(categoryIdsValue))
+    string GetCoverValue(ObreshkovLibrary.Models.Book book)
     {
-        foreach (var part in categoryIdsValue.Split(',', StringSplitOptions.RemoveEmptyEntries))
-            if (int.TryParse(part.Trim(), out var id)) selectedIds.Add(id);
+        var coverPathProp = book.GetType().GetProperty("CoverPath");
+        var coverUrlProp = book.GetType().GetProperty("CoverUrl");
+
+        return coverPathProp?.GetValue(book)?.ToString()
+               ?? coverUrlProp?.GetValue(book)?.ToString()
+               ?? "";
     }
-    var selectedCats = allCategories.Where(c => selectedIds.Contains(c.Id)).OrderBy(c => c.Name).ToList();
 
-    bool hasAny =
-        !string.IsNullOrWhiteSpace(titleFilter) ||
-        !string.IsNullOrWhiteSpace(authorValue) ||
-        !string.IsNullOrWhiteSpace(tagValue) ||
-        !string.IsNullOrWhiteSpace(yearValue) ||
-        selectedCats.Count > 0;
+    string GetGenre(ObreshkovLibrary.Models.Book book)
+    {
+        return book.Category?.ParentCategory?.Name ?? "Без жанр";
+    }
 
-    bool noResults = (Model == null || !Model.Any()) && hasAny;
+    string GetCategory(ObreshkovLibrary.Models.Book book)
+    {
+        return book.Category?.Name ?? "Без категория";
+    }
+
+    var groupedBooks = Model
+        .GroupBy(b => new
+        {
+            Genre = GetGenre(b),
+            Category = GetCategory(b)
+        })
+        .OrderBy(g => g.Key.Genre)
+        .ThenBy(g => g.Key.Category)
+        .ToList();
+
+    var groupedByGenre = groupedBooks
+        .GroupBy(g => g.Key.Genre)
+        .OrderBy(g => g.Key)
+        .ToList();
 }
 
-<div style="padding-top:6px;">
+<div style="width:100%; padding-top:6px;">
 
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <div style="display:flex; align-items:end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
         <div>
-            <h1 style="color:#0F766E;font-weight:900;margin:0;">Книги</h1>
-            <div style="width:56px;height:3px;background:#FB923C;border-radius:2px;margin-top:10px;"></div>
+            <h2 class="section-title mb-1">Книги</h2>
+            <div class="accent-line"></div>
         </div>
 
         <a asp-action="Create"
-           style="background:#0F766E;color:#fff;padding:10px 16px;border-radius:12px;
-                  font-weight:900;text-decoration:none;display:inline-block;
-                  box-shadow:0 8px 18px rgba(0,0,0,.10);">
+           style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:150px;">
             Добави книга
         </a>
     </div>
 
-    <div style="margin-top:16px;background:#fff;border-radius:18px;padding:14px;
-                box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
+    <section class="card-soft" style="padding:1rem; margin-bottom:1rem;">
+        <form method="get"
+              asp-action="Index"
+              style="display:flex; align-items:center; gap:12px; width:100%; flex-wrap:nowrap;">
 
-        <form id="filterForm" method="get" asp-action="Index">
-            <input type="hidden" name="categoryIds" id="categoryIds" value="@categoryIdsValue" />
+            <div style="position:relative; flex:1 1 auto; min-width:0;">
+                <span style="position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#94A3B8; font-size:1rem; pointer-events:none; z-index:2;">⌕</span>
 
-            <datalist id="dlTitles">
-                @foreach (var t in titleSuggestions)
-                {
-                    <option value="@t"></option>
-                }
-            </datalist>
+                <input type="text"
+                       name="search"
+                       value="@search"
+                       id="searchInput"
+                       placeholder="Търси по заглавие, автор, жанр, категория или етикет..."
+                       class="form-control"
+                       style="width:100%; height:50px; border-radius:16px; border:1px solid #D7DFEA; background:#fff; color:#0F172A; padding-left:40px; padding-right:42px; font-weight:600; box-shadow:none;" />
 
-            <datalist id="dlAuthors">
-                @foreach (var a in authorSuggestions)
-                {
-                    <option value="@a"></option>
-                }
-            </datalist>
-
-            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-
-                <input name="title" value="@titleFilter" list="dlTitles"
-                       placeholder="Заглавие…"
-                       style="width:180px;min-width:180px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
-
-                <input name="author" value="@authorValue" list="dlAuthors"
-                       placeholder="Автор…"
-                       style="width:180px;min-width:180px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
-
-                <input name="year" value="@yearValue"
-                       placeholder="Година"
-                       inputmode="numeric"
-                       style="width:120px;min-width:120px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
-
-                <input name="tag" value="@tagValue"
-                       placeholder="# етикет…"
-                       style="width:150px;min-width:150px;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);outline:none;" />
-
-                <button type="submit"
-                        style="margin-left:auto;background:#FB923C;color:white;border:none;
-                               padding:10px 16px;border-radius:12px;font-weight:900;
-                               box-shadow:0 8px 18px rgba(0,0,0,.10);white-space:nowrap;">
-                    Търси
+                <button type="button"
+                        id="clearSearchBtn"
+                        aria-label="Изчисти търсенето"
+                        style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:22px; height:22px; border:none; background:#E2E8F0; color:#475569; border-radius:50%; @(string.IsNullOrWhiteSpace(search) ? "display:none;" : "display:inline-flex;") align-items:center; justify-content:center; font-size:15px; line-height:1; cursor:pointer; padding:0;">
+                    ×
                 </button>
-
-                <a asp-action="Index"
-                   style="background:#FFF3C4;color:#0F766E;border:1px solid rgba(0,0,0,.10);
-                          padding:10px 14px;border-radius:12px;font-weight:900;text-decoration:none;white-space:nowrap;">
-                    Изчисти
-                </a>
             </div>
-        </form>
-    </div>
 
-    @if (noResults)
-    {
-        <div style="margin-top:18px;background:#fff;border-radius:18px;padding:16px 18px;
-                                        box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
-            <div style="font-weight:950;color:#0F766E;font-size:1.15rem;margin-bottom:4px;">Няма намерени книги</div>
-            <div style="color:#64748B;font-weight:800;">Промени филтрите и опитай пак.</div>
-        </div>
-    }
-    else
-    {
-        <div style="margin-top:18px;background:#fff;border-radius:18px;padding:10px;
-                                        box-shadow:0 10px 25px rgba(0,0,0,.08);border:1px solid rgba(0,0,0,.06);">
-            <div class="table-responsive">
-                <table style="width:100%;border-collapse:collapse;">
-                    <thead style="background:#E6FFFA;">
-                        <tr>
-                            <th style="padding:12px;color:#0F766E;font-weight:900;width:64px;"></th>
-                            <th style="padding:12px;color:#0F766E;font-weight:900;">Заглавие</th>
-                            <th style="padding:12px;color:#0F766E;font-weight:900;">Автор</th>
-                            <th style="padding:12px;color:#0F766E;font-weight:900;">Година</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var b in Model)
+            <div style="flex:0 0 150px; width:150px;">
+                <select name="schoolClass"
+                        class="form-select"
+                        style="width:150px; height:50px; border-radius:16px; border:1px solid #D7DFEA; background:#fff; font-weight:700; box-shadow:none;">
+                    <option value="">Клас</option>
+                    @for (int i = 5; i <= 12; i++)
+                    {
+                        if (selectedClass == i.ToString())
                         {
-                            <tr role="button" tabindex="0"
-                                onclick="window.location.href='@Url.Action("Details", "Book", new { id = b.Id })';"
-                                onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "Book", new { id = b.Id })'; }"
-                                onmouseover="this.style.background='#FFF3C4'; this.style.cursor='pointer';"
-                                onmouseout="this.style.background='transparent';"
-                                style="border-bottom:1px solid #eee;">
-                                <td style="padding:10px 12px;">
-                                    <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.08);
-                                                                                        background:#E3F6F5;display:flex;align-items:center;justify-content:center;">
-                                        @if (!string.IsNullOrWhiteSpace(b.CoverPath))
-                                        {
-                                            <img src="@Url.Content(b.CoverPath)" style="width:100%;height:100%;object-fit:contain;padding:6px;" />
-                                        }
-                                        else
-                                        {
-                                            <span style="color:#64748B;font-weight:900;">—</span>
-                                        }
-                                    </div>
-                                </td>
-                                <td style="padding:12px;font-weight:900;color:#0B3B3C;">@b.Title</td>
-                                <td style="padding:12px;color:#64748B;font-weight:800;">@b.Author</td>
-                                <td style="padding:12px;color:#64748B;font-weight:800;">@(b.Year?.ToString() ?? "—")</td>
-                            </tr>
+                            <option value="@i" selected>@i клас</option>
                         }
-                    </tbody>
-                </table>
+                        else
+                        {
+                            <option value="@i">@i клас</option>
+                        }
+                    }
+                </select>
             </div>
-        </div>
-    }
+
+            <button type="submit"
+                    class="btn btn-accent"
+                    style="flex:0 0 110px; width:110px; height:50px; border-radius:16px;">
+                Търси
+            </button>
+        </form>
+    </section>
+
+    <section class="card-soft" style="padding:0; overflow:hidden; background:#fff;">
+        @if (!groupedByGenre.Any())
+        {
+            <div style="padding:1.15rem; color:#6B7280; font-weight:600;">Няма намерени книги.</div>
+        }
+        else
+        {
+            @foreach (var genreGroup in groupedByGenre)
+            {
+                <div style="border-bottom:1px solid #E5EAF0; background:#fff;">
+                    <div style="padding:1rem; font-weight:700; color:#1F2937; min-height:72px; display:flex; align-items:center;">
+                        <span style="font-size:1.03rem; font-weight:700;">@genreGroup.Key</span>
+                    </div>
+                </div>
+
+                @foreach (var categoryGroup in genreGroup)
+                {
+                    <div style="border-top:1px solid #E5EAF0; background:#fff;">
+                        <div style="min-height:70px; display:flex; align-items:center; gap:.8rem; padding:0 1rem 0 1.8rem;">
+                            <span style="width:18px; height:18px; border-left:1.5px solid #C9D4E3; border-bottom:1.5px solid #C9D4E3; margin-top:-10px; flex:0 0 18px;"></span>
+                            <span style="font-weight:700; color:#1F2937; font-size:1.02rem;">@categoryGroup.Key.Category</span>
+                        </div>
+                    </div>
+
+                    @foreach (var book in categoryGroup.OrderBy(b => b.Title).ThenBy(b => b.Author))
+                    {
+                        var coverValue = GetCoverValue(book);
+
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:92px; padding:12px 16px 12px 50px; border-top:1px solid #E5EAF0; background:#fff;">
+
+                            <a asp-action="Details"
+                               asp-route-id="@book.Id"
+                               style="display:flex; align-items:center; gap:14px; text-decoration:none; color:#111827; flex:1; min-width:0;">
+
+                                <span style="width:16px; height:16px; border-left:1.5px solid #C9D4E3; border-bottom:1.5px solid #C9D4E3; margin-top:-8px;"></span>
+
+                                <div style="width:42px; height:62px; border-radius:10px; overflow:hidden; border:1px solid #D7DFEA; background:#F8FAFD; display:flex; align-items:center; justify-content:center; flex:0 0 42px;">
+                                    @if (!string.IsNullOrWhiteSpace(coverValue))
+                                    {
+                                        <img src="@coverValue"
+                                             alt="@book.Title"
+                                             style="width:100%; height:100%; object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#94A3B8; font-weight:700;">—</span>
+                                    }
+                                </div>
+
+                                <span style="font-weight:700; min-width:260px; color:#111827;">
+                                    @book.Title
+                                </span>
+
+                                <span style="min-width:200px; color:#111827;">
+                                    @book.Author
+                                </span>
+
+                                @if (book.Year.HasValue)
+                                {
+                                    <span style="min-width:80px; color:#111827;">
+                                        @book.Year
+                                    </span>
+                                }
+                            </a>
+
+                            <a asp-action="Edit"
+                               asp-route-id="@book.Id"
+                               style="color:#3B82F6; font-weight:800; text-decoration:none; white-space:nowrap;">
+                                Редакция
+                            </a>
+                        </div>
+                    }
+                }
+            }
+        }
+    </section>
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const input = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+
+            if (!input || !clearBtn) return;
+
+            function toggleClearButton() {
+                clearBtn.style.display = input.value.trim().length > 0 ? 'inline-flex' : 'none';
+            }
+
+            clearBtn.addEventListener('click', () => {
+                input.value = '';
+                toggleClearButton();
+                input.focus();
+            });
+
+            input.addEventListener('input', toggleClearButton);
+            toggleClearButton();
+        })();
+    </script>
+}

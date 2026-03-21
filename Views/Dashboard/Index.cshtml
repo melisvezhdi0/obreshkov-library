@@ -4,33 +4,41 @@
     ViewData["Title"] = "Начало";
 }
 
-<div class="home-wrap">
-    <section class="hero-panel card-soft mb-4">
-        <div class="hero-grid">
-            <div class="hero-title-wrap">
+<div style="width:100%; padding-top:6px;">
+
+    <section class="card-soft" style="margin-bottom:18px; padding:22px; border-radius:18px; background:#ffffff;">
+        <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(320px,.95fr); gap:18px; align-items:start;"
+             id="dashboardHeroGrid">
+
+            <div>
                 <h2 class="section-title mb-1">Начало</h2>
                 <div class="accent-line"></div>
-                <div class="hero-subtitle">Административен преглед на библиотеката</div>
+                <div style="margin-top:10px; color:#64748b; font-size:1rem;">
+                    Административен преглед на библиотеката
+                </div>
             </div>
 
-            <div class="search-panel">
-                <div class="search-panel-label">Бързо търсене по номер на карта</div>
+            <div style="background:#f8fbff; border:1px solid #dbe5ef; border-radius:16px; padding:16px;">
+                <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:10px;">
+                    Бързо търсене по номер на карта
+                </div>
 
-                <form asp-controller="Home"
+                <form asp-controller="Dashboard"
                       asp-action="SearchByCardNumber"
                       method="post"
-                      class="dashboard-search">
+                      style="margin:0;">
                     @Html.AntiForgeryToken()
 
-                    <div class="input-group search-group">
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;" id="dashboardSearchBar">
                         <input type="text"
                                name="cardNumber"
-                               class="form-control search-input-main"
                                placeholder="Въведи номер на карта"
                                inputmode="numeric"
-                               pattern="[0-9]*" />
+                               pattern="[0-9]*"
+                               style="flex:1 1 220px; min-width:0; height:46px; border:1px solid #cbd5e1; background:#ffffff; padding:0 14px; border-radius:12px; outline:none;" />
 
-                        <button type="submit" class="btn btn-accent search-btn-main">
+                        <button type="submit"
+                                style="min-width:120px; height:46px; border:none; border-radius:12px; background:linear-gradient(135deg, #2563eb, #3b82f6); color:#ffffff; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18);">
                             Търси
                         </button>
                     </div>
@@ -41,40 +49,42 @@
 
     @if (TempData["HomeError"] != null)
     {
-        <div class="alert alert-danger mb-4">@TempData["HomeError"]</div>
+        <div style="margin-bottom:18px; padding:12px 14px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; border-radius:12px;">
+            @TempData["HomeError"]
+        </div>
     }
 
-    <section class="content-panel content-panel-muted card-soft mb-4">
-        <div class="panel-head">
+    <section class="card-soft" style="margin-bottom:18px; padding:20px; border-radius:18px; background:#ffffff;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
             <h5 class="section-title mb-0">Последни заемания</h5>
         </div>
 
         @if (Model.LatestLoans == null || !Model.LatestLoans.Any())
         {
-            <div class="empty-block">Няма записи.</div>
+            <div style="padding:14px 0; color:#64748b;">Няма записи.</div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-doc align-middle mb-0">
+            <div style="overflow-x:auto;">
+                <table style="width:100%; border-collapse:separate; border-spacing:0;">
                     <thead>
-                        <tr>
-                            <th>Читател</th>
-                            <th>№ карта</th>
-                            <th>Книга</th>
-                            <th>Заета на</th>
-                            <th>Срок</th>
+                        <tr style="background:#f8fbff;">
+                            <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                            <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">№ карта</th>
+                            <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
+                            <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Заета на</th>
+                            <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var l in Model.LatestLoans)
                         {
                             <tr>
-                                <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                <td>@l.Client?.CardNumber</td>
-                                <td>@l.BookCopy?.Book?.Title</td>
-                                <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
-                                <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
+                                <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
+                                <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.LoanDate.ToString("dd.MM.yyyy")</td>
+                                <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
                             </tr>
                         }
                     </tbody>
@@ -83,132 +93,208 @@
         }
     </section>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <section class="content-panel small-panel card-soft h-100">
-                <div class="small-panel-top">
-                    <div>
-                        <div class="small-panel-label">Книги за връщане днес</div>
-                        <div class="small-panel-number">@Model.DueTodayCount</div>
-                    </div>
+    <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin-bottom:18px;"
+         id="dashboardCardsGrid">
 
-                    <button type="button"
-                            class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#dueTodayModal">
-                        Виж списъка
-                    </button>
+        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                        Книги за връщане днес
+                    </div>
+                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.DueTodayCount</div>
                 </div>
 
-                @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
-                {
-                    <div class="small-panel-note">Няма книги за връщане днес.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc table-doc-compact align-middle mb-0">
-                            <thead>
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#dueTodayModal"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                    Виж списъка
+                </button>
+            </div>
+
+            @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
+            {
+                <div style="color:#64748b;">Няма книги за връщане днес.</div>
+            }
+            else
+            {
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                        <thead>
+                            <tr style="background:#f8fbff;">
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var l in Model.DueTodayLoans.Take(4))
+                            {
                                 <tr>
-                                    <th>Читател</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.DueTodayLoans.Take(4))
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </section>
-        </div>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
 
-        <div class="col-lg-6">
-            <section class="content-panel small-panel card-soft h-100">
-                <div class="small-panel-top">
-                    <div>
-                        <div class="small-panel-label">Просрочени книги</div>
-                        <div class="small-panel-number">@Model.OverdueCount</div>
+        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                        Просрочени книги
                     </div>
-
-                    <button type="button"
-                            class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target="#overdueModal">
-                        Виж списъка
-                    </button>
+                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OverdueCount</div>
                 </div>
 
-                @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
-                {
-                    <div class="small-panel-note">Няма просрочени книги.</div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-doc table-doc-compact align-middle mb-0">
-                            <thead>
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#overdueModal"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                    Виж списъка
+                </button>
+            </div>
+
+            @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
+            {
+                <div style="color:#64748b;">Няма просрочени книги.</div>
+            }
+            else
+            {
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                        <thead>
+                            <tr style="background:#f8fbff;">
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var l in Model.OverdueLoans.Take(4))
+                            {
                                 <tr>
-                                    <th>Читател</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var l in Model.OverdueLoans.Take(4))
-                                {
-                                    <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+
+        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                        Заявки за смяна на парола
                     </div>
-                }
-            </section>
-        </div>
+                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OpenPasswordResetRequestsCount</div>
+                </div>
+
+                <button type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#passwordResetModal"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                    Виж списъка
+                </button>
+            </div>
+
+            @if (Model.OpenPasswordResetRequests == null || !Model.OpenPasswordResetRequests.Any())
+            {
+                <div style="color:#64748b;">Няма активни заявки.</div>
+            }
+            else
+            {
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                        <thead>
+                            <tr style="background:#f8fbff;">
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Карта</th>
+                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Подадена</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var r in Model.OpenPasswordResetRequests.Take(4))
+                            {
+                                var fullName = r.Client != null
+                                ? $"{r.Client.FirstName} {r.Client.LastName}"
+                                : "-";
+
+                                <tr>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@fullName</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
+                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.RequestedOn.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
     </div>
 
-    <section class="content-panel content-panel-books card-soft">
-        <div class="panel-head books-head">
-            <h5 class="section-title mb-0">Последно добавени книги</h5>
+    <section style="background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:18px; margin-bottom:18px;">
 
-            <a class="btn btn-outline-primary btn-sm"
-               asp-controller="Book"
-               asp-action="Index">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h5 style="font-weight:800; color:#0f172a; margin:0;">
+                Последно добавени книги
+            </h5>
+
+            <a asp-controller="Book"
+               asp-action="Recent"
+               style="height:34px; padding:0 12px; display:flex; align-items:center;
+                  border:1px solid #93c5fd; border-radius:8px;
+                  text-decoration:none; color:#2563eb; font-weight:700;">
                 Още
             </a>
         </div>
 
         @if (Model.LatestBookTitles == null || !Model.LatestBookTitles.Any())
         {
-            <div class="empty-block">Няма книги.</div>
+            <div style="color:#64748b; font-weight:600;">Няма книги.</div>
         }
         else
         {
-            <div class="latest-books-grid">
+            <div id="latestBooksRow"
+                 style="display:flex; justify-content:center; gap:14px; flex-wrap:nowrap;">
+
                 @foreach (var b in Model.LatestBookTitles.Take(5))
                 {
-                    <a class="latest-book-card text-decoration-none"
-                       href="@Url.Action("Details", "Book", new { id = b.Id })">
-                        <div class="latest-book-cover-wrap">
+                    <a href="@Url.Action("Details", "Book", new { id = b.Id })"
+                       class="latest-book-item"
+                       style="width:130px; min-width:130px;
+                                  display:flex; flex-direction:column; align-items:center;
+                                  text-decoration:none; color:inherit;
+                                  border:1px solid #e2e8f0; border-radius:12px;
+                                  background:#f8fbff; padding:10px;
+                                  transition:.18s ease;">
+
+                        <div style="width:100%; height:180px;
+                                        display:flex; align-items:center; justify-content:center;
+                                        background:#ffffff;
+                                        border:1px solid #e2e8f0;
+                                        border-radius:10px;
+                                        overflow:hidden;
+                                        margin-bottom:8px;">
+
                             <img src="@b.CoverPath"
                                  alt="@b.Title"
-                                 class="latest-book-cover"
-                                 onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                                 style="max-width:100%; max-height:100%; object-fit:contain;"
+                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;color:#94a3b8;font-size:11px;font-weight:700;&quot;>Няма корица</span>';" />
                         </div>
 
-                        <div class="latest-book-title">@b.Title</div>
+                        <div style="text-align:center; font-weight:700; font-size:13px; line-height:1.25;">
+                            @b.Title
+                        </div>
                     </a>
                 }
             </div>
@@ -218,42 +304,42 @@
 
 <div class="modal fade" id="dueTodayModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content" style="border-radius:18px; border:1px solid #dbe5ef;">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0;">
                 <h5 class="modal-title">Книги за връщане днес (@Model.DueTodayCount)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
             <div class="modal-body">
                 @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
                 {
-                    <div class="empty-block p-0">Няма книги за връщане днес.</div>
+                    <div style="color:#64748b;">Няма книги за връщане днес.</div>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-doc align-middle mb-0">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:separate; border-spacing:0;">
                             <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>№ карта</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                    <th class="text-end">Действие</th>
+                                <tr style="background:#f8fbff;">
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">№ карта</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
+                                    <th style="padding:14px; text-align:right; border-bottom:1px solid #dbe5ef;">Действие</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var l in Model.DueTodayLoans)
                                 {
                                     <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.Client?.CardNumber</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                        <td class="text-end">
-                                            <a class="link-accent"
-                                               asp-controller="Loans"
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td style="padding:14px; text-align:right; border-bottom:1px solid #edf2f7;">
+                                            <a asp-controller="Loans"
                                                asp-action="Return"
-                                               asp-route-id="@l.Id">
+                                               asp-route-id="@l.Id"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -270,42 +356,42 @@
 
 <div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content" style="border-radius:18px; border:1px solid #dbe5ef;">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0;">
                 <h5 class="modal-title">Просрочени книги (@Model.OverdueCount)</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
             </div>
             <div class="modal-body">
                 @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
                 {
-                    <div class="empty-block p-0">Няма просрочени.</div>
+                    <div style="color:#64748b;">Няма просрочени книги.</div>
                 }
                 else
                 {
-                    <div class="table-responsive">
-                        <table class="table table-doc align-middle mb-0">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:separate; border-spacing:0;">
                             <thead>
-                                <tr>
-                                    <th>Читател</th>
-                                    <th>№ карта</th>
-                                    <th>Книга</th>
-                                    <th>Срок</th>
-                                    <th class="text-end">Действие</th>
+                                <tr style="background:#f8fbff;">
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">№ карта</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
+                                    <th style="padding:14px; text-align:right; border-bottom:1px solid #dbe5ef;">Действие</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var l in Model.OverdueLoans)
                                 {
                                     <tr>
-                                        <td>@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                        <td>@l.Client?.CardNumber</td>
-                                        <td>@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                        <td class="text-end">
-                                            <a class="link-accent"
-                                               asp-controller="Loans"
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
+                                        <td style="padding:14px; text-align:right; border-bottom:1px solid #edf2f7;">
+                                            <a asp-controller="Loans"
                                                asp-action="Return"
-                                               asp-route-id="@l.Id">
+                                               asp-route-id="@l.Id"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -320,4 +406,93 @@
     </div>
 </div>
 
-V
+<div class="modal fade" id="passwordResetModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content" style="border-radius:18px; border:1px solid #dbe5ef;">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0;">
+                <h5 class="modal-title">Заявки за смяна на парола (@Model.OpenPasswordResetRequestsCount)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.OpenPasswordResetRequests == null || !Model.OpenPasswordResetRequests.Any())
+                {
+                    <div style="color:#64748b;">Няма активни заявки.</div>
+                }
+                else
+                {
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:separate; border-spacing:0;">
+                            <thead>
+                                <tr style="background:#f8fbff;">
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Карта</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Телефон</th>
+                                    <th style="padding:14px; text-align:left; border-bottom:1px solid #dbe5ef;">Подадена</th>
+                                    <th style="padding:14px; text-align:right; border-bottom:1px solid #dbe5ef;">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in Model.OpenPasswordResetRequests)
+                                {
+                                    var fullName = r.Client != null
+                                    ? $"{r.Client.FirstName} {r.Client.LastName}"
+                                    : "-";
+
+                                    <tr>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@fullName</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.PhoneNumber</td>
+                                        <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.RequestedOn.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td style="padding:14px; text-align:right; border-bottom:1px solid #edf2f7;">
+                                            <a asp-controller="Clients"
+                                               asp-action="PasswordResetRequests"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
+                                                Отвори
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applyDashboardResponsive() {
+            const heroGrid = document.getElementById('dashboardHeroGrid');
+            const cardsGrid = document.getElementById('dashboardCardsGrid');
+            const booksGrid = document.getElementById('latestBooksGrid');
+            const searchBar = document.getElementById('dashboardSearchBar');
+
+            if (window.innerWidth <= 1200) {
+                if (cardsGrid) cardsGrid.style.gridTemplateColumns = '1fr 1fr';
+                if (booksGrid) booksGrid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+            } else {
+                if (cardsGrid) cardsGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                if (booksGrid) booksGrid.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
+            }
+
+            if (window.innerWidth <= 900) {
+                if (heroGrid) heroGrid.style.gridTemplateColumns = '1fr';
+                if (cardsGrid) cardsGrid.style.gridTemplateColumns = '1fr';
+            } else {
+                if (heroGrid) heroGrid.style.gridTemplateColumns = 'minmax(0,1.3fr) minmax(320px,.95fr)';
+            }
+
+            if (window.innerWidth <= 640) {
+                if (searchBar) searchBar.style.flexDirection = 'column';
+                if (booksGrid) booksGrid.style.gridTemplateColumns = '1fr';
+            } else {
+                if (searchBar) searchBar.style.flexDirection = 'row';
+            }
+        }
+
+        applyDashboardResponsive();
+        window.addEventListener('resize', applyDashboardResponsive);
+    </script>
+}

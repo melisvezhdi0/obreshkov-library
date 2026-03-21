@@ -25,6 +25,8 @@ namespace ObreshkovLibrary.Models
 
         public bool IsActive { get; set; } = true;
 
+        public DateTime CreatedOn { get; set; } = DateTime.Now;
+
         public int? CategoryId { get; set; }
         public Category? Category { get; set; }
 

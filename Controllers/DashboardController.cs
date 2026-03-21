@@ -51,9 +51,18 @@ namespace ObreshkovLibrary.Controllers
                 .ToListAsync();
             vm.OverdueCount = vm.OverdueLoans.Count;
 
+            vm.OpenPasswordResetRequests = await _context.PasswordResetRequests
+                .Where(r => !r.IsCompleted)
+                .Include(r => r.Client)
+                .OrderByDescending(r => r.RequestedOn)
+                .Take(50)
+                .ToListAsync();
+            vm.OpenPasswordResetRequestsCount = vm.OpenPasswordResetRequests.Count;
+
             vm.LatestBookTitles = await _context.Books
-                .OrderByDescending(b => b.Id)
-                .Take(4)
+                .OrderByDescending(b => b.CreatedOn)
+                .ThenByDescending(b => b.Id)
+                .Take(5)
                 .ToListAsync();
 
             return View(vm);

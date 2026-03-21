@@ -197,6 +197,12 @@ namespace ObreshkovLibrary.Controllers
             await _context.SaveChangesAsync();
 
             var generatedPassword = _temporaryPasswordService.Generate();
+            client.LastTemporaryPassword = generatedPassword;
+            client.PasswordChangedByStudent = false;
+            client.LastPasswordChangeOn = null;
+
+            _context.Update(client);
+            await _context.SaveChangesAsync();
 
             var studentUser = new IdentityUser
             {
@@ -405,6 +411,14 @@ namespace ObreshkovLibrary.Controllers
 
             request.IsCompleted = true;
             request.Notes = "Генерирана е нова временна парола.";
+
+            if (request.Client != null)
+            {
+                request.Client.LastTemporaryPassword = tempPassword;
+                request.Client.PasswordChangedByStudent = false;
+                request.Client.LastPasswordChangeOn = null;
+            }
+
             await _context.SaveChangesAsync();
 
             TempData["GeneratedPassword"] = tempPassword;

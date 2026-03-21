@@ -133,7 +133,8 @@ namespace ObreshkovLibrary.Controllers
 
         [HttpGet]
         [HttpGet]
-        public async Task<IActionResult> Index(string? search, string? schoolClass)
+        [HttpGet]
+        public async Task<IActionResult> Index(string? search, string? schoolClass, string? sort)
         {
             var query = _context.Books
                 .AsNoTracking()
@@ -157,20 +158,65 @@ namespace ObreshkovLibrary.Controllers
                 );
             }
 
-            var books = await query
-                .OrderBy(b => b.Category != null && b.Category.ParentCategory != null
-                    ? b.Category.ParentCategory.Name
-                    : "")
-                .ThenBy(b => b.Category != null ? b.Category.Name : "")
-                .ThenBy(b => b.Title)
-                .ThenBy(b => b.Author)
-                .ToListAsync();
+            query = sort switch
+            {
+                "name_desc" => query.OrderByDescending(b => b.Title).ThenBy(b => b.Author),
+                "date_asc" => query.OrderBy(b => b.CreatedOn).ThenBy(b => b.Title),
+                "date_desc" => query.OrderByDescending(b => b.CreatedOn).ThenBy(b => b.Title),
+                _ => query.OrderBy(b => b.Title).ThenBy(b => b.Author)
+            };
+
+            var books = await query.ToListAsync();
 
             ViewBag.Search = search ?? "";
             ViewBag.SchoolClass = schoolClass ?? "";
+            ViewBag.Sort = sort ?? "name_asc";
 
             return View(books);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Recent(string? search, string? sort)
+        {
+            var monthAgo = DateTime.Now.AddMonths(-1);
+
+            var query = _context.Books
+                .AsNoTracking()
+                .Include(b => b.Category)
+                    .ThenInclude(c => c.ParentCategory)
+                .Where(b => b.IsActive && b.CreatedOn >= monthAgo)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var normalizedSearch = search.Trim().ToLower();
+
+                query = query.Where(b =>
+                    (b.Title != null && b.Title.ToLower().Contains(normalizedSearch)) ||
+                    (b.Author != null && b.Author.ToLower().Contains(normalizedSearch)) ||
+                    (b.Category != null && b.Category.Name.ToLower().Contains(normalizedSearch)) ||
+                    (b.Category != null &&
+                     b.Category.ParentCategory != null &&
+                     b.Category.ParentCategory.Name.ToLower().Contains(normalizedSearch)) ||
+                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch))
+                );
+            }
+
+            query = sort switch
+            {
+                "name_desc" => query.OrderByDescending(b => b.Title).ThenBy(b => b.Author),
+                "date_asc" => query.OrderBy(b => b.CreatedOn).ThenBy(b => b.Title),
+                _ => query.OrderByDescending(b => b.CreatedOn).ThenBy(b => b.Title)
+            };
+
+            var books = await query.ToListAsync();
+
+            ViewBag.Search = search ?? "";
+            ViewBag.Sort = sort ?? "date_desc";
+
+            return View(books);
+        }
+
         [HttpGet]
         public async Task<IActionResult> Archived()
         {
@@ -257,6 +303,8 @@ namespace ObreshkovLibrary.Controllers
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
                 IsActive = true
             };
+
+            book.CreatedOn = DateTime.Now;
 
             _context.Books.Add(book);
             await _context.SaveChangesAsync();

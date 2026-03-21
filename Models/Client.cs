@@ -7,29 +7,39 @@ namespace ObreshkovLibrary.Models
     {
         public int Id { get; set; }
 
-        [Required, StringLength(40)]
+        [Required(ErrorMessage = "Името е задължително.")]
+        [StringLength(50)]
         public string FirstName { get; set; } = string.Empty;
 
         [StringLength(50)]
         public string? MiddleName { get; set; }
 
-        [Required, StringLength(40)]
+        [Required(ErrorMessage = "Фамилията е задължителна.")]
+        [StringLength(50)]
         public string LastName { get; set; } = string.Empty;
 
-        [Required, StringLength(20)]
+        [Required(ErrorMessage = "Телефонният номер е задължителен.")]
+        [Phone]
+        [StringLength(20)]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required, StringLength(20)]
-        public string CardNumber { get; set; } = string.Empty;
+        [StringLength(20)]
+        public string? CardNumber { get; set; }
+
+        public int? Grade { get; set; }
+
+        [StringLength(10)]
+        public string? Section { get; set; }
 
         public DateTime CreatedOn { get; set; } = DateTime.Now;
 
         public bool IsActive { get; set; } = true;
 
-        [Required, Range(1, 12)]
-        public int? Grade { get; set; }
+        [StringLength(100)]
+        public string? LastTemporaryPassword { get; set; }
 
-        [Required, StringLength(2)]
-        public string? Section { get; set; }
+        public bool PasswordChangedByStudent { get; set; } = false;
+
+        public DateTime? LastPasswordChangeOn { get; set; }
     }
 }

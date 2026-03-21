@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ObreshkovLibrary.Data;
 
@@ -11,9 +12,11 @@ using ObreshkovLibrary.Data;
 namespace ObreshkovLibrary.Migrations
 {
     [DbContext(typeof(ObreshkovLibraryContext))]
-    partial class ObreshkovLibraryContextModelSnapshot : ModelSnapshot
+    [Migration("20260321152928_AddClientPasswordStateFields")]
+    partial class AddClientPasswordStateFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,9 +245,6 @@ namespace ObreshkovLibrary.Migrations
 
                     b.Property<string>("CoverPath")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)

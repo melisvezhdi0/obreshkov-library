@@ -1,537 +1,184 @@
-﻿@{
+﻿@using ObreshkovLibrary.Models
+@{
+    var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new List<SchoolNews>();
+}
+@{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Начало";
 }
 
-<style>
-    .home-page {
-        background: linear-gradient(180deg, #eef4fa 0%, #e8f0f7 100%);
-        min-height: 100vh;
-        color: #1f2937;
-    }
-
-    /* ГОРНА БЯЛА ЛЕНТА */
-    .top-strip {
-        background: rgba(255, 255, 255, 0.92);
-        box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
-        position: relative;
-        z-index: 50;
-    }
-
-    .top-strip-inner {
-        min-height: 74px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-    }
-
-    .top-strip-brand {
-        color: #0f172a;
-        text-decoration: none;
-        font-size: 1.7rem;
-        font-weight: 800;
-        letter-spacing: 0.01em;
-    }
-
-        .top-strip-brand:hover {
-            color: #2563eb;
-        }
-
-    .top-strip-login {
-        color: #334155;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 1rem;
-        transition: .2s ease;
-    }
-
-        .top-strip-login:hover {
-            color: #2563eb;
-        }
-
-    /* ОБЩ КОНТЕЙНЕР */
-    .home-shell {
-        padding-top: 26px;
-        padding-bottom: 70px;
-    }
-
-    /* HERO */
-    .hero-wrap {
-        max-width: 1320px;
-        margin: 0 auto;
-        padding: 0 12px;
-    }
-
-    .hero-card {
-        position: relative;
-        min-height: 620px;
-        border-radius: 30px;
-        overflow: hidden;
-        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.10), rgba(15, 23, 42, 0.22)), url('/images/school-main.jpg');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        box-shadow: 0 22px 50px rgba(15, 23, 42, 0.12);
-    }
-
-        .hero-card::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 180px;
-            background: linear-gradient(to bottom, rgba(238, 244, 250, 0), rgba(238, 244, 250, 0.95));
-            pointer-events: none;
-            z-index: 2;
-        }
-
-    /* СИН NAVBAR */
-    .hero-nav {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 5;
-        display: flex;
-        justify-content: center;
-    }
-
-    .hero-nav-inner {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0;
-        background: linear-gradient(180deg, rgba(61, 146, 225, 0.82) 0%, rgba(37, 99, 235, 0.78) 100%);
-        backdrop-filter: blur(6px);
-        border-radius: 0;
-        box-shadow: none;
-        overflow: hidden;
-    }
-
-        .hero-nav-inner a {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-            padding: 18px 34px;
-            border-right: 1px solid rgba(255,255,255,0.16);
-            transition: background .2s ease;
-        }
-
-            .hero-nav-inner a:last-child {
-                border-right: none;
-            }
-
-            .hero-nav-inner a:hover {
-                background: rgba(255,255,255,0.08);
-            }
-
-    /* ТЪРСАЧКА */
-    .hero-search-wrap {
-        position: absolute;
-        left: 50%;
-        bottom: 0;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 1180px;
-        padding: 0 18px 22px;
-        z-index: 6;
-    }
-
-    .hero-search-panel {
-        background: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%);
-        backdrop-filter: blur(14px);
-        border-radius: 0;
-        padding: 16px;
-        box-shadow: none;
-    }
-
-    .hero-search-form {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-    }
-
-    .hero-search-input {
-        flex: 1;
-        height: 66px;
-        border: 1px solid rgba(255,255,255,0.22);
-        border-radius: 0;
-        background: rgba(255,255,255,0.78);
-        outline: none;
-        padding: 0 22px;
-        font-size: 1.06rem;
-        color: #1f2937;
-        box-shadow: none;
-    }
-
-        .hero-search-input::placeholder {
-            color: #64748b;
-        }
-
-    .hero-search-button {
-        min-width: 150px;
-        height: 66px;
-        border: none;
-        border-radius: 0;
-        background: linear-gradient(180deg, rgba(75,149,234,0.90) 0%, rgba(37,99,235,0.88) 100%);
-        color: white;
-        font-size: 1rem;
-        font-weight: 800;
-        box-shadow: none;
-        transition: .2s ease;
-    }
-
-        .hero-search-button:hover {
-            background: linear-gradient(180deg, rgba(75,149,234,0.98) 0%, rgba(29,78,216,0.94) 100%);
-            transform: none;
-            box-shadow: none;
-        }
-
-    /* ИНФО СЕКЦИИ */
-    .info-area {
-        max-width: 1200px;
-        margin: 26px auto 0;
-        padding: 0 12px;
-    }
-
-    .info-block {
-        background: linear-gradient(180deg, rgba(223, 238, 250, 0.72) 0%, rgba(235, 244, 251, 0.88) 100%);
-        border: 1px solid rgba(90, 140, 190, 0.10);
-        border-radius: 24px;
-        padding: 30px 34px;
-        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
-        margin-bottom: 18px;
-    }
-
-    .info-title {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin-bottom: 8px;
-    }
-
-    .info-line {
-        width: 60px;
-        height: 4px;
-        border-radius: 999px;
-        background: #4b95ea;
-        margin-bottom: 22px;
-    }
-
-    .info-text {
-        font-size: 1.08rem;
-        line-height: 1.95;
-        color: #334155;
-    }
-
-        .info-text p {
-            margin-bottom: 16px;
-        }
-
-    /* ВРЪЗКИ */
-    .links-section {
-        max-width: 1200px;
-        margin: 34px auto 0;
-        padding: 0 12px;
-    }
-
-    .links-divider {
-        height: 1px;
-        background: linear-gradient(90deg, rgba(75,149,234,0) 0%, rgba(75,149,234,0.35) 50%, rgba(75,149,234,0) 100%);
-        margin-bottom: 28px;
-    }
-
-    .links-grid {
-        display: grid;
-        grid-template-columns: 1fr 1.2fr 1fr;
-        gap: 36px;
-        align-items: start;
-    }
-
-    .links-col {
-        min-width: 0;
-    }
-
-    .links-heading {
-        margin: 0 0 20px;
-        font-size: 1rem;
-        font-weight: 800;
-        letter-spacing: .18em;
-        text-transform: uppercase;
-        color: #355b86;
-    }
-
-    .links-text {
-        margin: 0 0 18px;
-        color: #475569;
-        font-size: 1.02rem;
-        line-height: 1.85;
-    }
-
-    .links-main {
-        display: inline-block;
-        color: #2563eb;
-        text-decoration: none;
-        font-size: .95rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .12em;
-        transition: .2s ease;
-    }
-
-        .links-main:hover {
-            color: #1d4ed8;
-        }
-
-    .social-row {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 10px;
-    }
-
-    .social-circle {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 1.6px solid #355b86;
-        color: #355b86;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        background: rgba(255,255,255,0.55);
-        transition: .2s ease;
-    }
-
-        .social-circle svg {
-            width: 20px;
-            height: 20px;
-        }
-
-        .social-circle:hover {
-            background: #355b86;
-            color: #ffffff;
-        }
-
-    .social-labels {
-        display: flex;
-        gap: 18px;
-        color: #64748b;
-        font-size: .83rem;
-    }
-
-    /* RESPONSIVE */
-    @@media (max-width: 1100px) {
-        .links-grid
-
-    {
-        grid-template-columns: 1fr;
-        gap: 26px;
-    }
-
-    }
-
-    @@media (max-width: 900px) {
-        .hero-card
-
-    {
-        min-height: 560px;
-    }
-
-    .hero-nav-inner {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-        .hero-nav-inner a {
-            padding: 14px 22px;
-        }
-
-    .hero-search-wrap {
-        width: calc(100% - 40px);
-        padding: 0 0 18px;
-    }
-
-    }
-
-    @@media (max-width: 768px) {
-        .top-strip-inner
-
-    {
-        min-height: 66px;
-    }
-
-    .top-strip-brand {
-        font-size: 1.35rem;
-    }
-
-    .hero-card {
-        min-height: 520px;
-        border-radius: 22px;
-    }
-
-    .hero-nav {
-        top: 0;
-        left: 0;
-        right: 0;
-    }
-
-    .hero-nav-inner {
-        width: 100%;
-    }
-
-        .hero-nav-inner a {
-            flex: 1 1 auto;
-            text-align: center;
-            font-size: .95rem;
-            padding: 14px 12px;
-        }
-
-    .hero-search-form {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .hero-search-button {
-        width: 100%;
-    }
-
-    .info-block {
-        padding: 24px 22px;
-    }
-
-    .info-title {
-        font-size: 1.7rem;
-    }
-
-    .info-text {
-        font-size: 1rem;
-        line-height: 1.85;
-    }
-
-    }
-</style>
-<div class="home-page">
-    <div class="home-shell">
-
-        <div class="hero-wrap">
-            <section class="hero-card">
-
-                <div class="hero-nav">
-                    <div class="hero-nav-inner">
-                        <a asp-controller="Catalog" asp-action="Index">Каталог</a>
-                        <a href="#school-info">За училището</a>
-                        <a href="#library-info">За библиотеката</a>
-                    </div>
+<div class="guest-home-page">
+    <div class="guest-home-container">
+
+        <section class="guest-hero">
+
+            <div class="guest-hero-slider">
+                <img src="/images/school-6.png" class="hero-slide active" />
+                <img src="/images/school-2.png" class="hero-slide" />
+                <img src="/images/school-3.png" class="hero-slide" />
+                <img src="/images/school-4.png" class="hero-slide" />
+                <img src="/images/school-5.png" class="hero-slide" />
+            </div>
+            <div class="guest-hero-left">
+                <div class="guest-hero-badge">
+                    Училищна библиотека • ППМГ „Акад. Никола Обрешков“
                 </div>
 
-                <div class="hero-search-wrap">
-                    <div class="hero-search-panel">
-                        <form method="get" asp-controller="Home" asp-action="Index" class="hero-search-form">
-                            <input type="text"
-                                   name="searchTerm"
-                                   class="hero-search-input"
-                                   placeholder="Търсене по книга, автор, категория или клас..." />
-                            <button type="submit" class="hero-search-button">Търси</button>
-                        </form>
-                    </div>
-                </div>
+                <h1 class="guest-hero-title">
+                    Пространство за четене,
+                    <span class="guest-hero-title-accent">търсене и откриване.</span>
+                </h1>
 
-            </section>
-        </div>
+                <p class="guest-hero-text">
+                    Добре дошли в библиотечната система на училището. Началната страница е създадена
+                    така, че гостът бързо да се ориентира, да отвори каталога и да разгледа наличните
+                    книги в по-ясна и подредена среда.
+                </p>
 
-        <section id="school-info" class="info-area">
-            <div class="info-block">
-                <div class="info-title">За училището</div>
-                <div class="info-line"></div>
-
-                <div class="info-text">
-                    <p>
-                        ППМГ „Акад. Никола Обрешков“ – Разград е училище с утвърдени традиции и силен акцент
-                        върху качественото образование, развитието на учениците и постиженията им в различни области.
-                    </p>
-                    <p>
-                        Училищната среда насърчава стремежа към знание, активното участие в събития,
-                        състезания и инициативи, както и развитието на интереси в различни направления.
-                    </p>
+                <div class="guest-hero-actions">
+                    <a asp-controller="Catalog" asp-action="Index" class="guest-primary-btn">
+                        Разгледай каталога
+                    </a>
                 </div>
             </div>
 
-            <div id="library-info" class="info-block">
-                <div class="info-title">За библиотеката</div>
-                <div class="info-line"></div>
+            <div class="guest-hero-right">
+                <aside class="guest-search-card">
+                    <h2 class="guest-search-title">Бързо търсене</h2>
 
-                <div class="info-text">
-                    <p>
-                        Училищната библиотека предоставя достъп до книги, учебни издания, сборници
-                        и допълнителна литература, подходяща за различни класове и интереси.
+                    <p class="guest-search-subtitle">
+                        Потърси по заглавие, автор, жанр или учебна насоченост.
                     </p>
-                    <p>
-                        Гостите на системата могат свободно да разглеждат каталога и да преглеждат
-                        информация за наличните книги. Регистрацията в системата се извършва на място от библиотекар.
-                    </p>
-                </div>
+
+                    <form method="get" asp-controller="Catalog" asp-action="Index" class="guest-search-form">
+                        <label class="guest-search-label" for="guestSearch">Търси в каталога</label>
+
+                        <div class="guest-search-row">
+                            <input id="guestSearch"
+                                   type="text"
+                                   name="searchTerm"
+                                   class="guest-search-input"
+                                   placeholder="Например: Ботев, роман" />
+                            <button type="submit" class="guest-search-button">Търси</button>
+                        </div>
+                    </form>
+                </aside>
             </div>
         </section>
-
-        <section id="links-info" class="links-section">
-            <div class="links-divider"></div>
-
-            <div class="links-grid">
-                <div class="links-col">
-                    <div class="links-heading">Локация</div>
-                    <p class="links-text">
-                        ППМГ „Акад. Никола Обрешков“ – Разград
-                    </p>
-                    <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
-                       target="_blank"
-                       class="links-main">
-                        Отвори в Google Maps
-                    </a>
-                </div>
-
-                <div class="links-col">
-                    <div class="links-heading">За училището</div>
-                    <p class="links-text">
-                        Училище с традиции, силна подготовка и активен училищен живот.
-                        Официалният сайт съдържа новини, прием, събития и полезна информация.
-                    </p>
-                    <a href="https://www.pmgrz.net/"
-                       target="_blank"
-                       class="links-main">
-                        Към официалния сайт
-                    </a>
-                </div>
-
-                <div class="links-col">
-                    <div class="links-heading">Последвайте ни</div>
-
-                    <div class="social-row">
-                        <a href="https://www.instagram.com/" target="_blank" class="social-circle" aria-label="Instagram">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="2"></rect>
-                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
-                                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"></circle>
-                            </svg>
-                        </a>
-
-                        <a href="https://www.facebook.com/" target="_blank" class="social-circle" aria-label="Facebook">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M14 8H16V5H13.5C10.8 5 9 6.7 9 9.8V12H7V15H9V21H12.5V15H15.2L15.7 12H12.5V10.2C12.5 8.9 13 8 14 8Z" fill="currentColor"></path>
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div class="social-labels">
-                        <span>Instagram</span>
-                        <span>Facebook</span>
+        @if (homeNews.Any())
+        {
+            <section class="school-news-section">
+                <div class="school-news-header">
+                    <div>
+                        <div class="school-news-label">Новини</div>
+                        <h2 class="school-news-title">Актуално в ППМГ</h2>
                     </div>
                 </div>
-            </div>
+
+                <div class="school-news-grid news-count-@homeNews.Count">
+                    @foreach (var item in homeNews)
+                    {
+                        <article class="school-news-card">
+                            <div class="school-news-image-wrap">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@Url.Content(item.ImagePath)" alt="@item.Title" class="school-news-image" />
+                                }
+                            </div>
+
+                            <div class="school-news-body">
+                                <div class="school-news-date">@item.PublishedOn.ToString("dd.MM.yyyy")</div>
+                                <h3 class="school-news-card-title">@item.Title</h3>
+                                <p class="school-news-text">@item.Summary</p>
+
+                                <a href="@item.NewsUrl" target="_blank" class="school-news-button">
+                                    Прочети повече
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+            }
+
+        <section class="guest-section-grid">
+            <article id="about-school" class="guest-section-card">
+                <div class="guest-section-label">За училището</div>
+                <h2 class="guest-section-title">Училищна среда с място за знание и четене</h2>
+                <p class="guest-section-text">
+                    ППМГ „Акад. Никола Обрешков“ – Разград е училище с традиции, академична насоченост
+                    и активен училищен живот. Библиотеката е естествена част от тази среда – пространство,
+                    което подпомага подготовката, любознателността и интереса към литературата.
+                </p>
+
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>По-ясна ориентация за ученици, учители и гости.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Лесен достъп до каталога и основната информация.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, близка до училищен уебсайт, а не до тъмен промоционален landing page.</span></li>
+                </ul>
+            </article>
+
+            <article id="about-library" class="guest-section-card">
+                <div class="guest-section-label">За библиотеката</div>
+                <h2 class="guest-section-title">Достъпна и подредена библиотечна система</h2>
+                <p class="guest-section-text">
+                    Библиотечната система е създадена, за да представя по ясен и подреден начин
+                    наличните книги и основната информация за библиотеката. Началната страница
+                    насочва гостите към най-важното, без излишно повторение и без претрупани елементи.
+                </p>
+
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>Прегледно представяне на библиотечния каталог.</span></li>
+                    <li><span class="guest-list-dot"></span><span>По-лесна ориентация за гости и потребители.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, съобразена с училищната среда и останалата част от проекта.</span></li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="guest-stats">
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Местоположение</h3>
+                <p class="guest-stat-number">01</p>
+                <p class="guest-stat-text">
+                    гр. Разград, ППМГ „Акад. Никола Обрешков“
+                </p>
+                <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
+                   target="_blank"
+                   class="guest-stat-link">
+                    Отвори в Google Maps
+                </a>
+            </article>
+
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Връзка с нас</h3>
+                <p class="guest-stat-number">02</p>
+                <p class="guest-stat-text">
+                    Телефон: 08XXXXXXXX
+                </p>
+                <a href="tel:08XXXXXXXX" class="guest-stat-link">
+                    Обади се
+                </a>
+            </article>
+
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Последвайте училището</h3>
+                <p class="guest-stat-number">03</p>
+                <div class="guest-social-links">
+                    <a href="https://www.facebook.com/" target="_blank" class="guest-stat-link">Facebook</a>
+                    <a href="https://www.instagram.com/" target="_blank" class="guest-stat-link">Instagram</a>
+                    <a href="https://www.pmgrz.net/" target="_blank" class="guest-stat-link">Уебсайт</a>
+                </div>
+            </article>
+            <script>
+                const slides = document.querySelectorAll(".hero-slide");
+                let index = 0;
+
+                setInterval(() => {
+                    slides[index].classList.remove("active");
+                    index = (index + 1) % slides.length;
+                    slides[index].classList.add("active");
+                }, 6000);
+            </script>
         </section>
 
     </div>

@@ -1,11 +1,19 @@
-﻿<nav class="top-strip">
-    <div class="container top-strip-inner">
-        <a class="top-strip-brand" asp-controller="Home" asp-action="Index">
-            Библиотека Обрешков
+﻿<nav class="public-school-nav">
+    <div class="public-school-nav-container">
+        <a class="public-school-brand" asp-controller="Home" asp-action="Index">
+            <span class="public-school-brand-logo">📖</span>
+            <span class="public-school-brand-text">
+                <span class="public-school-brand-title">Училищна библиотека „Обрешков“</span>
+                <span class="public-school-brand-subtitle">ППМГ „Акад. Никола Обрешков“</span>
+            </span>
         </a>
 
-        <div class="top-strip-right">
-            <a asp-area="Identity" asp-page="/Account/Login" class="top-strip-login">Вход</a>
+        <div class="public-school-links">
+            <a asp-controller="Home" asp-action="Index" class="public-school-link">Начало</a>
+            <a asp-controller="Catalog" asp-action="Index" class="public-school-link">Каталог</a>
+            <a href="@Url.Action("Index", "Home")#about-school" class="public-school-link">За училището</a>
+            <a href="@Url.Action("Index", "Home")#about-library" class="public-school-link">За библиотеката</a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="public-school-login">Вход</a>
         </div>
     </div>
 </nav>

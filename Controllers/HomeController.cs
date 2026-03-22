@@ -1,12 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ObreshkovLibrary.Data;
 
 namespace ObreshkovLibrary.Controllers
 {
     public class HomeController : Controller
     {
-        [HttpGet]
-        public IActionResult Index()
+        private readonly ObreshkovLibraryContext _context;
+
+        public HomeController(ObreshkovLibraryContext context)
         {
+            _context = context;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var latestNews = await _context.SchoolNews
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .OrderByDescending(x => x.PublishedOn)
+                .ThenByDescending(x => x.CreatedOn)
+                .Take(3)
+                .ToListAsync();
+            ViewBag.HomeNews = latestNews;
+
             return View();
         }
     }

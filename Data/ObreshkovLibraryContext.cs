@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Models;
 
 namespace ObreshkovLibrary.Data
 {
-    public class ObreshkovLibraryContext : IdentityDbContext<IdentityUser>
+    public class ObreshkovLibraryContext : IdentityDbContext<Microsoft.AspNetCore.Identity.IdentityUser>
     {
         public ObreshkovLibraryContext(DbContextOptions<ObreshkovLibraryContext> options)
             : base(options)
@@ -18,6 +17,7 @@ namespace ObreshkovLibrary.Data
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
+        public DbSet<SchoolNews> SchoolNews { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

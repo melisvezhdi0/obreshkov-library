@@ -4,24 +4,33 @@
     ViewData["Title"] = "Изход";
 }
 
-<header>
-    <h1>@ViewData["Title"]</h1>
-    @{
-        if (User.Identity?.IsAuthenticated ?? false)
+<div style="min-height:60vh; display:flex; align-items:center; justify-content:center; padding:30px 16px;">
+    <div style="width:100%; max-width:520px; background:#ffffff; border:1px solid #d8e1ea; box-shadow:0 10px 24px rgba(15, 23, 42, 0.08); padding:28px;">
+        <h1 style="font-size:1.6rem; margin-bottom:14px; color:#1e293b;">@ViewData["Title"]</h1>
+
+        @if (User.Identity?.IsAuthenticated ?? false)
         {
-            <form class="form-inline"
-                  asp-area="Identity"
+            <p style="color:#475569; margin-bottom:18px;">
+                Сигурна ли си, че искаш да излезеш от профила си?
+            </p>
+
+            <form asp-area="Identity"
                   asp-page="/Account/Logout"
                   asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
                   method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">
-                    Натисни тук за изход
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        style="height:44px; padding:0 18px; border:none; background:#2563eb; color:#ffffff; font-weight:700;">
+                    Изход
                 </button>
             </form>
         }
         else
         {
-            <p>Успешно излезе от профила си.</p>
+            <p style="color:#475569; margin-bottom:0;">
+                Успешно излезе от профила си.
+            </p>
         }
-    }
-</header>
+    </div>
+</div>

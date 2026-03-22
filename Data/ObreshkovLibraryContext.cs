@@ -48,9 +48,29 @@ namespace ObreshkovLibrary.Data
                 .HasForeignKey(r => r.ClientId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Client>().HasQueryFilter(x => x.IsActive);
-            modelBuilder.Entity<Book>().HasQueryFilter(x => x.IsActive);
-            modelBuilder.Entity<Category>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<Category>()
+                .HasOne(c => c.ParentCategory)
+                .WithMany(c => c.Children)
+                .HasForeignKey(c => c.ParentCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Client>()
+                .HasQueryFilter(x => x.IsActive);
+
+            modelBuilder.Entity<Book>()
+                .HasQueryFilter(x => x.IsActive);
+
+            modelBuilder.Entity<Category>()
+                .HasQueryFilter(x => x.IsActive);
+
+            modelBuilder.Entity<BookCopy>()
+                .HasQueryFilter(x => x.IsActive && x.Book.IsActive);
+
+            modelBuilder.Entity<Loan>()
+                .HasQueryFilter(x => x.Client.IsActive && x.BookCopy.IsActive && x.BookCopy.Book.IsActive);
+
+            modelBuilder.Entity<PasswordResetRequest>()
+                .HasQueryFilter(x => x.Client != null && x.Client.IsActive);
         }
     }
 }

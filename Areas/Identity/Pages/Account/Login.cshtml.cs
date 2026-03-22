@@ -66,15 +66,16 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             }
 
             returnUrl ??= Url.Content("~/");
-
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
             ReturnUrl = returnUrl;
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
+            ReturnUrl = returnUrl;
+
+            _logger.LogInformation("RememberMe = {RememberMe}", Input.RememberMe);
 
             if (string.IsNullOrWhiteSpace(Input.SelectedRole))
             {
@@ -96,27 +97,26 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                     return Page();
                 }
 
-                var adminUser = await _userManager.FindByEmailAsync(Input.Email);
+                var email = Input.Email.Trim();
+                var adminUser = await _userManager.FindByEmailAsync(email);
+
                 if (adminUser == null || !await _userManager.IsInRoleAsync(adminUser, "Admin"))
                 {
                     ModelState.AddModelError(string.Empty, "Невалиден администраторски вход.");
                     return Page();
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(
-                    adminUser.UserName,
-                    Input.Password,
-                    Input.RememberMe,
-                    lockoutOnFailure: false);
-
-                if (result.Succeeded)
+                var passwordOk = await _userManager.CheckPasswordAsync(adminUser, Input.Password);
+                if (!passwordOk)
                 {
-                    _logger.LogInformation("Admin logged in.");
-                    return LocalRedirect(Url.Action("Index", "Dashboard") ?? "/Dashboard");
+                    ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
+                    return Page();
                 }
 
-                ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
-                return Page();
+                await SignInUserExplicitlyAsync(adminUser, Input.RememberMe);
+
+                _logger.LogInformation("Admin logged in.");
+                return LocalRedirect(Url.Action("Index", "Dashboard") ?? "/Dashboard");
             }
 
             if (Input.SelectedRole == "Student")
@@ -145,24 +145,44 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                     return Page();
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(
-                    studentUser.UserName,
-                    Input.Password,
-                    Input.RememberMe,
-                    lockoutOnFailure: false);
-
-                if (result.Succeeded)
+                var passwordOk = await _userManager.CheckPasswordAsync(studentUser, Input.Password);
+                if (!passwordOk)
                 {
-                    _logger.LogInformation("Student logged in.");
-                    return LocalRedirect(Url.Action("Index", "Catalog") ?? "/Catalog");
+                    ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
+                    return Page();
                 }
 
-                ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
-                return Page();
+                await SignInUserExplicitlyAsync(studentUser, Input.RememberMe);
+
+                _logger.LogInformation("Student logged in.");
+                return LocalRedirect(Url.Action("Index", "Catalog") ?? "/Catalog");
             }
 
             ModelState.AddModelError(string.Empty, "Невалидна роля.");
             return Page();
+        }
+
+        private async Task SignInUserExplicitlyAsync(IdentityUser user, bool rememberMe)
+        {
+            await _signInManager.SignOutAsync();
+
+            var principal = await _signInManager.CreateUserPrincipalAsync(user);
+
+            var authProperties = new AuthenticationProperties
+            {
+                IsPersistent = rememberMe,
+                AllowRefresh = true
+            };
+
+            if (rememberMe)
+            {
+                authProperties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14);
+            }
+
+            await HttpContext.SignInAsync(
+                IdentityConstants.ApplicationScheme,
+                principal,
+                authProperties);
         }
     }
 }

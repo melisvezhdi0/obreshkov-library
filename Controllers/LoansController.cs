@@ -166,7 +166,7 @@ namespace ObreshkovLibrary.Controllers
                 .AnyAsync(l =>
                     l.ClientId == client.Id &&
                     l.ReturnDate == null &&
-                    l.BookCopy.BookId == book.Id);
+                    l.BookCopy != null && l.BookCopy.BookId == book.Id);
 
             if (alreadyHasThisBook)
             {
@@ -217,6 +217,7 @@ namespace ObreshkovLibrary.Controllers
             {
                 loan.ReturnDate = DateTime.Now;
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Успешно върната книга.";
             }
 
             return RedirectToAction("Details", "Clients", new { id = loan.ClientId });

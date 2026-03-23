@@ -121,19 +121,12 @@
                 <div id="loanModalLabel" style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:4px;">Резултат</div>
                 <div id="loanModalTitle" style="font-size:1.4rem; font-weight:800; color:#0F172A; line-height:1.2;">Преглед на книга</div>
             </div>
-
-            <button type="button"
-                    id="closeLoanPreviewBtn"
-                    aria-label="Затвори"
-                    style="width:40px; height:40px; border-radius:50%; border:1px solid #D7DFEA; background:#FFFFFF; color:#475569; font-size:1.2rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center;">
-                ×
-            </button>
         </div>
 
         <div style="padding:20px;">
             <div id="loanModalEmptyState" style="display:none;">
                 <div style="border:1px dashed #CBD5E1; border-radius:18px; padding:28px 20px; background:#F8FAFC; text-align:center;">
-                    <div style="width:62px; height:62px; border-radius:50%; background:#E2E8F0; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#475569; font-weight:800;">?</div>
+
                     <div id="loanModalEmptyMessage" style="font-size:1.08rem; font-weight:800; color:#0F172A; margin-bottom:8px;">Не са намерени резултати.</div>
                     <div style="color:#64748B; font-weight:600; line-height:1.55;">Провери заглавието или опитай отново с по-точно търсене.</div>
                 </div>
@@ -185,8 +178,22 @@
         <div style="padding:0 20px 20px 20px; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
             <button type="button"
                     id="loanModalCloseSecondaryBtn"
-                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; text-decoration:none; font-weight:800; border:1px solid #CBD5E1; min-width:120px;">
-                Затвори
+                    onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#3B82F6'; this.style.color='#1D4ED8';"
+                    onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569';"
+                    style="
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        min-height:46px;
+        padding:0 1.2rem;
+        border-radius:14px;
+        background:#FFFFFF;
+        color:#475569;
+        text-decoration:none;
+        font-weight:800;
+        border:1px solid #CBD5E1;
+        min-width:120px;">
+                Добре
             </button>
 
             <button type="button"

@@ -1,54 +1,453 @@
 ﻿@model ObreshkovLibrary.Models.ViewModels.LoanCreateVM
 
 @{
-    ViewData["Title"] = "Заемане на книга";
+    ViewData["Title"] = "Нов заем";
 }
 
-<h2>Заемане на книга</h2>
+<div class="loan-create-page" style="width:100%; padding-top:6px;">
 
-<div class="mb-3">
-    <strong>Читател:</strong> @Model.ClientName
-    <span class="ms-3"><strong>№ карта:</strong> @Model.CardNumber</span>
+    <div style="display:flex; align-items:end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <div>
+            <h2 class="section-title mb-1">Нов заем</h2>
+            <div class="accent-line"></div>
+        </div>
+    </div>
+
+    <section class="card-soft" style="padding:20px; background:#FFFFFF; margin-bottom:16px;">
+        <form id="loanSearchForm" method="post" asp-action="ConfirmCreate" style="margin:0;">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" asp-for="ClientId" />
+            <input type="hidden" asp-for="BookId" id="selectedBookId" />
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div style="display:grid; grid-template-columns:minmax(0, 1.3fr) minmax(280px, .7fr); gap:18px;" id="loanMainGrid">
+
+                <div style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:16px; padding:18px;">
+                    <div style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:10px;">Търсене на книга</div>
+
+                    <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; margin-bottom:16px;" id="loanCreateSearchGrid">
+                        <div style="display:flex; flex-direction:column; min-width:0;">
+                            <label asp-for="Title" style="font-weight:700; margin-bottom:6px; color:#0F172A;">Заглавие <span style="color:#2563EB;">(задължително)</span></label>
+                            <input asp-for="Title"
+                                   id="loanTitleInput"
+                                   class="form-control"
+                                   autocomplete="off"
+                                   style="min-height:48px; border-radius:14px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF; padding-left:14px; padding-right:14px; font-weight:600;" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; min-width:0;">
+                            <label asp-for="Author" style="font-weight:700; margin-bottom:6px; color:#0F172A;">Автор <span style="color:#64748B; font-weight:600;">(по желание)</span></label>
+                            <input asp-for="Author"
+                                   id="loanAuthorInput"
+                                   class="form-control"
+                                   autocomplete="off"
+                                   style="min-height:48px; border-radius:14px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF; padding-left:14px; padding-right:14px; font-weight:600;" />
+                            <span asp-validation-for="Author" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;" id="loanCreateActions">
+                        <div id="loanSearchStatus"
+                             style="display:none; min-height:46px; align-items:center; border-radius:14px; padding:0 16px; border:1px solid #DBEAFE; background:#EFF6FF; color:#1D4ED8; font-weight:800;">
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <button type="button"
+                                    id="loanSearchButton"
+                                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:150px;">
+                                Търси
+                            </button>
+
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               asp-route-cardNumber="@Model.CardNumber"
+                               style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; text-decoration:none; font-weight:800; border:1px solid #CBD5E1; min-width:120px;">
+                                Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background:#F8FBFF; border:1px solid #D9E8FF; border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:14px;">
+                    <div>
+                        <div style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:8px;">Читател</div>
+                        <div style="font-size:1.12rem; font-weight:800; color:#0F172A; line-height:1.4;">@Model.ClientName</div>
+                        <div style="margin-top:4px; color:#64748B; font-weight:700;">Ученик</div>
+                    </div>
+
+                    <div style="height:1px; background:#E2E8F0;"></div>
+
+                    <div>
+                        <div style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:8px;">Номер на карта</div>
+                        <div style="font-size:1.05rem; font-weight:800; color:#0F172A;">@Model.CardNumber</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section class="card-soft" style="padding:18px 20px; background:#FFFFFF;">
+        <div style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:10px;">Как работи</div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px;" id="loanHowGrid">
+            <div style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:14px; padding:14px;">
+                <div style="font-size:1rem; font-weight:800; color:#0F172A; margin-bottom:6px;">1. Въведи книга</div>
+                <div style="color:#475569; font-weight:600; line-height:1.5;">Напиши заглавие и при нужда добави автор.</div>
+            </div>
+
+            <div style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:14px; padding:14px;">
+                <div style="font-size:1rem; font-weight:800; color:#0F172A; margin-bottom:6px;">2. Отвори резултата</div>
+                <div style="color:#475569; font-weight:600; line-height:1.5;">Натисни <span style="font-weight:800; color:#0F172A;">Търси</span>, за да видиш намерената книга.</div>
+            </div>
+
+            <div style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:14px; padding:14px;">
+                <div style="font-size:1rem; font-weight:800; color:#0F172A; margin-bottom:6px;">3. Потвърди заема</div>
+                <div style="color:#475569; font-weight:600; line-height:1.5;">Ако има свободно копие, потвърди от прозореца.</div>
+            </div>
+        </div>
+    </section>
 </div>
 
-@if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-{
-    <div class="alert alert-danger">
-        @Model.ErrorMessage
+<div id="loanPreviewOverlay"
+     style="display:none; position:fixed; inset:0; background:rgba(15,23,42,.48); z-index:1200; align-items:center; justify-content:center; padding:20px;">
+    <div id="loanPreviewModal"
+         style="width:min(760px, 100%); background:#FFFFFF; border-radius:22px; box-shadow:0 24px 60px rgba(15,23,42,.22); overflow:hidden; border:1px solid #E2E8F0;">
+
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; padding:18px 20px; border-bottom:1px solid #E5EAF0; background:linear-gradient(180deg,#F8FBFF 0%,#F3F8FF 100%);">
+            <div>
+                <div id="loanModalLabel" style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:4px;">Резултат</div>
+                <div id="loanModalTitle" style="font-size:1.4rem; font-weight:800; color:#0F172A; line-height:1.2;">Преглед на книга</div>
+            </div>
+
+            <button type="button"
+                    id="closeLoanPreviewBtn"
+                    aria-label="Затвори"
+                    style="width:40px; height:40px; border-radius:50%; border:1px solid #D7DFEA; background:#FFFFFF; color:#475569; font-size:1.2rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center;">
+                ×
+            </button>
+        </div>
+
+        <div style="padding:20px;">
+            <div id="loanModalEmptyState" style="display:none;">
+                <div style="border:1px dashed #CBD5E1; border-radius:18px; padding:28px 20px; background:#F8FAFC; text-align:center;">
+                    <div style="width:62px; height:62px; border-radius:50%; background:#E2E8F0; margin:0 auto 14px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; color:#475569; font-weight:800;">?</div>
+                    <div id="loanModalEmptyMessage" style="font-size:1.08rem; font-weight:800; color:#0F172A; margin-bottom:8px;">Не са намерени резултати.</div>
+                    <div style="color:#64748B; font-weight:600; line-height:1.55;">Провери заглавието или опитай отново с по-точно търсене.</div>
+                </div>
+            </div>
+
+            <div id="loanModalBookState" style="display:none;">
+                <div style="display:grid; grid-template-columns:160px minmax(0, 1fr); gap:18px;" id="loanModalBookGrid">
+                    <div style="display:flex; align-items:flex-start; justify-content:center;">
+                        <div style="width:160px; height:230px; border-radius:18px; overflow:hidden; border:1px solid #D7DFEA; background:#F8FAFD; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px rgba(15,23,42,.08);">
+                            <img id="loanModalCover"
+                                 src=""
+                                 alt="Корица"
+                                 style="display:none; width:100%; height:100%; object-fit:cover;" />
+                            <div id="loanModalCoverFallback" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:#94A3B8; font-size:2rem; font-weight:800;">—</div>
+                        </div>
+                    </div>
+
+                    <div style="min-width:0; display:flex; flex-direction:column; gap:14px;">
+                        <div>
+                            <div id="loanModalBookTitle" style="font-size:1.5rem; font-weight:800; color:#0F172A; line-height:1.25; word-break:break-word;"></div>
+                            <div id="loanModalBookAuthor" style="margin-top:8px; color:#475569; font-size:1.02rem; font-weight:700;"></div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px;" id="loanModalInfoGrid">
+                            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                <div style="font-size:.78rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:6px;">Жанр</div>
+                                <div id="loanModalGenre" style="font-weight:800; color:#0F172A; line-height:1.4;"></div>
+                            </div>
+
+                            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                <div style="font-size:.78rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:6px;">Подкатегория</div>
+                                <div id="loanModalCategory" style="font-weight:800; color:#0F172A; line-height:1.4;"></div>
+                            </div>
+
+                            <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                <div style="font-size:.78rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:6px;">Наличност</div>
+                                <div id="loanModalAvailability" style="font-weight:800; color:#0F172A; line-height:1.4;"></div>
+                            </div>
+                        </div>
+
+                        <div id="loanModalMessageBox"
+                             style="border-radius:14px; padding:14px 16px; border:1px solid #DBEAFE; background:#EFF6FF; color:#1D4ED8; font-weight:800; line-height:1.5;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding:0 20px 20px 20px; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
+            <button type="button"
+                    id="loanModalCloseSecondaryBtn"
+                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; text-decoration:none; font-weight:800; border:1px solid #CBD5E1; min-width:120px;">
+                Затвори
+            </button>
+
+            <button type="button"
+                    id="loanConfirmButton"
+                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:160px;">
+                Заеми
+            </button>
+        </div>
     </div>
-}
-
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-
-    <input type="hidden" asp-for="ClientId" />
-
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <div class="mb-3">
-        <label asp-for="Title" class="form-label">Заглавие (задължително)</label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Author" class="form-label">Автор (по желание)</label>
-        <input asp-for="Author" class="form-control" />
-        <span asp-validation-for="Author" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-success">Заеми книга</button>
-    <a asp-controller="Home"
-       asp-action="Index"
-       asp-route-cardNumber="@Model.CardNumber"
-       class="btn btn-secondary ms-2">
-        Назад
-    </a>
-</form>
+</div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
 
+    <script>
+        (() => {
+            const searchButton = document.getElementById('loanSearchButton');
+            const confirmButton = document.getElementById('loanConfirmButton');
+            const form = document.getElementById('loanSearchForm');
+            const titleInput = document.getElementById('loanTitleInput');
+            const authorInput = document.getElementById('loanAuthorInput');
+            const bookIdInput = document.getElementById('selectedBookId');
+            const statusBox = document.getElementById('loanSearchStatus');
+            const overlay = document.getElementById('loanPreviewOverlay');
+            const closeButtons = [
+                document.getElementById('closeLoanPreviewBtn'),
+                document.getElementById('loanModalCloseSecondaryBtn')
+            ];
+            const emptyState = document.getElementById('loanModalEmptyState');
+            const bookState = document.getElementById('loanModalBookState');
+            const emptyMessage = document.getElementById('loanModalEmptyMessage');
+            const modalLabel = document.getElementById('loanModalLabel');
+            const modalTitle = document.getElementById('loanModalTitle');
+            const modalBookTitle = document.getElementById('loanModalBookTitle');
+            const modalBookAuthor = document.getElementById('loanModalBookAuthor');
+            const modalGenre = document.getElementById('loanModalGenre');
+            const modalCategory = document.getElementById('loanModalCategory');
+            const modalAvailability = document.getElementById('loanModalAvailability');
+            const modalMessageBox = document.getElementById('loanModalMessageBox');
+            const modalCover = document.getElementById('loanModalCover');
+            const modalCoverFallback = document.getElementById('loanModalCoverFallback');
+
+            function setStatus(message, type) {
+                if (!message) {
+                    statusBox.style.display = 'none';
+                    statusBox.textContent = '';
+                    return;
+                }
+
+                statusBox.style.display = 'inline-flex';
+                statusBox.textContent = message;
+
+                if (type === 'error') {
+                    statusBox.style.background = '#FEF2F2';
+                    statusBox.style.borderColor = '#FECACA';
+                    statusBox.style.color = '#B91C1C';
+                } else if (type === 'success') {
+                    statusBox.style.background = '#ECFDF5';
+                    statusBox.style.borderColor = '#BBF7D0';
+                    statusBox.style.color = '#15803D';
+                } else {
+                    statusBox.style.background = '#EFF6FF';
+                    statusBox.style.borderColor = '#DBEAFE';
+                    statusBox.style.color = '#1D4ED8';
+                }
+            }
+
+            function openModal() {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            function resetModal() {
+                emptyState.style.display = 'none';
+                bookState.style.display = 'none';
+                confirmButton.style.display = 'inline-flex';
+                confirmButton.disabled = false;
+                modalCover.style.display = 'none';
+                modalCover.removeAttribute('src');
+                modalCoverFallback.style.display = 'flex';
+            }
+
+            function showEmptyModal(message) {
+                resetModal();
+                modalLabel.textContent = 'Резултат от търсенето';
+                modalTitle.textContent = 'Няма намерени книги';
+                emptyMessage.textContent = message || 'Не са намерени резултати.';
+                emptyState.style.display = 'block';
+                confirmButton.style.display = 'none';
+                bookIdInput.value = '';
+                openModal();
+            }
+
+            function showBookModal(data) {
+                resetModal();
+                modalLabel.textContent = 'Намерена книга';
+                modalTitle.textContent = 'Потвърждение на заем';
+                modalBookTitle.textContent = data.title || '';
+                modalBookAuthor.textContent = data.author ? `Автор: ${data.author}` : 'Автор: —';
+                modalGenre.textContent = data.genre || 'Без жанр';
+                modalCategory.textContent = data.category || 'Без подкатегория';
+                modalAvailability.textContent = data.availableCopies > 0
+                    ? `${data.availableCopies} свободни копия`
+                    : 'Няма свободни копия';
+                modalMessageBox.textContent = data.message || '';
+
+                if (data.coverPath) {
+                    modalCover.src = data.coverPath;
+                    modalCover.style.display = 'block';
+                    modalCoverFallback.style.display = 'none';
+                }
+
+                bookState.style.display = 'block';
+                bookIdInput.value = data.bookId || '';
+
+                if (data.hasAvailableCopy) {
+                    confirmButton.style.display = 'inline-flex';
+                    confirmButton.disabled = false;
+                    modalMessageBox.style.background = '#EFF6FF';
+                    modalMessageBox.style.borderColor = '#DBEAFE';
+                    modalMessageBox.style.color = '#1D4ED8';
+                } else {
+                    confirmButton.style.display = 'none';
+                    modalMessageBox.style.background = '#FEF2F2';
+                    modalMessageBox.style.borderColor = '#FECACA';
+                    modalMessageBox.style.color = '#B91C1C';
+                }
+
+                openModal();
+            }
+
+            async function searchBook() {
+                const title = titleInput.value.trim();
+                const author = authorInput.value.trim();
+
+                if (!title) {
+                    setStatus('Въведи заглавие, за да продължиш.', 'error');
+                    titleInput.focus();
+                    return;
+                }
+
+                bookIdInput.value = '';
+                setStatus('Търсене на книга...', 'info');
+                searchButton.disabled = true;
+                searchButton.textContent = 'Търсене...';
+
+                        try { const url = new URL('@Url.Action("SearchBook", "Loans")', window.location.origin);
+        url.searchParams.set('title', title);
+        url.searchParams.set('clientId', '@Model.ClientId');
+
+        if (author) {
+            url.searchParams.set('author', author);
+        }
+                    if (author) {
+                        url.searchParams.set('author', author);
+                    }
+
+                    const response = await fetch(url.toString(), {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error('Грешка при търсенето.');
+                    }
+
+                           if (!data.found) {
+            setStatus(data.message || 'Не са намерени резултати.', 'error');
+            showEmptyModal(data.message || 'Не са намерени резултати.');
+            return;
+        }
+
+        if (data.alreadyTaken) {
+            setStatus('', 'info');
+            showEmptyModal(data.message || 'Ученикът вече има заета тази книга.');
+            return;
+        }
+
+        setStatus(data.message || 'Книгата е намерена.', data.hasAvailableCopy ? 'success' : 'error');
+        showBookModal(data);
+
+                } catch (error) {
+                    setStatus('Възникна проблем при търсенето. Опитай отново.', 'error');
+                    showEmptyModal('Възникна проблем при търсенето. Опитай отново.');
+                } finally {
+                    searchButton.disabled = false;
+                    searchButton.textContent = 'Търси';
+                }
+            }
+
+            searchButton.addEventListener('click', searchBook);
+
+            form.addEventListener('submit', (event) => {
+                if (!bookIdInput.value) {
+                    event.preventDefault();
+                    setStatus('Първо потърси книга и отвори резултата.', 'error');
+                }
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (!bookIdInput.value) {
+                    setStatus('Няма избрана книга за заемане.', 'error');
+                    closeModal();
+                    return;
+                }
+
+                form.submit();
+            });
+
+            closeButtons.forEach(btn => btn && btn.addEventListener('click', closeModal));
+
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && overlay.style.display === 'flex') {
+                    closeModal();
+                }
+            });
+
+            function applyLoanResponsive() {
+                const mainGrid = document.getElementById('loanMainGrid');
+                const searchGrid = document.getElementById('loanCreateSearchGrid');
+                const howGrid = document.getElementById('loanHowGrid');
+                const modalBookGrid = document.getElementById('loanModalBookGrid');
+                const modalInfoGrid = document.getElementById('loanModalInfoGrid');
+                const actions = document.getElementById('loanCreateActions');
+
+                if (window.innerWidth <= 900) {
+                    if (mainGrid) mainGrid.style.gridTemplateColumns = '1fr';
+                    if (searchGrid) searchGrid.style.gridTemplateColumns = '1fr';
+                    if (howGrid) howGrid.style.gridTemplateColumns = '1fr';
+                    if (modalBookGrid) modalBookGrid.style.gridTemplateColumns = '1fr';
+                    if (modalInfoGrid) modalInfoGrid.style.gridTemplateColumns = '1fr';
+                    if (actions) actions.style.justifyContent = 'stretch';
+                } else {
+                    if (mainGrid) mainGrid.style.gridTemplateColumns = 'minmax(0, 1.3fr) minmax(280px, .7fr)';
+                    if (searchGrid) searchGrid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+                    if (howGrid) howGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                    if (modalBookGrid) modalBookGrid.style.gridTemplateColumns = '160px minmax(0, 1fr)';
+                    if (modalInfoGrid) modalInfoGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                    if (actions) actions.style.justifyContent = 'space-between';
+                }
+            }
+
+            applyLoanResponsive();
+            window.addEventListener('resize', applyLoanResponsive);
+        })();
+    </script>
+}

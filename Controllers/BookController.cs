@@ -369,8 +369,8 @@ namespace ObreshkovLibrary.Controllers
                 Level1Id = level1Id,
                 Level2Id = level2Id,
                 CopiesCount = Math.Max(1, await _context.BookCopies
-                    .IgnoreQueryFilters()
-                    .CountAsync(c => c.BookId == book.Id)),
+         .IgnoreQueryFilters()
+         .CountAsync(c => c.BookId == book.Id)),
                 SelectedTagValues = TagsToSelectedValues(book.Tags)
             };
 
@@ -423,6 +423,7 @@ namespace ObreshkovLibrary.Controllers
             book.Author = vm.Author;
             book.Year = vm.Year;
             book.Description = vm.Description;
+            book.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
             book.CategoryId = finalCategoryId.Value;
             book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
 

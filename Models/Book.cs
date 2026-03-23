@@ -21,6 +21,8 @@ namespace ObreshkovLibrary.Models
 
         public string? CoverPath { get; set; }
 
+        public string? SchoolClass { get; set; }
+
         public BookTags Tags { get; set; } = BookTags.None;
 
         public bool IsActive { get; set; } = true;

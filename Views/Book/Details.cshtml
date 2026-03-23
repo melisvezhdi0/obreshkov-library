@@ -123,14 +123,20 @@
 
                     <div class="book-info-row">
                         <div class="book-info-label">Година</div>
-                        <div class="book-info-value">
-                            @(Model.Year.HasValue? Model.Year.ToString() : "Няма")
-                        </div>
+                        <div class="book-info-value">@Model.Year</div>
                     </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.SchoolClass))
+                    {
+                        <div class="book-info-row">
+                            <div class="book-info-label">Клас</div>
+                            <div class="book-info-value">@Model.SchoolClass</div>
+                        </div>
+                    }
 
                     <div class="book-info-row">
                         <div class="book-info-label">Копия</div>
-                        <div class="book-info-value">@copies.Count</div>
+                        <div class="book-info-value">@Model.Copies.Count</div>
                     </div>
 
                     <div class="book-info-row">

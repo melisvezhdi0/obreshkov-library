@@ -21,6 +21,8 @@ namespace ObreshkovLibrary.Models.ViewModels
         public string? CurrentCoverPath { get; set; }
         public IFormFile? CoverFile { get; set; }
 
+        public string? SchoolClass { get; set; }
+
         public int? Level1Id { get; set; }
         public int? Level2Id { get; set; }
 

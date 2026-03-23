@@ -26,6 +26,15 @@
 
             <input type="hidden" name="Id" value="@ViewBag.BookId" />
             <input asp-for="CurrentCoverPath" type="hidden" />
+            <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
+            <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
+
+            <div id="selectedTagsHiddenInputs">
+                @foreach (var selectedTag in Model.SelectedTagValues)
+                {
+                    <input type="hidden" name="SelectedTagValues" value="@selectedTag" />
+                }
+            </div>
 
             <div style="display:grid; grid-template-columns:minmax(0, 1.8fr) minmax(300px, 0.95fr); gap:22px; align-items:start;"
                  class="book-edit-main-layout">
@@ -56,7 +65,7 @@
                                 <span asp-validation-for="Author" class="text-danger"></span>
                             </div>
 
-                            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px;"
                                  class="book-edit-two-col-nested">
                                 <div style="display:flex; flex-direction:column;">
                                     <label asp-for="Year" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Година</label>
@@ -75,6 +84,15 @@
                                            class="form-control"
                                            style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
                                     <span asp-validation-for="CopiesCount" class="text-danger"></span>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="SchoolClass" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Клас</label>
+                                    <input asp-for="SchoolClass"
+                                           class="form-control"
+                                           placeholder="по желание"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="SchoolClass" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -109,9 +127,6 @@
                                 Избери категория
                             </button>
                         </div>
-
-                        <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
-                        <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
                     </div>
 
                     <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
@@ -160,7 +175,23 @@
                             Корица
                         </div>
 
-                        <div style="display:flex; flex-direction:column;">
+                        <div id="coverPreviewBox"
+                             style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                            <div style="font-weight:700; color:#334155;">Текуща / нова корица</div>
+
+                            <div style="width:100%; padding:16px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; display:flex; justify-content:center; align-items:center; min-height:280px;">
+                                <img id="coverPreviewImage"
+                                     src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
+                                     alt="Корица"
+                                     style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:block;") max-width:100%; max-height:320px; border-radius:14px; object-fit:cover; border:1px solid #E2E8F0;" />
+                                <span id="coverPreviewEmpty"
+                                      style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:block;" : "display:none;") color:#94A3B8; font-weight:700;">
+                                    Няма избрана корица
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; margin-top:14px;">
                             <label asp-for="CoverFile" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Качи нова корица</label>
                             <input asp-for="CoverFile"
                                    type="file"
@@ -171,20 +202,8 @@
                             <span asp-validation-for="CoverFile" class="text-danger"></span>
                         </div>
 
-                        <div style="color:#64748B; font-size:.95rem; margin-top:8px; margin-bottom:14px;">
+                        <div style="color:#64748B; font-size:.95rem; margin-top:8px;">
                             Поддържани формати: JPG, PNG, WEBP
-                        </div>
-
-                        <div id="coverPreviewBox"
-                             style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:flex;") flex-direction:column; gap:12px; margin-top:8px;">
-                            <div style="font-weight:700; color:#334155;">Текуща / нова корица</div>
-
-                            <div style="width:100%; padding:16px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; display:flex; justify-content:center; align-items:center; min-height:280px;">
-                                <img id="coverPreviewImage"
-                                     src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
-                                     alt="Корица"
-                                     style="max-width:100%; max-height:320px; border-radius:14px; object-fit:cover; border:1px solid #E2E8F0;" />
-                            </div>
                         </div>
                     </div>
 
@@ -267,9 +286,9 @@
                                 </button>
 
                                 <button type="button"
-                                        data-bs-dismiss="modal"
+                                        id="btnSaveCategory"
                                         style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
-                                    Готово
+                                    Запази
                                 </button>
                             </div>
                         </div>
@@ -313,7 +332,6 @@
                                            style="margin:0; padding:12px 14px; border:1px solid #E2E8F0; border-radius:12px; background:#F8FAFC; display:flex; align-items:center;">
                                         <input class="tag-checkbox"
                                                type="checkbox"
-                                               name="SelectedTagValues"
                                                value="@opt.Value"
                                                id="tagopt_@i"
                                                data-name="@opt.Text"
@@ -322,6 +340,14 @@
                                         <span style="margin-left:10px;">@opt.Text</span>
                                     </label>
                                 }
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;" class="book-edit-modal-actions">
+                                <button type="button"
+                                        id="btnSaveTags"
+                                        style="min-height:42px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
+                                    Запази
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -335,6 +361,9 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+        const categoryModalEl = document.getElementById('categoryPickerModal');
+        const tagsModalEl = document.getElementById('tagsPickerModal');
+
         const level1Hidden = document.getElementById('Level1Hidden');
         const level2Hidden = document.getElementById('Level2Hidden');
         const categoryPreview = document.getElementById('categoryPreview');
@@ -342,6 +371,12 @@
         const level2List = document.getElementById('level2List');
         const catSearch = document.getElementById('catSearch');
         const clearCategoryBtn = document.getElementById('btnClearCategory');
+        const saveCategoryBtn = document.getElementById('btnSaveCategory');
+
+        let tempLevel1Id = level1Hidden.value || '';
+        let tempLevel2Id = level2Hidden.value || '';
+        let tempLevel1Name = '';
+        let tempLevel2Name = '';
 
         function renderCategoryPreview(level1Name, level2Name) {
             if (!level1Name) {
@@ -359,16 +394,16 @@
             return await r.json();
         }
 
-        async function selectLevel1(btn, preserveLevel2 = false) {
-            level1Hidden.value = btn.dataset.id;
+        async function renderLevel2(parentId, parentName) {
+            level2List.innerHTML = '';
 
-            if (!preserveLevel2) {
-                level2Hidden.value = '';
-                renderCategoryPreview(btn.dataset.name, '');
+            if (!parentId) {
+                tempLevel2Id = '';
+                tempLevel2Name = '';
+                return;
             }
 
-            const children = await loadChildren(btn.dataset.id);
-            level2List.innerHTML = '';
+            const children = await loadChildren(parentId);
 
             children.forEach(c => {
                 const childBtn = document.createElement('button');
@@ -382,22 +417,78 @@
                 childBtn.style.borderRadius = '12px';
                 childBtn.style.fontWeight = '700';
                 childBtn.style.padding = '10px 12px';
+                childBtn.dataset.categoryId = c.id;
 
-                if (String(level2Hidden.value) === String(c.id)) {
-                    renderCategoryPreview(btn.dataset.name, c.name);
+                if (String(tempLevel2Id) === String(c.id)) {
+                    childBtn.style.borderColor = '#3B82F6';
+                    childBtn.style.background = '#EFF6FF';
+                    tempLevel2Name = c.name;
                 }
 
                 childBtn.onclick = () => {
-                    level2Hidden.value = c.id;
-                    renderCategoryPreview(btn.dataset.name, c.name);
+                    tempLevel2Id = String(c.id);
+                    tempLevel2Name = c.name;
+
+                    [...level2List.querySelectorAll('button')].forEach(x => {
+                        x.style.borderColor = '#D6E0EA';
+                        x.style.background = '#FFFFFF';
+                    });
+
+                    childBtn.style.borderColor = '#3B82F6';
+                    childBtn.style.background = '#EFF6FF';
                 };
 
                 level2List.appendChild(childBtn);
             });
+
+            if (!children.length) {
+                tempLevel2Id = '';
+                tempLevel2Name = '';
+            }
+        }
+
+        async function selectTempLevel1(btn) {
+            tempLevel1Id = btn.dataset.id;
+            tempLevel1Name = btn.dataset.name;
+            tempLevel2Id = '';
+            tempLevel2Name = '';
+
+            level1Buttons.forEach(x => {
+                x.style.borderColor = '#D6E0EA';
+                x.style.background = '#FFFFFF';
+            });
+
+            btn.style.borderColor = '#3B82F6';
+            btn.style.background = '#EFF6FF';
+
+            await renderLevel2(tempLevel1Id, tempLevel1Name);
+        }
+
+        async function syncCategoryModalFromCommitted() {
+            tempLevel1Id = level1Hidden.value || '';
+            tempLevel2Id = level2Hidden.value || '';
+            tempLevel1Name = '';
+            tempLevel2Name = '';
+
+            level1Buttons.forEach(x => {
+                x.style.borderColor = '#D6E0EA';
+                x.style.background = '#FFFFFF';
+            });
+
+            const selectedLevel1Btn = [...level1Buttons].find(b => String(b.dataset.id) === String(tempLevel1Id));
+
+            if (selectedLevel1Btn) {
+                tempLevel1Name = selectedLevel1Btn.dataset.name;
+                selectedLevel1Btn.style.borderColor = '#3B82F6';
+                selectedLevel1Btn.style.background = '#EFF6FF';
+                await renderLevel2(tempLevel1Id, tempLevel1Name);
+            } else {
+                level2List.innerHTML = '';
+            }
         }
 
         level1Buttons.forEach(btn => {
-            btn.addEventListener('click', () => selectLevel1(btn));
+            btn.addEventListener('click', () => selectTempLevel1(btn));
         });
 
         if (catSearch) {
@@ -411,19 +502,39 @@
 
         if (clearCategoryBtn) {
             clearCategoryBtn.addEventListener('click', () => {
-                level1Hidden.value = '';
-                level2Hidden.value = '';
+                tempLevel1Id = '';
+                tempLevel2Id = '';
+                tempLevel1Name = '';
+                tempLevel2Name = '';
                 level2List.innerHTML = '';
-                renderCategoryPreview('', '');
+                level1Buttons.forEach(x => {
+                    x.style.borderColor = '#D6E0EA';
+                    x.style.background = '#FFFFFF';
+                });
             });
         }
 
-        const selectedLevel1Btn = [...level1Buttons].find(b => String(b.dataset.id) === String(level1Hidden.value));
-        if (selectedLevel1Btn) {
-            selectLevel1(selectedLevel1Btn, true);
-            if (!level2Hidden.value) {
-                renderCategoryPreview(selectedLevel1Btn.dataset.name, '');
-            }
+        if (saveCategoryBtn) {
+            saveCategoryBtn.addEventListener('click', () => {
+                level1Hidden.value = tempLevel1Id || '';
+                level2Hidden.value = tempLevel2Id || '';
+                renderCategoryPreview(tempLevel1Name, tempLevel2Name);
+
+                const modalInstance = bootstrap.Modal.getInstance(categoryModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
+
+        if (categoryModalEl) {
+            categoryModalEl.addEventListener('show.bs.modal', async () => {
+                if (catSearch) {
+                    catSearch.value = '';
+                }
+                level1Buttons.forEach(btn => btn.style.display = 'block');
+                await syncCategoryModalFromCommitted();
+            });
         }
 
         const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
@@ -431,15 +542,22 @@
         const tagsCount = document.getElementById('selectedTagsCount');
         const tagsSearch = document.getElementById('tagsSearch');
         const tagItems = document.querySelectorAll('.tag-item');
+        const saveTagsBtn = document.getElementById('btnSaveTags');
+        const hiddenTagsContainer = document.getElementById('selectedTagsHiddenInputs');
 
-        function renderTags() {
+        let committedTagValues = Array.from(hiddenTagsContainer.querySelectorAll('input[name="SelectedTagValues"]'))
+            .map(x => String(x.value));
+
+        function renderCommittedTagsPreview() {
             tagsPreview.innerHTML = '';
-            const selected = [...tagCheckboxes].filter(x => x.checked);
-            tagsCount.textContent = selected.length;
+            tagsCount.textContent = committedTagValues.length;
 
-            selected.forEach(item => {
+            committedTagValues.forEach(value => {
+                const checkbox = [...tagCheckboxes].find(x => String(x.value) === String(value));
+                if (!checkbox) return;
+
                 const chip = document.createElement('span');
-                chip.textContent = item.dataset.name;
+                chip.textContent = checkbox.dataset.name;
                 chip.style.display = 'inline-block';
                 chip.style.padding = '7px 12px';
                 chip.style.background = '#ECFEFF';
@@ -451,8 +569,22 @@
             });
         }
 
-        tagCheckboxes.forEach(cb => cb.addEventListener('change', renderTags));
-        renderTags();
+        function syncTagsModalFromCommitted() {
+            tagCheckboxes.forEach(cb => {
+                cb.checked = committedTagValues.includes(String(cb.value));
+            });
+        }
+
+        function writeCommittedTagsToHiddenInputs() {
+            hiddenTagsContainer.innerHTML = '';
+            committedTagValues.forEach(value => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedTagValues';
+                input.value = value;
+                hiddenTagsContainer.appendChild(input);
+            });
+        }
 
         if (tagsSearch) {
             tagsSearch.addEventListener('input', () => {
@@ -463,23 +595,52 @@
             });
         }
 
+        if (saveTagsBtn) {
+            saveTagsBtn.addEventListener('click', () => {
+                committedTagValues = [...tagCheckboxes]
+                    .filter(x => x.checked)
+                    .map(x => String(x.value));
+
+                writeCommittedTagsToHiddenInputs();
+                renderCommittedTagsPreview();
+
+                const modalInstance = bootstrap.Modal.getInstance(tagsModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
+
+        if (tagsModalEl) {
+            tagsModalEl.addEventListener('show.bs.modal', () => {
+                if (tagsSearch) {
+                    tagsSearch.value = '';
+                }
+                tagItems.forEach(item => item.style.display = 'flex');
+                syncTagsModalFromCommitted();
+            });
+        }
+
+        renderCommittedTagsPreview();
+
         const coverInput = document.getElementById('coverFileInput');
-        const coverPreviewBox = document.getElementById('coverPreviewBox');
         const coverPreviewImage = document.getElementById('coverPreviewImage');
+        const coverPreviewEmpty = document.getElementById('coverPreviewEmpty');
+        const currentSrc = '@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")';
 
         if (coverInput) {
             coverInput.addEventListener('change', () => {
                 const file = coverInput.files && coverInput.files[0];
 
                 if (!file) {
-                    const currentSrc = '@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")';
-
                     if (currentSrc) {
                         coverPreviewImage.src = currentSrc;
-                        coverPreviewBox.style.display = 'flex';
+                        coverPreviewImage.style.display = 'block';
+                        if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'none';
                     } else {
                         coverPreviewImage.src = '';
-                        coverPreviewBox.style.display = 'none';
+                        coverPreviewImage.style.display = 'none';
+                        if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'block';
                     }
                     return;
                 }
@@ -487,11 +648,19 @@
                 const reader = new FileReader();
                 reader.onload = e => {
                     coverPreviewImage.src = e.target.result;
-                    coverPreviewBox.style.display = 'flex';
+                    coverPreviewImage.style.display = 'block';
+                    if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'none';
                 };
                 reader.readAsDataURL(file);
             });
         }
+
+        (async function initCommittedCategoryPreview() {
+            if (level1Hidden.value) {
+                await syncCategoryModalFromCommitted();
+                renderCategoryPreview(tempLevel1Name, tempLevel2Name);
+            }
+        })();
 
         function applyResponsiveEditLayout() {
             const mainLayout = document.querySelector('.book-edit-main-layout');
@@ -529,7 +698,7 @@
                 });
             } else {
                 document.querySelectorAll('.book-edit-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
-                document.querySelectorAll('.book-edit-two-col-nested').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-two-col-nested').forEach(x => x.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))');
                 document.querySelectorAll('.book-edit-modal-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
                 document.querySelectorAll('.book-edit-tags-grid').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
                 actionBars.forEach(x => {

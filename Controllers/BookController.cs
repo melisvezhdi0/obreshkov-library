@@ -176,6 +176,7 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Recent(string? search, string? sort)
         {
             var monthAgo = DateTime.Now.AddMonths(-1);
@@ -230,6 +231,7 @@ namespace ObreshkovLibrary.Controllers
             return View(books);
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             var book = await _context.Books
@@ -369,8 +371,8 @@ namespace ObreshkovLibrary.Controllers
                 Level1Id = level1Id,
                 Level2Id = level2Id,
                 CopiesCount = Math.Max(1, await _context.BookCopies
-         .IgnoreQueryFilters()
-         .CountAsync(c => c.BookId == book.Id)),
+                    .IgnoreQueryFilters()
+                    .CountAsync(c => c.BookId == book.Id)),
                 SelectedTagValues = TagsToSelectedValues(book.Tags)
             };
 

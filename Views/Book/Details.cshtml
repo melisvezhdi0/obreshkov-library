@@ -1,276 +1,683 @@
-﻿@model ObreshkovLibrary.Models.Book
+﻿@model ObreshkovLibrary.Models.ViewModels.CatalogIndexVM
 @using ObreshkovLibrary.Models
+@using System.Linq
 
 @{
-    ViewData["Title"] = "Детайли за книга";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    ViewData["Title"] = "Каталог";
 
-    var activeLoanCopyIds = ViewBag.ActiveLoanCopyIds as List<int> ?? new List<int>();
-    var copies = Model.Copies?.OrderBy(c => c.Id).ToList() ?? new List<ObreshkovLibrary.Models.BookCopy>();
+    var categories = Model.Categories ?? new List<Category>();
+    var byParent = categories
+        .OrderBy(c => c.Name)
+        .ToLookup(c => c.ParentCategoryId);
 
-    var coverPathProp = Model.GetType().GetProperty("CoverPath");
-    var coverUrlProp = Model.GetType().GetProperty("CoverUrl");
-    var coverValue = coverPathProp?.GetValue(Model)?.ToString() ?? coverUrlProp?.GetValue(Model)?.ToString();
+    var rootCategories = byParent[null].OrderBy(c => c.Name).ToList();
 
-    string? subCategoryName = Model.Category?.Name;
-    string? parentCategoryName = Model.Category?.ParentCategory?.Name;
+    var openIds = new HashSet<int>();
 
-    string genreText = "Няма";
-
-    if (!string.IsNullOrWhiteSpace(parentCategoryName) && !string.IsNullOrWhiteSpace(subCategoryName))
+    if (Model.SelectedCategoryId.HasValue)
     {
-        genreText = $"{parentCategoryName} - {subCategoryName}";
+        var current = categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId.Value);
+        while (current != null)
+        {
+            openIds.Add(current.Id);
+            current = current.ParentCategoryId.HasValue
+                ? categories.FirstOrDefault(c => c.Id == current.ParentCategoryId.Value)
+                : null;
+        }
     }
-    else if (!string.IsNullOrWhiteSpace(subCategoryName))
+
+    ViewData["ByParent"] = byParent;
+    ViewData["SelectedCategoryId"] = Model.SelectedCategoryId;
+    ViewData["OpenIds"] = openIds;
+
+    string GetCoverValue(Book book)
     {
-        genreText = subCategoryName!;
+        return book.CoverPath ?? string.Empty;
     }
-
-    var selectedTags = Enum.GetValues(typeof(BookTags))
-        .Cast<BookTags>()
-        .Where(t => t != BookTags.None && Model.Tags.HasFlag(t))
-        .ToList();
-
-    string TagToBg(BookTags t) => t switch
-    {
-        BookTags.Classic => "Класика",
-        BookTags.Romance => "Любовен",
-        BookTags.Drama => "Драма",
-        BookTags.Fantasy => "Фентъзи",
-        BookTags.Horror => "Ужаси",
-        BookTags.Bulgarian => "Българска литература",
-        BookTags.Foreign => "Чужда литература",
-        BookTags.SchoolLiterature => "Училищна литература",
-        _ => t.ToString()
-    };
 }
 
-<div class="book-details-page">
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger mb-4">@TempData["Error"]</div>
+<style>
+    .catalog-page {
+        width: 100%;
+        min-height: calc(100vh - 78px);
+        padding: 26px 0 40px;
+        background: #f3f6fa;
     }
 
-    <div class="book-details-header">
-        <div>
-            <h2 class="section-title mb-1">@Model.Title</h2>
-            <div class="accent-line"></div>
-        </div>
+        .catalog-page,
+        .catalog-page * {
+            box-sizing: border-box;
+        }
 
-        <div class="book-details-actions">
-            <a asp-controller="Book"
-               asp-action="Edit"
-               asp-route-id="@Model.Id"
-               class="btn btn-accent">
-                Редактирай
-            </a>
+    .catalog-container {
+        width: min(1240px, calc(100% - 32px));
+        margin: 0 auto;
+    }
 
-            <a asp-controller="Book"
+    .catalog-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .catalog-title-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .catalog-title {
+        margin: 0;
+        font-size: 3rem;
+        line-height: 1.04;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: #13294b;
+    }
+
+    .catalog-accent-line {
+        width: 58px;
+        height: 4px;
+        border-radius: 999px;
+        background: #3b82f6;
+    }
+
+    .catalog-back-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border-radius: 14px;
+        border: 1px solid #c8d5e3;
+        background: #ffffff;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 800;
+        transition: .18s ease;
+    }
+
+        .catalog-back-link:hover {
+            color: #1d4ed8;
+            background: #f8fbff;
+            border-color: #a9c8f5;
+            transform: translateY(-1px);
+        }
+
+    .catalog-layout {
+        display: grid;
+        grid-template-columns: 310px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .catalog-sidebar {
+        position: sticky;
+        top: 92px;
+        background: #ffffff;
+        border: 1px solid #d9e2eb;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .catalog-sidebar-head {
+        padding: 18px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #dee6ee;
+        color: #64748b;
+        font-size: .84rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+    }
+
+    .catalog-sidebar-body {
+        background: #ffffff;
+    }
+
+    .catalog-all-link {
+        display: block;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e8eef5;
+        text-decoration: none;
+        color: #0f172a;
+        font-weight: 800;
+        transition: .15s ease;
+    }
+
+        .catalog-all-link:hover {
+            color: #2563eb;
+            background: #f8fbff;
+        }
+
+        .catalog-all-link.active {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+    .catalog-sidebar-empty {
+        padding: 18px 20px 20px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .catalog-tree-wrap {
+        padding: 8px 0 10px;
+    }
+
+    .catalog-tree-node {
+        border-bottom: 1px solid #eef2f6;
+    }
+
+        .catalog-tree-node:last-child {
+            border-bottom: none;
+        }
+
+    .catalog-tree-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 60px;
+        padding: 0 10px 0 14px;
+    }
+
+    .catalog-tree-toggle {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d4dfeb;
+        border-radius: 10px;
+        background: #ffffff;
+        color: #3b82f6;
+        font-size: 1.08rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: .15s ease;
+    }
+
+        .catalog-tree-toggle:hover {
+            background: #eef4ff;
+            border-color: #bfd7ff;
+        }
+
+    .catalog-tree-toggle-plus {
+        display: inline;
+        line-height: 1;
+    }
+
+    .catalog-tree-toggle-minus {
+        display: none;
+        line-height: 1;
+    }
+
+    .catalog-tree-node.open > .catalog-tree-row .catalog-tree-toggle-plus {
+        display: none;
+    }
+
+    .catalog-tree-node.open > .catalog-tree-row .catalog-tree-toggle-minus {
+        display: inline;
+    }
+
+    .catalog-tree-branch {
+        width: 20px;
+        height: 18px;
+        margin: -8px 8px 0 10px;
+        flex: 0 0 auto;
+        border-left: 1.5px solid #c8d4e2;
+        border-bottom: 1.5px solid #c8d4e2;
+    }
+
+    .catalog-tree-link {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        min-height: 42px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #0f172a;
+        font-size: 1rem;
+        line-height: 1.35;
+        font-weight: 800;
+        transition: .15s ease;
+    }
+
+        .catalog-tree-link:hover {
+            background: #f8fbff;
+            color: #2563eb;
+        }
+
+    .catalog-tree-node.selected > .catalog-tree-row > .catalog-tree-link {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .catalog-tree-children {
+        display: none;
+        padding-bottom: 6px;
+    }
+
+    .catalog-tree-node.open > .catalog-tree-children {
+        display: block;
+    }
+
+    .catalog-tree-children .catalog-tree-row {
+        padding-left: 26px;
+    }
+
+    .catalog-tree-children .catalog-tree-children .catalog-tree-row {
+        padding-left: 42px;
+    }
+
+    .catalog-content-area {
+        min-width: 0;
+    }
+
+    .catalog-panel {
+        background: #ffffff;
+        border: 1px solid #d9e2eb;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    .catalog-filter-panel {
+        padding: 16px;
+        margin-bottom: 18px;
+    }
+
+    .catalog-filter-form {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .catalog-search-wrap {
+        position: relative;
+        flex: 1 1 340px;
+        min-width: 0;
+    }
+
+    .catalog-search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    .catalog-search-input {
+        width: 100%;
+        height: 50px;
+        padding: 0 16px 0 40px;
+        border: 1px solid #d8e1ea;
+        border-radius: 16px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 600;
+        outline: none;
+        appearance: none;
+    }
+
+        .catalog-search-input:focus {
+            border-color: #9fc4ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.10);
+        }
+
+    .catalog-sort-select {
+        width: 220px;
+        min-width: 220px;
+        height: 50px;
+        padding: 0 14px;
+        border: 1px solid #d8e1ea;
+        border-radius: 16px;
+        background: #ffffff;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+        outline: none;
+        appearance: none;
+    }
+
+        .catalog-sort-select:focus {
+            border-color: #9fc4ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.10);
+        }
+
+    .catalog-apply-btn {
+        width: 112px;
+        min-width: 112px;
+        height: 50px;
+        border: none;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #5da8ef 0%, #3f86e7 100%);
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: .18s ease;
+    }
+
+        .catalog-apply-btn:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(180deg, #4f9dea 0%, #357cde 100%);
+        }
+
+    .catalog-books-panel {
+        padding: 20px;
+    }
+
+    .catalog-books-head {
+        margin-bottom: 16px;
+    }
+
+    .catalog-books-title {
+        margin: 0;
+        color: #13294b;
+        font-size: 2rem;
+        line-height: 1.08;
+        font-weight: 900;
+        letter-spacing: -0.015em;
+    }
+
+    .catalog-empty-state {
+        padding: 10px 0;
+        color: #64748b;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .catalog-books-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 22px;
+    }
+
+    .catalog-book-link {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 10px 10px 12px;
+        border-radius: 18px;
+        text-decoration: none;
+        color: inherit;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+        .catalog-book-link:hover {
+            background: #ffffff;
+            box-shadow: 0 14px 28px rgba(59, 130, 246, 0.14);
+            transform: translateY(-5px);
+        }
+
+    .catalog-book-cover-box {
+        width: 100%;
+        height: 255px;
+        border-radius: 14px;
+        background: #f8fafc;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .catalog-book-cover-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform .18s ease;
+    }
+
+    .catalog-book-link:hover .catalog-book-cover-image {
+        transform: scale(1.04);
+    }
+
+    .catalog-book-no-cover {
+        color: #94a3b8;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+
+    .catalog-book-title {
+        color: #0f172a;
+        font-size: 1.04rem;
+        line-height: 1.3;
+        font-weight: 900;
+    }
+
+    .catalog-book-author {
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.35;
+        font-weight: 600;
+    }
+
+    @@media (max-width: 1240px) {
+        .catalog-books-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 980px) {
+        .catalog-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .catalog-sidebar {
+            position: static;
+        }
+
+        .catalog-books-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 640px) {
+        .catalog-container {
+            width: min(100%, calc(100% - 18px));
+        }
+
+        .catalog-title {
+            font-size: 2.35rem;
+        }
+
+        .catalog-filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .catalog-sort-select,
+        .catalog-apply-btn {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .catalog-books-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="catalog-page">
+    <div class="catalog-container">
+        <div class="catalog-header">
+            <div class="catalog-title-wrap">
+                <h1 class="catalog-title">Каталог</h1>
+                <div class="catalog-accent-line"></div>
+            </div>
+
+            <a asp-controller="Home"
                asp-action="Index"
-               class="btn btn-outline-primary">
+               class="catalog-back-link">
                 Назад
             </a>
         </div>
+
+        <div class="catalog-layout">
+            <aside class="catalog-sidebar">
+                <div class="catalog-sidebar-head">Категории</div>
+
+                <div class="catalog-sidebar-body">
+                    <a asp-controller="Catalog"
+                       asp-action="Index"
+                       asp-route-search="@Model.Search"
+                       asp-route-sort="@Model.Sort"
+                       class="catalog-all-link @(Model.SelectedCategoryId == null ? "active" : "")">
+                        Всички книги
+                    </a>
+
+                    @if (!rootCategories.Any())
+                    {
+                        <div class="catalog-sidebar-empty">Няма добавени категории.</div>
+                    }
+                    else
+                    {
+                        <div class="catalog-tree-wrap" id="catalogTree">
+                            @foreach (var category in rootCategories)
+                            {
+                                <partial name="_CategoryTreeNode" model="category" view-data="ViewData" />
+                            }
+                        </div>
+                    }
+                </div>
+            </aside>
+
+            <section class="catalog-content-area">
+                <section class="catalog-panel catalog-filter-panel">
+                    <form method="get" asp-action="Index" class="catalog-filter-form">
+                        <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
+
+                        <div class="catalog-search-wrap">
+                            <span class="catalog-search-icon">⌕</span>
+                            <input type="text"
+                                   name="search"
+                                   value="@Model.Search"
+                                   placeholder="Търси по заглавие, автор, жанр или категория..."
+                                   class="catalog-search-input" />
+                        </div>
+
+                        <select name="sort" class="catalog-sort-select">
+                            @if (Model.Sort == "date_desc")
+                            {
+                                <option value="date_desc" selected>Най-нови първо</option>
+                            }
+                            else
+                            {
+                                <option value="date_desc">Най-нови първо</option>
+                            }
+
+                            @if (Model.Sort == "date_asc")
+                            {
+                                <option value="date_asc" selected>Най-стари първо</option>
+                            }
+                            else
+                            {
+                                <option value="date_asc">Най-стари първо</option>
+                            }
+
+                            @if (Model.Sort == "name_asc")
+                            {
+                                <option value="name_asc" selected>Име А-Я</option>
+                            }
+                            else
+                            {
+                                <option value="name_asc">Име А-Я</option>
+                            }
+
+                            @if (Model.Sort == "name_desc")
+                            {
+                                <option value="name_desc" selected>Име Я-А</option>
+                            }
+                            else
+                            {
+                                <option value="name_desc">Име Я-А</option>
+                            }
+                        </select>
+
+                        <button type="submit" class="catalog-apply-btn">Приложи</button>
+                    </form>
+                </section>
+
+                <section class="catalog-panel catalog-books-panel">
+                    <div class="catalog-books-head">
+                        <h2 class="catalog-books-title">@Model.SelectedCategoryName</h2>
+                    </div>
+
+                    @if (!Model.Books.Any())
+                    {
+                        <div class="catalog-empty-state">
+                            Няма намерени книги за тази категория.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="catalog-books-grid">
+                            @foreach (var book in Model.Books)
+                            {
+                                var coverValue = GetCoverValue(book);
+
+                                <a asp-controller="Book"
+                                   asp-action="Details"
+                                   asp-route-id="@book.Id"
+                                   class="catalog-book-link">
+                                    <div class="catalog-book-cover-box">
+                                        @if (!string.IsNullOrWhiteSpace(coverValue))
+                                        {
+                                            <img src="@coverValue"
+                                                 alt="@book.Title"
+                                                 class="catalog-book-cover-image" />
+                                        }
+                                        else
+                                        {
+                                            <span class="catalog-book-no-cover">Няма корица</span>
+                                        }
+                                    </div>
+
+                                    <div class="catalog-book-title">@book.Title</div>
+                                    <div class="catalog-book-author">@book.Author</div>
+                                </a>
+                            }
+                        </div>
+                    }
+                </section>
+            </section>
+        </div>
     </div>
-
-    <section class="details-panel card-soft book-main-panel">
-        <div class="book-top-layout">
-
-            <div class="book-cover-column">
-                <div class="book-cover-box">
-                    @if (!string.IsNullOrWhiteSpace(coverValue))
-                    {
-                        <img src="@coverValue"
-                             alt="@Model.Title"
-                             onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
-                    }
-                </div>
-            </div>
-
-            <div class="book-info-column">
-                <div class="book-info-grid">
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Автор</div>
-                        <div class="book-info-value">
-                            @(string.IsNullOrWhiteSpace(Model.Author) ? "Няма" : Model.Author)
-                        </div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Жанр</div>
-                        <div class="book-info-value">@genreText</div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Етикети</div>
-                        <div class="book-info-value">
-                            @if (selectedTags.Any())
-                            {
-                                <div class="tags-inline-wrap">
-                                    @foreach (var tag in selectedTags)
-                                    {
-                                        <span class="tag-chip">@TagToBg(tag)</span>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <span>Няма</span>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Година</div>
-                        <div class="book-info-value">@Model.Year</div>
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.SchoolClass))
-                    {
-                        <div class="book-info-row">
-                            <div class="book-info-label">Клас</div>
-                            <div class="book-info-value">@Model.SchoolClass</div>
-                        </div>
-                    }
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Копия</div>
-                        <div class="book-info-value">@Model.Copies.Count</div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Статус</div>
-                        <div class="book-info-value">
-                            @if (Model.IsActive)
-                            {
-                                <span class="status-badge status-active">Активна</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge status-inactive">Неактивна</span>
-                            }
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <section class="details-panel card-soft book-description-panel">
-        <div class="details-panel-head">
-            <h5 class="section-title mb-0">Описание</h5>
-        </div>
-
-        <div class="book-description-wrap">
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
-            {
-                <div class="book-description">@Model.Description</div>
-            }
-            else
-            {
-                <div class="details-empty-state">Няма описание за тази книга.</div>
-            }
-        </div>
-    </section>
-
-    <section class="details-panel card-soft copies-panel">
-        <div class="details-panel-head details-panel-head-flex">
-            <h5 class="section-title mb-0">Копия</h5>
-            <span class="count-badge">@copies.Count</span>
-        </div>
-
-        @if (!copies.Any())
-        {
-            <div class="details-empty-state">
-                Няма добавени копия.
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table details-table align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th>Копие</th>
-                            <th>Наличност</th>
-                            <th>Състояние</th>
-                            <th class="text-end">Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var copy in copies)
-                        {
-                            var isLoaned = activeLoanCopyIds.Contains(copy.Id);
-
-                            <tr>
-                                <td class="copy-id-cell">Копие #@copy.Id</td>
-
-                                <td>
-                                    @if (!copy.IsActive)
-                                    {
-                                        <span class="status-badge status-inactive">Недостъпно</span>
-                                    }
-                                    else if (isLoaned)
-                                    {
-                                        <span class="status-badge status-loaned">Заето</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-active">Свободно</span>
-                                    }
-                                </td>
-
-                                <td>
-                                    @if (copy.IsActive)
-                                    {
-                                        <span class="copy-state-text">Активно</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="copy-state-text muted-text">Неактивно</span>
-                                    }
-                                </td>
-
-                                <td class="text-end">
-                                    @if (!copy.IsActive)
-                                    {
-                                        <form asp-action="ReactivateCopy"
-                                              asp-route-id="@copy.Id"
-                                              method="post"
-                                              style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                Активирай
-                                            </button>
-                                        </form>
-                                    }
-                                    else if (!isLoaned)
-                                    {
-                                        <form asp-action="DeactivateCopy"
-                                              asp-route-id="@copy.Id"
-                                              method="post"
-                                              data-gate="1"
-                                              style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                Деактивирай
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <span class="muted-text small">Няма действие</span>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </section>
-
 </div>
+
+<script>
+    (function () {
+        const tree = document.getElementById('catalogTree');
+        if (!tree) return;
+
+        tree.addEventListener('click', function (e) {
+            const toggle = e.target.closest('.catalog-tree-toggle');
+            if (!toggle) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const node = toggle.closest('.catalog-tree-node');
+            if (!node) return;
+
+            node.classList.toggle('open');
+            toggle.setAttribute(
+                'aria-expanded',
+                node.classList.contains('open') ? 'true' : 'false'
+            );
+        });
+    })();
+</script>

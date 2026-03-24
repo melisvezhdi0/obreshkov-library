@@ -1,0 +1,54 @@
+﻿@model ObreshkovLibrary.Models.Category
+@using ObreshkovLibrary.Models
+@using System.Linq
+
+@{
+    var byParent = ViewData["ByParent"] as ILookup<int?, Category>
+                   ?? Enumerable.Empty<Category>().ToLookup(x => (int?)x.ParentCategoryId);
+
+    var selectedCategoryId = ViewData["SelectedCategoryId"] as int?;
+    var openIds = ViewData["OpenIds"] as HashSet<int> ?? new HashSet<int>();
+
+    var children = byParent[Model.Id].OrderBy(c => c.Name).ToList();
+    var hasChildren = children.Any();
+    var isOpen = openIds.Contains(Model.Id);
+    var isSelected = selectedCategoryId == Model.Id;
+}
+
+<div class="catalog-tree-node @(hasChildren ? "has-children" : "") @(isOpen ? "open" : "") @(isSelected ? "selected" : "")">
+    <div class="catalog-tree-row">
+        @if (hasChildren)
+        {
+            <button type="button"
+                    class="catalog-tree-toggle"
+                    aria-expanded="@(isOpen ? "true" : "false")"
+                    aria-label="Покажи или скрий подкатегориите">
+                <span class="catalog-tree-toggle-plus">+</span>
+                <span class="catalog-tree-toggle-minus">−</span>
+            </button>
+        }
+        else
+        {
+            <span class="catalog-tree-branch" aria-hidden="true"></span>
+        }
+
+        <a asp-controller="Catalog"
+           asp-action="Index"
+           asp-route-categoryId="@Model.Id"
+           asp-route-search="@Context.Request.Query["search"]"
+           asp-route-sort="@Context.Request.Query["sort"]"
+           class="catalog-tree-link">
+            @Model.Name
+        </a>
+    </div>
+
+    @if (hasChildren)
+    {
+        <div class="catalog-tree-children">
+            @foreach (var child in children)
+            {
+                <partial name="_CategoryTreeNode" model="child" view-data="ViewData" />
+            }
+        </div>
+    }
+</div>

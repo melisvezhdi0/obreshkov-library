@@ -63,6 +63,7 @@ namespace ObreshkovLibrary.Controllers
         {
             var news = await _context.SchoolNews
                 .AsNoTracking()
+                .Where(n => n.IsActive)
                 .OrderBy(n => n.DisplayOrder)
                 .ThenByDescending(n => n.PublishedOn)
                 .ThenByDescending(n => n.CreatedOn)
@@ -124,7 +125,9 @@ namespace ObreshkovLibrary.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
-            var entity = await _context.SchoolNews.FirstOrDefaultAsync(x => x.Id == id);
+            var entity = await _context.SchoolNews
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (entity == null)
                 return NotFound();
 
@@ -210,12 +213,10 @@ namespace ObreshkovLibrary.Controllers
             if (entity == null)
                 return NotFound();
 
-            DeleteImage(entity.ImagePath);
-
-            _context.SchoolNews.Remove(entity);
+            entity.IsActive = false;
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Новината е изтрита успешно.";
+            TempData["SuccessMessage"] = "Новината е архивирана успешно.";
             return RedirectToAction(nameof(Index));
         }
     }

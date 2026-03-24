@@ -96,50 +96,18 @@
         </form>
     </section>
 
-    <section style="display:grid; grid-template-columns:repeat(7,1fr); gap:12px; margin-bottom:1rem;">
-        <a asp-action="Books" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Книги</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.BooksCount</div>
-        </a>
-
-        <a asp-action="Clients" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Читатели</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.ClientsCount</div>
-        </a>
-
-        <a asp-action="Categories" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Категории</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.CategoriesCount</div>
-        </a>
-
-        <a asp-action="Copies" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Копия</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.CopiesCount</div>
-        </a>
-
-        <a asp-action="Loans" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Заеми</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.LoansCount</div>
-        </a>
-
-        <a asp-action="SchoolNews" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Актуално в ППМГ</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.SchoolNewsCount</div>
-        </a>
-
-        <a asp-action="PasswordRequests" class="card-soft" style="text-decoration:none; padding:18px 16px; color:#1F2937;">
-            <div style="font-size:.84rem; text-transform:uppercase; letter-spacing:.04em; color:#6B7280; font-weight:800;">Пароли</div>
-            <div style="margin-top:10px; font-size:1.7rem; font-weight:900;">@Model.PasswordRequestsCount</div>
-        </a>
+    <section style="margin-bottom:1rem;">
+        <div style="height:46px; display:flex; align-items:center; padding:0 18px; background:linear-gradient(90deg, #3B82F6 0%, #2563EB 100%); color:#fff; font-weight:800; letter-spacing:.02em; border-radius:14px;">
+            Последно архивирани
+        </div>
     </section>
 
     <section style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани книги</h5>
+                <h5 class="section-title mb-0">Книги</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentBooks.Any())
                 {
@@ -160,9 +128,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани читатели</h5>
+                <h5 class="section-title mb-0">Читатели</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentClients.Any())
                 {
@@ -183,9 +150,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани категории</h5>
+                <h5 class="section-title mb-0">Категории</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentCategories.Any())
                 {
@@ -208,9 +174,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани копия</h5>
+                <h5 class="section-title mb-0">Копия</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentCopies.Any())
                 {
@@ -231,9 +196,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани заеми</h5>
+                <h5 class="section-title mb-0">Заеми</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentLoans.Any())
                 {
@@ -254,9 +218,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно архивирани новини</h5>
+                <h5 class="section-title mb-0">Новини</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentSchoolNews.Any())
                 {
@@ -277,9 +240,8 @@
 
         <div class="card-soft" style="padding:0; overflow:hidden;">
             <div style="padding:1rem 1.2rem; border-bottom:1px solid #D9E0E7; background:#FBFCFD;">
-                <h5 class="section-title mb-0">Последно обработени заявки за парола</h5>
+                <h5 class="section-title mb-0">Заявки за парола</h5>
             </div>
-
             <div style="padding:.25rem 1.2rem 1rem;">
                 @if (!Model.RecentPasswordRequests.Any())
                 {

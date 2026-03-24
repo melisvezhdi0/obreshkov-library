@@ -265,26 +265,26 @@
         else
         {
             <div id="latestBooksRow"
-                 style="display:flex; justify-content:center; gap:14px; flex-wrap:nowrap;">
+                 style="display:flex; justify-content:center; gap:18px; flex-wrap:nowrap;">
 
                 @foreach (var b in Model.LatestBookTitles.Take(5))
                 {
                     <a href="@Url.Action("Details", "Book", new { id = b.Id })"
                        class="latest-book-item"
-                       style="width:130px; min-width:130px;
-                                  display:flex; flex-direction:column; align-items:center;
-                                  text-decoration:none; color:inherit;
-                                  border:1px solid #e2e8f0; border-radius:12px;
-                                  background:#f8fbff; padding:10px;
-                                  transition:.18s ease;">
+                       style="width:146px; min-width:146px;
+                              display:flex; flex-direction:column; align-items:center;
+                              text-decoration:none; color:inherit;
+                              background:transparent; padding:6px 4px;
+                              transition:transform .18s ease, box-shadow .18s ease;"
+                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 24px rgba(15,23,42,0.10)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
 
-                        <div style="width:100%; height:180px;
-                                        display:flex; align-items:center; justify-content:center;
-                                        background:#ffffff;
-                                        border:1px solid #e2e8f0;
-                                        border-radius:10px;
-                                        overflow:hidden;
-                                        margin-bottom:8px;">
+                        <div style="width:100%; height:208px;
+                                    display:flex; align-items:center; justify-content:center;
+                                    background:#ffffff;
+                                    border-radius:12px;
+                                    overflow:hidden;
+                                    margin-bottom:10px;">
 
                             <img src="@b.CoverPath"
                                  alt="@b.Title"
@@ -292,7 +292,7 @@
                                  onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;color:#94a3b8;font-size:11px;font-weight:700;&quot;>Няма корица</span>';" />
                         </div>
 
-                        <div style="text-align:center; font-weight:700; font-size:13px; line-height:1.25;">
+                        <div style="text-align:center; font-weight:700; font-size:14px; line-height:1.3; color:#0f172a;">
                             @b.Title
                         </div>
                     </a>

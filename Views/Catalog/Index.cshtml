@@ -7,11 +7,11 @@
     ViewData["Title"] = "Каталог";
 
     var categories = Model.Categories ?? new List<Category>();
-    var byParent = categories
-        .OrderBy(c => c.Name)
-        .ToLookup(c => c.ParentCategoryId);
 
-    var rootCategories = byParent[null].OrderBy(c => c.Name).ToList();
+    var rootCategories = categories
+        .Where(c => c.ParentCategoryId == null)
+        .OrderBy(c => c.Name)
+        .ToList();
 
     var openIds = new HashSet<int>();
 
@@ -21,85 +21,191 @@
         while (current != null)
         {
             openIds.Add(current.Id);
-
             current = current.ParentCategoryId.HasValue
                 ? categories.FirstOrDefault(c => c.Id == current.ParentCategoryId.Value)
                 : null;
         }
     }
 
-    ViewData["ByParent"] = byParent;
-    ViewData["SelectedCategoryId"] = Model.SelectedCategoryId;
-    ViewData["OpenIds"] = openIds;
-
     string GetCoverValue(Book book)
     {
         return book.CoverPath ?? string.Empty;
     }
+
+    List<Category> GetChildren(int parentId)
+    {
+        return categories
+            .Where(c => c.ParentCategoryId == parentId)
+            .OrderBy(c => c.Name)
+            .ToList();
+    }
 }
 
-<div class="catalog-page">
-    <div class="catalog-container">
+<div style="width:100%; min-height:calc(100vh - 78px); padding:24px 0 36px; background:#F3F6F9;">
+    <div style="width:min(1280px, calc(100% - 40px)); margin:0 auto;">
 
-        <div class="catalog-header">
-            <div>
-                <h2 class="section-title mb-1">Каталог</h2>
-                <div class="accent-line"></div>
-            </div>
+        <div style="display:grid; grid-template-columns:290px minmax(0, 1fr); gap:22px; align-items:start;"
+             class="catalog-main-grid">
 
-            <a asp-controller="Home"
-               asp-action="Index"
-               class="catalog-back-link">
-                Назад
-            </a>
-        </div>
+            <aside style="position:sticky; top:92px; align-self:start; min-height:620px; border:1px solid #D6DEE7; background:#EEF2F6;"
+                   class="catalog-sidebar-box">
 
-        <div class="catalog-layout">
+                <div style="padding:16px 18px 14px; border-bottom:1px solid #D6DEE7; background:#E7ECF2; color:#617487; font-size:.8rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase;">
+                    Категории
+                </div>
 
-            <aside class="catalog-sidebar card-soft">
-                <div class="catalog-sidebar-head">Категории</div>
-
-                <div class="catalog-sidebar-body">
+                <div>
                     <a asp-controller="Catalog"
                        asp-action="Index"
                        asp-route-search="@Model.Search"
                        asp-route-sort="@Model.Sort"
-                       class="catalog-all-link @(Model.SelectedCategoryId == null ? "active" : "")">
+                       style="display:block; padding:15px 18px; border-bottom:1px solid #DCE4EC; text-decoration:none; font-size:.98rem; font-weight:900; color:@(Model.SelectedCategoryId == null ? "#2563EB" : "#203754"); background:@(Model.SelectedCategoryId == null ? "#E3EBF7" : "transparent");">
                         Всички книги
                     </a>
 
                     @if (!rootCategories.Any())
                     {
-                        <div class="catalog-sidebar-empty">Няма добавени категории.</div>
+                        <div style="padding:16px 18px 18px; color:#6B7C8E; font-weight:600;">
+                            Няма добавени категории.
+                        </div>
                     }
                     else
                     {
-                        <div class="catalog-tree-wrap" id="catalogTree">
-                            @foreach (var category in rootCategories)
+                        <div id="catalogTree" style="padding:6px 0 8px;">
+                            @foreach (var root in rootCategories)
                             {
-                                <partial name="_CategoryTreeNode" model="category" view-data="ViewData" />
+                                var rootChildren = GetChildren(root.Id);
+                                var rootHasChildren = rootChildren.Any();
+                                var rootIsOpen = openIds.Contains(root.Id);
+                                var rootIsSelected = Model.SelectedCategoryId == root.Id;
+
+                                <div style="border-bottom:1px solid #DCE4EC;">
+                                    <div style="display:flex; align-items:center; gap:10px; min-height:58px; padding:0 14px;">
+
+                                        @if (rootHasChildren)
+                                        {
+                                            <button type="button"
+                                                    class="tree-toggle-btn"
+                                                    data-target="cat-@root.Id"
+                                                    aria-expanded="@(rootIsOpen ? "true" : "false")"
+                                                    style="width:34px; height:34px; flex:0 0 34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #C7D2DE; background:#F8FAFC; color:#3B82F6; font-size:1rem; font-weight:900; cursor:pointer;"
+                                                    onmouseover="this.style.background='#FFFFFF';"
+                                                    onmouseout="this.style.background='#F8FAFC';">
+                                                <span class="tree-plus" style="display:@(rootIsOpen ? "none" : "inline"); line-height:1;">+</span>
+                                                <span class="tree-minus" style="display:@(rootIsOpen ? "inline" : "none"); line-height:1;">−</span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span style="width:18px; height:16px; margin:-7px 8px 0 9px; flex:0 0 auto; border-left:1.5px solid #C0CCD8; border-bottom:1.5px solid #C0CCD8;"></span>
+                                        }
+
+                                        <a asp-controller="Catalog"
+                                           asp-action="Index"
+                                           asp-route-categoryId="@root.Id"
+                                           asp-route-search="@Model.Search"
+                                           asp-route-sort="@Model.Sort"
+                                           style="flex:1 1 auto; min-width:0; display:flex; align-items:center; min-height:40px; padding:8px 11px; text-decoration:none; font-size:.98rem; line-height:1.3; font-weight:800; color:@(rootIsSelected ? "#2563EB" : "#203754"); background:@(rootIsSelected ? "#E3EBF7" : "transparent");">
+                                            @root.Name
+                                        </a>
+                                    </div>
+
+                                    @if (rootHasChildren)
+                                    {
+                                        <div id="cat-@root.Id" style="display:@(rootIsOpen ? "block" : "none"); padding-bottom:6px;">
+                                            @foreach (var child in rootChildren)
+                                            {
+                                                var childChildren = GetChildren(child.Id);
+                                                var childHasChildren = childChildren.Any();
+                                                var childIsOpen = openIds.Contains(child.Id);
+                                                var childIsSelected = Model.SelectedCategoryId == child.Id;
+
+                                                <div style="border-top:1px solid #E5EBF1;">
+                                                    <div style="display:flex; align-items:center; gap:10px; min-height:50px; padding:0 14px 0 28px;">
+
+                                                        @if (childHasChildren)
+                                                        {
+                                                            <button type="button"
+                                                                    class="tree-toggle-btn"
+                                                                    data-target="cat-@child.Id"
+                                                                    aria-expanded="@(childIsOpen ? "true" : "false")"
+                                                                    style="width:34px; height:34px; flex:0 0 34px; display:inline-flex; align-items:center; justify-content:center; border:1px solid #C7D2DE; background:#F8FAFC; color:#3B82F6; font-size:1rem; font-weight:900; cursor:pointer;">
+                                                                <span class="tree-plus" style="display:@(childIsOpen ? "none" : "inline"); line-height:1;">+</span>
+                                                                <span class="tree-minus" style="display:@(childIsOpen ? "inline" : "none"); line-height:1;">−</span>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span style="width:18px; height:16px; margin:-7px 8px 0 9px; flex:0 0 auto; border-left:1.5px solid #C0CCD8; border-bottom:1.5px solid #C0CCD8;"></span>
+                                                        }
+
+                                                        <a asp-controller="Catalog"
+                                                           asp-action="Index"
+                                                           asp-route-categoryId="@child.Id"
+                                                           asp-route-search="@Model.Search"
+                                                           asp-route-sort="@Model.Sort"
+                                                           style="flex:1 1 auto; min-width:0; display:flex; align-items:center; min-height:38px; padding:8px 10px; text-decoration:none; font-size:.95rem; line-height:1.3; font-weight:800; color:@(childIsSelected ? "#2563EB" : "#2B476A"); background:@(childIsSelected ? "#E3EBF7" : "transparent");">
+                                                            @child.Name
+                                                        </a>
+                                                    </div>
+
+                                                    @if (childHasChildren)
+                                                    {
+                                                        <div id="cat-@child.Id" style="display:@(childIsOpen ? "block" : "none"); padding-bottom:6px;">
+                                                            @foreach (var grandChild in childChildren)
+                                                            {
+                                                                var grandIsSelected = Model.SelectedCategoryId == grandChild.Id;
+
+                                                                <div style="border-top:1px solid #EAEFF4;">
+                                                                    <div style="display:flex; align-items:center; gap:10px; min-height:46px; padding:0 14px 0 44px;">
+                                                                        <span style="width:18px; height:16px; margin:-7px 8px 0 9px; flex:0 0 auto; border-left:1.5px solid #C0CCD8; border-bottom:1.5px solid #C0CCD8;"></span>
+
+                                                                        <a asp-controller="Catalog"
+                                                                           asp-action="Index"
+                                                                           asp-route-categoryId="@grandChild.Id"
+                                                                           asp-route-search="@Model.Search"
+                                                                           asp-route-sort="@Model.Sort"
+                                                                           style="flex:1 1 auto; min-width:0; display:flex; align-items:center; min-height:36px; padding:8px 10px; text-decoration:none; font-size:.93rem; line-height:1.3; font-weight:800; color:@(grandIsSelected ? "#2563EB" : "#425A77"); background:@(grandIsSelected ? "#E3EBF7" : "transparent");">
+                                                                            @grandChild.Name
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                             }
                         </div>
                     }
                 </div>
             </aside>
 
-            <section class="catalog-content-area">
+            <section style="min-width:0;">
 
-                <section class="card-soft catalog-filter-panel">
-                    <form method="get" asp-action="Index" class="catalog-filter-form">
+                <section style="border:1px solid #D7DFE7; background:#FFFFFF; padding:14px; margin-bottom:18px;">
+                    <form method="get"
+                          asp-action="Index"
+                          style="display:grid; grid-template-columns:minmax(0, 1fr) 230px 118px; gap:12px; align-items:center; width:100%;"
+                          class="catalog-filter-grid">
+
                         <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
 
-                        <div class="catalog-search-wrap">
-                            <span class="catalog-search-icon">⌕</span>
+                        <div style="position:relative; min-width:0;">
+                            <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#96A4B5; font-size:1rem; pointer-events:none;">⌕</span>
+
                             <input type="text"
                                    name="search"
                                    value="@Model.Search"
                                    placeholder="Търси по заглавие, автор, жанр или категория..."
-                                   class="catalog-search-input" />
+                                   style="width:100%; height:50px; padding:0 16px 0 40px; border:1px solid #D7DFE7; background:#FFFFFF; color:#17325C; font-size:.98rem; font-weight:700; outline:none;" />
                         </div>
 
-                        <select name="sort" class="catalog-sort-select">
+                        <select name="sort"
+                                style="width:100%; height:50px; padding:0 14px; border:1px solid #D7DFE7; background:#FFFFFF; color:#0F172A; font-size:.98rem; font-weight:800; outline:none;">
                             @if (Model.Sort == "date_desc")
                             {
                                 <option value="date_desc" selected>Най-нови първо</option>
@@ -137,24 +243,33 @@
                             }
                         </select>
 
-                        <button type="submit" class="catalog-apply-btn">Приложи</button>
+                        <button type="submit"
+                                style="width:100%; height:50px; border:none; background:linear-gradient(180deg, #5EA7EE 0%, #3F86E7 100%); color:#FFFFFF; font-size:.98rem; font-weight:900; cursor:pointer;"
+                                onmouseover="this.style.filter='brightness(0.96)'"
+                                onmouseout="this.style.filter='brightness(1)'">
+                            Приложи
+                        </button>
                     </form>
                 </section>
 
-                <section class="card-soft catalog-books-panel">
-                    <div class="catalog-books-head">
-                        <h3 class="catalog-books-title">@Model.SelectedCategoryName</h3>
+                <section style="border:1px solid #D7DFE7; background:#FFFFFF; padding:20px 20px 24px;">
+                    <div style="margin-bottom:16px;">
+                        <h2 style="margin:0; color:#17325C; font-size:1.9rem; line-height:1.05; font-weight:900; letter-spacing:-0.03em;">
+                            @Model.SelectedCategoryName
+                        </h2>
                     </div>
 
                     @if (!Model.Books.Any())
                     {
-                        <div class="catalog-empty-state">
+                        <div style="padding:10px 0; color:#6B7F95; font-size:1rem; font-weight:600;">
                             Няма намерени книги за тази категория.
                         </div>
                     }
                     else
                     {
-                        <div class="catalog-books-grid">
+                        <div style="display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:24px 18px;"
+                             class="catalog-books-grid-inline">
+
                             @foreach (var book in Model.Books)
                             {
                                 var coverValue = GetCoverValue(book);
@@ -162,29 +277,37 @@
                                 <a asp-controller="Book"
                                    asp-action="Details"
                                    asp-route-id="@book.Id"
-                                   class="catalog-book-link">
+                                   style="display:flex; flex-direction:column; gap:12px; padding:8px; text-decoration:none; color:inherit;"
+                                   onmouseover="this.style.background='#F8FBFF'; this.style.transform='translateY(-3px)';"
+                                   onmouseout="this.style.background='transparent'; this.style.transform='translateY(0)';">
 
-                                    <div class="catalog-book-cover-box">
+                                    <div style="width:100%; height:268px; background:linear-gradient(180deg, #F9FBFD 0%, #F2F6FA 100%); border:1px solid #EDF2F6; overflow:hidden; display:flex; align-items:center; justify-content:center;">
                                         @if (!string.IsNullOrWhiteSpace(coverValue))
                                         {
                                             <img src="@coverValue"
                                                  alt="@book.Title"
-                                                 class="catalog-book-cover-image" />
+                                                 style="max-width:100%; max-height:100%; object-fit:contain;" />
                                         }
                                         else
                                         {
-                                            <span class="catalog-book-no-cover">Няма корица</span>
+                                            <span style="color:#94A3B8; font-size:.95rem; font-weight:700;">Няма корица</span>
                                         }
                                     </div>
 
-                                    <div class="catalog-book-title">@book.Title</div>
-                                    <div class="catalog-book-author">@book.Author</div>
+                                    <div style="display:flex; flex-direction:column; gap:6px; min-height:74px;">
+                                        <div style="color:#0F172A; font-size:1rem; line-height:1.28; font-weight:900;">
+                                            @book.Title
+                                        </div>
+
+                                        <div style="color:#6B7F95; font-size:.97rem; line-height:1.35; font-weight:600;">
+                                            @book.Author
+                                        </div>
+                                    </div>
                                 </a>
                             }
                         </div>
                     }
                 </section>
-
             </section>
         </div>
     </div>
@@ -194,24 +317,71 @@
     <script>
         (function () {
             const tree = document.getElementById('catalogTree');
-            if (!tree) return;
+            if (tree) {
+                tree.addEventListener('click', function (e) {
+                    const btn = e.target.closest('.tree-toggle-btn');
+                    if (!btn) return;
 
-            tree.addEventListener('click', function (e) {
-                const toggle = e.target.closest('.catalog-tree-toggle');
-                if (!toggle) return;
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                e.preventDefault();
-                e.stopPropagation();
+                    const targetId = btn.getAttribute('data-target');
+                    if (!targetId) return;
 
-                const node = toggle.closest('.catalog-tree-node');
-                if (!node) return;
+                    const target = document.getElementById(targetId);
+                    if (!target) return;
 
-                node.classList.toggle('open');
-                toggle.setAttribute(
-                    'aria-expanded',
-                    node.classList.contains('open') ? 'true' : 'false'
-                );
-            });
+                    const plus = btn.querySelector('.tree-plus');
+                    const minus = btn.querySelector('.tree-minus');
+                    const isOpen = target.style.display !== 'none';
+
+                    if (isOpen) {
+                        target.style.display = 'none';
+                        btn.setAttribute('aria-expanded', 'false');
+                        if (plus) plus.style.display = 'inline';
+                        if (minus) minus.style.display = 'none';
+                    } else {
+                        target.style.display = 'block';
+                        btn.setAttribute('aria-expanded', 'true');
+                        if (plus) plus.style.display = 'none';
+                        if (minus) minus.style.display = 'inline';
+                    }
+                });
+            }
+
+            function applyResponsiveLayout() {
+                const mainGrid = document.querySelector('.catalog-main-grid');
+                const sidebar = document.querySelector('.catalog-sidebar-box');
+                const booksGrid = document.querySelector('.catalog-books-grid-inline');
+                const filterGrid = document.querySelector('.catalog-filter-grid');
+
+                if (!mainGrid || !sidebar || !booksGrid || !filterGrid) return;
+
+                if (window.innerWidth <= 920) {
+                    mainGrid.style.gridTemplateColumns = '1fr';
+                    sidebar.style.position = 'static';
+                    sidebar.style.minHeight = '0';
+                    filterGrid.style.gridTemplateColumns = '1fr';
+                    booksGrid.style.gridTemplateColumns = window.innerWidth <= 620 ? '1fr' : 'repeat(2, minmax(0, 1fr))';
+                } else if (window.innerWidth <= 1240) {
+                    mainGrid.style.gridTemplateColumns = '265px minmax(0, 1fr)';
+                    sidebar.style.position = 'sticky';
+                    sidebar.style.top = '92px';
+                    sidebar.style.minHeight = '620px';
+                    filterGrid.style.gridTemplateColumns = 'minmax(0, 1fr) 210px 112px';
+                    booksGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                } else {
+                    mainGrid.style.gridTemplateColumns = '290px minmax(0, 1fr)';
+                    sidebar.style.position = 'sticky';
+                    sidebar.style.top = '92px';
+                    sidebar.style.minHeight = '620px';
+                    filterGrid.style.gridTemplateColumns = 'minmax(0, 1fr) 230px 118px';
+                    booksGrid.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
+                }
+            }
+
+            applyResponsiveLayout();
+            window.addEventListener('resize', applyResponsiveLayout);
         })();
     </script>
 }

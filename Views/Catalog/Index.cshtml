@@ -273,8 +273,7 @@
                             @foreach (var book in Model.Books)
                             {
                                 var coverValue = GetCoverValue(book);
-
-                                <a asp-controller="Book"
+                                <a asp-controller="Catalog"
                                    asp-action="Details"
                                    asp-route-id="@book.Id"
                                    style="display:flex; flex-direction:column; gap:12px; padding:8px; text-decoration:none; color:inherit;"

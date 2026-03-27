@@ -1,0 +1,190 @@
+﻿@model ObreshkovLibrary.Models.Book
+@using ObreshkovLibrary.Models
+@using System.Linq
+
+@{
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    ViewData["Title"] = "Детайли за книга";
+
+    var isAvailable = (ViewBag.IsAvailable as bool?) ?? false;
+    var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
+
+    string categoryName = "Няма категория";
+    if (Model.Category != null)
+    {
+        categoryName = Model.Category.ParentCategory != null
+            ? $"{Model.Category.ParentCategory.Name} / {Model.Category.Name}"
+            : Model.Category.Name;
+    }
+
+    List<string> tagNames = new();
+
+    if ((Model.Tags & BookTags.Classic) == BookTags.Classic) tagNames.Add("Класика");
+    if ((Model.Tags & BookTags.Romance) == BookTags.Romance) tagNames.Add("Любовен");
+    if ((Model.Tags & BookTags.Drama) == BookTags.Drama) tagNames.Add("Драма");
+    if ((Model.Tags & BookTags.Fantasy) == BookTags.Fantasy) tagNames.Add("Фентъзи");
+    if ((Model.Tags & BookTags.Horror) == BookTags.Horror) tagNames.Add("Ужаси");
+    if ((Model.Tags & BookTags.Bulgarian) == BookTags.Bulgarian) tagNames.Add("Българска литература");
+    if ((Model.Tags & BookTags.Foreign) == BookTags.Foreign) tagNames.Add("Чужда литература");
+    if ((Model.Tags & BookTags.SchoolLiterature) == BookTags.SchoolLiterature) tagNames.Add("Училищна литература");
+}
+
+<div class="guest-book-details-page">
+    <div class="guest-book-details-container">
+
+        <div class="guest-book-details-header">
+            <div class="guest-book-details-title-wrap">
+                <h1 class="guest-book-details-title">Детайли за книга</h1>
+                <div class="guest-book-details-accent"></div>
+            </div>
+
+            <a asp-controller="Catalog"
+               asp-action="Index"
+               class="guest-book-details-back">
+                Назад към каталога
+            </a>
+        </div>
+
+        <section class="guest-book-hero-panel">
+            <div class="guest-book-hero-layout">
+
+                <div class="guest-book-cover-column">
+                    <div class="guest-book-cover-shell">
+                        @if (!string.IsNullOrWhiteSpace(Model.CoverPath))
+                        {
+                            <img src="@Model.CoverPath" alt="@Model.Title" class="guest-book-cover-image" />
+                        }
+                        else
+                        {
+                            <div class="guest-book-cover-placeholder">
+                                <span>Няма корица</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="guest-book-main-column">
+                    <div class="guest-book-title-card">
+                        <div class="guest-book-status-row">
+                            <span class="guest-book-availability-badge @(isAvailable ? "available" : "unavailable")">
+                                @(isAvailable ? "Налична" : "Не е налична")
+                            </span>
+                        </div>
+
+                        <h2 class="guest-book-name">@Model.Title</h2>
+                        <div class="guest-book-author">от @Model.Author</div>
+                    </div>
+
+                    <div class="guest-book-info-card">
+                        <div class="guest-book-info-row">
+                            <div class="guest-book-info-label">Автор</div>
+                            <div class="guest-book-info-value">@Model.Author</div>
+                        </div>
+
+                        <div class="guest-book-info-row">
+                            <div class="guest-book-info-label">Година</div>
+                            <div class="guest-book-info-value">
+                                @(Model.Year.HasValue? Model.Year.ToString() : "Няма данни")
+                            </div>
+                        </div>
+
+                        <div class="guest-book-info-row">
+                            <div class="guest-book-info-label">Категория</div>
+                            <div class="guest-book-info-value">@categoryName</div>
+                        </div>
+
+                        <div class="guest-book-info-row">
+                            <div class="guest-book-info-label">Клас</div>
+                            <div class="guest-book-info-value">
+                                @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
+                            </div>
+                        </div>
+
+                        <div class="guest-book-info-row">
+                            <div class="guest-book-info-label">Добавена на</div>
+                            <div class="guest-book-info-value">@Model.CreatedOn.ToString("dd.MM.yyyy")</div>
+                        </div>
+
+                        <div class="guest-book-info-row guest-book-info-row-tags">
+                            <div class="guest-book-info-label">Тагове</div>
+                            <div class="guest-book-info-value">
+                                @if (tagNames.Any())
+                                {
+                                    <div class="guest-book-tags-wrap">
+                                        @foreach (var tag in tagNames)
+                                        {
+                                            <span class="guest-book-tag">@tag</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span>Няма тагове</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="guest-book-section-panel">
+            <div class="guest-book-section-head">
+                <h3 class="guest-book-section-title">Описание</h3>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="guest-book-description-wrap">
+                    <p class="guest-book-description-text">@Model.Description</p>
+                </div>
+            }
+            else
+            {
+                <div class="guest-book-empty-state">
+                    Няма добавено описание за тази книга.
+                </div>
+            }
+        </section>
+
+        @if (relatedBooks.Any())
+        {
+            <section class="guest-book-section-panel related-books-panel">
+                <div class="guest-book-section-head">
+                    <h3 class="guest-book-section-title">Още от автора</h3>
+                </div>
+
+                <div class="related-books-wrap">
+                    <div class="related-books-grid">
+                        @foreach (var book in relatedBooks)
+                        {
+                            <a asp-controller="Catalog"
+                               asp-action="Details"
+                               asp-route-id="@book.Id"
+                               class="related-book-card">
+
+                                <div class="related-book-cover-box">
+                                    @if (!string.IsNullOrWhiteSpace(book.CoverPath))
+                                    {
+                                        <img src="@book.CoverPath" alt="@book.Title" class="related-book-cover-image" />
+                                    }
+                                    else
+                                    {
+                                        <span class="related-book-no-cover">Няма корица</span>
+                                    }
+                                </div>
+
+                                <div class="related-book-info">
+                                    <div class="related-book-title">@book.Title</div>
+                                    <div class="related-book-author">@book.Author</div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+
+    </div>
+</div>

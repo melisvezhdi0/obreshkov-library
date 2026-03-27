@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
@@ -103,6 +104,47 @@ namespace ObreshkovLibrary.Controllers
             };
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var book = await _context.Books
+                .AsNoTracking()
+                .Include(b => b.Category)
+                    .ThenInclude(c => c.ParentCategory)
+                .Include(b => b.Copies)
+                .FirstOrDefaultAsync(b => b.Id == id && b.IsActive);
+
+            if (book == null)
+                return NotFound();
+
+            var activeCopyIds = book.Copies
+                .Where(c => c.IsActive)
+                .Select(c => c.Id)
+                .ToList();
+
+            var activeLoanCopyIds = await _context.Loans
+                .AsNoTracking()
+                .Where(l => activeCopyIds.Contains(l.BookCopyId) && l.ReturnDate == null)
+                .Select(l => l.BookCopyId)
+                .ToListAsync();
+
+            ViewBag.IsAvailable = book.Copies.Any(c => c.IsActive && !activeLoanCopyIds.Contains(c.Id));
+
+            var relatedBooks = await _context.Books
+                .AsNoTracking()
+                .Where(b => b.IsActive
+                            && b.Id != book.Id
+                            && b.Author == book.Author)
+                .OrderByDescending(b => b.CreatedOn)
+                .ThenBy(b => b.Title)
+                .Take(4)
+                .ToListAsync();
+
+            ViewBag.RelatedBooks = relatedBooks;
+
+            return View(book);
         }
     }
 }

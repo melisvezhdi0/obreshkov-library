@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -117,12 +118,14 @@ namespace ObreshkovLibrary.Controllers
                 .FirstOrDefaultAsync(b => b.Id == id && b.IsActive);
 
             if (book == null)
+            {
                 return NotFound();
+            }
 
-            var activeCopyIds = book.Copies
+            var activeCopyIds = book.Copies?
                 .Where(c => c.IsActive)
                 .Select(c => c.Id)
-                .ToList();
+                .ToList() ?? new List<int>();
 
             var activeLoanCopyIds = await _context.Loans
                 .AsNoTracking()
@@ -130,21 +133,59 @@ namespace ObreshkovLibrary.Controllers
                 .Select(l => l.BookCopyId)
                 .ToListAsync();
 
-            ViewBag.IsAvailable = book.Copies.Any(c => c.IsActive && !activeLoanCopyIds.Contains(c.Id));
+            var isAvailable = book.Copies != null &&
+                              book.Copies.Any(c => c.IsActive && !activeLoanCopyIds.Contains(c.Id));
 
-            var relatedBooks = await _context.Books
+            var authorBooks = await _context.Books
                 .AsNoTracking()
-                .Where(b => b.IsActive
-                            && b.Id != book.Id
-                            && b.Author == book.Author)
+                .Where(b => b.IsActive &&
+                            b.Id != book.Id &&
+                            b.Author == book.Author)
                 .OrderByDescending(b => b.CreatedOn)
                 .ThenBy(b => b.Title)
-                .Take(4)
+                .Take(10)
                 .ToListAsync();
 
-            ViewBag.RelatedBooks = relatedBooks;
+            var allCandidates = await _context.Books
+                .AsNoTracking()
+                .Where(b => b.IsActive && b.Id != book.Id)
+                .ToListAsync();
+
+            var currentTagValues = GetTagValues(book.Tags);
+            var minimumMatches = currentTagValues.Count >= 2 ? 2 : currentTagValues.Count;
+
+            var similarBooks = new List<Book>();
+
+            if (minimumMatches > 0)
+            {
+                similarBooks = allCandidates
+                    .Where(b => CountMatchingTags(book.Tags, b.Tags) >= minimumMatches)
+                    .OrderBy(_ => Guid.NewGuid())
+                    .Take(10)
+                    .ToList();
+            }
+
+            ViewBag.IsAvailable = isAvailable;
+            ViewBag.RelatedBooks = authorBooks;
+            ViewBag.SimilarBooks = similarBooks;
 
             return View(book);
+        }
+
+        private static List<BookTags> GetTagValues(BookTags tags)
+        {
+            return Enum.GetValues(typeof(BookTags))
+                .Cast<BookTags>()
+                .Where(t => t != BookTags.None && tags.HasFlag(t))
+                .ToList();
+        }
+
+        private static int CountMatchingTags(BookTags first, BookTags second)
+        {
+            var common = first & second;
+            return Enum.GetValues(typeof(BookTags))
+                .Cast<BookTags>()
+                .Count(t => t != BookTags.None && common.HasFlag(t));
         }
     }
 }

@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ObreshkovLibrary.Models.ViewModels.StudentLoanHistoryItemVM>
+
+@{
+    ViewData["Title"] = "История на заеманията";
+}
+
+<div style="width:min(1240px, calc(100% - 24px)); margin:28px auto 40px;">
+    <partial name="_StudentAlertsPartial" />
+
+    <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:26px; margin-bottom:22px;">
+        <h1 style="margin:0; color:#17325c; font-size:2rem; font-weight:900;">История на заеманията</h1>
+        <div style="width:62px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%);"></div>
+    </div>
+
+    <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:18px;">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Книга</th>
+                            <th>Автор</th>
+                            <th>Взета на</th>
+                            <th>Трябвало е да се върне на</th>
+                            <th>Върната на</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Catalog"
+                                       asp-action="Details"
+                                       asp-route-id="@item.BookId"
+                                       style="font-weight:800; text-decoration:none;">
+                                        @item.Title
+                                    </a>
+                                </td>
+                                <td>@item.Author</td>
+                                <td>@item.LoanDate.ToString("dd.MM.yyyy")</td>
+                                <td>@item.DueDate.ToString("dd.MM.yyyy")</td>
+                                <td>@item.ReturnDate?.ToString("dd.MM.yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div style="color:#64748b; font-weight:700;">Все още нямаш история на заеманията.</div>
+        }
+    </div>
+</div>

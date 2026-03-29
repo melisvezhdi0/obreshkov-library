@@ -1,0 +1,165 @@
+﻿@model IEnumerable<ObreshkovLibrary.Models.ViewModels.StudentCurrentLoanVM>
+@using ObreshkovLibrary.Models
+
+@{
+    ViewData["Title"] = "Моите книги";
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div style="width:min(1240px, calc(100% - 24px)); margin:28px auto 40px;">
+    <partial name="_StudentAlertsPartial" />
+
+    <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:26px; margin-bottom:22px;">
+        <h1 style="margin:0; color:#17325c; font-size:2rem; font-weight:900;">Моите книги</h1>
+        <div style="width:62px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%);"></div>
+        <p style="margin:16px 0 0 0; color:#64748b; font-weight:700;">
+            Тук можеш да виждаш заетите книги, датата за връщане, бележките си и заявката за удължаване.
+        </p>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div style="display:flex; flex-direction:column; gap:18px;">
+            @foreach (var item in Model)
+            {
+                <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:20px;">
+                    <div style="display:grid; grid-template-columns:170px minmax(0,1fr); gap:20px;">
+                        <div style="height:240px; border:1px solid #e2e8f0; border-radius:18px; background:#f8fbff; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                            @if (!string.IsNullOrWhiteSpace(item.CoverPath))
+                            {
+                                <img src="@item.CoverPath" alt="@item.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                            }
+                            else
+                            {
+                                <span style="color:#94a3b8; font-weight:700;">Няма корица</span>
+                            }
+                        </div>
+
+                        <div>
+                            <div style="display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+                                <div>
+                                    <h2 style="margin:0; color:#17325c; font-size:1.5rem; font-weight:900;">@item.Title</h2>
+                                    <div style="margin-top:6px; color:#64748b; font-size:1rem; font-weight:700;">@item.Author</div>
+                                </div>
+
+                                <div>
+                                    @if (item.IsOverdue)
+                                    {
+                                        <span class="badge text-bg-danger">Просрочена</span>
+                                    }
+                                    else if (item.IsExtended)
+                                    {
+                                        <span class="badge text-bg-primary">Удължена</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-success">Активна</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div style="margin-top:16px; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px;">
+                                <div style="background:#f8fbff; border:1px solid #dbe7f3; border-radius:16px; padding:14px;">
+                                    <div style="color:#64748b; font-weight:800;">Взета на</div>
+                                    <div style="margin-top:6px; color:#17325c; font-weight:900;">@item.LoanDate.ToString("dd.MM.yyyy")</div>
+                                </div>
+
+                                <div style="background:#f8fbff; border:1px solid #dbe7f3; border-radius:16px; padding:14px;">
+                                    <div style="color:#64748b; font-weight:800;">Връща се на</div>
+                                    <div style="margin-top:6px; color:#17325c; font-weight:900;">@item.DueDate.ToString("dd.MM.yyyy")</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:18px;">
+                                <a asp-controller="Catalog"
+                                   asp-action="Details"
+                                   asp-route-id="@item.BookId"
+                                   class="btn btn-outline-primary">
+                                    Към детайлите
+                                </a>
+                            </div>
+
+                            <div style="margin-top:22px; display:grid; grid-template-columns:1fr 320px; gap:18px;">
+                                <div style="border:1px solid #d8e1eb; border-radius:18px; padding:16px;">
+                                    <h3 style="margin:0 0 12px 0; color:#17325c; font-size:1.1rem; font-weight:900;">Моя бележка</h3>
+
+                                    <form asp-action="SavePersonalNote" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="loanId" value="@item.LoanId" />
+                                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                                        <textarea name="text"
+                                          rows="5"
+                                          class="form-control"
+                                          placeholder="Напиши бележка за тази книга...">@item.CurrentNote</textarea>
+
+                                        <button type="submit" class="btn btn-primary mt-3">
+                                            Запази бележката
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <div style="border:1px solid #d8e1eb; border-radius:18px; padding:16px;">
+                                    <h3 style="margin:0 0 12px 0; color:#17325c; font-size:1.1rem; font-weight:900;">Удължаване</h3>
+
+                                    @if (item.HasExtensionRequest)
+                                    {
+                                        @if (item.ExtensionRequestStatus == LoanExtensionRequestStatus.Pending)
+                                        {
+                                            <div class="alert alert-warning mb-0">
+                                                Вече имаш изпратена заявка за удължаване. Изчаква се решение от библиотекаря.
+                                            </div>
+                                        }
+                                        else if (item.ExtensionRequestStatus == LoanExtensionRequestStatus.Approved)
+                                        {
+                                            <div class="alert alert-success mb-0">
+                                                Заявката за удължаване е одобрена.
+                                            </div>
+                                        }
+                                        else if (item.ExtensionRequestStatus == LoanExtensionRequestStatus.Rejected)
+                                        {
+                                            <div class="alert alert-danger mb-0">
+                                                Заявката за удължаване е отхвърлена.
+                                            </div>
+                                        }
+                                    }
+                                    else if (item.CanRequestExtension)
+                                    {
+                                        <form asp-action="RequestExtension" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="loanId" value="@item.LoanId" />
+                                            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                                            <label class="form-label fw-bold">Избери удължаване</label>
+                                            <select name="requestedDays" class="form-select">
+                                                <option value="3">3 дни</option>
+                                                <option value="5">5 дни</option>
+                                                <option value="7">7 дни</option>
+                                            </select>
+
+                                            <button type="submit" class="btn btn-primary mt-3 w-100">
+                                                Изпрати заявка
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-secondary mb-0">
+                                            За тази книга в момента не може да се подаде нова заявка за удължаване.
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:22px; color:#64748b; font-weight:700;">
+            Нямаш текущо заети книги.
+        </div>
+    }
+</div>

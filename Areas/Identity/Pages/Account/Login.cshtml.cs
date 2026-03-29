@@ -130,7 +130,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 var normalizedCardNumber = Input.CardNumber.Trim().ToUpper();
 
                 var client = await _context.Clients
-                    .FirstOrDefaultAsync(c => c.CardNumber.ToUpper() == normalizedCardNumber);
+                    .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == normalizedCardNumber);
 
                 if (client == null)
                 {
@@ -155,7 +155,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 await SignInUserExplicitlyAsync(studentUser, Input.RememberMe);
 
                 _logger.LogInformation("Student logged in.");
-                return LocalRedirect(Url.Action("Index", "Catalog") ?? "/Catalog");
+                return LocalRedirect(Url.Action("Index", "StudentPortal") ?? "/StudentPortal");
             }
 
             ModelState.AddModelError(string.Empty, "Невалидна роля.");

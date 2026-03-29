@@ -20,15 +20,18 @@ namespace ObreshkovLibrary.Controllers
         private readonly ObreshkovLibraryContext _context;
         private readonly BookDeactivateService _bookDeactivate;
         private readonly IWebHostEnvironment _environment;
+        private readonly IStudentNotificationService _studentNotificationService;
 
         public BookController(
             ObreshkovLibraryContext context,
             BookDeactivateService bookDeactivate,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            IStudentNotificationService studentNotificationService)
         {
             _context = context;
             _bookDeactivate = bookDeactivate;
             _environment = environment;
+            _studentNotificationService = studentNotificationService;
         }
 
         private static List<SelectListItem> BuildTagOptions()
@@ -322,6 +325,8 @@ namespace ObreshkovLibrary.Controllers
 
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
+
+            await _studentNotificationService.NotifyForNewBookAsync(book);
 
             return RedirectToAction(nameof(Index));
         }

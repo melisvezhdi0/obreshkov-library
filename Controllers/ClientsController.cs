@@ -171,6 +171,23 @@ namespace ObreshkovLibrary.Controllers
 
             ViewBag.ActiveLoans = activeLoans;
 
+            string passwordDisplay;
+
+            if (string.IsNullOrWhiteSpace(client.LastTemporaryPassword))
+            {
+                passwordDisplay = "Няма данни";
+            }
+            else if (client.PasswordChangedByStudent)
+            {
+                passwordDisplay = "Успешно сменена от ученика";
+            }
+            else
+            {
+                passwordDisplay = client.LastTemporaryPassword;
+            }
+
+            ViewBag.PasswordDisplay = passwordDisplay;
+
             return View(client);
         }
 
@@ -381,56 +398,55 @@ namespace ObreshkovLibrary.Controllers
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null)
-                return NotFound();
-
-            if (request.IsCompleted)
             {
-                TempData["ResetError"] = "Тази заявка вече е изпълнена.";
+                TempData["Error"] = "Заявката не е намерена.";
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
-            var cardNumber = request.CardNumber.Trim().ToUpper();
-            var studentUser = await _userManager.FindByNameAsync(cardNumber);
-
-            if (studentUser == null)
+            if (request.IsCompleted)
             {
-                TempData["ResetError"] = "Няма ученически профил за тази карта.";
+                TempData["Error"] = "Тази заявка вече е обработена.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Client.CardNumber))
+            {
+                TempData["Error"] = "Клиентът няма читателска карта.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            var normalizedCardNumber = request.Client.CardNumber.Trim().ToUpper();
+
+            var user = await _userManager.FindByNameAsync(normalizedCardNumber);
+            if (user == null)
+            {
+                TempData["Error"] = "Не е намерен потребител за този ученик.";
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
             var tempPassword = _temporaryPasswordService.Generate();
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(studentUser);
-            var resetResult = await _userManager.ResetPasswordAsync(studentUser, token, tempPassword);
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await _userManager.ResetPasswordAsync(user, token, tempPassword);
 
             if (!resetResult.Succeeded)
             {
-                TempData["ResetError"] = string.Join(" ", resetResult.Errors.Select(e => e.Description));
+                TempData["Error"] = string.Join(" ", resetResult.Errors.Select(e => e.Description));
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
-            request.IsCompleted = true;
-            request.Notes = "Генерирана е нова временна парола.";
+            request.Client.LastTemporaryPassword = tempPassword;
+            request.Client.PasswordChangedByStudent = false;
+            request.Client.LastPasswordChangeOn = null;
 
-            if (request.Client != null)
-            {
-                request.Client.LastTemporaryPassword = tempPassword;
-                request.Client.PasswordChangedByStudent = false;
-                request.Client.LastPasswordChangeOn = null;
-            }
+            request.GeneratedPassword = tempPassword;
+            request.IsCompleted = true;
 
             await _context.SaveChangesAsync();
 
-            TempData["GeneratedPassword"] = tempPassword;
-            TempData["GeneratedPasswordCard"] = request.CardNumber;
-            TempData["GeneratedPasswordName"] =
-                request.Client != null
-                    ? $"{request.Client.FirstName} {request.Client.LastName}"
-                    : request.CardNumber;
-
+            TempData["Success"] = $"Нова временна парола: {tempPassword}";
             return RedirectToAction(nameof(PasswordResetRequests));
         }
-
         private bool ClientExists(int id)
         {
             return _context.Clients
@@ -470,6 +486,14 @@ namespace ObreshkovLibrary.Controllers
             }
 
             await _context.SaveChangesAsync();
+        }
+        private string GenerateTemporaryPasswordValue()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 8)
+                .Select(s => s[random.Next(s.Length)])
+                .ToArray());
         }
     }
 }

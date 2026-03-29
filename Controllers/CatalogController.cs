@@ -1,22 +1,23 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ObreshkovLibrary.Controllers
 {
     public class CatalogController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public CatalogController(ObreshkovLibraryContext context)
+        public CatalogController(
+            ObreshkovLibraryContext context,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -165,9 +166,42 @@ namespace ObreshkovLibrary.Controllers
                     .ToList();
             }
 
+            var isStudent = User.Identity?.IsAuthenticated == true && User.IsInRole("Student");
+            var isFavorite = false;
+            var hasAvailabilityRequest = false;
+
+            if (isStudent)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var cardNumber = user?.UserName?.Trim().ToUpper();
+
+                if (!string.IsNullOrWhiteSpace(cardNumber))
+                {
+                    var clientId = await _context.Clients
+                        .AsNoTracking()
+                        .Where(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber)
+                        .Select(c => (int?)c.Id)
+                        .FirstOrDefaultAsync();
+
+                    if (clientId.HasValue)
+                    {
+                        isFavorite = await _context.ClientFavoriteBooks
+                            .AsNoTracking()
+                            .AnyAsync(f => f.ClientId == clientId.Value && f.BookId == book.Id);
+
+                        hasAvailabilityRequest = await _context.BookAvailabilityRequests
+                            .AsNoTracking()
+                            .AnyAsync(r => r.ClientId == clientId.Value && r.BookId == book.Id && r.IsActive);
+                    }
+                }
+            }
+
             ViewBag.IsAvailable = isAvailable;
             ViewBag.RelatedBooks = authorBooks;
             ViewBag.SimilarBooks = similarBooks;
+            ViewBag.IsStudent = isStudent;
+            ViewBag.IsFavorite = isFavorite;
+            ViewBag.HasAvailabilityRequest = hasAvailabilityRequest;
 
             return View(book);
         }

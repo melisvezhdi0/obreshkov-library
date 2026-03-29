@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Services;
+using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary
 {
@@ -70,6 +71,9 @@ namespace ObreshkovLibrary
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
+
+            builder.Services.AddScoped<IStudentNotificationService, StudentNotificationService>();
+
 
             var app = builder.Build();
 

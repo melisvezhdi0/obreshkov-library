@@ -10,6 +10,11 @@
     var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
     var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
 
+    var isStudent = (ViewBag.IsStudent as bool?) ?? false;
+    var isFavorite = (ViewBag.IsFavorite as bool?) ?? false;
+    var hasAvailabilityRequest = (ViewBag.HasAvailabilityRequest as bool?) ?? false;
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
     string categoryName = "Няма категория";
     if (Model.Category != null)
     {
@@ -144,6 +149,56 @@
                                 else
                                 {
                                     <span style="color:#6b7c8e; font-size:0.97rem; font-weight:700;">Няма тагове</span>
+                                }
+                                @if (isStudent)
+                                {
+                                    <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; box-shadow:0 8px 22px rgba(15,23,42,0.03); padding:18px; margin-top:18px;">
+                                        <h3 style="margin:0 0 14px 0; color:#17325c; font-size:1.1rem; font-weight:900;">
+                                            Опции за ученик
+                                        </h3>
+
+                                        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                            <form asp-controller="StudentPortal" asp-action="ToggleFavorite" method="post" style="margin:0;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="bookId" value="@Model.Id" />
+                                                <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+
+                                                @if (isFavorite)
+                                                {
+                                                    <button type="submit" class="btn btn-outline-danger">
+                                                        Премахни от любими
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button type="submit" class="btn btn-primary">
+                                                        Добави в любими
+                                                    </button>
+                                                }
+                                            </form>
+
+                                            @if (!isAvailable)
+                                            {
+                                                @if (hasAvailabilityRequest)
+                                                {
+                                                    <div class="alert alert-info mb-0" style="display:flex; align-items:center;">
+                                                        Вече имаш активна заявка да бъдеш уведомен, когато книгата стане налична.
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-controller="StudentPortal" asp-action="RequestAvailabilityNotification" method="post" style="margin:0;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="bookId" value="@Model.Id" />
+                                                        <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+                                                        <button type="submit" class="btn btn-outline-primary">
+                                                            Уведоми ме, когато е налична
+                                                        </button>
+                                                    </form>
+                                                }
+                                            }
+                                        </div>
+                                    </section>
                                 }
                             </div>
                         </div>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ObreshkovLibrary.Models
 {
@@ -21,6 +22,9 @@ namespace ObreshkovLibrary.Models
 
         [StringLength(250)]
         public string? Notes { get; set; }
+
+        [StringLength(50)]
+        public string? GeneratedPassword { get; set; }
 
         public Client? Client { get; set; }
     }

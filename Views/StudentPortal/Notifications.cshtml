@@ -1,0 +1,70 @@
+﻿@model IEnumerable<ObreshkovLibrary.Models.ViewModels.StudentNotificationItemVM>
+
+@{
+    ViewData["Title"] = "Съобщения";
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div style="width:min(1100px, calc(100% - 24px)); margin:28px auto 40px;">
+    <partial name="_StudentAlertsPartial" />
+
+    <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:26px; margin-bottom:22px;">
+        <h1 style="margin:0; color:#17325c; font-size:2rem; font-weight:900;">Съобщения</h1>
+        <div style="width:62px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%);"></div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            @foreach (var item in Model)
+            {
+                <div style="background:@(item.IsRead ? "#ffffff" : "#eff6ff"); border:1px solid @(item.IsRead ? "#d8e1eb" : "#bfdbfe"); border-radius:20px; padding:18px;">
+                    <div style="display:flex; justify-content:space-between; gap:12px; align-items:flex-start; flex-wrap:wrap;">
+                        <div>
+                            <div style="color:#17325c; font-size:1.08rem; font-weight:900;">@item.Title</div>
+                            <div style="margin-top:8px; color:#475569; line-height:1.7;">@item.Message</div>
+                        </div>
+
+                        <div style="text-align:right;">
+                            <div style="color:#64748b; font-size:.9rem; font-weight:700;">@item.CreatedOn.ToString("dd.MM.yyyy HH:mm")</div>
+                            @if (!item.IsRead)
+                            {
+                                <span class="badge text-bg-primary mt-2">Ново</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+                        @if (item.BookId.HasValue)
+                        {
+                            <a asp-controller="Catalog"
+                               asp-action="Details"
+                               asp-route-id="@item.BookId.Value"
+                               class="btn btn-outline-primary">
+                                Към книгата
+                            </a>
+                        }
+
+                        @if (!item.IsRead)
+                        {
+                            <form asp-action="MarkNotificationAsRead" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.NotificationId" />
+                                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                <button type="submit" class="btn btn-primary">
+                                    Маркирай като прочетено
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div style="background:#fff; border:1px solid #d8e1eb; border-radius:24px; padding:22px; color:#64748b; font-weight:700;">
+            Нямаш съобщения.
+        </div>
+    }
+</div>

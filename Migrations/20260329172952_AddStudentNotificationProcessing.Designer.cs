@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ObreshkovLibrary.Data;
 
@@ -11,9 +12,11 @@ using ObreshkovLibrary.Data;
 namespace ObreshkovLibrary.Migrations
 {
     [DbContext(typeof(ObreshkovLibraryContext))]
-    partial class ObreshkovLibraryContextModelSnapshot : ModelSnapshot
+    [Migration("20260329172952_AddStudentNotificationProcessing")]
+    partial class AddStudentNotificationProcessing
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -576,10 +579,6 @@ namespace ObreshkovLibrary.Migrations
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
-
-                    b.Property<string>("GeneratedPassword")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");

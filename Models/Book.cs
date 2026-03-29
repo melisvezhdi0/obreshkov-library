@@ -34,6 +34,12 @@ namespace ObreshkovLibrary.Models
 
         public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
 
+        public ICollection<ClientFavoriteBook> FavoritedByClients { get; set; } = new List<ClientFavoriteBook>();
+
+        public ICollection<BookAvailabilityRequest> AvailabilityRequests { get; set; } = new List<BookAvailabilityRequest>();
+
+        public ICollection<StudentNotification> Notifications { get; set; } = new List<StudentNotification>();
+
         [NotMapped]
         public int AvailableCopies { get; set; }
     }

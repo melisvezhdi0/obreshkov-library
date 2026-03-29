@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ObreshkovLibrary.Models
@@ -21,5 +22,16 @@ namespace ObreshkovLibrary.Models
 
         [StringLength(200)]
         public string? Notes { get; set; }
+
+        public bool IsExtended { get; set; } = false;
+
+        public bool Reminder7DaysSent { get; set; } = false;
+        public bool Reminder3DaysSent { get; set; } = false;
+        public bool Reminder1DaySent { get; set; } = false;
+        public DateTime? LastOverdueReminderSentOn { get; set; }
+
+        public ICollection<LoanPersonalNote> PersonalNotes { get; set; } = new List<LoanPersonalNote>();
+
+        public ICollection<LoanExtensionRequest> ExtensionRequests { get; set; } = new List<LoanExtensionRequest>();
     }
 }

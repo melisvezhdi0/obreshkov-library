@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ObreshkovLibrary.Models
@@ -41,5 +42,11 @@ namespace ObreshkovLibrary.Models
         public bool PasswordChangedByStudent { get; set; } = false;
 
         public DateTime? LastPasswordChangeOn { get; set; }
+
+        public ICollection<ClientFavoriteBook> FavoriteBooks { get; set; } = new List<ClientFavoriteBook>();
+
+        public ICollection<BookAvailabilityRequest> AvailabilityRequests { get; set; } = new List<BookAvailabilityRequest>();
+
+        public ICollection<StudentNotification> Notifications { get; set; } = new List<StudentNotification>();
     }
 }

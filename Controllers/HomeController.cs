@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 
@@ -23,6 +24,24 @@ namespace ObreshkovLibrary.Controllers
                 .ThenByDescending(x => x.CreatedOn)
                 .Take(3)
                 .ToListAsync();
+
+            ViewBag.HomeNews = latestNews;
+
+            return View();
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpGet]
+        public async Task<IActionResult> StudentIndex()
+        {
+            var latestNews = await _context.SchoolNews
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .OrderByDescending(x => x.PublishedOn)
+                .ThenByDescending(x => x.CreatedOn)
+                .Take(3)
+                .ToListAsync();
+
             ViewBag.HomeNews = latestNews;
 
             return View();

@@ -1,0 +1,187 @@
+﻿@using ObreshkovLibrary.Models
+@{
+    var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new List<SchoolNews>();
+}
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = "Начало";
+}
+
+<div class="guest-home-page">
+    <div class="guest-home-container">
+
+        <section class="guest-hero">
+
+            <div class="guest-hero-slider">
+                <img src="/images/school-6.png" class="hero-slide active" />
+                <img src="/images/school-2.png" class="hero-slide" />
+                <img src="/images/school-3.png" class="hero-slide" />
+                <img src="/images/school-4.png" class="hero-slide" />
+                <img src="/images/school-5.png" class="hero-slide" />
+            </div>
+            <div class="guest-hero-left">
+                <div class="guest-hero-badge">
+                    Училищна библиотека • ППМГ „Акад. Никола Обрешков“
+                </div>
+
+                <h1 class="guest-hero-title">
+                    Пространство за четене,
+                    <span class="guest-hero-title-accent">търсене и откриване.</span>
+                </h1>
+
+                <p class="guest-hero-text">
+                    Добре дошли в библиотечната система на училището. Началната страница е създадена
+                    така, че гостът бързо да се ориентира, да отвори каталога и да разгледа наличните
+                    книги в по-ясна и подредена среда.
+                </p>
+
+                <div class="guest-hero-actions">
+                    <a asp-controller="Catalog" asp-action="Index" class="guest-primary-btn">
+                        Разгледай каталога
+                    </a>
+                </div>
+            </div>
+
+            <div class="guest-hero-right">
+                <aside class="guest-search-card">
+                    <h2 class="guest-search-title">Бързо търсене</h2>
+
+                    <p class="guest-search-subtitle">
+                        Потърси по заглавие, автор, жанр или учебна насоченост.
+                    </p>
+
+                    <form method="get" asp-controller="Catalog" asp-action="Index" class="guest-search-form">
+                        <label class="guest-search-label" for="guestSearch">Търси в каталога</label>
+
+                        <div class="guest-search-row">
+                            <input id="guestSearch"
+                                   type="text"
+                                   name="searchTerm"
+                                   class="guest-search-input"
+                                   placeholder="Например: Ботев, роман" />
+                            <button type="submit" class="guest-search-button">Търси</button>
+                        </div>
+                    </form>
+                </aside>
+            </div>
+        </section>
+
+        @if (homeNews.Any())
+        {
+            <section class="school-news-section">
+                <div class="school-news-header">
+                    <div>
+                        <div class="school-news-label">Новини</div>
+                        <h2 class="school-news-title">Актуално в ППМГ</h2>
+                    </div>
+                </div>
+
+                <div class="school-news-grid news-count-@homeNews.Count">
+                    @foreach (var item in homeNews)
+                    {
+                        <article class="school-news-card">
+                            <div class="school-news-image-wrap">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@Url.Content(item.ImagePath)" alt="@item.Title" class="school-news-image" />
+                                }
+                            </div>
+
+                            <div class="school-news-body">
+                                <div class="school-news-date">@item.PublishedOn.ToString("dd.MM.yyyy")</div>
+                                <h3 class="school-news-card-title">@item.Title</h3>
+                                <p class="school-news-text">@item.Summary</p>
+
+                                <a href="@item.NewsUrl" target="_blank" class="school-news-button">
+                                    Прочети повече
+                                </a>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+
+        <section class="guest-section-grid">
+            <article id="about-school" class="guest-section-card">
+                <div class="guest-section-label">За училището</div>
+                <h2 class="guest-section-title">Училищна среда с място за знание и четене</h2>
+                <p class="guest-section-text">
+                    ППМГ „Акад. Никола Обрешков“ – Разград е училище с традиции, академична насоченост
+                    и активен училищен живот. Библиотеката е естествена част от тази среда – пространство,
+                    което подпомага подготовката, любознателността и интереса към литературата.
+                </p>
+
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>По-ясна ориентация за ученици, учители и гости.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Лесен достъп до каталога и основната информация.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, близка до училищен уебсайт, а не до тъмен промоционален landing page.</span></li>
+                </ul>
+            </article>
+
+            <article id="about-library" class="guest-section-card">
+                <div class="guest-section-label">За библиотеката</div>
+                <h2 class="guest-section-title">Достъпна и подредена библиотечна система</h2>
+                <p class="guest-section-text">
+                    Библиотечната система е създадена, за да представя по ясен и подреден начин
+                    наличните книги и основната информация за библиотеката. Началната страница
+                    насочва гостите към най-важното, без излишно повторение и без претрупани елементи.
+                </p>
+
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>Прегледно представяне на библиотечния каталог.</span></li>
+                    <li><span class="guest-list-dot"></span><span>По-лесна ориентация за гости и потребители.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, съобразена с училищната среда и останалата част от проекта.</span></li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="guest-stats">
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Местоположение</h3>
+                <p class="guest-stat-number">01</p>
+                <p class="guest-stat-text">
+                    гр. Разград, ППМГ „Акад. Никола Обрешков“
+                </p>
+                <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
+                   target="_blank"
+                   class="guest-stat-link">
+                    Отвори в Google Maps
+                </a>
+            </article>
+
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Връзка с нас</h3>
+                <p class="guest-stat-number">02</p>
+                <p class="guest-stat-text">
+                    Телефон: 08XXXXXXXX
+                </p>
+                <a href="tel:08XXXXXXXX" class="guest-stat-link">
+                    Обади се
+                </a>
+            </article>
+
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Последвайте училището</h3>
+                <p class="guest-stat-number">03</p>
+                <div class="guest-social-links">
+                    <a href="https://www.facebook.com/" target="_blank" class="guest-stat-link">Facebook</a>
+                    <a href="https://www.instagram.com/" target="_blank" class="guest-stat-link">Instagram</a>
+                    <a href="https://www.pmgrz.net/" target="_blank" class="guest-stat-link">Уебсайт</a>
+                </div>
+            </article>
+
+            <script>
+                const slides = document.querySelectorAll(".hero-slide");
+                let index = 0;
+
+                setInterval(() => {
+                    slides[index].classList.remove("active");
+                    index = (index + 1) % slides.length;
+                    slides[index].classList.add("active");
+                }, 6000);
+            </script>
+        </section>
+
+    </div>
+</div>

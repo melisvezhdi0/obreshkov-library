@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
+using ObreshkovLibrary.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,10 +15,14 @@ namespace ObreshkovLibrary.Controllers
     public class LoansController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly IStudentNotificationService _notificationService;
 
-        public LoansController(ObreshkovLibraryContext context)
+        public LoansController(
+            ObreshkovLibraryContext context,
+            IStudentNotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -187,7 +192,6 @@ namespace ObreshkovLibrary.Controllers
                 return View("Create", vm);
             }
 
-
             var loan = new Loan
             {
                 ClientId = client.Id,
@@ -198,7 +202,6 @@ namespace ObreshkovLibrary.Controllers
 
             _context.Loans.Add(loan);
             await _context.SaveChangesAsync();
-
 
             return RedirectToAction("Details", "Clients", new { id = client.Id });
         }
@@ -217,6 +220,9 @@ namespace ObreshkovLibrary.Controllers
             {
                 loan.ReturnDate = DateTime.Now;
                 await _context.SaveChangesAsync();
+
+                await _notificationService.ProcessAvailabilityNotificationsAsync();
+
                 TempData["SuccessMessage"] = "Успешно върната книга.";
             }
 

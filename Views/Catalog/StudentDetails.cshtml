@@ -3,12 +3,15 @@
 @using System.Linq
 
 @{
-    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
     ViewData["Title"] = Model.Title;
 
     var isAvailable = (ViewBag.IsAvailable as bool?) ?? false;
     var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
     var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
+    var isFavorite = (ViewBag.IsFavorite as bool?) ?? false;
+    var hasAvailabilityRequest = (ViewBag.HasAvailabilityRequest as bool?) ?? false;
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 
     string categoryName = "Няма категория";
     if (Model.Category != null)
@@ -42,7 +45,7 @@
             </div>
 
             <a asp-controller="Catalog"
-               asp-action="Index"
+               asp-action="StudentIndex"
                style="display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 17px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; text-decoration:none; font-size:.95rem; font-weight:800;"
                onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
                onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
@@ -132,6 +135,65 @@
                             </div>
                         </div>
                     </div>
+
+                    <section style="border:1px solid #d8e1eb; border-radius:18px; background:#ffffff; padding:18px;">
+                        <h3 style="margin:0 0 14px 0; color:#17325c; font-size:1.06rem; font-weight:900;">
+                            Опции за ученик
+                        </h3>
+
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+
+                            <form asp-controller="StudentPortal" asp-action="ToggleFavorite" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="bookId" value="@Model.Id" />
+                                <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+
+                                @if (isFavorite)
+                                {
+                                    <button type="submit"
+                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #f1b8b8; background:#fff5f5; color:#c81e1e; font-weight:800; cursor:pointer;"
+                                            onmouseover="this.style.background='#feecec';"
+                                            onmouseout="this.style.background='#fff5f5';">
+                                        Премахни от любими
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit"
+                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #2563eb; background:#2563eb; color:#ffffff; font-weight:800; cursor:pointer;"
+                                            onmouseover="this.style.background='#1d4ed8'; this.style.borderColor='#1d4ed8';"
+                                            onmouseout="this.style.background='#2563eb'; this.style.borderColor='#2563eb';">
+                                        Добави в любими
+                                    </button>
+                                }
+                            </form>
+
+                            @if (!isAvailable)
+                            {
+                                @if (hasAvailabilityRequest)
+                                {
+                                    <div style="display:flex; align-items:center; min-height:42px; padding:0 14px; border-radius:10px; background:#eff6ff; border:1px solid #cfe0fb; color:#1d4ed8; font-size:.92rem; font-weight:800;">
+                                        Ще получиш съобщение, когато книгата стане налична.
+                                    </div>
+                                }
+                                else
+                                {
+                                    <form asp-controller="StudentPortal" asp-action="RequestAvailabilityNotification" method="post" style="margin:0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookId" value="@Model.Id" />
+                                        <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+
+                                        <button type="submit"
+                                                style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; font-weight:800; cursor:pointer;"
+                                                onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
+                                                onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
+                                            Уведоми ме, когато е налична
+                                        </button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </section>
                 </div>
             </div>
         </section>
@@ -172,7 +234,7 @@
                     @foreach (var book in relatedBooks)
                     {
                         <a asp-controller="Catalog"
-                           asp-action="Details"
+                           asp-action="StudentDetails"
                            asp-route-id="@book.Id"
                            style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
                            onmouseover="this.style.transform='translateY(-4px)';"
@@ -205,7 +267,7 @@
                     @foreach (var book in similarBooks)
                     {
                         <a asp-controller="Catalog"
-                           asp-action="Details"
+                           asp-action="StudentDetails"
                            asp-route-id="@book.Id"
                            style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
                            onmouseover="this.style.transform='translateY(-4px)';"

@@ -1,0 +1,119 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string navStyle(string controller, string action)
+    {
+        var isActive = currentController == controller && currentAction == action;
+
+        return isActive
+            ? "display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 16px; border-radius:8px; text-decoration:none; font-weight:800; color:#1d4ed8; background:#eef4ff; border:1px solid #dbe7fb;"
+            : "display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 16px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;";
+    }
+}
+
+<nav style="width:100%; background:#ffffff; border-bottom:1px solid #e5e7eb; margin:0; padding:0;">
+    <div style="width:100%;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                padding:0 24px;
+                min-height:68px;
+                box-sizing:border-box;">
+
+        <a asp-controller="Home"
+           asp-action="StudentIndex"
+           style="text-decoration:none;
+                  color:#17325c;
+                  font-size:1.05rem;
+                  font-weight:900;">
+            Училищна библиотека „Обрешков“
+        </a>
+
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+
+            <a asp-controller="Home"
+               asp-action="StudentIndex"
+               style="@navStyle("Home", "StudentIndex")"
+               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+               onmouseout="this.style.background='@(currentController == "Home" && currentAction == "StudentIndex" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "Home" && currentAction == "StudentIndex" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "Home" && currentAction == "StudentIndex" ? "#dbe7fb" : "transparent")';">
+                Начална страница
+            </a>
+
+            <a asp-controller="Catalog"
+               asp-action="StudentIndex"
+               style="@navStyle("Catalog", "StudentIndex")"
+               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+               onmouseout="this.style.background='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#dbe7fb" : "transparent")';">
+                Каталог
+            </a>
+
+            <a href="@Url.Action("StudentIndex", "Home")#about-school"
+               style="display:inline-flex;
+                      align-items:center;
+                      justify-content:center;
+                      height:40px;
+                      padding:0 16px;
+                      border-radius:8px;
+                      text-decoration:none;
+                      font-weight:800;
+                      color:#334155;
+                      background:transparent;
+                      border:1px solid transparent;"
+               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+               onmouseout="this.style.background='transparent'; this.style.color='#334155';">
+                За училището
+            </a>
+
+            <a href="@Url.Action("StudentIndex", "Home")#about-library"
+               style="display:inline-flex;
+                      align-items:center;
+                      justify-content:center;
+                      height:40px;
+                      padding:0 16px;
+                      border-radius:8px;
+                      text-decoration:none;
+                      font-weight:800;
+                      color:#334155;
+                      background:transparent;
+                      border:1px solid transparent;"
+               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+               onmouseout="this.style.background='transparent'; this.style.color='#334155';">
+                За библиотеката
+            </a>
+
+            <a asp-controller="StudentPortal"
+               asp-action="Index"
+               style="@navStyle("StudentPortal", "Index")"
+               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+               onmouseout="this.style.background='@(currentController == "StudentPortal" && currentAction == "Index" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "StudentPortal" && currentAction == "Index" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "StudentPortal" && currentAction == "Index" ? "#dbe7fb" : "transparent")';">
+                Моят профил
+            </a>
+
+            <form asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", "Home")"
+                  style="margin:0;">
+
+                <button type="submit"
+                        style="display:inline-flex;
+                               align-items:center;
+                               justify-content:center;
+                               height:40px;
+                               padding:0 16px;
+                               border-radius:8px;
+                               border:1px solid transparent;
+                               background:transparent;
+                               color:#334155;
+                               font-weight:800;
+                               cursor:pointer;"
+                        onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+                        onmouseout="this.style.background='transparent'; this.style.color='#334155';">
+                    Изход
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</nav>

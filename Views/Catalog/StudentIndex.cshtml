@@ -3,7 +3,7 @@
 @using System.Linq
 
 @{
-    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
     ViewData["Title"] = "Каталог";
 
     var categories = Model.Categories ?? new List<Category>();
@@ -54,7 +54,7 @@
 
                 <div style="padding:10px;">
                     <a asp-controller="Catalog"
-                       asp-action="Index"
+                       asp-action="StudentIndex"
                        asp-route-search="@Model.Search"
                        asp-route-sort="@Model.Sort"
                        style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155"); background:@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent"); border:1px solid @(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent"); margin-bottom:8px;"
@@ -75,7 +75,7 @@
                                 {
                                     <button type="button"
                                             class="tree-toggle-btn"
-                                            data-target="guest-cat-@root.Id"
+                                            data-target="student-cat-@root.Id"
                                             style="width:28px; height:28px; border:none; border-radius:8px; background:#eef4ff; color:#1d4ed8; font-weight:900; cursor:pointer;">
                                         <span class="tree-plus" style="display:@(open ? "none" : "inline")">+</span>
                                         <span class="tree-minus" style="display:@(open ? "inline" : "none")">−</span>
@@ -87,7 +87,7 @@
                                 }
 
                                 <a asp-controller="Catalog"
-                                   asp-action="Index"
+                                   asp-action="StudentIndex"
                                    asp-route-categoryId="@root.Id"
                                    asp-route-search="@Model.Search"
                                    asp-route-sort="@Model.Sort"
@@ -100,13 +100,13 @@
 
                             @if (children.Any())
                             {
-                                <div id="guest-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 8px 8px 8px;">
+                                <div id="student-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 8px 8px 8px;">
                                     @foreach (var child in children)
                                     {
                                         var selectedChild = Model.SelectedCategoryId == child.Id;
 
                                         <a asp-controller="Catalog"
-                                           asp-action="Index"
+                                           asp-action="StudentIndex"
                                            asp-route-categoryId="@child.Id"
                                            asp-route-search="@Model.Search"
                                            asp-route-sort="@Model.Sort"
@@ -126,7 +126,7 @@
             <section style="padding:24px 28px; min-width:0; background:#ffffff;">
                 <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; padding:14px; margin-bottom:20px;">
                     <form method="get"
-                          asp-action="Index"
+                          asp-action="StudentIndex"
                           style="display:grid; grid-template-columns:1fr 220px 120px; gap:12px;">
 
                         <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
@@ -166,7 +166,7 @@
                             var cover = GetCover(book);
 
                             <a asp-controller="Catalog"
-                               asp-action="Details"
+                               asp-action="StudentDetails"
                                asp-route-id="@book.Id"
                                style="position:relative; display:flex; flex-direction:column; border-radius:16px; padding:12px; background:#ffffff; border:1px solid #e6edf5; text-decoration:none; transition:.2s;"
                                onmouseover="this.style.transform='translateY(-4px)'; this.querySelector('.overlay').style.opacity='1';"

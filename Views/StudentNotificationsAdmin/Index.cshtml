@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "Ученически съобщения";
+}
+
+<div class="container py-4">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="mb-3">Административно съобщение</h2>
+
+                    <form asp-action="SendAdminMessage" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Заглавие</label>
+                            <input name="title" class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Съобщение</label>
+                            <textarea name="message" rows="6" class="form-control"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Изпрати до всички ученици
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h3 class="mb-3">Автоматични проверки</h3>
+
+                    <form asp-action="RunLoanReminders" method="post" class="mb-3">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            Стартирай напомняния за връщане
+                        </button>
+                    </form>
+
+                    <form asp-action="RunAvailabilityNotifications" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-success w-100">
+                            Провери наличните книги
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fw-bold mb-2">Какво правят бутоните?</div>
+                    <div class="text-muted small">
+                        Първият проверява всички активни заеми и създава съобщения за 7 дни, 3 дни, утре и просрочия през 3 дни. Вторият проверява книгите, за които учениците чакат известяване при наличност.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

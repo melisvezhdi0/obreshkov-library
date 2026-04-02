@@ -1,0 +1,68 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.SchoolNewsFormVM
+
+@{
+    ViewData["Title"] = "Добавяне на новина";
+}
+
+<div class="page-container" style="padding-top: 110px; padding-bottom: 28px;">
+    <div class="mb-4">
+        <h2 class="section-title mb-1">Добавяне на новина</h2>
+        <div class="accent-line"></div>
+    </div>
+
+    <section class="card-soft" style="padding: 24px; border-radius: 18px; background: #ffffff;">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label asp-for="Title" class="form-label fw-bold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label asp-for="PublishedOn" class="form-label fw-bold"></label>
+                    <input asp-for="PublishedOn" type="date" class="form-control" />
+                    <span asp-validation-for="PublishedOn" class="text-danger"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Summary" class="form-label fw-bold"></label>
+                    <textarea asp-for="Summary" rows="5" class="form-control"></textarea>
+                    <span asp-validation-for="Summary" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label asp-for="NewsUrl" class="form-label fw-bold"></label>
+                    <input asp-for="NewsUrl" class="form-control" />
+                    <span asp-validation-for="NewsUrl" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <div class="form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label fw-bold"></label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="ImageFile" class="form-label fw-bold"></label>
+                    <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" class="form-control" />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Запази</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
+            </div>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

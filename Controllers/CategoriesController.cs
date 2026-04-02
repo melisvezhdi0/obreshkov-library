@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +10,13 @@ using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 
+
 namespace ObreshkovLibrary.Controllers
-{
+{     
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
+ 
         private readonly ObreshkovLibraryContext _context;
 
         public CategoriesController(ObreshkovLibraryContext context)
@@ -24,8 +28,17 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> Index()
         {
             var categories = await _context.Categories
+                .IgnoreQueryFilters()
                 .OrderBy(c => c.Name)
                 .ToListAsync();
+
+            var directBookCounts = await _context.Books
+                .Where(b => b.IsActive && b.CategoryId != null)
+                .GroupBy(b => b.CategoryId!.Value)
+                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CategoryId, x => x.Count);
+
+            ViewBag.DirectBookCounts = directBookCounts;
 
             return View(categories);
         }

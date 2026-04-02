@@ -167,10 +167,12 @@ namespace ObreshkovLibrary.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -207,10 +209,12 @@ namespace ObreshkovLibrary.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -236,8 +240,11 @@ namespace ObreshkovLibrary.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CoverUrl")
+                    b.Property<string>("CoverPath")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -245,6 +252,9 @@ namespace ObreshkovLibrary.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<string>("SchoolClass")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Tags")
                         .HasColumnType("int");
@@ -262,6 +272,41 @@ namespace ObreshkovLibrary.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.BookAvailabilityRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeactivatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("NotifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("ClientId", "BookId", "IsActive");
+
+                    b.ToTable("BookAvailabilityRequests");
                 });
 
             modelBuilder.Entity("ObreshkovLibrary.Models.BookCopy", b =>
@@ -320,7 +365,6 @@ namespace ObreshkovLibrary.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CardNumber")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -329,11 +373,10 @@ namespace ObreshkovLibrary.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("Grade")
-                        .IsRequired()
                         .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
@@ -341,12 +384,22 @@ namespace ObreshkovLibrary.Migrations
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("LastPasswordChangeOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastTemporaryPassword")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("MiddleName")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("PasswordChangedByStudent")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -354,16 +407,43 @@ namespace ObreshkovLibrary.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Section")
-                        .IsRequired()
-                        .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CardNumber")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[CardNumber] IS NOT NULL");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.ClientFavoriteBook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("ClientId", "BookId")
+                        .IsUnique();
+
+                    b.ToTable("ClientFavoriteBooks");
                 });
 
             modelBuilder.Entity("ObreshkovLibrary.Models.Loan", b =>
@@ -383,12 +463,27 @@ namespace ObreshkovLibrary.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsExtended")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastOverdueReminderSentOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("LoanDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("Reminder1DaySent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Reminder3DaysSent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Reminder7DaysSent")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("ReturnDate")
                         .HasColumnType("datetime2");
@@ -400,6 +495,203 @@ namespace ObreshkovLibrary.Migrations
                     b.HasIndex("BookCopyId", "ReturnDate");
 
                     b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.LoanExtensionRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminResponseMessage")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ProcessedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RequestedDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("RequestedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoanId")
+                        .IsUnique();
+
+                    b.ToTable("LoanExtensionRequests");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.LoanPersonalNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoanId");
+
+                    b.ToTable("LoanPersonalNotes");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.PasswordResetRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GeneratedPassword")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("RequestedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("PasswordResetRequests");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.SchoolNews", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagePath")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NewsUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("PublishedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(700)
+                        .HasColumnType("nvarchar(700)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SchoolNews");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.StudentNotification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("LoanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("LoanId");
+
+                    b.ToTable("StudentNotifications");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -463,6 +755,25 @@ namespace ObreshkovLibrary.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ObreshkovLibrary.Models.BookAvailabilityRequest", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Book", "Book")
+                        .WithMany("AvailabilityRequests")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ObreshkovLibrary.Models.Client", "Client")
+                        .WithMany("AvailabilityRequests")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("ObreshkovLibrary.Models.BookCopy", b =>
                 {
                     b.HasOne("ObreshkovLibrary.Models.Book", "Book")
@@ -478,9 +789,29 @@ namespace ObreshkovLibrary.Migrations
                 {
                     b.HasOne("ObreshkovLibrary.Models.Category", "ParentCategory")
                         .WithMany("Children")
-                        .HasForeignKey("ParentCategoryId");
+                        .HasForeignKey("ParentCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.ClientFavoriteBook", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Book", "Book")
+                        .WithMany("FavoritedByClients")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ObreshkovLibrary.Models.Client", "Client")
+                        .WithMany("FavoriteBooks")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("ObreshkovLibrary.Models.Loan", b =>
@@ -502,9 +833,73 @@ namespace ObreshkovLibrary.Migrations
                     b.Navigation("Client");
                 });
 
+            modelBuilder.Entity("ObreshkovLibrary.Models.LoanExtensionRequest", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Loan", "Loan")
+                        .WithMany("ExtensionRequests")
+                        .HasForeignKey("LoanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Loan");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.LoanPersonalNote", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Loan", "Loan")
+                        .WithMany("PersonalNotes")
+                        .HasForeignKey("LoanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Loan");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.PasswordResetRequest", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.StudentNotification", b =>
+                {
+                    b.HasOne("ObreshkovLibrary.Models.Book", "Book")
+                        .WithMany("Notifications")
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ObreshkovLibrary.Models.Client", "Client")
+                        .WithMany("Notifications")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ObreshkovLibrary.Models.Loan", "Loan")
+                        .WithMany()
+                        .HasForeignKey("LoanId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Loan");
+                });
+
             modelBuilder.Entity("ObreshkovLibrary.Models.Book", b =>
                 {
+                    b.Navigation("AvailabilityRequests");
+
                     b.Navigation("Copies");
+
+                    b.Navigation("FavoritedByClients");
+
+                    b.Navigation("Notifications");
                 });
 
             modelBuilder.Entity("ObreshkovLibrary.Models.Category", b =>
@@ -512,6 +907,22 @@ namespace ObreshkovLibrary.Migrations
                     b.Navigation("Books");
 
                     b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.Client", b =>
+                {
+                    b.Navigation("AvailabilityRequests");
+
+                    b.Navigation("FavoriteBooks");
+
+                    b.Navigation("Notifications");
+                });
+
+            modelBuilder.Entity("ObreshkovLibrary.Models.Loan", b =>
+                {
+                    b.Navigation("ExtensionRequests");
+
+                    b.Navigation("PersonalNotes");
                 });
 #pragma warning restore 612, 618
         }

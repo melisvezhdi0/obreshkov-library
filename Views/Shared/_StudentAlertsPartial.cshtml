@@ -1,0 +1,20 @@
+﻿@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success" style="border-radius:14px; font-weight:700;">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger" style="border-radius:14px; font-weight:700;">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["InfoMessage"] != null)
+{
+    <div class="alert alert-info" style="border-radius:14px; font-weight:700;">
+        @TempData["InfoMessage"]
+    </div>
+}

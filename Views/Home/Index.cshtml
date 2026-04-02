@@ -1,4 +1,8 @@
-﻿@{
+﻿@using ObreshkovLibrary.Models
+@{
+    var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new List<SchoolNews>();
+}
+@{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Начало";
 }
@@ -41,98 +45,87 @@
                         </form>
                     </div>
                 </div>
-
             </section>
-        </div>
+            }
 
-        <section id="school-info" class="info-area">
-            <div class="info-block">
-                <div class="info-title">За училището</div>
-                <div class="info-line"></div>
+        <section class="guest-section-grid">
+            <article id="about-school" class="guest-section-card">
+                <div class="guest-section-label">За училището</div>
+                <h2 class="guest-section-title">Училищна среда с място за знание и четене</h2>
+                <p class="guest-section-text">
+                    ППМГ „Акад. Никола Обрешков“ – Разград е училище с традиции, академична насоченост
+                    и активен училищен живот. Библиотеката е естествена част от тази среда – пространство,
+                    което подпомага подготовката, любознателността и интереса към литературата.
+                </p>
 
-                <div class="info-text">
-                    <p>
-                        ППМГ „Акад. Никола Обрешков“ – Разград е училище с утвърдени традиции и силен акцент
-                        върху качественото образование, развитието на учениците и постиженията им в различни области.
-                    </p>
-                    <p>
-                        Училищната среда насърчава стремежа към знание, активното участие в събития,
-                        състезания и инициативи, както и развитието на интереси в различни направления.
-                    </p>
-                </div>
-            </div>
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>По-ясна ориентация за ученици, учители и гости.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Лесен достъп до каталога и основната информация.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, близка до училищен уебсайт, а не до тъмен промоционален landing page.</span></li>
+                </ul>
+            </article>
 
-            <div id="library-info" class="info-block">
-                <div class="info-title">За библиотеката</div>
-                <div class="info-line"></div>
+            <article id="about-library" class="guest-section-card">
+                <div class="guest-section-label">За библиотеката</div>
+                <h2 class="guest-section-title">Достъпна и подредена библиотечна система</h2>
+                <p class="guest-section-text">
+                    Библиотечната система е създадена, за да представя по ясен и подреден начин
+                    наличните книги и основната информация за библиотеката. Началната страница
+                    насочва гостите към най-важното, без излишно повторение и без претрупани елементи.
+                </p>
 
-                <div class="info-text">
-                    <p>
-                        Училищната библиотека предоставя достъп до книги, учебни издания, сборници
-                        и допълнителна литература, подходяща за различни класове и интереси.
-                    </p>
-                    <p>
-                        Гостите на системата могат свободно да разглеждат каталога и да преглеждат
-                        информация за наличните книги. Регистрацията в системата се извършва на място от библиотекар.
-                    </p>
-                </div>
-            </div>
+                <ul class="guest-list">
+                    <li><span class="guest-list-dot"></span><span>Прегледно представяне на библиотечния каталог.</span></li>
+                    <li><span class="guest-list-dot"></span><span>По-лесна ориентация за гости и потребители.</span></li>
+                    <li><span class="guest-list-dot"></span><span>Визия, съобразена с училищната среда и останалата част от проекта.</span></li>
+                </ul>
+            </article>
         </section>
 
-        <section id="links-info" class="links-section">
-            <div class="links-divider"></div>
+        <section class="guest-stats">
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Местоположение</h3>
+                <p class="guest-stat-number">01</p>
+                <p class="guest-stat-text">
+                    гр. Разград, ППМГ „Акад. Никола Обрешков“
+                </p>
+                <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
+                   target="_blank"
+                   class="guest-stat-link">
+                    Отвори в Google Maps
+                </a>
+            </article>
 
-            <div class="links-grid">
-                <div class="links-col">
-                    <div class="links-heading">Локация</div>
-                    <p class="links-text">
-                        ППМГ „Акад. Никола Обрешков“ – Разград
-                    </p>
-                    <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
-                       target="_blank"
-                       class="links-main">
-                        Отвори в Google Maps
-                    </a>
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Връзка с нас</h3>
+                <p class="guest-stat-number">02</p>
+                <p class="guest-stat-text">
+                    Телефон: 08XXXXXXXX
+                </p>
+                <a href="tel:08XXXXXXXX" class="guest-stat-link">
+                    Обади се
+                </a>
+            </article>
+
+            <article class="guest-stat-card">
+                <h3 class="guest-stat-title">Последвайте училището</h3>
+                <p class="guest-stat-number">03</p>
+                <div class="guest-social-links">
+                    <a href="https://www.facebook.com/" target="_blank" class="guest-stat-link">Facebook</a>
+                    <a href="https://www.instagram.com/" target="_blank" class="guest-stat-link">Instagram</a>
+                    <a href="https://www.pmgrz.net/" target="_blank" class="guest-stat-link">Уебсайт</a>
                 </div>
+            </article>
+            <script>
+                const slides = document.querySelectorAll(".hero-slide");
+                let index = 0;
 
-                <div class="links-col">
-                    <div class="links-heading">За училището</div>
-                    <p class="links-text">
-                        Училище с традиции, силна подготовка и активен училищен живот.
-                        Официалният сайт съдържа новини, прием, събития и полезна информация.
-                    </p>
-                    <a href="https://www.pmgrz.net/"
-                       target="_blank"
-                       class="links-main">
-                        Към официалния сайт
-                    </a>
-                </div>
-
-                <div class="links-col">
-                    <div class="links-heading">Последвайте ни</div>
-
-                    <div class="social-row">
-                        <a href="https://www.instagram.com/" target="_blank" class="social-circle" aria-label="Instagram">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="2"></rect>
-                                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
-                                <circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"></circle>
-                            </svg>
-                        </a>
-
-                        <a href="https://www.facebook.com/" target="_blank" class="social-circle" aria-label="Facebook">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M14 8H16V5H13.5C10.8 5 9 6.7 9 9.8V12H7V15H9V21H12.5V15H15.2L15.7 12H12.5V10.2C12.5 8.9 13 8 14 8Z" fill="currentColor"></path>
-                            </svg>
-                        </a>
-                    </div>
-
-                    <div class="social-labels">
-                        <span>Instagram</span>
-                        <span>Facebook</span>
-                    </div>
-                </div>
-            </div>
+                setInterval(() => {
+                    slides[index].classList.remove("active");
+                    index = (index + 1) % slides.length;
+                    slides[index].classList.add("active");
+                }, 6000);
+            </script>
         </section>
 
     </div>

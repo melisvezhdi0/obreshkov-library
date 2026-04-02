@@ -226,6 +226,161 @@
             width: 100%;
         }
 
+        .admin-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.24);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+        }
+
+            .admin-modal-backdrop.is-open {
+                display: flex;
+            }
+
+        .admin-modal {
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+            overflow: hidden;
+        }
+
+        .admin-modal-header {
+            padding: 18px 20px 10px 20px;
+        }
+
+        .admin-modal-title {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -.2px;
+        }
+
+        .admin-modal-accent {
+            width: 54px;
+            height: 3px;
+            border-radius: 999px;
+            background: var(--accent);
+            margin-top: 10px;
+        }
+
+        .admin-modal-body {
+            padding: 12px 20px 0 20px;
+            color: var(--text-soft);
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .admin-modal-field {
+            margin-top: 14px;
+        }
+
+        .admin-modal-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 12px;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            outline: none;
+            color: var(--text);
+            background: #fff;
+            box-shadow: none;
+        }
+
+            .admin-modal-input:focus {
+                border-color: #9FC3F7;
+                box-shadow: 0 0 0 .2rem rgba(59,130,246,.10);
+            }
+
+        .admin-modal-error {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 12px;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #b91c1c;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+            .admin-modal-error.is-visible {
+                display: block;
+            }
+
+        .admin-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 18px 20px 20px 20px;
+        }
+
+        .admin-modal-btn {
+            min-width: 110px;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-weight: 800;
+            border: 1px solid transparent;
+            transition: .18s ease;
+        }
+
+        .admin-modal-btn-cancel {
+            background: #fff;
+            color: var(--text);
+            border-color: var(--line-strong);
+        }
+
+            .admin-modal-btn-cancel:hover {
+                background: var(--surface-soft);
+            }
+
+        .admin-modal-btn-confirm {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+            .admin-modal-btn-confirm:hover {
+                background: var(--accent-dark);
+                border-color: var(--accent-dark);
+            }
+
+        .admin-modal-btn-close {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+            .admin-modal-btn-close:hover {
+                background: var(--accent-dark);
+                border-color: var(--accent-dark);
+            }
+
+        .admin-modal-success-text {
+            color: var(--text);
+            font-weight: 700;
+            white-space: normal;
+        }
+
+        .admin-modal-password-box {
+            margin-top: 12px;
+            display: inline-block;
+            padding: 7px 12px;
+            background: #fff;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            color: #1e3a8a;
+            font-weight: 800;
+            letter-spacing: .03em;
+        }
+
         @@media (hover:hover) and (pointer:fine) {
             .navbar .nav-item.dropdown:hover > .dropdown-menu {
                 display: block;
@@ -280,6 +435,41 @@
         </div>
     </footer>
 
+    <div id="gateModalBackdrop" class="admin-modal-backdrop" aria-hidden="true">
+        <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="gateModalTitle">
+            <div class="admin-modal-header">
+                <h3 id="gateModalTitle" class="admin-modal-title">Потвърждение</h3>
+                <div class="admin-modal-accent"></div>
+            </div>
+            <div class="admin-modal-body">
+                За да продължиш, въведи администраторската парола.
+                <div class="admin-modal-field">
+                    <input id="gatePasswordInput" class="admin-modal-input" type="password" placeholder="Парола" />
+                </div>
+                <div id="gateModalError" class="admin-modal-error">Грешна парола.</div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" id="gateCancelBtn" class="admin-modal-btn admin-modal-btn-cancel">Отказ</button>
+                <button type="button" id="gateConfirmBtn" class="admin-modal-btn admin-modal-btn-confirm">Потвърди</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successModalBackdrop" class="admin-modal-backdrop" aria-hidden="true">
+        <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+            <div class="admin-modal-header">
+                <h3 id="successModalTitle" class="admin-modal-title">Успешно сменена парола</h3>
+                <div class="admin-modal-accent"></div>
+            </div>
+            <div class="admin-modal-body">
+                <div id="successModalContent" class="admin-modal-success-text"></div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" id="successModalCloseBtn" class="admin-modal-btn admin-modal-btn-close">Затвори</button>
+            </div>
+        </div>
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -288,53 +478,137 @@
 
     <script>
         (function () {
-          let lastSubmitter = null;
+            let lastSubmitter = null;
+            let pendingForm = null;
+            let pendingSubmitter = null;
 
-          document.addEventListener('click', function (e) {
-            const btn = e.target.closest('button[type="submit"], input[type="submit"]');
-            if (btn) lastSubmitter = btn;
-          }, true);
+            const gateBackdrop = document.getElementById('gateModalBackdrop');
+            const gatePasswordInput = document.getElementById('gatePasswordInput');
+            const gateError = document.getElementById('gateModalError');
+            const gateConfirmBtn = document.getElementById('gateConfirmBtn');
+            const gateCancelBtn = document.getElementById('gateCancelBtn');
 
-          document.addEventListener('submit', async function (e) {
-            const form = e.target;
-            if (!form.matches('form[data-gate="1"]')) return;
+            const successBackdrop = document.getElementById('successModalBackdrop');
+            const successContent = document.getElementById('successModalContent');
+            const successCloseBtn = document.getElementById('successModalCloseBtn');
 
-            const submitter = e.submitter || lastSubmitter;
+            function openGateModal(form, submitter) {
+                pendingForm = form;
+                pendingSubmitter = submitter;
+                gatePasswordInput.value = '';
+                gateError.classList.remove('is-visible');
+                gateBackdrop.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => gatePasswordInput.focus(), 30);
+            }
 
-            e.preventDefault();
+            function closeGateModal() {
+                gateBackdrop.classList.remove('is-open');
+                document.body.style.overflow = '';
+                pendingForm = null;
+                pendingSubmitter = null;
+                gatePasswordInput.value = '';
+                gateError.classList.remove('is-visible');
+            }
 
-            const pwd = prompt('Парола:');
-            if (!pwd) return;
+            function openSuccessModal(html) {
+                successContent.innerHTML = html;
+                successBackdrop.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+            }
 
-            const tokenInput = form.querySelector('input[name="__RequestVerificationToken"]');
-            const token = tokenInput ? tokenInput.value : '';
+            function closeSuccessModal() {
+                successBackdrop.classList.remove('is-open');
+                document.body.style.overflow = '';
+            }
 
-            const body = new URLSearchParams();
-            body.set('password', pwd);
-            if (token) body.set('__RequestVerificationToken', token);
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('button[type="submit"], input[type="submit"]');
+                if (btn) lastSubmitter = btn;
+            }, true);
 
-            const res = await fetch('/Gate/Unlock', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-              body: body.toString()
+            document.addEventListener('submit', function (e) {
+                const form = e.target;
+                if (!form.matches('form[data-gate="1"]')) return;
+
+                const submitter = e.submitter || lastSubmitter;
+                e.preventDefault();
+                openGateModal(form, submitter);
+            }, true);
+
+            gateConfirmBtn.addEventListener('click', async function () {
+                if (!pendingForm) return;
+
+                const pwd = gatePasswordInput.value.trim();
+                if (!pwd) {
+                    gateError.textContent = 'Моля, въведи парола.';
+                    gateError.classList.add('is-visible');
+                    gatePasswordInput.focus();
+                    return;
+                }
+
+                const tokenInput = pendingForm.querySelector('input[name="__RequestVerificationToken"]');
+                const token = tokenInput ? tokenInput.value : '';
+
+                const body = new URLSearchParams();
+                body.set('password', pwd);
+                if (token) body.set('__RequestVerificationToken', token);
+
+                const res = await fetch('/Gate/Unlock', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body: body.toString()
+                });
+
+                if (!res.ok) {
+                    gateError.textContent = 'Грешна парола.';
+                    gateError.classList.add('is-visible');
+                    gatePasswordInput.focus();
+                    gatePasswordInput.select();
+                    return;
+                }
+
+                if (pendingSubmitter) {
+                    const fa = pendingSubmitter.getAttribute('formaction');
+                    if (fa) pendingForm.setAttribute('action', fa);
+
+                    const fm = pendingSubmitter.getAttribute('formmethod');
+                    if (fm) pendingForm.setAttribute('method', fm);
+                }
+
+                const formToSubmit = pendingForm;
+                lastSubmitter = null;
+                closeGateModal();
+                formToSubmit.submit();
             });
 
-            if (!res.ok) {
-              alert('Грешна парола');
-              return;
-            }
+            gateCancelBtn.addEventListener('click', closeGateModal);
+            successCloseBtn.addEventListener('click', closeSuccessModal);
 
-            if (submitter) {
-              const fa = submitter.getAttribute('formaction');
-              if (fa) form.setAttribute('action', fa);
+            gateBackdrop.addEventListener('click', function (e) {
+                if (e.target === gateBackdrop) closeGateModal();
+            });
 
-              const fm = submitter.getAttribute('formmethod');
-              if (fm) form.setAttribute('method', fm);
-            }
+            successBackdrop.addEventListener('click', function (e) {
+                if (e.target === successBackdrop) closeSuccessModal();
+            });
 
-            lastSubmitter = null;
-            form.submit();
-          }, true);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    if (gateBackdrop.classList.contains('is-open')) closeGateModal();
+                    if (successBackdrop.classList.contains('is-open')) closeSuccessModal();
+                }
+
+                if (e.key === 'Enter' && gateBackdrop.classList.contains('is-open')) {
+                    const active = document.activeElement;
+                    if (active && active.id === 'gatePasswordInput') {
+                        e.preventDefault();
+                        gateConfirmBtn.click();
+                    }
+                }
+            });
+
+            window.showAdminSuccessModal = openSuccessModal;
         })();
     </script>
 

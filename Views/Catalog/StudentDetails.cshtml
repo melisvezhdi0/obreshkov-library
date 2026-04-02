@@ -1,0 +1,290 @@
+﻿@model ObreshkovLibrary.Models.Book
+@using ObreshkovLibrary.Models
+@using System.Linq
+
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = Model.Title;
+
+    var isAvailable = (ViewBag.IsAvailable as bool?) ?? false;
+    var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
+    var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
+    var isFavorite = (ViewBag.IsFavorite as bool?) ?? false;
+    var hasAvailabilityRequest = (ViewBag.HasAvailabilityRequest as bool?) ?? false;
+    var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
+    string categoryName = "Няма категория";
+    if (Model.Category != null)
+    {
+        categoryName = Model.Category.ParentCategory != null
+            ? $"{Model.Category.ParentCategory.Name} / {Model.Category.Name}"
+            : Model.Category.Name;
+    }
+
+    List<string> tagNames = new();
+
+    if ((Model.Tags & BookTags.Classic) == BookTags.Classic) tagNames.Add("Класика");
+    if ((Model.Tags & BookTags.Romance) == BookTags.Romance) tagNames.Add("Любовен");
+    if ((Model.Tags & BookTags.Drama) == BookTags.Drama) tagNames.Add("Драма");
+    if ((Model.Tags & BookTags.Fantasy) == BookTags.Fantasy) tagNames.Add("Фентъзи");
+    if ((Model.Tags & BookTags.Horror) == BookTags.Horror) tagNames.Add("Ужаси");
+    if ((Model.Tags & BookTags.Bulgarian) == BookTags.Bulgarian) tagNames.Add("Българска литература");
+    if ((Model.Tags & BookTags.Foreign) == BookTags.Foreign) tagNames.Add("Чужда литература");
+    if ((Model.Tags & BookTags.SchoolLiterature) == BookTags.SchoolLiterature) tagNames.Add("Училищна литература");
+}
+
+<div style="width:100%; min-height:calc(100vh - 80px); background:#f3f6fa; padding:28px 0 42px;">
+    <div style="width:min(1220px, calc(100% - 24px)); margin:0 auto;">
+
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
+            <div>
+                <h1 style="margin:0; color:#17325c; font-size:2.45rem; line-height:1.08; font-weight:900;">
+                    @Model.Title
+                </h1>
+                <div style="width:60px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#4f8cff 100%);"></div>
+            </div>
+
+            <a asp-controller="Catalog"
+               asp-action="StudentIndex"
+               style="display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 17px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; text-decoration:none; font-size:.95rem; font-weight:800;"
+               onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
+               onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
+                Назад към каталога
+            </a>
+        </div>
+
+        <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; padding:24px;">
+
+                <div>
+                    <div style="width:100%; min-height:500px; border:1px solid #dbe3ec; border-radius:20px; background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%); padding:16px; display:flex; align-items:center; justify-content:center;">
+                        @if (!string.IsNullOrWhiteSpace(Model.CoverPath))
+                        {
+                            <img src="@Model.CoverPath"
+                                 alt="@Model.Title"
+                                 style="width:100%; height:100%; max-height:620px; object-fit:contain; display:block; border-radius:14px; background:#ffffff;" />
+                        }
+                        else
+                        {
+                            <div style="width:100%; min-height:460px; border:2px dashed #cad5e0; border-radius:16px; background:#f8fbff; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px; color:#6b7c8e; font-size:1rem; font-weight:800;">
+                                Няма корица
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:18px; min-width:0;">
+                    <div>
+                        <div style="color:#64748b; font-size:1rem; font-weight:800; margin-bottom:6px;">
+                            Автор
+                        </div>
+                        <div style="color:#17325c; font-size:1.35rem; line-height:1.25; font-weight:900;">
+                            @Model.Author
+                        </div>
+                    </div>
+
+                    <div style="border:1px solid #d9e1ea; border-radius:18px; overflow:hidden; background:#ffffff;">
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Статус</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem;">
+                                <span style="display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 15px; border-radius:999px; font-size:.92rem; font-weight:900; white-space:nowrap; @(isAvailable ? "background:#e8f7ee; color:#2f7d32; border:1px solid #cfe7d3;" : "background:#fff1ee; color:#c2410c; border:1px solid #ffd6c8;")">
+                                    @(isAvailable ? "Налична" : "Не е налична")
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Година</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
+                                @(Model.Year.HasValue? Model.Year.ToString() : "Няма данни")
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Категория</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
+                                @categoryName
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Клас</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
+                                @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:74px;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Тагове</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem;">
+                                @if (tagNames.Any())
+                                {
+                                    <div style="display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; width:100%;">
+                                        @foreach (var tag in tagNames)
+                                        {
+                                            <span style="display:inline-flex; align-items:center; padding:.5rem .92rem; border-radius:999px; border:1px solid #d8e6ff; background:#eef4ff; color:#2563eb; font-size:.88rem; font-weight:800;">
+                                                @tag
+                                            </span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span style="color:#6b7c8e; font-size:.97rem; font-weight:700;">Няма тагове</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <section style="border:1px solid #d8e1eb; border-radius:18px; background:#ffffff; padding:18px;">
+                        <h3 style="margin:0 0 14px 0; color:#17325c; font-size:1.06rem; font-weight:900;">
+                            Опции за ученик
+                        </h3>
+
+                        <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+
+                            <form asp-controller="StudentPortal" asp-action="ToggleFavorite" method="post" style="margin:0;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="bookId" value="@Model.Id" />
+                                <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+
+                                @if (isFavorite)
+                                {
+                                    <button type="submit"
+                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #f1b8b8; background:#fff5f5; color:#c81e1e; font-weight:800; cursor:pointer;"
+                                            onmouseover="this.style.background='#feecec';"
+                                            onmouseout="this.style.background='#fff5f5';">
+                                        Премахни от любими
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="submit"
+                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #2563eb; background:#2563eb; color:#ffffff; font-weight:800; cursor:pointer;"
+                                            onmouseover="this.style.background='#1d4ed8'; this.style.borderColor='#1d4ed8';"
+                                            onmouseout="this.style.background='#2563eb'; this.style.borderColor='#2563eb';">
+                                        Добави в любими
+                                    </button>
+                                }
+                            </form>
+
+                            @if (!isAvailable)
+                            {
+                                @if (hasAvailabilityRequest)
+                                {
+                                    <div style="display:flex; align-items:center; min-height:42px; padding:0 14px; border-radius:10px; background:#eff6ff; border:1px solid #cfe0fb; color:#1d4ed8; font-size:.92rem; font-weight:800;">
+                                        Ще получиш съобщение, когато книгата стане налична.
+                                    </div>
+                                }
+                                else
+                                {
+                                    <form asp-controller="StudentPortal" asp-action="RequestAvailabilityNotification" method="post" style="margin:0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookId" value="@Model.Id" />
+                                        <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
+
+                                        <button type="submit"
+                                                style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; font-weight:800; cursor:pointer;"
+                                                onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
+                                                onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
+                                            Уведоми ме, когато е налична
+                                        </button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
+            <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+                <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
+                    Описание
+                </h3>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div style="padding:20px;">
+                    <p style="margin:0; color:#334155; font-size:1rem; line-height:1.85; white-space:pre-line;">
+                        @Model.Description
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div style="padding:20px; color:#6b7c8e; font-weight:700;">
+                    Няма добавено описание за тази книга.
+                </div>
+            }
+        </section>
+
+        @if (relatedBooks.Any())
+        {
+            <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
+                <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+                    <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
+                        Още книги от същия автор
+                    </h3>
+                </div>
+
+                <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
+                    @foreach (var book in relatedBooks)
+                    {
+                        <a asp-controller="Catalog"
+                           asp-action="StudentDetails"
+                           asp-route-id="@book.Id"
+                           style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
+                           onmouseover="this.style.transform='translateY(-4px)';"
+                           onmouseout="this.style.transform='translateY(0)'">
+                            <div style="height:210px; border-radius:12px; background:#f4f7fb; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                @if (!string.IsNullOrWhiteSpace(book.CoverPath))
+                                {
+                                    <img src="@book.CoverPath" alt="@book.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                }
+                            </div>
+                            <div style="margin-top:10px; color:#0f172a; font-size:.95rem; font-weight:900; line-height:1.35;">
+                                @book.Title
+                            </div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (similarBooks.Any())
+        {
+            <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden;">
+                <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+                    <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
+                        Подобни книги
+                    </h3>
+                </div>
+
+                <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
+                    @foreach (var book in similarBooks)
+                    {
+                        <a asp-controller="Catalog"
+                           asp-action="StudentDetails"
+                           asp-route-id="@book.Id"
+                           style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
+                           onmouseover="this.style.transform='translateY(-4px)';"
+                           onmouseout="this.style.transform='translateY(0)'">
+                            <div style="height:210px; border-radius:12px; background:#f4f7fb; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                                @if (!string.IsNullOrWhiteSpace(book.CoverPath))
+                                {
+                                    <img src="@book.CoverPath" alt="@book.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                }
+                            </div>
+                            <div style="margin-top:10px; color:#0f172a; font-size:.95rem; font-weight:900; line-height:1.35;">
+                                @book.Title
+                            </div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</div>

@@ -239,7 +239,7 @@ namespace ObreshkovLibrary.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<string>("CoverUrl")
+                    b.Property<string>("CoverPath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")

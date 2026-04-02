@@ -1,0 +1,223 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.CatalogIndexVM
+@using ObreshkovLibrary.Models
+@using System.Linq
+
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = "Каталог";
+
+    var categories = Model.Categories ?? new List<Category>();
+
+    var rootCategories = categories
+        .Where(c => c.ParentCategoryId == null)
+        .OrderBy(c => c.Name)
+        .ToList();
+
+    var openIds = new HashSet<int>();
+
+    if (Model.SelectedCategoryId.HasValue)
+    {
+        var current = categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId.Value);
+        while (current != null)
+        {
+            openIds.Add(current.Id);
+            current = current.ParentCategoryId.HasValue
+                ? categories.FirstOrDefault(c => c.Id == current.ParentCategoryId.Value)
+                : null;
+        }
+    }
+
+    string GetCover(Book book) => book.CoverPath ?? "";
+    List<Category> GetChildren(int parentId)
+        => categories.Where(c => c.ParentCategoryId == parentId).OrderBy(c => c.Name).ToList();
+}
+
+<div style="width:100%; margin:0; padding:0; background:#ffffff;">
+    <div style="width:100%; margin:0; padding:0;">
+
+        <div style="display:grid; grid-template-columns:270px minmax(0,1fr); min-height:calc(100vh - 78px); background:#ffffff; border-top:1px solid #e5e7eb;">
+
+            <aside style="background:#f9fafb; border-right:1px solid #e5e7eb; padding:0;">
+                <div style="padding:24px 18px 18px 18px; border-bottom:1px solid #e5e7eb;">
+                    <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
+                        Каталог
+                    </div>
+
+                    <h1 style="margin:12px 0 0 0; color:#17325c; font-size:1.8rem; font-weight:900; line-height:1.1;">
+                        Книги
+                    </h1>
+
+                    <p style="margin:12px 0 0 0; color:#64748b; font-size:.95rem; font-weight:700; line-height:1.6;">
+                        Разгледай по категория.
+                    </p>
+                </div>
+
+                <div style="padding:10px;">
+                    <a asp-controller="Catalog"
+                       asp-action="StudentIndex"
+                       asp-route-search="@Model.Search"
+                       asp-route-sort="@Model.Sort"
+                       style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155"); background:@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent"); border:1px solid @(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent"); margin-bottom:8px;"
+                       onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                       onmouseout="this.style.background='@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent")'; this.style.color='@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent")';">
+                        Всички книги
+                    </a>
+
+                    @foreach (var root in rootCategories)
+                    {
+                        var children = GetChildren(root.Id);
+                        var open = openIds.Contains(root.Id);
+                        var selected = Model.SelectedCategoryId == root.Id;
+
+                        <div style="margin-bottom:6px; border-radius:10px; border:1px solid #e5e7eb; background:#ffffff; overflow:hidden;">
+                            <div style="display:flex; align-items:center; gap:6px; padding:8px;">
+                                @if (children.Any())
+                                {
+                                    <button type="button"
+                                            class="tree-toggle-btn"
+                                            data-target="student-cat-@root.Id"
+                                            style="width:28px; height:28px; border:none; border-radius:8px; background:#eef4ff; color:#1d4ed8; font-weight:900; cursor:pointer;">
+                                        <span class="tree-plus" style="display:@(open ? "none" : "inline")">+</span>
+                                        <span class="tree-minus" style="display:@(open ? "inline" : "none")">−</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <span style="width:28px; height:28px;"></span>
+                                }
+
+                                <a asp-controller="Catalog"
+                                   asp-action="StudentIndex"
+                                   asp-route-categoryId="@root.Id"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-sort="@Model.Sort"
+                                   style="flex:1; display:block; padding:6px 8px; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:800; color:@(selected ? "#1d4ed8" : "#334155"); background:@(selected ? "#eef4ff" : "transparent");"
+                                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+                                   onmouseout="this.style.background='@(selected ? "#eef4ff" : "transparent")'; this.style.color='@(selected ? "#1d4ed8" : "#334155")';">
+                                    @root.Name
+                                </a>
+                            </div>
+
+                            @if (children.Any())
+                            {
+                                <div id="student-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 8px 8px 8px;">
+                                    @foreach (var child in children)
+                                    {
+                                        var selectedChild = Model.SelectedCategoryId == child.Id;
+
+                                        <a asp-controller="Catalog"
+                                           asp-action="StudentIndex"
+                                           asp-route-categoryId="@child.Id"
+                                           asp-route-search="@Model.Search"
+                                           asp-route-sort="@Model.Sort"
+                                           style="display:block; padding:6px 10px 6px 36px; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:800; color:@(selectedChild ? "#1d4ed8" : "#4c647f"); background:@(selectedChild ? "#eef4ff" : "transparent");"
+                                           onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+                                           onmouseout="this.style.background='@(selectedChild ? "#eef4ff" : "transparent")'; this.style.color='@(selectedChild ? "#1d4ed8" : "#4c647f")';">
+                                            @child.Name
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </aside>
+
+            <section style="padding:24px 28px; min-width:0; background:#ffffff;">
+                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; padding:14px; margin-bottom:20px;">
+                    <form method="get"
+                          asp-action="StudentIndex"
+                          style="display:grid; grid-template-columns:1fr 220px 120px; gap:12px;">
+
+                        <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
+
+                        <input name="search"
+                               value="@Model.Search"
+                               placeholder="Търси по заглавие, автор, жанр или категория..."
+                               style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 18px; font-weight:700;" />
+
+                        <select name="sort"
+                                style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 14px; font-weight:800;">
+                            <option value="date_desc" selected="@(Model.Sort == "date_desc")">Най-нови първо</option>
+                            <option value="date_asc" selected="@(Model.Sort == "date_asc")">Най-стари първо</option>
+                            <option value="name_asc" selected="@(Model.Sort == "name_asc")">Име А-Я</option>
+                            <option value="name_desc" selected="@(Model.Sort == "name_desc")">Име Я-А</option>
+                        </select>
+
+                        <button type="submit"
+                                style="border:none; border-radius:10px; background:#2563eb; color:#ffffff; font-weight:900; cursor:pointer;"
+                                onmouseover="this.style.background='#1d4ed8';"
+                                onmouseout="this.style.background='#2563eb';">
+                            Приложи
+                        </button>
+                    </form>
+                </section>
+
+                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; overflow:hidden;">
+                    <div style="padding:20px 22px; border-bottom:1px solid #e5e7eb;">
+                        <h2 style="margin:0; font-size:2rem; font-weight:900; color:#17325c; line-height:1.1;">
+                            @Model.SelectedCategoryName
+                        </h2>
+                    </div>
+
+                    <div style="padding:22px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:24px;">
+                        @foreach (var book in Model.Books)
+                        {
+                            var cover = GetCover(book);
+
+                            <a asp-controller="Catalog"
+                               asp-action="StudentDetails"
+                               asp-route-id="@book.Id"
+                               style="position:relative; display:flex; flex-direction:column; border-radius:16px; padding:12px; background:#ffffff; border:1px solid #e6edf5; text-decoration:none; transition:.2s;"
+                               onmouseover="this.style.transform='translateY(-4px)'; this.querySelector('.overlay').style.opacity='1';"
+                               onmouseout="this.style.transform='translateY(0)'; this.querySelector('.overlay').style.opacity='0';">
+
+                                <div style="height:210px; border-radius:12px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:#f4f7fb;">
+                                    @if (!string.IsNullOrEmpty(cover))
+                                    {
+                                        <img src="@cover" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                    }
+
+                                    <div class="overlay"
+                                         style="position:absolute; inset:0; background:rgba(37,99,235,.78); display:flex; align-items:center; justify-content:center; font-weight:900; color:white; letter-spacing:.05em; font-size:.9rem; opacity:0; transition:.25s;">
+                                        Виж детайли
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:10px; font-weight:900; font-size:.95rem; color:#0f172a; line-height:1.35;">
+                                    @book.Title
+                                </div>
+
+                                <div style="font-size:.9rem; font-weight:700; color:#6b7f95;">
+                                    @book.Author
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </section>
+            </section>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll(".tree-toggle-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const target = document.getElementById(btn.dataset.target);
+                const plus = btn.querySelector(".tree-plus");
+                const minus = btn.querySelector(".tree-minus");
+
+                if (target.style.display === "none") {
+                    target.style.display = "block";
+                    plus.style.display = "none";
+                    minus.style.display = "inline";
+                } else {
+                    target.style.display = "none";
+                    plus.style.display = "inline";
+                    minus.style.display = "none";
+                }
+            });
+        });
+    </script>
+}

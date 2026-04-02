@@ -1,72 +1,107 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ClientsController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly TemporaryPasswordService _temporaryPasswordService;
 
-        public ClientsController(ObreshkovLibraryContext context)
+        public ClientsController(
+            ObreshkovLibraryContext context,
+            UserManager<IdentityUser> userManager,
+            TemporaryPasswordService temporaryPasswordService)
         {
             _context = context;
+            _userManager = userManager;
+            _temporaryPasswordService = temporaryPasswordService;
         }
 
-        // GET: Clients (активни)
         public async Task<IActionResult> Index(string? search, string? classFilter)
         {
-            var q = _context.Clients.AsQueryable();
+            var clients = await _context.Clients
+                .Where(c => c.IsActive)
+                .ToListAsync();
+
+            var availableClasses = clients
+                .Where(c => c.Grade.HasValue)
+                .Select(c =>
+                {
+                    var grade = c.Grade.Value.ToString();
+                    var section = (c.Section ?? "").Trim();
+
+                    return string.IsNullOrWhiteSpace(section)
+                        ? grade
+                        : $"{grade}{section}".Replace(" ", "").ToUpper();
+                })
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {
-                var cf = classFilter.Trim().Replace(" ", "").ToUpper();
+                var normalizedClass = classFilter.Trim().Replace(" ", "").ToUpper();
 
-                q = q.Where(c =>
-                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
-                        .ToUpper()
-                        .Replace(" ", ""))
-                    == cf
-                );
+                clients = clients
+                    .Where(c =>
+                    {
+                        var grade = c.Grade.HasValue ? c.Grade.Value.ToString() : "";
+                        var section = (c.Section ?? "").Trim();
+
+                        var clientClass = string.IsNullOrWhiteSpace(section)
+                            ? grade
+                            : $"{grade}{section}".Replace(" ", "").ToUpper();
+
+                        return clientClass == normalizedClass;
+                    })
+                    .ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var s = search.Trim();
-                var sNoSpacesUpper = s.Replace(" ", "").ToUpper();
+                var normalizedSearch = search.Trim();
 
-                q = q.Where(c =>
-                    (c.FirstName ?? "").Contains(s) ||
-                    (c.MiddleName ?? "").Contains(s) ||
-                    (c.LastName ?? "").Contains(s) ||
-                    (c.PhoneNumber ?? "").Contains(s) ||
-                    (c.CardNumber ?? "").Contains(s) ||
-                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
-                        .ToUpper()
-                        .Replace(" ", ""))
-                        .Contains(sNoSpacesUpper)
-                );
+                clients = clients
+                    .Where(c =>
+                    {
+                        var fullName = $"{c.FirstName} {c.MiddleName} {c.LastName}"
+                            .Replace("  ", " ")
+                            .Trim();
+
+                        return
+                            fullName.Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.PhoneNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.CardNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase);
+                    })
+                    .ToList();
             }
 
-            var clients = await q
+            clients = clients
                 .OrderBy(c => c.Grade ?? int.MaxValue)
                 .ThenBy(c => c.Section ?? "")
                 .ThenBy(c => c.LastName)
                 .ThenBy(c => c.FirstName)
-                .Where(c => c.IsActive)
-                .ToListAsync();
+                .ToList();
 
-            ViewBag.Search = search;
-            ViewBag.ClassFilter = classFilter;
+            ViewBag.Search = search ?? "";
+            ViewBag.ClassFilter = classFilter ?? "";
+            ViewBag.AvailableClasses = availableClasses;
 
             return View(clients);
         }
 
-        // GET: Clients/Archived (архив)
         public async Task<IActionResult> Archived(string? search, string? classFilter)
         {
             var q = _context.Clients
@@ -117,7 +152,6 @@ namespace ObreshkovLibrary.Controllers
             return View(clients);
         }
 
-        // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -137,16 +171,31 @@ namespace ObreshkovLibrary.Controllers
 
             ViewBag.ActiveLoans = activeLoans;
 
+            string passwordDisplay;
+
+            if (string.IsNullOrWhiteSpace(client.LastTemporaryPassword))
+            {
+                passwordDisplay = "Няма данни";
+            }
+            else if (client.PasswordChangedByStudent)
+            {
+                passwordDisplay = "Успешно сменена от ученика";
+            }
+            else
+            {
+                passwordDisplay = client.LastTemporaryPassword;
+            }
+
+            ViewBag.PasswordDisplay = passwordDisplay;
+
             return View(client);
         }
 
-        // GET: Clients/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Clients/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Client client)
@@ -164,10 +213,59 @@ namespace ObreshkovLibrary.Controllers
             _context.Add(client);
             await _context.SaveChangesAsync();
 
+            var generatedPassword = _temporaryPasswordService.Generate();
+            client.LastTemporaryPassword = generatedPassword;
+            client.PasswordChangedByStudent = false;
+            client.LastPasswordChangeOn = null;
+
+            _context.Update(client);
+            await _context.SaveChangesAsync();
+
+            var studentUser = new IdentityUser
+            {
+                UserName = client.CardNumber.Trim().ToUpper(),
+                Email = $"student_{client.CardNumber.Trim().Replace("-", "").ToLower()}@obreshkov.local",
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await _userManager.CreateAsync(studentUser, generatedPassword);
+
+            if (!createUserResult.Succeeded)
+            {
+                _context.Clients.Remove(client);
+                await _context.SaveChangesAsync();
+
+                foreach (var error in createUserResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(client);
+            }
+
+            var addRoleResult = await _userManager.AddToRoleAsync(studentUser, "Student");
+
+            if (!addRoleResult.Succeeded)
+            {
+                await _userManager.DeleteAsync(studentUser);
+                _context.Clients.Remove(client);
+                await _context.SaveChangesAsync();
+
+                foreach (var error in addRoleResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
+                return View(client);
+            }
+
+            TempData["CreatedStudentPassword"] = generatedPassword;
+            TempData["CreatedStudentCard"] = client.CardNumber;
+            TempData["CreatedStudentName"] = $"{client.FirstName} {client.LastName}";
+
             return RedirectToAction(nameof(Details), new { id = client.Id });
         }
 
-        // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -183,7 +281,6 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // POST: Clients/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id)
@@ -219,7 +316,6 @@ namespace ObreshkovLibrary.Controllers
             return View(clientToUpdate);
         }
 
-        // GET: Clients/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -235,7 +331,6 @@ namespace ObreshkovLibrary.Controllers
             return View(client);
         }
 
-        // POST: Clients/Delete/5  -> Soft delete (архив)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -283,6 +378,75 @@ namespace ObreshkovLibrary.Controllers
             return RedirectToAction(nameof(Archived));
         }
 
+        public async Task<IActionResult> PasswordResetRequests()
+        {
+            var requests = await _context.PasswordResetRequests
+                .Include(r => r.Client)
+                .OrderBy(r => r.IsCompleted)
+                .ThenByDescending(r => r.RequestedOn)
+                .ToListAsync();
+
+            return View(requests);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GenerateTemporaryPassword(int id)
+        {
+            var request = await _context.PasswordResetRequests
+                .Include(r => r.Client)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (request == null)
+            {
+                TempData["Error"] = "Заявката не е намерена.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            if (request.IsCompleted)
+            {
+                TempData["Error"] = "Тази заявка вече е обработена.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Client.CardNumber))
+            {
+                TempData["Error"] = "Клиентът няма читателска карта.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            var normalizedCardNumber = request.Client.CardNumber.Trim().ToUpper();
+
+            var user = await _userManager.FindByNameAsync(normalizedCardNumber);
+            if (user == null)
+            {
+                TempData["Error"] = "Не е намерен потребител за този ученик.";
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            var tempPassword = _temporaryPasswordService.Generate();
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetResult = await _userManager.ResetPasswordAsync(user, token, tempPassword);
+
+            if (!resetResult.Succeeded)
+            {
+                TempData["Error"] = string.Join(" ", resetResult.Errors.Select(e => e.Description));
+                return RedirectToAction(nameof(PasswordResetRequests));
+            }
+
+            request.Client.LastTemporaryPassword = tempPassword;
+            request.Client.PasswordChangedByStudent = false;
+            request.Client.LastPasswordChangeOn = null;
+
+            request.GeneratedPassword = tempPassword;
+            request.IsCompleted = true;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Нова временна парола: {tempPassword}";
+            return RedirectToAction(nameof(PasswordResetRequests));
+        }
         private bool ClientExists(int id)
         {
             return _context.Clients
@@ -322,6 +486,14 @@ namespace ObreshkovLibrary.Controllers
             }
 
             await _context.SaveChangesAsync();
+        }
+        private string GenerateTemporaryPasswordValue()
+        {
+            const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 8)
+                .Select(s => s[random.Next(s.Length)])
+                .ToArray());
         }
     }
 }

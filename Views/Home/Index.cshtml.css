@@ -82,13 +82,21 @@
 }
 
 .hero-images {
-    position: absolute;
-    inset: 0;
+        position: absolute;
+        inset: 0;
     overflow: hidden;
-    z-index: 1;
-}
+        z-index: 1;
+    }
 
 .hero-img {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    border-radius: 28px;
+}
+
+.hero-slide {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -178,17 +186,17 @@
         border-radius: 14px;
         transition: .22s ease;
         white-space: nowrap;
-    }
+}
 
         .hero-nav-inner a:hover {
             background: rgba(255,255,255,0.10);
             color: #ffffff;
-        }
+}
 
         .hero-nav-inner a:first-child {
             background: linear-gradient(135deg, rgba(112, 173, 255, 0.25) 0%, rgba(71, 132, 221, 0.18) 100%);
             border: 1px solid rgba(161, 204, 255, 0.18);
-        }
+}
 
 /* SEARCH */
 .hero-search-wrap {
@@ -266,6 +274,7 @@
     margin: 34px auto 0;
     padding: 0 18px;
     display: grid;
+    grid-template-columns: 1.15fr .85fr;
     gap: 22px;
 }
 
@@ -380,7 +389,7 @@
         border-color: transparent;
         color: #fff;
         box-shadow: 0 12px 26px rgba(45, 90, 175, 0.22);
-    }
+}
 
 .social-row {
     display: flex;
@@ -406,14 +415,14 @@
     .social-circle svg {
         width: 20px;
         height: 20px;
-    }
+}
 
     .social-circle:hover {
         transform: translateY(-2px);
         background: linear-gradient(135deg, #6ba7f4 0%, #3d73ca 100%);
         color: #ffffff;
         border-color: transparent;
-    }
+}
 
 .social-labels {
     display: flex;
@@ -433,7 +442,7 @@
     .hero-card {
         min-height: 590px;
         border-radius: 28px;
-    }
+        }
 
     .hero-nav-inner {
         flex-wrap: wrap;
@@ -442,15 +451,15 @@
 
         .hero-nav-inner a {
             padding: 13px 20px;
-        }
+    }
 
     .hero-search-form {
         flex-direction: column;
         align-items: stretch;
-    }
+}
 
     .hero-search-button {
-        width: 100%;
+    width: 100%;
     }
 }
 
@@ -483,29 +492,29 @@
     .hero-nav {
         top: 16px;
         padding: 0 14px;
-    }
+}
 
     .hero-nav-inner {
-        width: 100%;
+    width: 100%;
         max-width: 100%;
-    }
+}
 
         .hero-nav-inner a {
             flex: 1 1 auto;
             text-align: center;
             font-size: .94rem;
             padding: 13px 10px;
-        }
+}
 
     .hero-search-wrap {
         bottom: 18px;
         padding: 0 14px;
-    }
+}
 
     .hero-search-panel {
         border-radius: 22px;
         padding: 14px;
-    }
+}
 
     .hero-search-input,
     .hero-search-button {
@@ -521,7 +530,7 @@
 
     .info-title {
         font-size: 1.6rem;
-    }
+}
 
     .info-text {
         font-size: 1rem;

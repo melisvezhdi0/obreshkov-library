@@ -1,0 +1,218 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.StudentDashboardVM
+
+@{
+    ViewData["Title"] = "Моят профил";
+    Layout = "_StudentLayout";
+
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    string sideStyle(string action)
+    {
+        var isActive = currentAction == action;
+
+        return isActive
+            ? "display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#1d4ed8; background:#eef4ff; border:1px solid #dbe7fb;"
+            : "display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;";
+    }
+}
+
+<div style="width:100%; margin:0; padding:0;">
+    <partial name="_StudentAlertsPartial" />
+
+    <div style="display:grid; grid-template-columns:260px minmax(0, 1fr); background:#ffffff; border-top:1px solid #e5e7eb; min-height:calc(100vh - 110px); overflow:hidden;">
+
+        <aside style="background:#f9fafb; border-right:1px solid #e5e7eb; padding:0;">
+            <div style="padding:24px 18px 18px 18px; border-bottom:1px solid #e5e7eb;">
+                <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
+                    Student Portal
+                </div>
+
+                <h1 style="margin:12px 0 0 0; color:#17325c; font-size:1.8rem; font-weight:900; line-height:1.1;">
+                    Моят профил
+                </h1>
+            </div>
+
+            <nav style="display:flex; flex-direction:column; gap:4px; padding:10px;">
+                <a asp-controller="StudentPortal"
+                   asp-action="Index"
+                   style="@sideStyle("Index")"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='@(currentAction == "Index" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Index" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Index" ? "#dbe7fb" : "transparent")';">
+                    Начало
+                </a>
+
+                <a asp-controller="StudentPortal"
+                   asp-action="MyBooks"
+                   style="@sideStyle("MyBooks")"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='@(currentAction == "MyBooks" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "MyBooks" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "MyBooks" ? "#dbe7fb" : "transparent")';">
+                    Текущо заети книги
+                </a>
+
+                <a asp-controller="StudentPortal"
+                   asp-action="History"
+                   style="@sideStyle("History")"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='@(currentAction == "History" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "History" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "History" ? "#dbe7fb" : "transparent")';">
+                    История на заемания
+                </a>
+
+                <a asp-controller="StudentPortal"
+                   asp-action="Favorites"
+                   style="@sideStyle("Favorites")"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='@(currentAction == "Favorites" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Favorites" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Favorites" ? "#dbe7fb" : "transparent")';">
+                    Любими книги
+                </a>
+
+                <a asp-controller="StudentPortal"
+                   asp-action="Notifications"
+                   style="@sideStyle("Notifications")"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='@(currentAction == "Notifications" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Notifications" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Notifications" ? "#dbe7fb" : "transparent")';">
+                    Съобщения
+                </a>
+
+                <a asp-controller="StudentAccount"
+                   asp-action="ChangePassword"
+                   style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;"
+                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                   onmouseout="this.style.background='transparent'; this.style.color='#334155'; this.style.borderColor='transparent';">
+                    Промяна на парола
+                </a>
+            </nav>
+        </aside>
+
+        <section style="padding:24px 28px; min-width:0; background:#ffffff;">
+            <div style="padding-bottom:18px; border-bottom:1px solid #e5e7eb; margin-bottom:20px;">
+                <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
+                    Добре дошъл
+                </div>
+
+                <h2 style="margin:10px 0 0 0; color:#17325c; font-size:2.2rem; font-weight:900; line-height:1.1;">
+                    Здравей, @Model.StudentName
+                </h2>
+
+                <p style="margin:14px 0 0 0; color:#64748b; font-size:1rem; font-weight:700; line-height:1.6;">
+                    Тук можеш бързо да виждаш най-важното за профила си.
+                </p>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-bottom:20px;">
+                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
+                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
+                        Текущо заети книги
+                    </div>
+                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
+                        @Model.CurrentLoansCount
+                    </div>
+                </div>
+
+                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
+                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
+                        Любими книги
+                    </div>
+                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
+                        @Model.FavoritesCount
+                    </div>
+                </div>
+
+                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
+                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
+                        Непрочетени съобщения
+                    </div>
+                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
+                        @Model.UnreadNotificationsCount
+                    </div>
+                </div>
+            </div>
+
+            <section style="border:1px solid #e3e8ef; border-radius:12px; overflow:hidden; background:#ffffff;">
+                <div style="padding:18px 20px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:start; gap:12px; flex-wrap:wrap;">
+                    <div>
+                        <h3 style="margin:0; color:#17325c; font-size:1.35rem; font-weight:900;">
+                            В момента заемани книги
+                        </h3>
+                        <p style="margin:8px 0 0 0; color:#64748b; font-size:.95rem; font-weight:700; line-height:1.6;">
+                            Книгите, които са при теб сега.
+                        </p>
+                    </div>
+
+                    <a asp-action="MyBooks"
+                       style="text-decoration:none; color:#2563eb; font-weight:800; padding:8px 10px; border-radius:8px;"
+                       onmouseover="this.style.background='#f3f6fa';"
+                       onmouseout="this.style.background='transparent';">
+                        Виж всички
+                    </a>
+                </div>
+
+                @if (Model.CurrentLoans != null && Model.CurrentLoans.Any())
+                {
+                    <div style="display:flex; flex-direction:column;">
+                        @foreach (var item in Model.CurrentLoans)
+                        {
+                            <article style="display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:18px; padding:18px 20px; border-top:1px solid #eef2f6;">
+                                <div style="min-width:0;">
+                                    <h4 style="margin:0; color:#17325c; font-size:1.08rem; font-weight:900; line-height:1.35;">
+                                        @item.Title
+                                    </h4>
+                                    <div style="margin-top:6px; color:#64748b; font-size:.95rem; font-weight:700;">
+                                        @item.Author
+                                    </div>
+                                </div>
+
+                                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
+                                    <div style="min-width:120px;">
+                                        <div style="color:#64748b; font-size:.8rem; font-weight:800; margin-bottom:4px;">Взета на</div>
+                                        <div style="color:#17325c; font-size:.95rem; font-weight:900;">@item.LoanDate.ToString("dd.MM.yyyy")</div>
+                                    </div>
+
+                                    <div style="min-width:120px;">
+                                        <div style="color:#64748b; font-size:.8rem; font-weight:800; margin-bottom:4px;">Връща се на</div>
+                                        <div style="color:#17325c; font-size:.95rem; font-weight:900;">@item.DueDate.ToString("dd.MM.yyyy")</div>
+                                    </div>
+
+                                    <div>
+                                        @if (item.IsOverdue)
+                                        {
+                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#fef2f2; color:#dc2626;">
+                                                Просрочена
+                                            </span>
+                                        }
+                                        else if (item.IsExtended)
+                                        {
+                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#eff6ff; color:#1d4ed8;">
+                                                Удължена
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#ecfdf3; color:#15803d;">
+                                                Активна
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <a asp-controller="Catalog"
+                                       asp-action="StudentDetails"
+                                       asp-route-id="@item.BookId"
+                                       style="display:inline-flex; align-items:center; justify-content:center; min-height:34px; padding:0 12px; border-radius:8px; border:1px solid #dbe4ef; background:#ffffff; color:#1d4ed8; text-decoration:none; font-weight:800;"
+                                       onmouseover="this.style.background='#f3f6fa';"
+                                       onmouseout="this.style.background='#ffffff';">
+                                        Детайли
+                                    </a>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div style="padding:22px 20px; color:#64748b; font-weight:700; line-height:1.6;">
+                        В момента нямаш заемани книги.
+                    </div>
+                }
+            </section>
+        </section>
+    </div>
+</div>

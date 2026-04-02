@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using ObreshkovLibrary.Models;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +16,12 @@ namespace ObreshkovLibrary.Models.ViewModels
 
         public int? Year { get; set; }
         public string? Description { get; set; }
-        public string? CoverUrl { get; set; }
+
+        public string? CoverPath { get; set; }
+        public string? CurrentCoverPath { get; set; }
+        public IFormFile? CoverFile { get; set; }
+
+        public string? SchoolClass { get; set; }
 
         public int? Level1Id { get; set; }
         public int? Level2Id { get; set; }

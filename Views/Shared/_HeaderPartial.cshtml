@@ -1,8 +1,167 @@
-﻿<header>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+<header>
+    <style>
+        .admin-header-nav .nav-link {
+            position: relative;
+            transition: color .18s ease, background-color .18s ease;
+        }
+
+            .admin-header-nav .nav-link.admin-main-link {
+                padding: 10px 12px !important;
+                border-radius: 10px;
+                font-weight: 800 !important;
+            }
+
+                .admin-header-nav .nav-link.admin-main-link:hover {
+                    background: #F3F7FC;
+                    color: #2563EB !important;
+                }
+
+                .admin-header-nav .nav-link.admin-main-link::after {
+                    content: "";
+                    position: absolute;
+                    left: 12px;
+                    right: 12px;
+                    bottom: 4px;
+                    height: 2px;
+                    border-radius: 999px;
+                    background: #3B82F6;
+                    transform: scaleX(0);
+                    transform-origin: center;
+                    transition: transform .18s ease;
+                    opacity: .95;
+                }
+
+                .admin-header-nav .nav-link.admin-main-link:hover::after,
+                .admin-header-nav .nav-link.admin-main-link:focus::after {
+                    transform: scaleX(1);
+                }
+
+        .admin-header-nav .nav-item.dropdown {
+            position: relative;
+        }
+
+        .admin-header-nav .admin-dropdown-toggle {
+            padding-right: 18px !important;
+        }
+
+            .admin-header-nav .admin-dropdown-toggle::after {
+                display: none !important;
+            }
+
+        .admin-header-nav .admin-caret {
+            margin-left: 6px;
+            font-size: 11px;
+            color: #94A3B8;
+            transition: transform .18s ease, color .18s ease;
+            position: relative;
+            top: -1px;
+        }
+
+        .admin-header-nav .dropdown:hover .admin-caret,
+        .admin-header-nav .dropdown.show .admin-caret {
+            transform: rotate(180deg);
+            color: #3B82F6;
+        }
+
+        .admin-header-nav .admin-dropdown-menu {
+            width: max-content;
+            min-width: 0;
+            max-width: 320px;
+            margin-top: 14px;
+            padding: 8px;
+            border: 1px solid #D9E0E7;
+            border-radius: 18px;
+            background: #FFFFFF;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+        }
+
+            .admin-header-nav .admin-dropdown-menu::before {
+                content: "";
+                position: absolute;
+                top: -7px;
+                left: 22px;
+                width: 14px;
+                height: 14px;
+                background: #FFFFFF;
+                border-top: 1px solid #D9E0E7;
+                border-left: 1px solid #D9E0E7;
+                transform: rotate(45deg);
+            }
+
+            .admin-header-nav .admin-dropdown-menu.dropdown-menu-end::before {
+                left: auto;
+                right: 18px;
+            }
+
+        .admin-header-nav .admin-dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-weight: 700;
+            color: #1F2937 !important;
+            white-space: nowrap;
+            transition: background-color .18s ease, transform .18s ease, color .18s ease;
+        }
+
+            .admin-header-nav .admin-dropdown-item:hover,
+            .admin-header-nav .admin-dropdown-item:focus {
+                background: #F4F8FC;
+                color: #2563EB !important;
+                transform: translateX(2px);
+            }
+
+        .admin-header-nav .admin-dropdown-item-soft {
+            color: #93C5FD !important;
+        }
+
+            .admin-header-nav .admin-dropdown-item-soft:hover,
+            .admin-header-nav .admin-dropdown-item-soft:focus {
+                color: #60A5FA !important;
+                background: #F7FBFF;
+            }
+
+        .admin-header-nav .admin-dropdown-plus {
+            color: #3B82F6;
+            font-weight: 900;
+            font-size: 15px;
+            line-height: 1;
+            flex: 0 0 auto;
+        }
+
+        .admin-header-nav .admin-dropdown-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .admin-header-nav .admin-dropdown-subtle {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: #94A3B8;
+            flex: 0 0 auto;
+        }
+
+        @@media (hover:hover) and (pointer:fine) {
+            .admin-header-nav .nav-item.dropdown:hover > .dropdown-menu {
+                display: block;
+            }
+        }
+    </style>
+
     <nav class="navbar navbar-expand-lg app-navbar fixed-top" id="topNav">
         <div class="container-fluid page-container">
+
             <a class="navbar-brand"
-               asp-controller="Home"
+               asp-controller="Dashboard"
                asp-action="Index">
                 Училищна библиотека „Обрешков“
             </a>
@@ -17,65 +176,141 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <div class="collapse navbar-collapse justify-content-end" id="mainNavbar">
+            <div class="collapse navbar-collapse justify-content-end admin-header-nav" id="mainNavbar">
+
                 <ul class="navbar-nav">
+
                     <li class="nav-item">
-                        <a class="nav-link"
-                           asp-controller="Home"
+                        <a class="nav-link admin-main-link"
+                           asp-controller="Dashboard"
                            asp-action="Index">
                             Начало
                         </a>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle"
+                        <a class="nav-link admin-main-link admin-dropdown-toggle"
                            href="#"
                            role="button"
                            data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            Читатели
+                            Читатели <span class="admin-caret">▾</span>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" asp-controller="Clients" asp-action="Index">Всички читатели</a></li>
-                            <li><a class="dropdown-item" asp-controller="Clients" asp-action="Create">Регистриране</a></li>
-                            <li><a class="dropdown-item" asp-controller="Clients" asp-action="Index">Редактиране</a></li>
+
+                        <ul class="dropdown-menu admin-dropdown-menu">
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Clients"
+                                   asp-action="Index">
+                                    <span class="admin-dropdown-label">Всички читатели</span>
+                                    <span class="admin-dropdown-subtle">списък</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Clients"
+                                   asp-action="Create">
+                                    <span class="admin-dropdown-label">Добави читател</span>
+                                    <span class="admin-dropdown-plus">+</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle"
+                        <a class="nav-link admin-main-link admin-dropdown-toggle"
                            href="#"
                            role="button"
                            data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            Книги
+                            Книги <span class="admin-caret">▾</span>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" asp-controller="Book" asp-action="Index">Всички книги</a></li>
-                            <li><a class="dropdown-item" asp-controller="Book" asp-action="Create">Добавяне</a></li>
-                            <li><a class="dropdown-item" asp-controller="Book" asp-action="Index">Редактиране</a></li>
+
+                        <ul class="dropdown-menu admin-dropdown-menu">
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Book"
+                                   asp-action="Index">
+                                    <span class="admin-dropdown-label">Всички книги</span>
+                                    <span class="admin-dropdown-subtle">списък</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Book"
+                                   asp-action="Create">
+                                    <span class="admin-dropdown-label">Добави книга</span>
+                                    <span class="admin-dropdown-plus">+</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle"
+                        <a class="nav-link admin-main-link admin-dropdown-toggle"
                            href="#"
                            role="button"
                            data-bs-toggle="dropdown"
                            aria-expanded="false">
-                            Категории
+                            Категории <span class="admin-caret">▾</span>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Всички категории</a></li>
-                            <li><a class="dropdown-item" asp-controller="Categories" asp-action="Create">Добавяне</a></li>
-                            <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Редактиране</a></li>
+
+                        <ul class="dropdown-menu admin-dropdown-menu">
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Categories"
+                                   asp-action="Index">
+                                    <span class="admin-dropdown-label">Всички категории</span>
+                                    <span class="admin-dropdown-subtle">списък</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Categories"
+                                   asp-action="Create">
+                                    <span class="admin-dropdown-label">Добави категория</span>
+                                    <span class="admin-dropdown-plus">+</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Archive" asp-action="Index">Архив</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link admin-main-link admin-dropdown-toggle"
+                           href="#"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Още <span class="admin-caret">▾</span>
+                        </a>
+
+                        <ul class="dropdown-menu admin-dropdown-menu">
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="Clients"
+                                   asp-action="PasswordResetRequests">
+                                    <span class="admin-dropdown-label">Заявки за парола</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item"
+                                   asp-controller="SchoolNews"
+                                   asp-action="Index">
+                                    <span class="admin-dropdown-label">Актуално в ППМГ</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item admin-dropdown-item admin-dropdown-item-soft"
+                                   asp-controller="Archive"
+                                   asp-action="Index">
+                                    <span class="admin-dropdown-label">Архив</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+
                 </ul>
+
                 <partial name="_LoginPartial" />
 
             </div>

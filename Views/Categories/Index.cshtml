@@ -5,25 +5,35 @@
     ViewData["Title"] = "Категории";
 
     var allCategories = (Model ?? Enumerable.Empty<Category>()).ToList();
+    var directBookCounts = ViewBag.DirectBookCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
 
     var byParent = allCategories
         .OrderBy(c => c.Name)
         .ToLookup(c => c.ParentCategoryId);
 
-    var orderedRows = new List<(Category Category, int Level, string Path)>();
+    var orderedRows = new List<(Category Category, int Level, int TotalBooks)>();
 
-    void AddBranch(int? parentId, int level, string? parentPath = null)
+    int CountAllBooks(int categoryId)
+    {
+        var total = directBookCounts.ContainsKey(categoryId) ? directBookCounts[categoryId] : 0;
+
+        var children = byParent[categoryId];
+        foreach (var child in children)
+        {
+            total += CountAllBooks(child.Id);
+        }
+
+        return total;
+    }
+
+    void AddBranch(int? parentId, int level)
     {
         var children = byParent[parentId];
 
         foreach (var child in children)
         {
-            var path = string.IsNullOrWhiteSpace(parentPath)
-                ? child.Name
-                : $"{parentPath} / {child.Name}";
-
-            orderedRows.Add((child, level, path));
-            AddBranch(child.Id, level + 1, path);
+            orderedRows.Add((child, level, CountAllBooks(child.Id)));
+            AddBranch(child.Id, level + 1);
         }
     }
 
@@ -37,7 +47,7 @@
 
     foreach (var orphan in orphanCategories)
     {
-        orderedRows.Add((orphan, 0, orphan.Name));
+        orderedRows.Add((orphan, 0, CountAllBooks(orphan.Id)));
     }
 }
 
@@ -50,8 +60,9 @@
         </div>
 
         <div class="categories-header-actions">
-            <a asp-action="CreatePath" class="categories-add-btn">
-                Добави категории
+            <a asp-action="CreatePath"
+               style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:150px;">
+                Добави категория
             </a>
         </div>
     </div>
@@ -69,9 +80,9 @@
                 <table class="table categories-table align-middle mb-0">
                     <thead>
                         <tr>
-                            <th style="width: 55%;">Категория</th>
-                            <th style="width: 30%;">Път</th>
-                            <th style="width: 15%;" class="text-end">Преглед</th>
+                            <th style="width: 60%;">Категория</th>
+                            <th style="width: 20%;">Бройки</th>
+                            <th style="width: 20%;" class="text-end">Действия</th>
                         </tr>
                     </thead>
 
@@ -82,7 +93,12 @@
                             var level = row.Level;
                             var indent = level * 28;
 
-                            <tr class="category-row @(level == 0 ? "category-root-row" : "")">
+                            <tr class="category-row @(level == 0 ? "category-root-row" : "")"
+                                role="button"
+                                tabindex="0"
+                                onclick="window.location.href='@Url.Action("Details", "Categories", new { id = item.Id })';"
+                                onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "Categories", new { id = item.Id })'; }">
+
                                 <td>
                                     <div class="category-tree-cell" style="padding-left:@(indent)px;">
                                         @if (level > 0)
@@ -95,14 +111,15 @@
                                 </td>
 
                                 <td>
-                                    <span class="category-path-text">@row.Path</span>
+                                    <span class="category-count-text">@row.TotalBooks</span>
                                 </td>
 
                                 <td class="text-end">
-                                    <a asp-action="Details"
+                                    <a asp-action="Edit"
                                        asp-route-id="@item.Id"
-                                       class="category-view-link">
-                                        Виж
+                                       onclick="event.stopPropagation();"
+                                       style="color:#3B82F6; font-weight:800; text-decoration:none; white-space:nowrap;">
+                                        Редакция
                                     </a>
                                 </td>
                             </tr>
@@ -114,4 +131,3 @@
     </section>
 
 </div>
-

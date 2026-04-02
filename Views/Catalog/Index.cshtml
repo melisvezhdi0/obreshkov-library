@@ -1,352 +1,223 @@
-﻿@{
+﻿@model ObreshkovLibrary.Models.ViewModels.CatalogIndexVM
+@using ObreshkovLibrary.Models
+@using System.Linq
+
+@{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Каталог";
+
+    var categories = Model.Categories ?? new List<Category>();
+
+    var rootCategories = categories
+        .Where(c => c.ParentCategoryId == null)
+        .OrderBy(c => c.Name)
+        .ToList();
+
+    var openIds = new HashSet<int>();
+
+    if (Model.SelectedCategoryId.HasValue)
+    {
+        var current = categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId.Value);
+        while (current != null)
+        {
+            openIds.Add(current.Id);
+            current = current.ParentCategoryId.HasValue
+                ? categories.FirstOrDefault(c => c.Id == current.ParentCategoryId.Value)
+                : null;
+        }
+    }
+
+    string GetCover(Book book) => book.CoverPath ?? "";
+    List<Category> GetChildren(int parentId)
+        => categories.Where(c => c.ParentCategoryId == parentId).OrderBy(c => c.Name).ToList();
 }
 
-<div class="catalog-page">
-    <div class="catalog-shell">
+<div style="width:100%; margin:0; padding:0; background:#ffffff;">
+    <div style="width:100%; margin:0; padding:0;">
 
-        <div class="catalog-topbar">
-            <a asp-controller="Home" asp-action="Index" class="catalog-topbar-brand">Библиотека Обрешков</a>
+        <div style="display:grid; grid-template-columns:270px minmax(0,1fr); min-height:calc(100vh - 78px); background:#ffffff; border-top:1px solid #e5e7eb;">
 
-            <div class="catalog-topbar-actions">
-                <button type="button" class="catalog-topbar-link">Търси</button>
-                <a asp-controller="Home" asp-action="Index" class="catalog-topbar-link">Назад</a>
-                <a asp-area="Identity" asp-page="/Account/Login" class="catalog-topbar-link">Вход</a>
-            </div>
-        </div>
-
-        <div class="catalog-main">
-
-            <aside class="catalog-sidebar">
-
-                <div class="catalog-sidebar-section">
-                    <div class="catalog-sidebar-title">Клас</div>
-
-                    <div class="catalog-class-list">
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>5. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Приказки"> Приказки
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Разкази"> Разкази
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Басни"> Басни
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>6. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Митове и легенди"> Митове и легенди
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Разкази"> Разкази
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Поезия"> Поезия
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>7. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Повести"> Повести
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Разкази"> Разкази
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Поезия"> Поезия
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>8. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Антична литература"> Антична литература
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Ренесанс"> Ренесанс
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Класицизъм"> Класицизъм
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>9. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Поезия"> Поезия
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Романи"> Романи
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Драми"> Драми
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>10. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Разкази"> Разкази
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Поезия"> Поезия
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Романи"> Романи
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>11. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Поезия"> Поезия
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Драми"> Драми
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Проза"> Проза
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="catalog-class-item">
-                            <button type="button" class="catalog-class-header">
-                                <span class="catalog-sign">+</span>
-                                <span>12. клас</span>
-                            </button>
-
-                            <div class="catalog-class-children">
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Романи"> Романи
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Есета"> Есета
-                                </label>
-                                <label class="catalog-checkbox">
-                                    <input type="checkbox" value="Лирика"> Лирика
-                                </label>
-                            </div>
-                        </div>
-
+            <aside style="background:#f9fafb; border-right:1px solid #e5e7eb; padding:0;">
+                <div style="padding:24px 18px 18px 18px; border-bottom:1px solid #e5e7eb;">
+                    <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
+                        Каталог
                     </div>
+
+                    <h1 style="margin:12px 0 0 0; color:#17325c; font-size:1.8rem; font-weight:900; line-height:1.1;">
+                        Книги
+                    </h1>
+
+                    <p style="margin:12px 0 0 0; color:#64748b; font-size:.95rem; font-weight:700; line-height:1.6;">
+                        Разгледай по категория.
+                    </p>
                 </div>
 
-                <div class="catalog-sidebar-section">
-                    <div class="catalog-sidebar-title">Категории</div>
+                <div style="padding:10px;">
+                    <a asp-controller="Catalog"
+                       asp-action="Index"
+                       asp-route-search="@Model.Search"
+                       asp-route-sort="@Model.Sort"
+                       style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155"); background:@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent"); border:1px solid @(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent"); margin-bottom:8px;"
+                       onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
+                       onmouseout="this.style.background='@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent")'; this.style.color='@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent")';">
+                        Всички книги
+                    </a>
 
-                    <div class="catalog-tree">
+                    @foreach (var root in rootCategories)
+                    {
+                        var children = GetChildren(root.Id);
+                        var open = openIds.Contains(root.Id);
+                        var selected = Model.SelectedCategoryId == root.Id;
 
-                        <div class="catalog-node">
-                            <button type="button" class="catalog-node-header">
-                                <span class="catalog-sign">+</span>
-                                <span class="catalog-node-text">Худ. литература</span>
-                            </button>
-
-                            <div class="catalog-node-children">
-                                <div class="catalog-subnode">
-                                    <button type="button" class="catalog-subnode-header">
-                                        <span class="catalog-sign">+</span>
-                                        <span class="catalog-node-text">Романи</span>
+                        <div style="margin-bottom:6px; border-radius:10px; border:1px solid #e5e7eb; background:#ffffff; overflow:hidden;">
+                            <div style="display:flex; align-items:center; gap:6px; padding:8px;">
+                                @if (children.Any())
+                                {
+                                    <button type="button"
+                                            class="tree-toggle-btn"
+                                            data-target="guest-cat-@root.Id"
+                                            style="width:28px; height:28px; border:none; border-radius:8px; background:#eef4ff; color:#1d4ed8; font-weight:900; cursor:pointer;">
+                                        <span class="tree-plus" style="display:@(open ? "none" : "inline")">+</span>
+                                        <span class="tree-minus" style="display:@(open ? "inline" : "none")">−</span>
                                     </button>
+                                }
+                                else
+                                {
+                                    <span style="width:28px; height:28px;"></span>
+                                }
 
-                                    <div class="catalog-subnode-children">
-                                        <a href="#" class="catalog-genre-link">Исторически</a>
-                                        <a href="#" class="catalog-genre-link">Приключенски</a>
-                                        <a href="#" class="catalog-genre-link">Класически</a>
-                                    </div>
-                                </div>
-
-                                <div class="catalog-subnode">
-                                    <button type="button" class="catalog-subnode-header">
-                                        <span class="catalog-sign">+</span>
-                                        <span class="catalog-node-text">Поезия</span>
-                                    </button>
-
-                                    <div class="catalog-subnode-children">
-                                        <a href="#" class="catalog-genre-link">Лирика</a>
-                                        <a href="#" class="catalog-genre-link">Патриотична</a>
-                                    </div>
-                                </div>
+                                <a asp-controller="Catalog"
+                                   asp-action="Index"
+                                   asp-route-categoryId="@root.Id"
+                                   asp-route-search="@Model.Search"
+                                   asp-route-sort="@Model.Sort"
+                                   style="flex:1; display:block; padding:6px 8px; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:800; color:@(selected ? "#1d4ed8" : "#334155"); background:@(selected ? "#eef4ff" : "transparent");"
+                                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+                                   onmouseout="this.style.background='@(selected ? "#eef4ff" : "transparent")'; this.style.color='@(selected ? "#1d4ed8" : "#334155")';">
+                                    @root.Name
+                                </a>
                             </div>
-                        </div>
 
-                        <div class="catalog-node">
-                            <button type="button" class="catalog-node-header">
-                                <span class="catalog-sign">+</span>
-                                <span class="catalog-node-text">Научна литература</span>
-                            </button>
+                            @if (children.Any())
+                            {
+                                <div id="guest-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 8px 8px 8px;">
+                                    @foreach (var child in children)
+                                    {
+                                        var selectedChild = Model.SelectedCategoryId == child.Id;
 
-                            <div class="catalog-node-children">
-                                <div class="catalog-subnode">
-                                    <button type="button" class="catalog-subnode-header">
-                                        <span class="catalog-sign">+</span>
-                                        <span class="catalog-node-text">Биология</span>
-                                    </button>
-
-                                    <div class="catalog-subnode-children">
-                                        <a href="#" class="catalog-genre-link">Енциклопедии</a>
-                                        <a href="#" class="catalog-genre-link">Помагала</a>
-                                    </div>
+                                        <a asp-controller="Catalog"
+                                           asp-action="Index"
+                                           asp-route-categoryId="@child.Id"
+                                           asp-route-search="@Model.Search"
+                                           asp-route-sort="@Model.Sort"
+                                           style="display:block; padding:6px 10px 6px 36px; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:800; color:@(selectedChild ? "#1d4ed8" : "#4c647f"); background:@(selectedChild ? "#eef4ff" : "transparent");"
+                                           onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
+                                           onmouseout="this.style.background='@(selectedChild ? "#eef4ff" : "transparent")'; this.style.color='@(selectedChild ? "#1d4ed8" : "#4c647f")';">
+                                            @child.Name
+                                        </a>
+                                    }
                                 </div>
-                            </div>
+                            }
                         </div>
-
-                    </div>
+                    }
                 </div>
-
             </aside>
 
-            <section class="catalog-content">
+            <section style="padding:24px 28px; min-width:0; background:#ffffff;">
+                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; padding:14px; margin-bottom:20px;">
+                    <form method="get"
+                          asp-action="Index"
+                          style="display:grid; grid-template-columns:1fr 220px 120px; gap:12px;">
 
-                <div class="catalog-filterbar">
-                    <div class="catalog-filter-left">
-                        <div class="catalog-filter-label">Филтър</div>
-                        <input type="text" class="catalog-filter-input" placeholder="Търси по заглавие, автор..." />
-                        <select class="catalog-filter-select">
-                            <option>Всички категории</option>
-                            <option>Худ. литература</option>
-                            <option>Научна литература</option>
+                        <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
+
+                        <input name="search"
+                               value="@Model.Search"
+                               placeholder="Търси по заглавие, автор, жанр или категория..."
+                               style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 18px; font-weight:700;" />
+
+                        <select name="sort"
+                                style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 14px; font-weight:800;">
+                            <option value="date_desc" selected="@(Model.Sort == "date_desc")">Най-нови първо</option>
+                            <option value="date_asc" selected="@(Model.Sort == "date_asc")">Най-стари първо</option>
+                            <option value="name_asc" selected="@(Model.Sort == "name_asc")">Име А-Я</option>
+                            <option value="name_desc" selected="@(Model.Sort == "name_desc")">Име Я-А</option>
                         </select>
+
+                        <button type="submit"
+                                style="border:none; border-radius:10px; background:#2563eb; color:#ffffff; font-weight:900; cursor:pointer;"
+                                onmouseover="this.style.background='#1d4ed8';"
+                                onmouseout="this.style.background='#2563eb';">
+                            Приложи
+                        </button>
+                    </form>
+                </section>
+
+                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; overflow:hidden;">
+                    <div style="padding:20px 22px; border-bottom:1px solid #e5e7eb;">
+                        <h2 style="margin:0; font-size:2rem; font-weight:900; color:#17325c; line-height:1.1;">
+                            @Model.SelectedCategoryName
+                        </h2>
                     </div>
 
-                    <button class="catalog-filter-button">Приложи</button>
-                </div>
+                    <div style="padding:22px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:24px;">
+                        @foreach (var book in Model.Books)
+                        {
+                            var cover = GetCover(book);
 
-                <div class="catalog-content-title">Налични книги</div>
+                            <a asp-controller="Catalog"
+                               asp-action="Details"
+                               asp-route-id="@book.Id"
+                               style="position:relative; display:flex; flex-direction:column; border-radius:16px; padding:12px; background:#ffffff; border:1px solid #e6edf5; text-decoration:none; transition:.2s;"
+                               onmouseover="this.style.transform='translateY(-4px)'; this.querySelector('.overlay').style.opacity='1';"
+                               onmouseout="this.style.transform='translateY(0)'; this.querySelector('.overlay').style.opacity='0';">
 
-                <div class="catalog-books-grid">
-                    <div class="catalog-book-card">
-                        <div class="catalog-book-cover">Корица</div>
-                        <div class="catalog-book-title">Под игото</div>
-                        <div class="catalog-book-meta">
-                            Автор: Иван Вазов<br />
-                            Жанр: Роман
-                        </div>
+                                <div style="height:210px; border-radius:12px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:#f4f7fb;">
+                                    @if (!string.IsNullOrEmpty(cover))
+                                    {
+                                        <img src="@cover" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                    }
+
+                                    <div class="overlay"
+                                         style="position:absolute; inset:0; background:rgba(37,99,235,.78); display:flex; align-items:center; justify-content:center; font-weight:900; color:white; letter-spacing:.05em; font-size:.9rem; opacity:0; transition:.25s;">
+                                        Виж детайли
+                                    </div>
+                                </div>
+
+                                <div style="margin-top:10px; font-weight:900; font-size:.95rem; color:#0f172a; line-height:1.35;">
+                                    @book.Title
+                                </div>
+
+                                <div style="font-size:.9rem; font-weight:700; color:#6b7f95;">
+                                    @book.Author
+                                </div>
+                            </a>
+                        }
                     </div>
-
-                    <div class="catalog-book-card">
-                        <div class="catalog-book-cover">Корица</div>
-                        <div class="catalog-book-title">Епопея на забравените</div>
-                        <div class="catalog-book-meta">
-                            Автор: Иван Вазов<br />
-                            Жанр: Поезия
-                        </div>
-                    </div>
-
-                    <div class="catalog-book-card">
-                        <div class="catalog-book-cover">Корица</div>
-                        <div class="catalog-book-title">Бай Ганьо</div>
-                        <div class="catalog-book-meta">
-                            Автор: Алеко Константинов<br />
-                            Жанр: Проза
-                        </div>
-                    </div>
-
-                    <div class="catalog-book-card">
-                        <div class="catalog-book-cover">Корица</div>
-                        <div class="catalog-book-title">Железният светилник</div>
-                        <div class="catalog-book-meta">
-                            Автор: Димитър Талев<br />
-                            Жанр: Роман
-                        </div>
-                    </div>
-                </div>
-
+                </section>
             </section>
-
         </div>
     </div>
 </div>
 
-<script>
-    const classHeaders = document.querySelectorAll('.catalog-class-header');
-    classHeaders.forEach(header => {
-        header.addEventListener('click', function () {
-            const parent = this.parentElement;
+@section Scripts {
+    <script>
+        document.querySelectorAll(".tree-toggle-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const target = document.getElementById(btn.dataset.target);
+                const plus = btn.querySelector(".tree-plus");
+                const minus = btn.querySelector(".tree-minus");
 
-            document.querySelectorAll('.catalog-class-item').forEach(item => {
-                if (item !== parent) {
-                    item.classList.remove('open');
-                    const sign = item.querySelector('.catalog-sign');
-                    if (sign) sign.textContent = '+';
+                if (target.style.display === "none") {
+                    target.style.display = "block";
+                    plus.style.display = "none";
+                    minus.style.display = "inline";
+                } else {
+                    target.style.display = "none";
+                    plus.style.display = "inline";
+                    minus.style.display = "none";
                 }
             });
-
-            parent.classList.toggle('open');
-
-            const sign = this.querySelector('.catalog-sign');
-            sign.textContent = parent.classList.contains('open') ? '−' : '+';
         });
-    });
-
-    const catalogHeaders = document.querySelectorAll('.catalog-node-header');
-    catalogHeaders.forEach(header => {
-        header.addEventListener('click', function () {
-            const parent = this.parentElement;
-            parent.classList.toggle('open');
-
-            const sign = this.querySelector('.catalog-sign');
-            sign.textContent = parent.classList.contains('open') ? '−' : '+';
-        });
-    });
-
-    const catalogSubHeaders = document.querySelectorAll('.catalog-subnode-header');
-    catalogSubHeaders.forEach(header => {
-        header.addEventListener('click', function () {
-            const parent = this.parentElement;
-            parent.classList.toggle('open');
-
-            const sign = this.querySelector('.catalog-sign');
-            sign.textContent = parent.classList.contains('open') ? '−' : '+';
-        });
-    });
-</script>
+    </script>
+}

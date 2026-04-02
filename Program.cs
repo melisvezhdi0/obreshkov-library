@@ -1,34 +1,79 @@
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Services;
-using Microsoft.AspNetCore.Identity;
+using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllersWithViews();
 
-            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentException("Conection string was not found."); ;
+            string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new ArgumentException("Connection string was not found.");
+
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
                 options.UseSqlServer(connectionString));
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ObreshkovLibraryContext>();
+            var keysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys");
+            Directory.CreateDirectory(keysPath);
+
+            builder.Services
+                .AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+                .SetApplicationName("ObreshkovLibrary");
+
+            builder.Services
+                .AddDefaultIdentity<IdentityUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.User.RequireUniqueEmail = true;
+                })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ObreshkovLibraryContext>();
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Identity/Account/Login";
+                options.LogoutPath = "/Identity/Account/Logout";
+                options.AccessDeniedPath = "/Home/Index";
+
+                options.Cookie.Name = "ObreshkovLibrary.Auth";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.Path = "/";
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+                options.ExpireTimeSpan = TimeSpan.FromDays(14);
+                options.Cookie.MaxAge = TimeSpan.FromDays(14);
+                options.SlidingExpiration = true;
+            });
 
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
+            builder.Services.AddScoped<TemporaryPasswordService>();
 
             builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddSession(o =>
+            builder.Services.AddSession(options =>
             {
-                o.IdleTimeout = TimeSpan.FromHours(2);
-                o.Cookie.HttpOnly = true;
-                o.Cookie.IsEssential = true;
+                options.IdleTimeout = TimeSpan.FromHours(2);
+                options.Cookie.Name = "ObreshkovLibrary.Session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+                options.Cookie.Path = "/";
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
+
+            builder.Services.AddScoped<IStudentNotificationService, StudentNotificationService>();
+
 
             var app = builder.Build();
 
@@ -42,10 +87,11 @@ namespace ObreshkovLibrary
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseAuthorization();
+
             app.UseSession();
             app.UseAuthentication();
-            
+            app.UseAuthorization();
+
             app.Use(async (context, next) =>
             {
                 var path = context.Request.Path;
@@ -79,7 +125,8 @@ namespace ObreshkovLibrary
 
                 if (needsGate)
                 {
-                    if (context.Session.GetString("GateOk") != "1")
+                    if (!context.User.Identity!.IsAuthenticated &&
+                        context.Session.GetString("GateOk") != "1")
                     {
                         context.Response.StatusCode = 403;
                         return;
@@ -94,6 +141,8 @@ namespace ObreshkovLibrary
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.MapRazorPages();
+
+            await SeedData.InitializeAsync(app.Services);
 
             app.Run();
         }

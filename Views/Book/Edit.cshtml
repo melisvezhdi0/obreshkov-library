@@ -4,751 +4,711 @@
     ViewData["Title"] = "Редактиране на книга";
 }
 
-<div class="book-edit-page">
+<div class="book-edit-page" style="width:100%; padding-top:6px;">
 
-    <div class="book-edit-header">
-        <div>
-            <h2 class="section-title mb-1">Редактиране на книга</h2>
-            <div class="accent-line"></div>
-        </div>
+    <div style="margin-bottom:16px;">
+        <h2 class="section-title mb-1">Редактиране на книга</h2>
+        <div class="accent-line"></div>
     </div>
 
-    <section class="book-edit-panel card-soft">
-        <form asp-action="Edit"
+    <section class="card-soft"
+             style="margin-top:10px; padding:22px; border-radius:18px; overflow:hidden; background:#FFFFFF;">
+
+        <form id="bookEditForm"
+              asp-action="Edit"
               asp-route-id="@ViewBag.BookId"
               method="post"
-              class="book-edit-form">
+              enctype="multipart/form-data"
+              style="margin:0;">
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="font-weight:700; margin-bottom:14px;"></div>
 
             <input type="hidden" name="Id" value="@ViewBag.BookId" />
+            <input asp-for="CurrentCoverPath" type="hidden" />
+            <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
+            <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
 
-            <div class="form-section">
-                <div class="form-section-title">Основна информация</div>
-
-                <div class="form-grid form-grid-2">
-                    <div class="form-field">
-                        <label asp-for="Title" class="form-label-strong">Заглавие</label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-field">
-                        <label asp-for="Author" class="form-label-strong">Автор</label>
-                        <input asp-for="Author" class="form-control" />
-                        <span asp-validation-for="Author" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-field">
-                        <label asp-for="Year" class="form-label-strong">Година</label>
-                        <input asp-for="Year" type="number" class="form-control" />
-                        <span asp-validation-for="Year" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-field">
-                        <label asp-for="CopiesCount" class="form-label-strong">Брой копия</label>
-                        <input asp-for="CopiesCount" type="number" min="1" class="form-control" />
-                        <span asp-validation-for="CopiesCount" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="form-field mt-3">
-                    <label asp-for="CoverUrl" class="form-label-strong">Линк към корица</label>
-                    <input asp-for="CoverUrl" class="form-control" placeholder="https://..." />
-                    <span asp-validation-for="CoverUrl" class="text-danger"></span>
-                </div>
-
-                <div class="form-field mt-3">
-                    <label asp-for="Description" class="form-label-strong">Описание</label>
-                    <textarea asp-for="Description" rows="5" class="form-control form-textarea"></textarea>
-                    <span asp-validation-for="Description" class="text-danger"></span>
-                </div>
+            <div id="selectedTagsHiddenInputs">
+                @foreach (var selectedTag in Model.SelectedTagValues)
+                {
+                    <input type="hidden" name="SelectedTagValues" value="@selectedTag" />
+                }
             </div>
 
-            <div class="form-section">
-                <div class="form-section-title">Категория</div>
+            <div style="display:grid; grid-template-columns:minmax(0, 1.8fr) minmax(300px, 0.95fr); gap:22px; align-items:start;"
+                 class="book-edit-main-layout">
 
-                <div class="picker-head">
-                    <div id="categoryPreview" class="picker-preview"></div>
+                <div style="min-width:0;">
 
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#categoryPickerModal">
-                        Избери категория
-                    </button>
-                </div>
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Основна информация
+                        </div>
 
-                <input asp-for="Level1Id" type="hidden" id="Level1IdHidden" />
-                <input asp-for="Level2Id" type="hidden" id="Level2IdHidden" />
+                        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                             class="book-edit-two-col">
 
-                <div class="validation-inline">
-                    <span asp-validation-for="Level1Id" class="text-danger"></span>
-                    <span asp-validation-for="Level2Id" class="text-danger"></span>
-                </div>
-            </div>
+                            <div style="display:flex; flex-direction:column; grid-column:1 / -1;">
+                                <label asp-for="Title" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Заглавие</label>
+                                <input asp-for="Title"
+                                       class="form-control"
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
 
-            <div class="form-section">
-                <div class="form-section-title">Етикети</div>
+                            <div style="display:flex; flex-direction:column;">
+                                <label asp-for="Author" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Автор</label>
+                                <input asp-for="Author"
+                                       class="form-control"
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                <span asp-validation-for="Author" class="text-danger"></span>
+                            </div>
 
-                <div class="picker-head">
-                    <div>
-                        <div id="selectedTagsPreview" class="tags-preview"></div>
-                        <div class="picker-help-text">
-                            Избрани: <span id="selectedTagsCount">0</span>
+                            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:16px;"
+                                 class="book-edit-two-col-nested">
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="Year" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Година</label>
+                                    <input asp-for="Year"
+                                           type="number"
+                                           class="form-control"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="Year" class="text-danger"></span>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="CopiesCount" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Брой копия</label>
+                                    <input asp-for="CopiesCount"
+                                           type="number"
+                                           min="1"
+                                           class="form-control"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="CopiesCount" class="text-danger"></span>
+                                </div>
+
+                                <div style="display:flex; flex-direction:column;">
+                                    <label asp-for="SchoolClass" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Клас</label>
+                                    <input asp-for="SchoolClass"
+                                           class="form-control"
+                                           placeholder="по желание"
+                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <span asp-validation-for="SchoolClass" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; margin-top:16px;">
+                            <label asp-for="Description" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Описание</label>
+                            <textarea asp-for="Description"
+                                      rows="6"
+                                      class="form-control"
+                                      style="min-height:160px; resize:vertical; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
                         </div>
                     </div>
 
-                    <button type="button"
-                            class="btn btn-outline-primary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#tagsPickerModal">
-                        Избери етикети
-                    </button>
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Категория
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                            <div style="flex:1 1 320px; min-width:0;">
+                                <div id="categoryPreview" style="min-height:28px; margin-bottom:8px;"></div>
+                                <div style="color:#64748B; font-size:.95rem;">
+                                    Избери главна категория и при нужда подкатегория.
+                                </div>
+                            </div>
+
+                            <button type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#categoryPickerModal"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                Избери категория
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Етикети
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+                            <div style="flex:1 1 320px; min-width:0;">
+                                <div id="selectedTagsPreview" style="display:flex; flex-wrap:wrap; gap:8px; min-height:28px; margin-bottom:8px;"></div>
+                                <div style="color:#64748B; font-size:.95rem;">
+                                    Избрани: <span id="selectedTagsCount">0</span>
+                                </div>
+                            </div>
+
+                            <button type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#tagsPickerModal"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                Избери етикети
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="padding-top:2px;">
+                        <div style="display:flex; flex-wrap:wrap; gap:10px; padding-top:14px; border-top:1px solid #D9E2EC;"
+                             class="book-edit-actions">
+                            <button type="submit"
+                                    style="min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18);">
+                                Запази
+                            </button>
+
+                            <a asp-action="Details"
+                               asp-route-id="@ViewBag.BookId"
+                               style="display:inline-flex; align-items:center; justify-content:center; min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; text-decoration:none;">
+                                Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <aside style="min-width:0;" class="book-edit-side-panel">
+
+                    <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
+                        <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                            Корица
+                        </div>
+
+                        <div id="coverPreviewBox"
+                             style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+                            <div style="font-weight:700; color:#334155;">Текуща / нова корица</div>
+
+                            <div style="width:100%; padding:16px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; display:flex; justify-content:center; align-items:center; min-height:280px;">
+                                <img id="coverPreviewImage"
+                                     src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
+                                     alt="Корица"
+                                     style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:block;") max-width:100%; max-height:320px; border-radius:14px; object-fit:cover; border:1px solid #E2E8F0;" />
+                                <span id="coverPreviewEmpty"
+                                      style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:block;" : "display:none;") color:#94A3B8; font-weight:700;">
+                                    Няма избрана корица
+                                </span>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; margin-top:14px;">
+                            <label asp-for="CoverFile" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Качи нова корица</label>
+                            <input asp-for="CoverFile"
+                                   type="file"
+                                   accept=".jpg,.jpeg,.png,.webp,image/*"
+                                   class="form-control"
+                                   id="coverFileInput"
+                                   style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:10px 14px; background:#FFFFFF;" />
+                            <span asp-validation-for="CoverFile" class="text-danger"></span>
+                        </div>
+
+                        <div style="color:#64748B; font-size:.95rem; margin-top:8px;">
+                            Поддържани формати: JPG, PNG, WEBP
+                        </div>
+                    </div>
+
+                    @if (ViewBag.IsBookActive == true)
+                    {
+                        <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px;">
+                            <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
+                                Опасна зона
+                            </div>
+
+                            <div style="color:#64748B; margin-bottom:14px; line-height:1.55;">
+                                Деактивирай заглавието, ако искаш да го скриеш от активните записи.
+                            </div>
+
+                            <form asp-action="Deactivate"
+                                  asp-route-id="@ViewBag.BookId"
+                                  method="post"
+                                  data-gate="1"
+                                  style="margin:0;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800;">
+                                    Деактивирай заглавието
+                                </button>
+                            </form>
+                        </div>
+                    }
+                </aside>
+            </div>
+
+            <div class="modal fade" id="categoryPickerModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
+                        <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
+                            <h5 class="modal-title">Категории</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div style="margin-bottom:16px;">
+                                <input id="catSearch"
+                                       type="text"
+                                       class="form-control"
+                                       placeholder="Търси категория..."
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                            </div>
+
+                            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;"
+                                 class="book-edit-modal-two-col">
+                                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                    <div style="font-weight:800; color:#1F2937; margin-bottom:10px;">Главни категории</div>
+
+                                    <div id="level1List" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto;">
+                                        @foreach (var c in (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>()).OrderBy(x => x.Name))
+                                        {
+                                            <button type="button"
+                                                    class="level1-item"
+                                                    data-id="@c.Id"
+                                                    data-name="@c.Name"
+                                                    style="width:100%; text-align:left; background:#FFFFFF; border:1px solid #D6E0EA; color:#1F2937; border-radius:12px; font-weight:700; padding:10px 12px;">
+                                                @c.Name
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:14px; padding:14px;">
+                                    <div style="font-weight:800; color:#1F2937; margin-bottom:10px;">Подкатегории</div>
+                                    <div id="level2List" style="display:flex; flex-direction:column; gap:8px; max-height:360px; overflow:auto;"></div>
+                                </div>
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; margin-top:16px;"
+                                 class="book-edit-modal-actions">
+                                <button type="button"
+                                        id="btnClearCategory"
+                                        style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #CBD5E1; background:#FFFFFF; color:#475569; font-weight:700;">
+                                    Изчисти
+                                </button>
+
+                                <button type="button"
+                                        id="btnSaveCategory"
+                                        style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
+                                    Запази
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-actions-bar">
-                <div class="left-actions">
-                    <button type="submit" class="btn btn-accent">
-                        Запази
-                    </button>
+            <div class="modal fade" id="tagsPickerModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
+                        <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
+                            <h5 class="modal-title">Етикети</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+                        </div>
 
-                    <a asp-action="Details"
-                       asp-route-id="@ViewBag.BookId"
-                       class="btn btn-outline-primary">
-                        Назад
-                    </a>
+                        <div class="modal-body">
+                            <div style="margin-bottom:16px;">
+                                <input id="tagsSearch"
+                                       type="text"
+                                       class="form-control"
+                                       placeholder="Търси етикет..."
+                                       style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                            </div>
+
+                            <div id="tagsList"
+                                 style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 14px;"
+                                 class="book-edit-tags-grid">
+                                @{
+                                    var ordered = (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
+                                    .OrderBy(x => x.Text)
+                                    .ToList();
+                                }
+
+                                @for (int i = 0; i < ordered.Count; i++)
+                                {
+                                    var opt = ordered[i];
+                                    var isChecked = Model.SelectedTagValues != null && Model.SelectedTagValues.Contains(int.Parse(opt.Value));
+
+                                    <label class="tag-item"
+                                           data-tag-text="@opt.Text.ToLowerInvariant()"
+                                           style="margin:0; padding:12px 14px; border:1px solid #E2E8F0; border-radius:12px; background:#F8FAFC; display:flex; align-items:center;">
+                                        <input class="tag-checkbox"
+                                               type="checkbox"
+                                               value="@opt.Value"
+                                               id="tagopt_@i"
+                                               data-name="@opt.Text"
+                                               style="width:16px; height:16px;"
+                                               @(isChecked ? "checked" : "") />
+                                        <span style="margin-left:10px;">@opt.Text</span>
+                                    </label>
+                                }
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;" class="book-edit-modal-actions">
+                                <button type="button"
+                                        id="btnSaveTags"
+                                        style="min-height:42px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
+                                    Запази
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
-
-        @if (ViewBag.IsBookActive == true)
-        {
-            <div class="danger-actions-row">
-                <form asp-action="Deactivate"
-                      asp-route-id="@ViewBag.BookId"
-                      method="post"
-                      data-gate="1"
-                      class="m-0">
-                    @Html.AntiForgeryToken()
-
-                    <button type="submit" class="btn btn-outline-danger">
-                        Деактивирай заглавието
-                    </button>
-                </form>
-            </div>
-        }
     </section>
 </div>
 
-<!-- ===== MODAL: Категории ===== -->
-<div class="modal fade" id="categoryPickerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content picker-modal-content">
-            <div class="modal-header picker-modal-header">
-                <h5 class="modal-title">Категории</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="mb-3">
-                    <input id="catSearch"
-                           type="text"
-                           class="form-control"
-                           placeholder="Търси категория..." />
-                </div>
-
-                <div class="picker-columns">
-                    <div class="picker-column">
-                        <div class="picker-column-title">Главни категории</div>
-
-                        <div id="level1List" class="picker-list">
-                            @{
-                                var level1 = (Model.Level1Options ?? new List<ObreshkovLibrary.Models.Category>())
-                                .OrderBy(x => x.Name)
-                                .ToList();
-
-                                for (int i = 0; i < level1.Count; i++)
-                                {
-                                    var c = level1[i];
-                                    <button type="button"
-                                            class="btn picker-item-btn level1-item"
-                                            data-id="@c.Id"
-                                            data-name="@c.Name">
-                                        @c.Name
-                                    </button>
-                                }
-                            }
-                        </div>
-
-                        <div id="noLevel1Found" class="picker-empty" style="display:none;">
-                            Няма резултат.
-                        </div>
-                    </div>
-
-                    <div class="picker-column">
-                        <div class="picker-column-title">Подкатегории</div>
-
-                        <div id="level2Hint" class="picker-hint">
-                            Избери главна категория, за да се покажат подкатегориите.
-                        </div>
-
-                        <div id="level2List" class="picker-list" style="display:none;"></div>
-
-                        <div id="noLevel2Found" class="picker-empty" style="display:none;">
-                            Няма подкатегории по това търсене.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="picker-footer-actions">
-                    <button type="button"
-                            id="btnClearCategory"
-                            class="btn btn-outline-secondary">
-                        Изчисти
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-accent"
-                            data-bs-dismiss="modal">
-                        Готово
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ===== MODAL: Етикети ===== -->
-<div class="modal fade" id="tagsPickerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content picker-modal-content">
-            <div class="modal-header picker-modal-header">
-                <h5 class="modal-title">Етикети</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="mb-3">
-                    <input id="tagsSearch"
-                           type="text"
-                           class="form-control"
-                           placeholder="Търси етикет..." />
-                </div>
-
-                <div class="tags-picker-box">
-                    <div id="tagsList" class="tags-list">
-                        @{
-                            var ordered = (Model.TagOptions ?? new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>())
-                            .OrderBy(x => x.Text)
-                            .ToList();
-
-                            for (int i = 0; i < ordered.Count; i++)
-                            {
-                                var opt = ordered[i];
-                                var isChecked = Model.SelectedTagValues != null
-                                && Model.SelectedTagValues.Contains(int.Parse(opt.Value));
-
-                                <label class="form-check tag-item"
-                                       data-tag-text="@opt.Text">
-                                    <input class="form-check-input tag-checkbox"
-                                           type="checkbox"
-                                           name="SelectedTagValues"
-                                           value="@opt.Value"
-                                           id="tagopt_@i"
-                                           data-label="@opt.Text"
-                                           @(isChecked ? "checked" : null) />
-                                    <span>@opt.Text</span>
-                                </label>
-                            }
-                        }
-                    </div>
-
-                    <div id="noTagsFound" class="picker-empty" style="display:none;">
-                        Няма етикети по това търсене.
-                    </div>
-                </div>
-
-                <div class="picker-footer-actions">
-                    <button type="button"
-                            id="btnClearAllTags"
-                            class="btn btn-outline-secondary">
-                        Изчисти
-                    </button>
-
-                    <button type="button"
-                            class="btn btn-accent"
-                            data-bs-dismiss="modal">
-                        Готово
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    .book-edit-page {
-        width: 100%;
-        padding-top: 6px;
-    }
-
-    .book-edit-header {
-        margin-bottom: 1rem;
-    }
-
-    .book-edit-panel {
-        padding: 1.25rem;
-        background: #FFFFFF;
-    }
-
-    .book-edit-form {
-        margin: 0;
-    }
-
-    .validation-summary {
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
-
-    .form-section {
-        background: #F9FBFD;
-        border: 1px solid #D9E0E7;
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 16px;
-    }
-
-    .form-section-title {
-        font-size: .8rem;
-        text-transform: uppercase;
-        font-weight: 800;
-        color: #6B7280;
-        margin-bottom: 10px;
-    }
-
-    .form-grid {
-        display: grid;
-        gap: 16px;
-    }
-
-    .form-grid-2 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .form-field {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-label-strong {
-        font-weight: 700;
-        margin-bottom: 6px;
-        color: #374151;
-    }
-
-    .form-textarea {
-        resize: vertical;
-        min-height: 120px;
-    }
-
-    .picker-head {
-        display: flex;
-        align-items: start;
-        justify-content: space-between;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .picker-preview,
-    .tags-preview {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        min-height: 24px;
-    }
-
-    .picker-help-text {
-        margin-top: 8px;
-        color: #6B7280;
-        font-weight: 600;
-    }
-
-    .validation-inline {
-        margin-top: 8px;
-    }
-
-    .form-actions-bar {
-        margin-top: 16px;
-        padding-top: 14px;
-        border-top: 1px solid #D9E0E7;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .left-actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .danger-actions-row {
-        margin-top: .5rem;
-        padding-top: 1rem;
-        border-top: 1px solid #E5EAF0;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .picker-modal-content {
-        border-radius: 16px;
-        overflow: hidden;
-        border: 1px solid #D9E0E7;
-    }
-
-    .picker-modal-header {
-        background: #F3F6F9;
-        border-bottom: 1px solid #D9E0E7;
-    }
-
-        .picker-modal-header .modal-title {
-            margin: 0;
-            font-weight: 800;
-            color: #1F2937;
-        }
-
-    .picker-columns {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .picker-column {
-        border: 1px solid #D9E0E7;
-        border-radius: 14px;
-        padding: 10px;
-        background: #F8FAFC;
-    }
-
-    .picker-column-title {
-        font-weight: 800;
-        color: #374151;
-        margin-bottom: 8px;
-    }
-
-    .picker-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .picker-item-btn {
-        text-align: left;
-        justify-content: flex-start;
-        background: #FFFFFF;
-        border: 1px solid #D9E0E7;
-        border-radius: 12px;
-        padding: 10px 12px;
-        font-weight: 700;
-        color: #1F2937;
-    }
-
-        .picker-item-btn:hover {
-            background: #EEF4FF;
-            border-color: #BFDBFE;
-            color: #1D4ED8;
-        }
-
-    .picker-hint,
-    .picker-empty {
-        color: #6B7280;
-        font-weight: 600;
-    }
-
-    .picker-footer-actions {
-        margin-top: 12px;
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .tags-picker-box {
-        border: 1px solid #D9E0E7;
-        border-radius: 14px;
-        padding: 10px;
-        background: #F8FAFC;
-    }
-
-    .tags-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .tag-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: #FFFFFF;
-        padding: 10px 12px;
-        border-radius: 12px;
-        border: 1px solid #D9E0E7;
-        font-weight: 700;
-        color: #1F2937;
-    }
-
-    @@media (max-width: 767.98px) {
-        .book-edit-panel {
-            padding: 1rem;
-        }
-
-        .form-section {
-            padding: .9rem;
-        }
-
-        .form-grid-2,
-        .picker-columns {
-            grid-template-columns: 1fr;
-        }
-
-        .picker-head,
-        .form-actions-bar {
-            align-items: stretch;
-        }
-
-        .left-actions,
-        .danger-actions-row {
-            width: 100%;
-        }
-
-            .left-actions .btn,
-            .danger-actions-row .btn,
-            .picker-head .btn {
-                width: 100%;
-                text-align: center;
-            }
-    }
-</style>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 
     <script>
-        async function loadChildren(parentId) {
-            const res = await fetch(`/Categories/GetChildren?parentId=${parentId}`);
-            return await res.json();
+        const categoryModalEl = document.getElementById('categoryPickerModal');
+        const tagsModalEl = document.getElementById('tagsPickerModal');
+
+        const level1Hidden = document.getElementById('Level1Hidden');
+        const level2Hidden = document.getElementById('Level2Hidden');
+        const categoryPreview = document.getElementById('categoryPreview');
+        const level1Buttons = document.querySelectorAll('.level1-item');
+        const level2List = document.getElementById('level2List');
+        const catSearch = document.getElementById('catSearch');
+        const clearCategoryBtn = document.getElementById('btnClearCategory');
+        const saveCategoryBtn = document.getElementById('btnSaveCategory');
+
+        let tempLevel1Id = level1Hidden.value || '';
+        let tempLevel2Id = level2Hidden.value || '';
+        let tempLevel1Name = '';
+        let tempLevel2Name = '';
+
+        function renderCategoryPreview(level1Name, level2Name) {
+            if (!level1Name) {
+                categoryPreview.innerHTML = '';
+                return;
+            }
+
+            const text = level2Name ? `${level1Name} → ${level2Name}` : level1Name;
+            categoryPreview.innerHTML =
+                `<span style="display:inline-block;padding:7px 12px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:999px;font-weight:700;color:#1E3A8A;">${text}</span>`;
         }
 
-        (function () {
-            const level1Hidden = document.getElementById('Level1IdHidden');
-            const level2Hidden = document.getElementById('Level2IdHidden');
+        async function loadChildren(id) {
+            const r = await fetch(`/Categories/GetChildren?parentId=${id}`);
+            return await r.json();
+        }
 
-            const preview = document.getElementById('categoryPreview');
-            const catSearch = document.getElementById('catSearch');
+        async function renderLevel2(parentId, parentName) {
+            level2List.innerHTML = '';
 
-            const level1Btns = Array.from(document.querySelectorAll('.level1-item'));
-            const noLevel1Found = document.getElementById('noLevel1Found');
-
-            const level2Hint = document.getElementById('level2Hint');
-            const level2List = document.getElementById('level2List');
-            const noLevel2Found = document.getElementById('noLevel2Found');
-
-            const btnClearCategory = document.getElementById('btnClearCategory');
-
-            let selectedLevel1 = { id: level1Hidden.value || null, name: null };
-            let selectedLevel2 = { id: level2Hidden.value || null, name: null };
-            let currentChildren = [];
-
-            function pill(text) {
-                const s = document.createElement('span');
-                s.className = "status-badge status-active";
-                s.textContent = text;
-                return s;
+            if (!parentId) {
+                tempLevel2Id = '';
+                tempLevel2Name = '';
+                return;
             }
 
-            function neutralPill(text) {
-                const s = document.createElement('span');
-                s.className = "status-badge status-inactive";
-                s.textContent = text;
-                return s;
+            const children = await loadChildren(parentId);
+
+            children.forEach(c => {
+                const childBtn = document.createElement('button');
+                childBtn.type = 'button';
+                childBtn.textContent = c.name;
+                childBtn.style.width = '100%';
+                childBtn.style.textAlign = 'left';
+                childBtn.style.background = '#FFFFFF';
+                childBtn.style.border = '1px solid #D6E0EA';
+                childBtn.style.color = '#1F2937';
+                childBtn.style.borderRadius = '12px';
+                childBtn.style.fontWeight = '700';
+                childBtn.style.padding = '10px 12px';
+                childBtn.dataset.categoryId = c.id;
+
+                if (String(tempLevel2Id) === String(c.id)) {
+                    childBtn.style.borderColor = '#3B82F6';
+                    childBtn.style.background = '#EFF6FF';
+                    tempLevel2Name = c.name;
+                }
+
+                childBtn.onclick = () => {
+                    tempLevel2Id = String(c.id);
+                    tempLevel2Name = c.name;
+
+                    [...level2List.querySelectorAll('button')].forEach(x => {
+                        x.style.borderColor = '#D6E0EA';
+                        x.style.background = '#FFFFFF';
+                    });
+
+                    childBtn.style.borderColor = '#3B82F6';
+                    childBtn.style.background = '#EFF6FF';
+                };
+
+                level2List.appendChild(childBtn);
+            });
+
+            if (!children.length) {
+                tempLevel2Id = '';
+                tempLevel2Name = '';
             }
+        }
 
-            function renderPreview() {
-                preview.innerHTML = "";
+        async function selectTempLevel1(btn) {
+            tempLevel1Id = btn.dataset.id;
+            tempLevel1Name = btn.dataset.name;
+            tempLevel2Id = '';
+            tempLevel2Name = '';
 
-                if (!selectedLevel1.id) {
-                    preview.appendChild(neutralPill("Няма избрана категория"));
+            level1Buttons.forEach(x => {
+                x.style.borderColor = '#D6E0EA';
+                x.style.background = '#FFFFFF';
+            });
+
+            btn.style.borderColor = '#3B82F6';
+            btn.style.background = '#EFF6FF';
+
+            await renderLevel2(tempLevel1Id, tempLevel1Name);
+        }
+
+        async function syncCategoryModalFromCommitted() {
+            tempLevel1Id = level1Hidden.value || '';
+            tempLevel2Id = level2Hidden.value || '';
+            tempLevel1Name = '';
+            tempLevel2Name = '';
+
+            level1Buttons.forEach(x => {
+                x.style.borderColor = '#D6E0EA';
+                x.style.background = '#FFFFFF';
+            });
+
+            const selectedLevel1Btn = [...level1Buttons].find(b => String(b.dataset.id) === String(tempLevel1Id));
+
+            if (selectedLevel1Btn) {
+                tempLevel1Name = selectedLevel1Btn.dataset.name;
+                selectedLevel1Btn.style.borderColor = '#3B82F6';
+                selectedLevel1Btn.style.background = '#EFF6FF';
+                await renderLevel2(tempLevel1Id, tempLevel1Name);
+            } else {
+                level2List.innerHTML = '';
+            }
+        }
+
+        level1Buttons.forEach(btn => {
+            btn.addEventListener('click', () => selectTempLevel1(btn));
+        });
+
+        if (catSearch) {
+            catSearch.addEventListener('input', () => {
+                const q = catSearch.value.trim().toLowerCase();
+                level1Buttons.forEach(btn => {
+                    btn.style.display = btn.dataset.name.toLowerCase().includes(q) ? 'block' : 'none';
+                });
+            });
+        }
+
+        if (clearCategoryBtn) {
+            clearCategoryBtn.addEventListener('click', () => {
+                tempLevel1Id = '';
+                tempLevel2Id = '';
+                tempLevel1Name = '';
+                tempLevel2Name = '';
+                level2List.innerHTML = '';
+                level1Buttons.forEach(x => {
+                    x.style.borderColor = '#D6E0EA';
+                    x.style.background = '#FFFFFF';
+                });
+            });
+        }
+
+        if (saveCategoryBtn) {
+            saveCategoryBtn.addEventListener('click', () => {
+                level1Hidden.value = tempLevel1Id || '';
+                level2Hidden.value = tempLevel2Id || '';
+                renderCategoryPreview(tempLevel1Name, tempLevel2Name);
+
+                const modalInstance = bootstrap.Modal.getInstance(categoryModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
+
+        if (categoryModalEl) {
+            categoryModalEl.addEventListener('show.bs.modal', async () => {
+                if (catSearch) {
+                    catSearch.value = '';
+                }
+                level1Buttons.forEach(btn => btn.style.display = 'block');
+                await syncCategoryModalFromCommitted();
+            });
+        }
+
+        const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
+        const tagsPreview = document.getElementById('selectedTagsPreview');
+        const tagsCount = document.getElementById('selectedTagsCount');
+        const tagsSearch = document.getElementById('tagsSearch');
+        const tagItems = document.querySelectorAll('.tag-item');
+        const saveTagsBtn = document.getElementById('btnSaveTags');
+        const hiddenTagsContainer = document.getElementById('selectedTagsHiddenInputs');
+
+        let committedTagValues = Array.from(hiddenTagsContainer.querySelectorAll('input[name="SelectedTagValues"]'))
+            .map(x => String(x.value));
+
+        function renderCommittedTagsPreview() {
+            tagsPreview.innerHTML = '';
+            tagsCount.textContent = committedTagValues.length;
+
+            committedTagValues.forEach(value => {
+                const checkbox = [...tagCheckboxes].find(x => String(x.value) === String(value));
+                if (!checkbox) return;
+
+                const chip = document.createElement('span');
+                chip.textContent = checkbox.dataset.name;
+                chip.style.display = 'inline-block';
+                chip.style.padding = '7px 12px';
+                chip.style.background = '#ECFEFF';
+                chip.style.border = '1px solid #A5F3FC';
+                chip.style.borderRadius = '999px';
+                chip.style.fontWeight = '700';
+                chip.style.color = '#155E75';
+                tagsPreview.appendChild(chip);
+            });
+        }
+
+        function syncTagsModalFromCommitted() {
+            tagCheckboxes.forEach(cb => {
+                cb.checked = committedTagValues.includes(String(cb.value));
+            });
+        }
+
+        function writeCommittedTagsToHiddenInputs() {
+            hiddenTagsContainer.innerHTML = '';
+            committedTagValues.forEach(value => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedTagValues';
+                input.value = value;
+                hiddenTagsContainer.appendChild(input);
+            });
+        }
+
+        if (tagsSearch) {
+            tagsSearch.addEventListener('input', () => {
+                const q = tagsSearch.value.trim().toLowerCase();
+                tagItems.forEach(item => {
+                    item.style.display = item.dataset.tagText.includes(q) ? 'flex' : 'none';
+                });
+            });
+        }
+
+        if (saveTagsBtn) {
+            saveTagsBtn.addEventListener('click', () => {
+                committedTagValues = [...tagCheckboxes]
+                    .filter(x => x.checked)
+                    .map(x => String(x.value));
+
+                writeCommittedTagsToHiddenInputs();
+                renderCommittedTagsPreview();
+
+                const modalInstance = bootstrap.Modal.getInstance(tagsModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
+
+        if (tagsModalEl) {
+            tagsModalEl.addEventListener('show.bs.modal', () => {
+                if (tagsSearch) {
+                    tagsSearch.value = '';
+                }
+                tagItems.forEach(item => item.style.display = 'flex');
+                syncTagsModalFromCommitted();
+            });
+        }
+
+        renderCommittedTagsPreview();
+
+        const coverInput = document.getElementById('coverFileInput');
+        const coverPreviewImage = document.getElementById('coverPreviewImage');
+        const coverPreviewEmpty = document.getElementById('coverPreviewEmpty');
+        const currentSrc = '@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")';
+
+        if (coverInput) {
+            coverInput.addEventListener('change', () => {
+                const file = coverInput.files && coverInput.files[0];
+
+                if (!file) {
+                    if (currentSrc) {
+                        coverPreviewImage.src = currentSrc;
+                        coverPreviewImage.style.display = 'block';
+                        if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'none';
+                    } else {
+                        coverPreviewImage.src = '';
+                        coverPreviewImage.style.display = 'none';
+                        if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'block';
+                    }
                     return;
                 }
 
-                if (selectedLevel1.name) preview.appendChild(pill(selectedLevel1.name));
-                if (selectedLevel2.id && selectedLevel2.name) preview.appendChild(pill("→ " + selectedLevel2.name));
-            }
-
-            function applyLevel1Filter() {
-                const q = (catSearch.value || '').trim().toLowerCase();
-                let visible = 0;
-
-                level1Btns.forEach(b => {
-                    const name = (b.getAttribute('data-name') || '').toLowerCase();
-                    const show = !q || name.includes(q);
-                    b.style.display = show ? '' : 'none';
-                    if (show) visible++;
-                });
-
-                noLevel1Found.style.display = visible === 0 ? '' : 'none';
-            }
-
-            catSearch.addEventListener('input', applyLevel1Filter);
-
-            level1Btns.forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    selectedLevel1.id = btn.getAttribute('data-id');
-                    selectedLevel1.name = btn.getAttribute('data-name');
-                    level1Hidden.value = selectedLevel1.id;
-
-                    selectedLevel2.id = null;
-                    selectedLevel2.name = null;
-                    level2Hidden.value = "";
-
-                    level2Hint.style.display = "none";
-                    level2List.style.display = "flex";
-                    level2List.innerHTML = "";
-                    noLevel2Found.style.display = "none";
-
-                    currentChildren = await loadChildren(selectedLevel1.id);
-                    currentChildren.sort((a, b) => (a.name || "").localeCompare(b.name || "", 'bg'));
-
-                    if (currentChildren.length === 0) {
-                        level2Hint.style.display = "block";
-                        level2Hint.textContent = "Няма подкатегории.";
-                        level2List.style.display = "none";
-                    } else {
-                        currentChildren.forEach(c => {
-                            const b = document.createElement('button');
-                            b.type = "button";
-                            b.className = "btn picker-item-btn";
-                            b.textContent = c.name;
-
-                            b.addEventListener('click', () => {
-                                selectedLevel2.id = c.id;
-                                selectedLevel2.name = c.name;
-                                level2Hidden.value = c.id;
-                                renderPreview();
-                            });
-
-                            level2List.appendChild(b);
-                        });
-                    }
-
-                    renderPreview();
-                });
+                const reader = new FileReader();
+                reader.onload = e => {
+                    coverPreviewImage.src = e.target.result;
+                    coverPreviewImage.style.display = 'block';
+                    if (coverPreviewEmpty) coverPreviewEmpty.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
             });
+        }
 
-            btnClearCategory.addEventListener('click', () => {
-                selectedLevel1 = { id: null, name: null };
-                selectedLevel2 = { id: null, name: null };
-                level1Hidden.value = "";
-                level2Hidden.value = "";
-                catSearch.value = "";
-                applyLevel1Filter();
-
-                level2Hint.style.display = "block";
-                level2Hint.textContent = "Избери главна категория, за да се покажат подкатегориите.";
-                level2List.style.display = "none";
-                level2List.innerHTML = "";
-                noLevel2Found.style.display = "none";
-
-                renderPreview();
-            });
-
-            renderPreview();
-            applyLevel1Filter();
+        (async function initCommittedCategoryPreview() {
+            if (level1Hidden.value) {
+                await syncCategoryModalFromCommitted();
+                renderCategoryPreview(tempLevel1Name, tempLevel2Name);
+            }
         })();
-    </script>
 
-    <script>
-        (function () {
-            const searchInput = document.getElementById('tagsSearch');
-            const noFound = document.getElementById('noTagsFound');
-            const clearBtn = document.getElementById('btnClearAllTags');
+        function applyResponsiveEditLayout() {
+            const mainLayout = document.querySelector('.book-edit-main-layout');
+            const sidePanel = document.querySelector('.book-edit-side-panel');
+            const twoCols = document.querySelectorAll('.book-edit-two-col, .book-edit-two-col-nested, .book-edit-modal-two-col, .book-edit-tags-grid');
+            const actionBars = document.querySelectorAll('.book-edit-actions, .book-edit-modal-actions');
 
-            const preview = document.getElementById('selectedTagsPreview');
-            const countEl = document.getElementById('selectedTagsCount');
-
-            function getCheckboxes() {
-                return Array.from(document.querySelectorAll('.tag-checkbox'));
-            }
-
-            function pill(text) {
-                const s = document.createElement('span');
-                s.className = "status-badge status-active";
-                s.textContent = text;
-                return s;
-            }
-
-            function renderPreview() {
-                const checked = getCheckboxes().filter(x => x.checked);
-
-                preview.innerHTML = '';
-
-                checked
-                    .map(cb => cb.dataset.label || 'Етикет')
-                    .sort((a, b) => a.localeCompare(b, 'bg'))
-                    .forEach(label => {
-                        preview.appendChild(pill(label));
-                    });
-
-                countEl.textContent = checked.length.toString();
-            }
-
-            function applyFilter() {
-                const q = (searchInput.value || '').trim().toLowerCase();
-                const items = Array.from(document.querySelectorAll('.tag-item'));
-                let visibleCount = 0;
-
-                items.forEach(item => {
-                    const text = (item.getAttribute('data-tag-text') || '').toLowerCase();
-                    const show = !q || text.includes(q);
-                    item.style.display = show ? '' : 'none';
-                    if (show) visibleCount++;
-                });
-
-                noFound.style.display = visibleCount === 0 ? '' : 'none';
-            }
-
-            searchInput.addEventListener('input', applyFilter);
-
-            document.addEventListener('change', (e) => {
-                const t = e.target;
-                if (t && t.classList && t.classList.contains('tag-checkbox')) {
-                    renderPreview();
+            if (window.innerWidth <= 1100) {
+                if (mainLayout) {
+                    mainLayout.style.gridTemplateColumns = '1fr';
                 }
-            });
 
-            clearBtn.addEventListener('click', () => {
-                getCheckboxes().forEach(cb => cb.checked = false);
-                renderPreview();
-                searchInput.value = '';
-                applyFilter();
-            });
+                if (sidePanel) {
+                    sidePanel.style.display = 'grid';
+                    sidePanel.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
+                    sidePanel.style.gap = '18px';
+                }
+            } else {
+                if (mainLayout) {
+                    mainLayout.style.gridTemplateColumns = 'minmax(0, 1.8fr) minmax(300px, 0.95fr)';
+                }
 
-            document.getElementById('tagsPickerModal').addEventListener('shown.bs.modal', () => {
-                searchInput.value = '';
-                applyFilter();
-                searchInput.focus();
-            });
+                if (sidePanel) {
+                    sidePanel.style.display = 'block';
+                    sidePanel.style.gridTemplateColumns = '';
+                    sidePanel.style.gap = '';
+                }
+            }
 
-            renderPreview();
-            applyFilter();
-        })();
+            if (window.innerWidth <= 760) {
+                twoCols.forEach(x => x.style.gridTemplateColumns = '1fr');
+                actionBars.forEach(x => {
+                    x.style.flexDirection = 'column';
+                    x.style.alignItems = 'stretch';
+                });
+            } else {
+                document.querySelectorAll('.book-edit-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-two-col-nested').forEach(x => x.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-modal-two-col').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                document.querySelectorAll('.book-edit-tags-grid').forEach(x => x.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))');
+                actionBars.forEach(x => {
+                    x.style.flexDirection = 'row';
+                    x.style.alignItems = '';
+                });
+            }
+        }
+
+        applyResponsiveEditLayout();
+        window.addEventListener('resize', applyResponsiveEditLayout);
     </script>
 }

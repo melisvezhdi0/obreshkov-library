@@ -46,17 +46,40 @@ namespace ObreshkovLibrary.Controllers
                 })
                 .ToList();
         }
-
         private static string TagToBg(BookTags t) => t switch
         {
-            BookTags.Classic => "Класика",
-            BookTags.Romance => "Любовен",
-            BookTags.Drama => "Драма",
+            BookTags.BulgarianLiterature => "Българска литература",
+            BookTags.WorldLiterature => "Световна литература",
+            BookTags.BalkanLiterature => "Балканска литература",
+            BookTags.AncientLiterature => "Антична литература",
+            BookTags.ClassicLiterature => "Класика",
+            BookTags.ContemporaryLiterature => "Съвременна литература",
+
+            BookTags.Love => "Любов",
+            BookTags.Rebellion => "Бунт",
+            BookTags.Suffering => "Страдание",
+            BookTags.Romantic => "Романтика",
+
+            BookTags.Horror => "Хорър",
+            BookTags.Historical => "Исторически",
+            BookTags.ScienceFiction => "Фантастика",
             BookTags.Fantasy => "Фентъзи",
-            BookTags.Horror => "Ужаси",
-            BookTags.Bulgarian => "Българска литература",
-            BookTags.Foreign => "Чужда литература",
-            BookTags.SchoolLiterature => "Училищна литература",
+            BookTags.Psychological => "Психологически",
+            BookTags.Social => "Социален",
+
+            BookTags.RequiredReading => "Задължителна литература",
+            BookTags.RecommendedReading => "Препоръчителна литература",
+            BookTags.ForMatura => "За матура",
+
+            BookTags.BulgarianAuthor => "Български автор",
+            BookTags.ForeignAuthor => "Чужд автор",
+
+            BookTags.EducationalContent => "Учебно съдържание",
+            BookTags.ClassicalWork => "Класическо произведение",
+
+            BookTags.Poetry => "Поезия",
+            BookTags.Prose => "Проза",
+            BookTags.Dramaturgy => "Драматургия",
             _ => t.ToString()
         };
 

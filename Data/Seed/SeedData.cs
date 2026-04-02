@@ -1,0 +1,23 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+namespace ObreshkovLibrary.Data.Seed
+{
+    public static class SeedData
+    {
+        public static async Task InitializeAsync(IServiceProvider serviceProvider)
+        {
+            using var scope = serviceProvider.CreateScope();
+
+            var context = scope.ServiceProvider.GetRequiredService<ObreshkovLibraryContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            await context.Database.MigrateAsync();
+
+            await RoleSeed.SeedRolesAsync(roleManager);
+            await CategorySeed.SeedCategoriesAsync(context);
+            await ClientSeed.SeedClientsAsync(context);
+        }
+    }
+}

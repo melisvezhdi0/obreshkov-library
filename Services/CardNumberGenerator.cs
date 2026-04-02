@@ -17,11 +17,14 @@ namespace ObreshkovLibrary.Services
         {
             for (int attempt = 0; attempt < 20; attempt++)
             {
-                var year = DateTime.Now.Year;
-                var randomSixDigits = RandomNumberGenerator.GetInt32(100000, 1000000); 
-                var cardNumber = $"OBR-{year}-{randomSixDigits}";
+                var year = DateTime.Now.Year.ToString();
+                var randomSixDigits = RandomNumberGenerator.GetInt32(100000, 1000000);
+                var cardNumber = $"{year}{randomSixDigits}";
 
-                bool exists = await _db.Clients.AnyAsync(c => c.CardNumber == cardNumber);
+                bool exists = await _db.Clients
+                    .IgnoreQueryFilters()
+                    .AnyAsync(c => c.CardNumber == cardNumber);
+
                 if (!exists)
                     return cardNumber;
             }

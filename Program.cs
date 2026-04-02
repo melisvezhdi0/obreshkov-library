@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Data.Seed;
 using ObreshkovLibrary.Services;
 using ObreshkovLibrary.Services;
 

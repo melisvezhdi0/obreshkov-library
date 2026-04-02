@@ -17,17 +17,42 @@
             ? $"{Model.Category.ParentCategory.Name} / {Model.Category.Name}"
             : Model.Category.Name;
     }
-
+}
+@{
     List<string> tagNames = new();
 
-    if ((Model.Tags & BookTags.Classic) == BookTags.Classic) tagNames.Add("Класика");
-    if ((Model.Tags & BookTags.Romance) == BookTags.Romance) tagNames.Add("Любовен");
-    if ((Model.Tags & BookTags.Drama) == BookTags.Drama) tagNames.Add("Драма");
+    if ((Model.Tags & BookTags.BulgarianLiterature) == BookTags.BulgarianLiterature) tagNames.Add("Българска литература");
+    if ((Model.Tags & BookTags.WorldLiterature) == BookTags.WorldLiterature) tagNames.Add("Световна литература");
+    if ((Model.Tags & BookTags.BalkanLiterature) == BookTags.BalkanLiterature) tagNames.Add("Балканска литература");
+    if ((Model.Tags & BookTags.AncientLiterature) == BookTags.AncientLiterature) tagNames.Add("Антична литература");
+    if ((Model.Tags & BookTags.ClassicLiterature) == BookTags.ClassicLiterature) tagNames.Add("Класика");
+    if ((Model.Tags & BookTags.ContemporaryLiterature) == BookTags.ContemporaryLiterature) tagNames.Add("Съвременна литература");
+
+    if ((Model.Tags & BookTags.Love) == BookTags.Love) tagNames.Add("Любов");
+    if ((Model.Tags & BookTags.Rebellion) == BookTags.Rebellion) tagNames.Add("Бунт");
+    if ((Model.Tags & BookTags.Suffering) == BookTags.Suffering) tagNames.Add("Страдание");
+    if ((Model.Tags & BookTags.Romantic) == BookTags.Romantic) tagNames.Add("Романтика");
+
+    if ((Model.Tags & BookTags.Horror) == BookTags.Horror) tagNames.Add("Хорър");
+    if ((Model.Tags & BookTags.Historical) == BookTags.Historical) tagNames.Add("Исторически");
+    if ((Model.Tags & BookTags.ScienceFiction) == BookTags.ScienceFiction) tagNames.Add("Фантастика");
     if ((Model.Tags & BookTags.Fantasy) == BookTags.Fantasy) tagNames.Add("Фентъзи");
-    if ((Model.Tags & BookTags.Horror) == BookTags.Horror) tagNames.Add("Ужаси");
-    if ((Model.Tags & BookTags.Bulgarian) == BookTags.Bulgarian) tagNames.Add("Българска литература");
-    if ((Model.Tags & BookTags.Foreign) == BookTags.Foreign) tagNames.Add("Чужда литература");
-    if ((Model.Tags & BookTags.SchoolLiterature) == BookTags.SchoolLiterature) tagNames.Add("Училищна литература");
+    if ((Model.Tags & BookTags.Psychological) == BookTags.Psychological) tagNames.Add("Психологически");
+    if ((Model.Tags & BookTags.Social) == BookTags.Social) tagNames.Add("Социален");
+
+    if ((Model.Tags & BookTags.RequiredReading) == BookTags.RequiredReading) tagNames.Add("Задължителна литература");
+    if ((Model.Tags & BookTags.RecommendedReading) == BookTags.RecommendedReading) tagNames.Add("Препоръчителна литература");
+    if ((Model.Tags & BookTags.ForMatura) == BookTags.ForMatura) tagNames.Add("За матура");
+
+    if ((Model.Tags & BookTags.BulgarianAuthor) == BookTags.BulgarianAuthor) tagNames.Add("Български автор");
+    if ((Model.Tags & BookTags.ForeignAuthor) == BookTags.ForeignAuthor) tagNames.Add("Чужд автор");
+
+    if ((Model.Tags & BookTags.EducationalContent) == BookTags.EducationalContent) tagNames.Add("Учебно съдържание");
+    if ((Model.Tags & BookTags.ClassicalWork) == BookTags.ClassicalWork) tagNames.Add("Класическо произведение");
+
+    if ((Model.Tags & BookTags.Poetry) == BookTags.Poetry) tagNames.Add("Поезия");
+    if ((Model.Tags & BookTags.Prose) == BookTags.Prose) tagNames.Add("Проза");
+    if ((Model.Tags & BookTags.Dramaturgy) == BookTags.Dramaturgy) tagNames.Add("Драматургия");
 }
 
 <div style="width:100%; min-height:calc(100vh - 80px); background:#f3f6fa; padding:28px 0 42px;">

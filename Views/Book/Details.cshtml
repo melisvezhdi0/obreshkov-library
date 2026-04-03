@@ -5,19 +5,28 @@
 @{
     ViewData["Title"] = "Детайли за книга";
 
-    var activeLoanCopyIds = (ViewBag.ActiveLoanCopyIds as List<int>) ?? new List<int>();
-    var activeCopies = Model.Copies?.Count(c => c.IsActive) ?? 0;
+    var activeLoanCopyIds = ViewBag.ActiveLoanCopyIds as List<int> ?? new List<int>();
+    var copies = Model.Copies?.OrderBy(c => c.Id).ToList() ?? new List<ObreshkovLibrary.Models.BookCopy>();
+    var activeCopies = copies.Count(c => c.IsActive);
 
-    string categoryName = "Няма категория";
-    if (Model.Category != null)
+    var coverPathProp = Model.GetType().GetProperty("CoverPath");
+    var coverUrlProp = Model.GetType().GetProperty("CoverUrl");
+    var coverValue = coverPathProp?.GetValue(Model)?.ToString() ?? coverUrlProp?.GetValue(Model)?.ToString();
+
+    string? subCategoryName = Model.Category?.Name;
+    string? parentCategoryName = Model.Category?.ParentCategory?.Name;
+
+    string genreText = "Няма";
+
+    if (!string.IsNullOrWhiteSpace(parentCategoryName) && !string.IsNullOrWhiteSpace(subCategoryName))
     {
-        categoryName = Model.Category.ParentCategory != null
-            ? $"{Model.Category.ParentCategory.Name} / {Model.Category.Name}"
-            : Model.Category.Name;
+        genreText = $"{parentCategoryName} / {subCategoryName}";
     }
-}
+    else if (!string.IsNullOrWhiteSpace(subCategoryName))
+    {
+        genreText = subCategoryName!;
+    }
 
-@{
     List<string> tagNames = new();
 
     if ((Model.Tags & BookTags.BulgarianLiterature) == BookTags.BulgarianLiterature) tagNames.Add("Българска литература");
@@ -56,6 +65,11 @@
 
 <div class="book-details-page">
 
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger mb-4">@TempData["Error"]</div>
+    }
+
     <div class="book-details-header">
         <div>
             <h2 class="section-title mb-1">@Model.Title</h2>
@@ -63,115 +77,117 @@
         </div>
 
         <div class="book-details-actions">
-            <a class="btn btn-outline-primary"
-               asp-action="Index">
-                Назад
+            <a asp-controller="Book"
+               asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-accent">
+                Редактирай
             </a>
 
-            <a class="btn btn-accent"
-               asp-action="Edit"
-               asp-route-id="@Model.Id">
-                Редактиране
+            <a asp-controller="Book"
+               asp-action="Index"
+               class="btn btn-outline-primary">
+                Назад
             </a>
         </div>
     </div>
 
-    <section class="details-panel card-soft">
-        <div class="book-main-panel">
-            <div class="book-top-layout">
+    <section class="details-panel card-soft book-main-panel">
+        <div class="book-top-layout">
 
-                <div class="book-cover-column">
-                    @if (!string.IsNullOrWhiteSpace(Model.CoverPath))
+            <div class="book-cover-column">
+                <div class="book-cover-box @(string.IsNullOrWhiteSpace(coverValue) ? "no-cover" : "")">
+                    @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
-                        <div class="book-cover-box">
-                            <img src="@Model.CoverPath" alt="@Model.Title" />
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="book-cover-box no-cover"></div>
+                        <img src="@coverValue"
+                             alt="@Model.Title"
+                             onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
                     }
                 </div>
-
-                <div class="book-info-column">
-                    <div class="book-info-grid">
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Заглавие</div>
-                            <div class="book-info-value">@Model.Title</div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Автор</div>
-                            <div class="book-info-value">@Model.Author</div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Година</div>
-                            <div class="book-info-value">
-                                @(Model.Year.HasValue? Model.Year.ToString() : "Няма данни")
-                            </div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Категория</div>
-                            <div class="book-info-value">@categoryName</div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Клас</div>
-                            <div class="book-info-value">
-                                @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
-                            </div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Добавена на</div>
-                            <div class="book-info-value">@Model.CreatedOn.ToString("dd.MM.yyyy")</div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Статус на книга</div>
-                            <div class="book-info-value">
-                                @if (Model.IsActive)
-                                {
-                                    <span class="status-badge status-active">Активна</span>
-                                }
-                                else
-                                {
-                                    <span class="status-badge status-inactive">Неактивна</span>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Активни екземпляри</div>
-                            <div class="book-info-value">@activeCopies</div>
-                        </div>
-
-                        <div class="book-info-row">
-                            <div class="book-info-label">Тагове</div>
-                            <div class="book-info-value">
-                                @if (tagNames.Any())
-                                {
-                                    <div class="tags-inline-wrap">
-                                        @foreach (var tag in tagNames)
-                                        {
-                                            <span class="tag-chip">@tag</span>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="muted-text">Няма тагове</span>
-                                }
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
             </div>
+
+            <div class="book-info-column">
+                <div class="book-info-grid">
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Заглавие</div>
+                        <div class="book-info-value">
+                            @(string.IsNullOrWhiteSpace(Model.Title) ? "Няма" : Model.Title)
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Автор</div>
+                        <div class="book-info-value">
+                            @(string.IsNullOrWhiteSpace(Model.Author) ? "Няма" : Model.Author)
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Жанр</div>
+                        <div class="book-info-value">@genreText</div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Година</div>
+                        <div class="book-info-value">
+                            @(Model.Year.HasValue? Model.Year.ToString() : "Няма")
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Клас</div>
+                        <div class="book-info-value">
+                            @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Копия</div>
+                        <div class="book-info-value">@copies.Count</div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Активни копия</div>
+                        <div class="book-info-value">@activeCopies</div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Статус</div>
+                        <div class="book-info-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="status-badge status-active">Активна</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">Неактивна</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Етикети</div>
+                        <div class="book-info-value">
+                            @if (tagNames.Any())
+                            {
+                                <div class="tags-inline-wrap">
+                                    @foreach (var tag in tagNames)
+                                    {
+                                        <span class="tag-chip">@tag</span>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <span>Няма</span>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -180,30 +196,28 @@
             <h5 class="section-title mb-0">Описание</h5>
         </div>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Description))
-        {
-            <div class="book-description-wrap">
+        <div class="book-description-wrap">
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
                 <div class="book-description">@Model.Description</div>
-            </div>
-        }
-        else
-        {
-            <div class="details-empty-state">
-                Няма добавено описание за тази книга.
-            </div>
-        }
+            }
+            else
+            {
+                <div class="details-empty-state">Няма описание за тази книга.</div>
+            }
+        </div>
     </section>
 
     <section class="details-panel card-soft copies-panel">
         <div class="details-panel-head details-panel-head-flex">
-            <h5 class="section-title mb-0">Екземпляри</h5>
-            <span class="count-badge">@(Model.Copies?.Count ?? 0)</span>
+            <h5 class="section-title mb-0">Копия</h5>
+            <span class="count-badge">@copies.Count</span>
         </div>
 
-        @if (Model.Copies == null || !Model.Copies.Any())
+        @if (!copies.Any())
         {
             <div class="details-empty-state">
-                Няма добавени екземпляри.
+                Няма добавени копия.
             </div>
         }
         else
@@ -212,33 +226,75 @@
                 <table class="table details-table align-middle mb-0">
                     <thead>
                         <tr>
-                            <th>№ екземпляр</th>
+                            <th>Копие</th>
+                            <th>Наличност</th>
                             <th>Състояние</th>
-                            <th class="text-end">Статус</th>
+                            <th class="text-end">Действие</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var copy in Model.Copies.OrderBy(c => c.Id))
+                        @foreach (var copy in copies)
                         {
-                            var isLoaned = copy.IsActive && activeLoanCopyIds.Contains(copy.Id);
+                            var isLoaned = activeLoanCopyIds.Contains(copy.Id);
 
                             <tr>
-                                <td class="copy-id-cell">#@copy.Id</td>
-                                <td class="copy-state-text">
-                                    @(copy.IsActive ? "Активен екземпляр" : "Неактивен екземпляр")
-                                </td>
-                                <td class="text-end">
+                                <td class="copy-id-cell">Копие #@copy.Id</td>
+
+                                <td>
                                     @if (!copy.IsActive)
                                     {
-                                        <span class="status-badge status-inactive">Неактивен</span>
+                                        <span class="status-badge status-inactive">Недостъпно</span>
                                     }
                                     else if (isLoaned)
                                     {
-                                        <span class="status-badge status-loaned">Зает</span>
+                                        <span class="status-badge status-loaned">Заето</span>
                                     }
                                     else
                                     {
-                                        <span class="status-badge status-active">Наличен</span>
+                                        <span class="status-badge status-active">Свободно</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (copy.IsActive)
+                                    {
+                                        <span class="copy-state-text">Активно</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="copy-state-text muted-text">Неактивно</span>
+                                    }
+                                </td>
+
+                                <td class="text-end">
+                                    @if (!copy.IsActive)
+                                    {
+                                        <form asp-action="ReactivateCopy"
+                                              asp-route-id="@copy.Id"
+                                              method="post"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                                Активирай
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (!isLoaned)
+                                    {
+                                        <form asp-action="DeactivateCopy"
+                                              asp-route-id="@copy.Id"
+                                              method="post"
+                                              data-gate="1"
+                                              style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                Деактивирай
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="muted-text small">Няма действие</span>
                                     }
                                 </td>
                             </tr>

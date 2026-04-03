@@ -7,7 +7,13 @@ namespace ObreshkovLibrary.Data.Seed
     {
         public static async Task SeedClientsAsync(ObreshkovLibraryContext context)
         {
-            if (await context.Clients.IgnoreQueryFilters().AnyAsync())
+            var seedMarker = "2026001001";
+
+            bool alreadySeeded = await context.Clients
+                .IgnoreQueryFilters()
+                .AnyAsync(c => c.CardNumber == seedMarker);
+
+            if (alreadySeeded)
                 return;
 
             var firstNames = new[]
@@ -73,7 +79,6 @@ namespace ObreshkovLibrary.Data.Seed
                         : lastNamesMale[(grade * 5 + i) % lastNamesMale.Length];
 
                     string? section = null;
-
                     if (grade >= 8)
                         section = sections[i % 4];
 
@@ -103,7 +108,6 @@ namespace ObreshkovLibrary.Data.Seed
                         : lastNamesMale[(grade * 6 + i) % lastNamesMale.Length];
 
                     string? section = null;
-
                     if (grade >= 8)
                         section = sections[i % 4];
 

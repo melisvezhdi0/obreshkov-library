@@ -7,46 +7,99 @@
     ViewData["Title"] = "Начало";
 }
 
-<div class="home-page">
-    <div class="home-shell">
+<div class="guest-home-page">
+    <div class="guest-home-container">
 
-        <div class="hero-wrap">
-            <section class="hero-card">
+        <section class="guest-hero">
 
-                <div class="hero-images">
-                    <img src="~/images/school1.png" class="hero-img active" />
-                    <img src="~/images/school2.png" class="hero-img" />
-                    <img src="~/images/school3.png" class="hero-img" />
-                    <img src="~/images/school4.png" class="hero-img" />
-                    <img src="~/images/school5.png" class="hero-img" />
-                    <img src="~/images/school6.png" class="hero-img" />
-                    <img src="~/images/school7.png" class="hero-img" />                  
+            <div class="guest-hero-slider">
+                <img src="/images/school-6.png" class="hero-slide active" />
+                <img src="/images/school-2.png" class="hero-slide" />
+                <img src="/images/school-3.png" class="hero-slide" />
+                <img src="/images/school-4.png" class="hero-slide" />
+                <img src="/images/school-5.png" class="hero-slide" />
+            </div>
+            <div class="guest-hero-left">
+                <div class="guest-hero-badge">
+                    Училищна библиотека • ППМГ „Акад. Никола Обрешков“
                 </div>
 
-                <div class="hero-fade-left"></div>
-                <div class="hero-fade-right"></div>
+                <h1 class="guest-hero-title">
+                    Пространство за четене,
+                    <span class="guest-hero-title-accent">търсене и откриване.</span>
+                </h1>
 
-                <div class="hero-nav">
-                    <div class="hero-nav-inner">
-                        <a asp-controller="Catalog" asp-action="Index">Каталог</a>
-                        <a href="#school-info">За училището</a>
-                        <a href="#library-info">За библиотеката</a>
-                    </div>
+                <p class="guest-hero-text">
+                    Добре дошли в библиотечната система на училището. Началната страница е създадена
+                    така, че гостът бързо да се ориентира, да отвори каталога и да разгледа наличните
+                    книги в по-ясна и подредена среда.
+                </p>
+
+                <div class="guest-hero-actions">
+                    <a asp-controller="Catalog" asp-action="Index" class="guest-primary-btn">
+                        Разгледай каталога
+                    </a>
                 </div>
+            </div>
 
-                <div class="hero-search-wrap">
-                    <div class="hero-search-panel">
-                        <form method="get" asp-controller="Catalog" asp-action="Index" class="hero-search-form">
-                            <input type="text"
+            <div class="guest-hero-right">
+                <aside class="guest-search-card">
+                    <h2 class="guest-search-title">Бързо търсене</h2>
+
+                    <p class="guest-search-subtitle">
+                        Потърси по заглавие, автор, жанр или учебна насоченост.
+                    </p>
+
+                    <form method="get" asp-controller="Catalog" asp-action="Index" class="guest-search-form">
+                        <label class="guest-search-label" for="guestSearch">Търси в каталога</label>
+
+                        <div class="guest-search-row">
+                            <input id="guestSearch"
+                                   type="text"
                                    name="searchTerm"
-                                   class="hero-search-input"
-                                   placeholder="Търсене по книга, автор, категория или клас..." />
-                            <button type="submit" class="hero-search-button">Търси</button>
-                        </form>
+                                   class="guest-search-input"
+                                   placeholder="Например: Ботев, роман" />
+                            <button type="submit" class="guest-search-button">Търси</button>
+                        </div>
+                    </form>
+                </aside>
+            </div>
+        </section>
+        @if (homeNews.Any())
+        {
+            <section class="school-news-section">
+                <div class="school-news-header">
+                    <div>
+                        <div class="school-news-label">Новини</div>
+                        <h2 class="school-news-title">Актуално в ППМГ</h2>
                     </div>
+                </div>
+
+                <div class="school-news-grid news-count-@homeNews.Count">
+                    @foreach (var item in homeNews)
+                    {
+                        <article class="school-news-card">
+                            <div class="school-news-image-wrap">
+                                @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                                {
+                                    <img src="@Url.Content(item.ImagePath)" alt="@item.Title" class="school-news-image" />
+                                }
+                            </div>
+
+                            <div class="school-news-body">
+                                <div class="school-news-date">@item.PublishedOn.ToString("dd.MM.yyyy")</div>
+                                <h3 class="school-news-card-title">@item.Title</h3>
+                                <p class="school-news-text">@item.Summary</p>
+
+                                <a href="@item.NewsUrl" target="_blank" class="school-news-button">
+                                    Прочети повече
+                                </a>
+                            </div>
+                        </article>
+                    }
                 </div>
             </section>
-            }
+        }
 
         <section class="guest-section-grid">
             <article id="about-school" class="guest-section-card">
@@ -130,17 +183,3 @@
 
     </div>
 </div>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const images = document.querySelectorAll('.hero-img');
-        let current = 0;
-
-        if (images.length > 1) {
-            setInterval(() => {
-                images[current].classList.remove('active');
-                current = (current + 1) % images.length;
-                images[current].classList.add('active');
-            }, 4000);
-        }
-    });
-</script>

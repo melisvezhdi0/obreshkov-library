@@ -2,117 +2,127 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    string navStyle(string controller, string action)
-    {
-        var isActive = currentController == controller && currentAction == action;
+    bool isHomeActive = currentController == "Home";
+    bool isCatalogActive = currentController == "Catalog";
+    bool isNotificationsActive = currentAction == "Notifications";
+    bool isFavoritesActive = currentAction == "Favorites";
+    bool isProfileActive = currentController == "StudentPortal" && currentAction == "Index";
 
-        return isActive
-            ? "display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 16px; border-radius:8px; text-decoration:none; font-weight:800; color:#1d4ed8; background:#eef4ff; border:1px solid #dbe7fb;"
-            : "display:inline-flex; align-items:center; justify-content:center; height:40px; padding:0 16px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;";
+    bool hasUnread = ViewBag.HasUnreadNotifications == true;
+
+    string textStyle(bool active)
+    {
+        return active
+            ? "display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:12px; background:linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%); color:#2563eb; font-weight:800; border:1px solid #dbe7fb; text-decoration:none; box-shadow:0 8px 18px rgba(37,99,235,.08); transition:background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;"
+            : "display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:12px; background:transparent; color:#475569; font-weight:800; border:1px solid transparent; text-decoration:none; transition:background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;";
+    }
+
+    string iconStyle(bool active)
+    {
+        return active
+            ? "width:44px; height:44px; border-radius:12px; background:linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%); color:#2563eb; display:inline-flex; align-items:center; justify-content:center; border:1px solid #dbe7fb; text-decoration:none; position:relative; box-shadow:0 8px 18px rgba(37,99,235,.08); transition:background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;"
+            : "width:44px; height:44px; border-radius:12px; background:transparent; color:#475569; display:inline-flex; align-items:center; justify-content:center; border:1px solid transparent; text-decoration:none; position:relative; transition:background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;";
     }
 }
 
-<nav style="width:100%; background:#ffffff; border-bottom:1px solid #e5e7eb; margin:0; padding:0;">
+<nav style="width:100%;
+            background:#ffffff;
+            border-bottom:1px solid #e5e7eb;
+            box-shadow:0 1px 0 rgba(15,23,42,.02);">
+
     <div style="width:100%;
+                min-height:72px;
+                padding:0 26px;
                 display:flex;
                 align-items:center;
                 justify-content:space-between;
-                padding:0 24px;
-                min-height:68px;
+                gap:18px;
                 box-sizing:border-box;">
 
         <a asp-controller="Home"
            asp-action="StudentIndex"
-           style="text-decoration:none;
-                  color:#17325c;
-                  font-size:1.05rem;
-                  font-weight:900;">
+           style="text-decoration:none; color:#17325c; font-size:1.08rem; font-weight:900; letter-spacing:.01em; white-space:nowrap;">
             Училищна библиотека „Обрешков“
         </a>
 
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <div style="display:flex;
+                    align-items:center;
+                    justify-content:flex-end;
+                    gap:8px;
+                    flex-wrap:wrap;">
 
             <a asp-controller="Home"
                asp-action="StudentIndex"
-               style="@navStyle("Home", "StudentIndex")"
-               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-               onmouseout="this.style.background='@(currentController == "Home" && currentAction == "StudentIndex" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "Home" && currentAction == "StudentIndex" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "Home" && currentAction == "StudentIndex" ? "#dbe7fb" : "transparent")';">
-                Начална страница
+               style="@textStyle(isHomeActive)"
+               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.background='@(isHomeActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isHomeActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isHomeActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isHomeActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';">
+                Начало
             </a>
 
             <a asp-controller="Catalog"
                asp-action="StudentIndex"
-               style="@navStyle("Catalog", "StudentIndex")"
-               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-               onmouseout="this.style.background='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "Catalog" && currentAction == "StudentIndex" ? "#dbe7fb" : "transparent")';">
+               style="@textStyle(isCatalogActive)"
+               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.background='@(isCatalogActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isCatalogActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isCatalogActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isCatalogActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';">
                 Каталог
             </a>
 
-            <a href="@Url.Action("StudentIndex", "Home")#about-school"
-               style="display:inline-flex;
-                      align-items:center;
-                      justify-content:center;
-                      height:40px;
-                      padding:0 16px;
-                      border-radius:8px;
-                      text-decoration:none;
-                      font-weight:800;
-                      color:#334155;
-                      background:transparent;
-                      border:1px solid transparent;"
-               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
-               onmouseout="this.style.background='transparent'; this.style.color='#334155';">
-                За училището
+            <a asp-controller="StudentPortal"
+               asp-action="Notifications"
+               style="@iconStyle(isNotificationsActive)"
+               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.background='@(isNotificationsActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isNotificationsActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isNotificationsActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isNotificationsActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';"
+               title="Съобщения"
+               aria-label="Съобщения">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="19"
+                     height="19"
+                     viewBox="0 0 16 16"
+                     fill="currentColor"
+                     style="display:block;">
+                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                </svg>
+
+                @if (hasUnread)
+                {
+                    <span style="position:absolute;
+                                     top:8px;
+                                     right:8px;
+                                     width:8px;
+                                     height:8px;
+                                     border-radius:50%;
+                                     background:#2563eb;
+                                     box-shadow:0 0 0 3px #ffffff;">
+                    </span>
+                }
             </a>
 
-            <a href="@Url.Action("StudentIndex", "Home")#about-library"
-               style="display:inline-flex;
-                      align-items:center;
-                      justify-content:center;
-                      height:40px;
-                      padding:0 16px;
-                      border-radius:8px;
-                      text-decoration:none;
-                      font-weight:800;
-                      color:#334155;
-                      background:transparent;
-                      border:1px solid transparent;"
-               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
-               onmouseout="this.style.background='transparent'; this.style.color='#334155';">
-                За библиотеката
+            <a asp-controller="StudentPortal"
+               asp-action="Favorites"
+               style="@iconStyle(isFavoritesActive)"
+               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.background='@(isFavoritesActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isFavoritesActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isFavoritesActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isFavoritesActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';"
+               title="Любими книги"
+               aria-label="Любими книги">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="19"
+                     height="19"
+                     viewBox="0 0 16 16"
+                     fill="currentColor"
+                     style="display:block;">
+                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01z" />
+                </svg>
             </a>
 
             <a asp-controller="StudentPortal"
                asp-action="Index"
-               style="@navStyle("StudentPortal", "Index")"
-               onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-               onmouseout="this.style.background='@(currentController == "StudentPortal" && currentAction == "Index" ? "#eef4ff" : "transparent")'; this.style.color='@(currentController == "StudentPortal" && currentAction == "Index" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentController == "StudentPortal" && currentAction == "Index" ? "#dbe7fb" : "transparent")';">
+               style="@textStyle(isProfileActive)"
+               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+               onmouseout="this.style.background='@(isProfileActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isProfileActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isProfileActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isProfileActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';">
                 Моят профил
             </a>
-
-            <form asp-area="Identity"
-                  asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Action("Index", "Home")"
-                  style="margin:0;">
-
-                <button type="submit"
-                        style="display:inline-flex;
-                               align-items:center;
-                               justify-content:center;
-                               height:40px;
-                               padding:0 16px;
-                               border-radius:8px;
-                               border:1px solid transparent;
-                               background:transparent;
-                               color:#334155;
-                               font-weight:800;
-                               cursor:pointer;"
-                        onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
-                        onmouseout="this.style.background='transparent'; this.style.color='#334155';">
-                    Изход
-                </button>
-
-            </form>
 
         </div>
     </div>

@@ -1,20 +1,63 @@
-﻿@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success" style="border-radius:14px; font-weight:700;">
-        @TempData["SuccessMessage"]
-    </div>
-}
+﻿<div id="student-alerts-container"
+     style="position:fixed;
+            top:88px;
+            right:22px;
+            z-index:9999;
+            width:340px;
+            max-width:calc(100vw - 24px);">
 
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger" style="border-radius:14px; font-weight:700;">
-        @TempData["ErrorMessage"]
-    </div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show student-floating-alert"
+             role="alert"
+             style="border-radius:14px; font-weight:700; box-shadow:0 12px 28px rgba(15,23,42,.10); margin-bottom:10px;">
+            @TempData["SuccessMessage"]
 
-@if (TempData["InfoMessage"] != null)
-{
-    <div class="alert alert-info" style="border-radius:14px; font-weight:700;">
-        @TempData["InfoMessage"]
-    </div>
-}
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show student-floating-alert"
+             role="alert"
+             style="border-radius:14px; font-weight:700; box-shadow:0 12px 28px rgba(15,23,42,.10); margin-bottom:10px;">
+            @TempData["ErrorMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show student-floating-alert"
+             role="alert"
+             style="border-radius:14px; font-weight:700; box-shadow:0 12px 28px rgba(15,23,42,.10); margin-bottom:10px;">
+            @TempData["InfoMessage"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+<script>
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            document.querySelectorAll('.student-floating-alert').forEach(function (alertEl) {
+                const closeBtn = alertEl.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.click();
+                }
+            });
+        }, 4000);
+    });
+</script>

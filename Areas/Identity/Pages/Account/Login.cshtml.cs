@@ -155,6 +155,12 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 await SignInUserExplicitlyAsync(studentUser, Input.RememberMe);
 
                 _logger.LogInformation("Student logged in.");
+
+                if (!client.PasswordChangedByStudent)
+                {
+                    return LocalRedirect(Url.Action("Index", "StudentPortal") ?? "/StudentPortal");
+                }
+
                 return LocalRedirect(Url.Action("Index", "StudentPortal") ?? "/StudentPortal");
             }
 

@@ -4,7 +4,7 @@
     ViewData["Title"] = "Моят профил";
     Layout = "_StudentLayout";
 
-    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentAction = ViewContext?.RouteData?.Values["action"]?.ToString() ?? "";
 
     string sideStyle(string action)
     {
@@ -17,7 +17,6 @@
 }
 
 <div style="width:100%; margin:0; padding:0;">
-    <partial name="_StudentAlertsPartial" />
 
     <div style="display:grid; grid-template-columns:260px minmax(0, 1fr); background:#ffffff; border-top:1px solid #e5e7eb; min-height:calc(100vh - 110px); overflow:hidden;">
 
@@ -71,14 +70,6 @@
                    onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
                    onmouseout="this.style.background='@(currentAction == "Notifications" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Notifications" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Notifications" ? "#dbe7fb" : "transparent")';">
                     Съобщения
-                </a>
-
-                <a asp-controller="StudentAccount"
-                   asp-action="ChangePassword"
-                   style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='transparent'; this.style.color='#334155'; this.style.borderColor='transparent';">
-                    Промяна на парола
                 </a>
             </nav>
         </aside>
@@ -216,3 +207,215 @@
         </section>
     </div>
 </div>
+@if (ViewBag.RequirePasswordChange == true)
+{
+    <div id="passwordOverlay"
+         style="position:fixed;
+                    inset:0;
+                    background:rgba(15,23,42,.34);
+                    backdrop-filter:blur(5px);
+                    z-index:9999;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    padding:18px;">
+
+        <div style="width:460px;
+                        max-width:100%;
+                        background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                        border:1px solid #dbe5ef;
+                        border-radius:24px;
+                        padding:30px 28px 26px 28px;
+                        box-shadow:0 24px 70px rgba(15,23,42,.16);">
+
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:1.65rem;
+                                font-weight:900;
+                                color:#0f172a;
+                                line-height:1.15;
+                                margin-bottom:8px;">
+                    Смени паролата си
+                </div>
+
+                <div style="display:inline-flex;
+                                align-items:center;
+                                justify-content:center;
+                                min-height:30px;
+                                padding:0 12px;
+                                border-radius:999px;
+                                background:#eff6ff;
+                                color:#2563eb;
+                                font-size:.82rem;
+                                font-weight:800;
+                                margin-bottom:12px;">
+                    Първи вход в профила
+                </div>
+
+                <div style="color:#64748b;
+                                font-size:.98rem;
+                                line-height:1.65;
+                                max-width:340px;
+                                margin:0 auto;">
+                    За да продължиш към профила си, първо трябва да зададеш нова лична парола.
+                </div>
+            </div>
+
+            @if (TempData["PasswordChangeError"] != null)
+            {
+                <div style="margin-bottom:14px;
+                                    padding:11px 13px;
+                                    border-radius:12px;
+                                    border:1px solid #fecaca;
+                                    background:#fef2f2;
+                                    color:#b91c1c;
+                                    font-size:.92rem;
+                                    font-weight:700;">
+                    @TempData["PasswordChangeError"]
+                </div>
+            }
+
+            <form asp-controller="StudentAccount"
+                  asp-action="ChangePassword"
+                  method="post"
+                  style="margin:0;">
+                @Html.AntiForgeryToken()
+
+                <div style="display:grid; gap:14px;">
+
+                    <div>
+                        <label style="display:block;
+                                          margin-bottom:7px;
+                                          color:#0f172a;
+                                          font-size:.95rem;
+                                          font-weight:800;">
+                            Текуща парола
+                        </label>
+                        <input type="password"
+                               name="CurrentPassword"
+                               class="student-password-input"
+                               style="width:100%;
+                                          height:50px;
+                                          border-radius:14px;
+                                          border:1px solid #cbd5e1;
+                                          background:#ffffff;
+                                          box-shadow:none;
+                                          font-size:.98rem;
+                                          padding:0 14px;
+                                          outline:none;
+                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                    </div>
+
+                    <div>
+                        <label style="display:block;
+                                          margin-bottom:7px;
+                                          color:#0f172a;
+                                          font-size:.95rem;
+                                          font-weight:800;">
+                            Нова парола
+                        </label>
+                        <input type="password"
+                               name="NewPassword"
+                               class="student-password-input"
+                               style="width:100%;
+                                          height:50px;
+                                          border-radius:14px;
+                                          border:1px solid #cbd5e1;
+                                          background:#ffffff;
+                                          box-shadow:none;
+                                          font-size:.98rem;
+                                          padding:0 14px;
+                                          outline:none;
+                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                    </div>
+
+                    <div>
+                        <label style="display:block;
+                                          margin-bottom:7px;
+                                          color:#0f172a;
+                                          font-size:.95rem;
+                                          font-weight:800;">
+                            Потвърди новата парола
+                        </label>
+                        <input type="password"
+                               name="ConfirmPassword"
+                               class="student-password-input"
+                               style="width:100%;
+                                          height:50px;
+                                          border-radius:14px;
+                                          border:1px solid #cbd5e1;
+                                          background:#ffffff;
+                                          box-shadow:none;
+                                          font-size:.98rem;
+                                          padding:0 14px;
+                                          outline:none;
+                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                    </div>
+                </div>
+
+                <div style="margin-top:18px;">
+                    <button type="submit"
+                            id="saveStudentPasswordBtn"
+                            style="width:100%;
+                                       height:50px;
+                                       border:none;
+                                       border-radius:14px;
+                                       background:linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+                                       color:#ffffff;
+                                       font-size:1rem;
+                                       font-weight:800;
+                                       box-shadow:0 14px 28px rgba(37,99,235,.18);
+                                       transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;">
+                        Запази новата парола
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.student-password-input').forEach(input => {
+            input.addEventListener('mouseenter', function () {
+                if (document.activeElement !== input) {
+                    input.style.borderColor = '#93c5fd';
+                    input.style.boxShadow = '0 10px 24px rgba(37,99,235,.08)';
+                    input.style.transform = 'translateY(-1px)';
+                }
+            });
+
+            input.addEventListener('mouseleave', function () {
+                if (document.activeElement !== input) {
+                    input.style.borderColor = '#cbd5e1';
+                    input.style.boxShadow = 'none';
+                    input.style.transform = 'translateY(0)';
+                }
+            });
+
+            input.addEventListener('focus', function () {
+                input.style.borderColor = '#3b82f6';
+                input.style.boxShadow = '0 0 0 4px rgba(59,130,246,.12), 0 10px 24px rgba(37,99,235,.08)';
+                input.style.transform = 'translateY(-1px)';
+            });
+
+            input.addEventListener('blur', function () {
+                input.style.borderColor = '#cbd5e1';
+                input.style.boxShadow = 'none';
+                input.style.transform = 'translateY(0)';
+            });
+        });
+
+        const saveStudentPasswordBtn = document.getElementById('saveStudentPasswordBtn');
+        if (saveStudentPasswordBtn) {
+            saveStudentPasswordBtn.addEventListener('mouseenter', function () {
+                saveStudentPasswordBtn.style.transform = 'translateY(-2px)';
+                saveStudentPasswordBtn.style.boxShadow = '0 18px 34px rgba(37,99,235,.24)';
+                saveStudentPasswordBtn.style.filter = 'brightness(1.03)';
+            });
+
+            saveStudentPasswordBtn.addEventListener('mouseleave', function () {
+                saveStudentPasswordBtn.style.transform = 'translateY(0)';
+                saveStudentPasswordBtn.style.boxShadow = '0 14px 28px rgba(37,99,235,.18)';
+                saveStudentPasswordBtn.style.filter = 'none';
+            });
+        }
+    </script>
+}

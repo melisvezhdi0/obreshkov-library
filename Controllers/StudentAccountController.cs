@@ -24,33 +24,26 @@ namespace ObreshkovLibrary.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public IActionResult ChangePassword()
-        {
-            return View(new StudentChangePasswordVM());
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(StudentChangePasswordVM model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Challenge();
+
+            if (!ModelState.IsValid)
+            {
+                TempData["PasswordChangeError"] = "Моля, попълни правилно всички полета.";
+                return RedirectToAction("Index", "StudentPortal");
+            }
 
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
             if (!result.Succeeded)
             {
-                foreach (var error in result.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return View(model);
+                TempData["PasswordChangeError"] = "Паролата трябва да е поне 6 символа и да съдържа една главна буква и една цифра.";
+                return RedirectToAction("Index", "StudentPortal");
             }
 
             var cardNumber = user.UserName?.Trim().ToUpper();
@@ -64,6 +57,7 @@ namespace ObreshkovLibrary.Controllers
                 {
                     client.PasswordChangedByStudent = true;
                     client.LastPasswordChangeOn = DateTime.Now;
+                    client.LastTemporaryPassword = null;
                     await _context.SaveChangesAsync();
                 }
             }
@@ -71,7 +65,7 @@ namespace ObreshkovLibrary.Controllers
             await _signInManager.RefreshSignInAsync(user);
             TempData["SuccessMessage"] = "Паролата е сменена успешно.";
 
-            return RedirectToAction(nameof(ChangePassword));
+            return RedirectToAction("Index", "StudentPortal");
         }
     }
 }

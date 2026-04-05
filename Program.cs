@@ -31,13 +31,19 @@ namespace ObreshkovLibrary
                 .SetApplicationName("ObreshkovLibrary");
 
             builder.Services
-                .AddDefaultIdentity<IdentityUser>(options =>
-                {
-                    options.SignIn.RequireConfirmedAccount = false;
-                    options.User.RequireUniqueEmail = true;
-                })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ObreshkovLibraryContext>();
+       .AddDefaultIdentity<IdentityUser>(options =>
+       {
+           options.SignIn.RequireConfirmedAccount = false;
+           options.User.RequireUniqueEmail = true;
+
+           options.Password.RequiredLength = 6;
+           options.Password.RequireUppercase = true;
+           options.Password.RequireLowercase = false;
+           options.Password.RequireDigit = true;
+           options.Password.RequireNonAlphanumeric = false;
+       })
+       .AddRoles<IdentityRole>()
+       .AddEntityFrameworkStores<ObreshkovLibraryContext>();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {

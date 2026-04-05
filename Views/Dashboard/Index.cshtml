@@ -6,8 +6,9 @@
 
 <div style="width:100%; padding-top:6px;">
 
-    <section class="card-soft" style="margin-bottom:18px; padding:22px; border-radius:18px; background:#ffffff;">
-        <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(320px,.95fr); gap:18px; align-items:start;"
+    <section class="dashboard-hover-card"
+             style="margin-bottom:18px; padding:22px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+        <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(360px,.95fr); gap:18px; align-items:start;"
              id="dashboardHeroGrid">
 
             <div>
@@ -18,8 +19,9 @@
                 </div>
             </div>
 
-            <div style="background:#f8fbff; border:1px solid #dbe5ef; border-radius:16px; padding:16px;">
-                <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:10px;">
+            <div class="dashboard-hover-card"
+                 style="background:linear-gradient(180deg, #f8fbff 0%, #f4f8fd 100%); border:1px solid #dbe5ef; border-radius:18px; padding:18px; box-shadow:0 8px 18px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+                <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.05em; color:#64748b; margin-bottom:12px;">
                     Бързо търсене по номер на карта
                 </div>
 
@@ -29,18 +31,37 @@
                       style="margin:0;">
                     @Html.AntiForgeryToken()
 
-                    <div style="display:flex; gap:10px; flex-wrap:wrap;" id="dashboardSearchBar">
-                        <input type="text"
-                               name="cardNumber"
-                               placeholder="Въведи номер на карта"
-                               inputmode="numeric"
-                               pattern="[0-9]*"
-                               style="flex:1 1 220px; min-width:0; height:46px; border:1px solid #cbd5e1; background:#ffffff; padding:0 14px; border-radius:12px; outline:none;" />
+                    <input type="hidden" name="cardNumber" id="cardNumberHidden" />
 
-                        <button type="submit"
-                                style="min-width:120px; height:46px; border:none; border-radius:12px; background:linear-gradient(135deg, #2563eb, #3b82f6); color:#ffffff; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18);">
-                            Търси
-                        </button>
+                    <div id="dashboardSearchRow"
+                         style="display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;">
+                        <div id="cardDigitsWrapper"
+                             style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; min-width:0;">
+                            @for (int i = 0; i < 6; i++)
+                            {
+                                <input type="text"
+                                       class="card-digit-box"
+                                       inputmode="numeric"
+                                       autocomplete="off"
+                                       maxlength="1"
+                                       data-index="@i"
+                                       aria-label="Цифра @(i + 1)"
+                                       style="width:44px;
+                                                  height:48px;
+                                                  border:1px solid #cbd5e1;
+                                                  background:#ffffff;
+                                                  text-align:center;
+                                                  font-size:1.05rem;
+                                                  font-weight:800;
+                                                  color:#0f172a;
+                                                  border-radius:12px;
+                                                  outline:none;
+                                                  box-shadow:inset 0 1px 2px rgba(15,23,42,.03);
+                                                  transition:all .18s ease;" />
+                            }
+                        </div>
+
+                        
                     </div>
                 </form>
             </div>
@@ -49,12 +70,13 @@
 
     @if (TempData["HomeError"] != null)
     {
-        <div style="margin-bottom:18px; padding:12px 14px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; border-radius:12px;">
+        <div style="margin-bottom:18px; padding:12px 14px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; border-radius:12px; box-shadow:0 6px 16px rgba(127,29,29,.04);">
             @TempData["HomeError"]
         </div>
     }
 
-    <section class="card-soft" style="margin-bottom:18px; padding:20px; border-radius:18px; background:#ffffff;">
+    <section class="dashboard-hover-card"
+             style="margin-bottom:18px; padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
             <h5 class="section-title mb-0">Последни заемания</h5>
         </div>
@@ -79,7 +101,7 @@
                     <tbody>
                         @foreach (var l in Model.LatestLoans)
                         {
-                            <tr>
+                            <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -96,7 +118,8 @@
     <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin-bottom:18px;"
          id="dashboardCardsGrid">
 
-        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+        <section class="dashboard-hover-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
                 <div>
                     <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
@@ -108,7 +131,8 @@
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#dueTodayModal"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                        class="dashboard-secondary-btn"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
                     Виж списъка
                 </button>
             </div>
@@ -131,7 +155,7 @@
                         <tbody>
                             @foreach (var l in Model.DueTodayLoans.Take(4))
                             {
-                                <tr>
+                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
@@ -143,7 +167,8 @@
             }
         </section>
 
-        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+        <section class="dashboard-hover-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
                 <div>
                     <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
@@ -155,7 +180,8 @@
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#overdueModal"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                        class="dashboard-secondary-btn"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
                     Виж списъка
                 </button>
             </div>
@@ -178,7 +204,7 @@
                         <tbody>
                             @foreach (var l in Model.OverdueLoans.Take(4))
                             {
-                                <tr>
+                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
@@ -190,7 +216,8 @@
             }
         </section>
 
-        <section class="card-soft" style="padding:20px; border-radius:18px; background:#ffffff; height:100%;">
+        <section class="dashboard-hover-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
                 <div>
                     <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
@@ -202,7 +229,8 @@
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#passwordResetModal"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700;">
+                        class="dashboard-secondary-btn"
+                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
                     Виж списъка
                 </button>
             </div>
@@ -229,7 +257,7 @@
                                 ? $"{r.Client.FirstName} {r.Client.LastName}"
                                 : "-";
 
-                                <tr>
+                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@fullName</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
                                     <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.RequestedOn.ToString("dd.MM.yyyy HH:mm")</td>
@@ -242,18 +270,20 @@
         </section>
     </div>
 
-    <section style="background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:18px; margin-bottom:18px;">
+    <section class="dashboard-hover-card"
+             style="background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:18px; margin-bottom:18px; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px; flex-wrap:wrap;">
             <h5 style="font-weight:800; color:#0f172a; margin:0;">
                 Последно добавени книги
             </h5>
 
             <a asp-controller="Book"
                asp-action="Recent"
+               class="dashboard-link-btn"
                style="height:34px; padding:0 12px; display:flex; align-items:center;
-                  border:1px solid #93c5fd; border-radius:8px;
-                  text-decoration:none; color:#2563eb; font-weight:700;">
+                      border:1px solid #93c5fd; border-radius:8px;
+                      text-decoration:none; color:#2563eb; font-weight:700; transition:all .18s ease;">
                 Още
             </a>
         </div>
@@ -264,27 +294,26 @@
         }
         else
         {
-            <div id="latestBooksRow"
-                 style="display:flex; justify-content:center; gap:18px; flex-wrap:nowrap;">
+            <div id="latestBooksGrid"
+                 style="display:flex; justify-content:center; gap:18px; flex-wrap:nowrap; overflow-x:auto; padding:4px 2px 2px 2px;">
 
                 @foreach (var b in Model.LatestBookTitles.Take(5))
                 {
                     <a href="@Url.Action("Details", "Book", new { id = b.Id })"
-                       class="latest-book-item"
+                       class="latest-book-item dashboard-book-card"
                        style="width:146px; min-width:146px;
-                              display:flex; flex-direction:column; align-items:center;
-                              text-decoration:none; color:inherit;
-                              background:transparent; padding:6px 4px;
-                              transition:transform .18s ease, box-shadow .18s ease;"
-                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 24px rgba(15,23,42,0.10)';"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                                      display:flex; flex-direction:column; align-items:center;
+                                      text-decoration:none; color:inherit;
+                                      background:#f8fbff; border:1px solid #e2e8f0; border-radius:16px; padding:10px 8px 12px 8px;
+                                      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
 
                         <div style="width:100%; height:208px;
-                                    display:flex; align-items:center; justify-content:center;
-                                    background:#ffffff;
-                                    border-radius:12px;
-                                    overflow:hidden;
-                                    margin-bottom:10px;">
+                                            display:flex; align-items:center; justify-content:center;
+                                            background:#ffffff;
+                                            border-radius:12px;
+                                            overflow:hidden;
+                                            margin-bottom:10px;
+                                            border:1px solid #edf2f7;">
 
                             <img src="@b.CoverPath"
                                  alt="@b.Title"
@@ -330,7 +359,7 @@
                             <tbody>
                                 @foreach (var l in Model.DueTodayLoans)
                                 {
-                                    <tr>
+                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -339,7 +368,8 @@
                                             <a asp-controller="Loans"
                                                asp-action="Return"
                                                asp-route-id="@l.Id"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
+                                               class="dashboard-action-link"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -382,7 +412,7 @@
                             <tbody>
                                 @foreach (var l in Model.OverdueLoans)
                                 {
-                                    <tr>
+                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -391,7 +421,8 @@
                                             <a asp-controller="Loans"
                                                asp-action="Return"
                                                asp-route-id="@l.Id"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
+                                               class="dashboard-action-link"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -438,7 +469,7 @@
                                     ? $"{r.Client.FirstName} {r.Client.LastName}"
                                     : "-";
 
-                                    <tr>
+                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@fullName</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.PhoneNumber</td>
@@ -446,7 +477,8 @@
                                         <td style="padding:14px; text-align:right; border-bottom:1px solid #edf2f7;">
                                             <a asp-controller="Clients"
                                                asp-action="PasswordResetRequests"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700;">
+                                               class="dashboard-action-link"
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -466,33 +498,236 @@
         function applyDashboardResponsive() {
             const heroGrid = document.getElementById('dashboardHeroGrid');
             const cardsGrid = document.getElementById('dashboardCardsGrid');
-            const booksGrid = document.getElementById('latestBooksGrid');
-            const searchBar = document.getElementById('dashboardSearchBar');
+            const latestBooksGrid = document.getElementById('latestBooksGrid');
+            const searchRow = document.getElementById('dashboardSearchRow');
+            const digitsWrapper = document.getElementById('cardDigitsWrapper');
 
             if (window.innerWidth <= 1200) {
                 if (cardsGrid) cardsGrid.style.gridTemplateColumns = '1fr 1fr';
-                if (booksGrid) booksGrid.style.gridTemplateColumns = 'repeat(2, minmax(0, 1fr))';
             } else {
                 if (cardsGrid) cardsGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-                if (booksGrid) booksGrid.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))';
             }
 
             if (window.innerWidth <= 900) {
                 if (heroGrid) heroGrid.style.gridTemplateColumns = '1fr';
                 if (cardsGrid) cardsGrid.style.gridTemplateColumns = '1fr';
             } else {
-                if (heroGrid) heroGrid.style.gridTemplateColumns = 'minmax(0,1.3fr) minmax(320px,.95fr)';
+                if (heroGrid) heroGrid.style.gridTemplateColumns = 'minmax(0,1.3fr) minmax(360px,.95fr)';
             }
 
             if (window.innerWidth <= 640) {
-                if (searchBar) searchBar.style.flexDirection = 'column';
-                if (booksGrid) booksGrid.style.gridTemplateColumns = '1fr';
+                if (searchRow) searchRow.style.gridTemplateColumns = '1fr';
+                if (digitsWrapper) digitsWrapper.style.justifyContent = 'flex-start';
+                if (latestBooksGrid) {
+                    latestBooksGrid.style.justifyContent = 'flex-start';
+                    latestBooksGrid.style.paddingBottom = '4px';
+                }
             } else {
-                if (searchBar) searchBar.style.flexDirection = 'row';
+                if (searchRow) searchRow.style.gridTemplateColumns = '1fr auto';
+                if (digitsWrapper) digitsWrapper.style.justifyContent = 'flex-start';
+                if (latestBooksGrid) latestBooksGrid.style.justifyContent = 'center';
             }
         }
 
+        function initializeCardNumberBoxes() {
+            const inputs = Array.from(document.querySelectorAll('.card-digit-box'));
+            const hiddenInput = document.getElementById('cardNumberHidden');
+            const form = hiddenInput ? hiddenInput.closest('form') : null;
+
+            if (!inputs.length || !hiddenInput || !form) {
+                return;
+            }
+
+            function syncHiddenInput() {
+                hiddenInput.value = inputs.map(x => x.value).join('');
+            }
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', function (e) {
+                    let value = e.target.value.replace(/\D/g, '');
+
+                    if (value.length > 1) {
+                        const chars = value.split('');
+                        for (let i = 0; i < chars.length && index + i < inputs.length; i++) {
+                            inputs[index + i].value = chars[i];
+                        }
+
+                        const nextIndex = Math.min(index + value.length, inputs.length - 1);
+                        inputs[nextIndex].focus();
+                        inputs[nextIndex].select();
+                    } else {
+                        e.target.value = value;
+
+                        if (value && index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                            inputs[index + 1].select();
+                        }
+                    }
+
+                    syncHiddenInput();
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace') {
+                        if (e.target.value === '' && index > 0) {
+                            inputs[index - 1].focus();
+                            inputs[index - 1].value = '';
+                            syncHiddenInput();
+                            e.preventDefault();
+                        }
+                    }
+
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        inputs[index - 1].focus();
+                        e.preventDefault();
+                    }
+
+                    if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                        e.preventDefault();
+                    }
+                });
+
+                input.addEventListener('paste', function (e) {
+                    e.preventDefault();
+
+                    const pasted = (e.clipboardData || window.clipboardData)
+                        .getData('text')
+                        .replace(/\D/g, '')
+                        .slice(0, 6);
+
+                    if (!pasted) {
+                        return;
+                    }
+
+                    for (let i = 0; i < inputs.length; i++) {
+                        inputs[i].value = pasted[i] || '';
+                    }
+
+                    syncHiddenInput();
+
+                    const focusIndex = Math.min(pasted.length, 5);
+                    inputs[focusIndex].focus();
+                    inputs[focusIndex].select();
+                });
+
+                input.addEventListener('focus', function () {
+                    input.style.borderColor = '#3b82f6';
+                    input.style.boxShadow = '0 0 0 3px rgba(59,130,246,.12)';
+                    input.select();
+                });
+
+                input.addEventListener('blur', function () {
+                    input.style.borderColor = '#cbd5e1';
+                    input.style.boxShadow = 'inset 0 1px 2px rgba(15,23,42,.03)';
+                });
+            });
+
+            form.addEventListener('submit', function () {
+                syncHiddenInput();
+            });
+        }
+
+        function initializeDashboardHoverEffects() {
+            document.querySelectorAll('.dashboard-hover-card').forEach(card => {
+                card.addEventListener('mouseenter', function () {
+                    card.style.transform = 'translateY(-3px)';
+                    card.style.boxShadow = '0 16px 34px rgba(15,23,42,.08)';
+                    card.style.borderColor = '#c9d9ec';
+                });
+
+                card.addEventListener('mouseleave', function () {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = '0 10px 24px rgba(15,23,42,.04)';
+                    card.style.borderColor = '#dbe5ef';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-primary-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function () {
+                    btn.style.transform = 'translateY(-1px)';
+                    btn.style.boxShadow = '0 14px 28px rgba(59,130,246,.28)';
+                    btn.style.filter = 'brightness(1.02)';
+                });
+
+                btn.addEventListener('mouseleave', function () {
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = '0 10px 22px rgba(59,130,246,.22)';
+                    btn.style.filter = 'none';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-secondary-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function () {
+                    btn.style.background = '#eff6ff';
+                    btn.style.borderColor = '#60a5fa';
+                    btn.style.transform = 'translateY(-1px)';
+                    btn.style.boxShadow = '0 8px 18px rgba(37,99,235,.10)';
+                });
+
+                btn.addEventListener('mouseleave', function () {
+                    btn.style.background = '#ffffff';
+                    btn.style.borderColor = '#93c5fd';
+                    btn.style.transform = 'translateY(0)';
+                    btn.style.boxShadow = 'none';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-link-btn').forEach(link => {
+                link.addEventListener('mouseenter', function () {
+                    link.style.background = '#eff6ff';
+                    link.style.borderColor = '#60a5fa';
+                    link.style.transform = 'translateY(-1px)';
+                });
+
+                link.addEventListener('mouseleave', function () {
+                    link.style.background = 'transparent';
+                    link.style.borderColor = '#93c5fd';
+                    link.style.transform = 'translateY(0)';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-book-card').forEach(card => {
+                card.addEventListener('mouseenter', function () {
+                    card.style.transform = 'translateY(-4px)';
+                    card.style.boxShadow = '0 14px 30px rgba(15,23,42,.10)';
+                    card.style.borderColor = '#bfdbfe';
+                });
+
+                card.addEventListener('mouseleave', function () {
+                    card.style.transform = 'translateY(0)';
+                    card.style.boxShadow = 'none';
+                    card.style.borderColor = '#e2e8f0';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-table-row').forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    row.style.background = '#f8fbff';
+                });
+
+                row.addEventListener('mouseleave', function () {
+                    row.style.background = 'transparent';
+                });
+            });
+
+            document.querySelectorAll('.dashboard-action-link').forEach(link => {
+                link.addEventListener('mouseenter', function () {
+                    link.style.color = '#1d4ed8';
+                    link.style.textDecoration = 'underline';
+                    link.style.textUnderlineOffset = '3px';
+                });
+
+                link.addEventListener('mouseleave', function () {
+                    link.style.color = '#2563eb';
+                    link.style.textDecoration = 'none';
+                });
+            });
+        }
+
         applyDashboardResponsive();
+        initializeCardNumberBoxes();
+        initializeDashboardHoverEffects();
         window.addEventListener('resize', applyDashboardResponsive);
     </script>
 }

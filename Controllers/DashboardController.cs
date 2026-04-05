@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models.ViewModels;
+using System.Text.RegularExpressions;
 
 namespace ObreshkovLibrary.Controllers
 {
@@ -87,11 +88,17 @@ namespace ObreshkovLibrary.Controllers
         {
             if (string.IsNullOrWhiteSpace(cardNumber))
             {
-                TempData["HomeError"] = "Моля въведи номер на карта.";
+                TempData["HomeError"] = "Моля, въведи номер на карта.";
                 return RedirectToAction(nameof(Index));
             }
 
             cardNumber = cardNumber.Trim();
+
+            if (!Regex.IsMatch(cardNumber, @"^\d{6}$"))
+            {
+                TempData["HomeError"] = "Номерът на читателската карта трябва да бъде точно 6 цифри.";
+                return RedirectToAction(nameof(Index));
+            }
 
             var client = await _context.Clients
                 .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);

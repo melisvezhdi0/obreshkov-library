@@ -16,6 +16,7 @@ namespace ObreshkovLibrary.Data.Seed
             await context.Database.MigrateAsync();
 
             await RoleSeed.SeedRolesAsync(roleManager);
+            await AdminUserSeed.SeedAdminAsync(userManager, roleManager);
             await CategorySeed.SeedCategoriesAsync(context);
             await ClientSeed.SeedClientsAsync(context);
         }

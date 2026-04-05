@@ -18,19 +18,46 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int latestLoansPage = 1)
         {
             var today = DateTime.Today;
+            var latestLoansPageSize = 4;
+            var latestLoansStartDate = today.AddDays(-2);
 
-            var vm = new HomeDashboardVM();
+            if (latestLoansPage < 1)
+            {
+                latestLoansPage = 1;
+            }
 
-            vm.LatestLoans = await _context.Loans
+            var latestLoansQuery = _context.Loans
+                .Where(l => l.LoanDate.Date >= latestLoansStartDate && l.LoanDate.Date <= today)
                 .Include(l => l.Client)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
-                .Take(8)
-                .ToListAsync();
+                .ThenByDescending(l => l.Id);
+
+            var latestLoansTotalCount = await latestLoansQuery.CountAsync();
+            var latestLoansTotalPages = latestLoansTotalCount == 0
+                ? 1
+                : (int)Math.Ceiling(latestLoansTotalCount / (double)latestLoansPageSize);
+
+            if (latestLoansPage > latestLoansTotalPages)
+            {
+                latestLoansPage = latestLoansTotalPages;
+            }
+
+            var vm = new HomeDashboardVM
+            {
+                LatestLoansCurrentPage = latestLoansPage,
+                LatestLoansPageSize = latestLoansPageSize,
+                LatestLoansTotalCount = latestLoansTotalCount,
+                LatestLoansTotalPages = latestLoansTotalPages,
+                LatestLoans = await latestLoansQuery
+                    .Skip((latestLoansPage - 1) * latestLoansPageSize)
+                    .Take(latestLoansPageSize)
+                    .ToListAsync()
+            };
 
             vm.DueTodayLoans = await _context.Loans
                 .Where(l => l.ReturnDate == null && l.DueDate.Date == today)

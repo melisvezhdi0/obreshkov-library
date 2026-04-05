@@ -6,8 +6,7 @@
 
 <div style="width:100%; padding-top:6px;">
 
-    <section class="dashboard-hover-card"
-             style="margin-bottom:18px; padding:22px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+    <section style="margin-bottom:18px; padding:22px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04);">
         <div style="display:grid; grid-template-columns:minmax(0,1.3fr) minmax(360px,.95fr); gap:18px; align-items:start;"
              id="dashboardHeroGrid">
 
@@ -19,8 +18,7 @@
                 </div>
             </div>
 
-            <div class="dashboard-hover-card"
-                 style="background:linear-gradient(180deg, #f8fbff 0%, #f4f8fd 100%); border:1px solid #dbe5ef; border-radius:18px; padding:18px; box-shadow:0 8px 18px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+            <div style="background:linear-gradient(180deg, #f8fbff 0%, #f4f8fd 100%); border:1px solid #dbe5ef; border-radius:18px; padding:18px; box-shadow:0 8px 18px rgba(15,23,42,.04);">
                 <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.05em; color:#64748b; margin-bottom:12px;">
                     Бързо търсене по номер на карта
                 </div>
@@ -34,9 +32,9 @@
                     <input type="hidden" name="cardNumber" id="cardNumberHidden" />
 
                     <div id="dashboardSearchRow"
-                         style="display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;">
+                         style="display:flex; align-items:center; gap:4px; flex-wrap:nowrap;">
                         <div id="cardDigitsWrapper"
-                             style="display:flex; align-items:center; gap:8px; flex-wrap:nowrap; min-width:0;">
+                             style="display:flex; align-items:center; gap:6px; flex-wrap:nowrap; min-width:0;">
                             @for (int i = 0; i < 6; i++)
                             {
                                 <input type="text"
@@ -57,11 +55,45 @@
                                                   border-radius:12px;
                                                   outline:none;
                                                   box-shadow:inset 0 1px 2px rgba(15,23,42,.03);
-                                                  transition:all .18s ease;" />
+                                                  transition:border-color .18s ease, box-shadow .18s ease;" />
                             }
                         </div>
 
-                        
+                        <button type="submit"
+                                class="dashboard-search-btn"
+                                aria-label="Търси"
+                                title="Търси"
+                                style="width:48px;
+                                       height:48px;
+                                       min-width:48px;
+                                       padding:0;
+                                       margin-left:2px;
+                                       display:flex;
+                                       align-items:center;
+                                       justify-content:center;
+                                       border:1px solid #93c5fd;
+                                       background:#ffffff;
+                                       color:#2563eb;
+                                       border-radius:12px;
+                                       cursor:pointer;
+                                       line-height:1;
+                                       flex:0 0 auto;
+                                       transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 width="18"
+                                 height="18"
+                                 viewBox="0 0 24 24"
+                                 fill="none"
+                                 stroke="currentColor"
+                                 stroke-width="2.2"
+                                 stroke-linecap="round"
+                                 stroke-linejoin="round"
+                                 aria-hidden="true"
+                                 style="display:block;">
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -75,8 +107,7 @@
         </div>
     }
 
-    <section class="dashboard-hover-card"
-             style="margin-bottom:18px; padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+    <section style="margin-bottom:18px; padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; box-shadow:0 10px 24px rgba(15,23,42,.04);">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
             <h5 class="section-title mb-0">Последни заемания</h5>
         </div>
@@ -101,7 +132,7 @@
                     <tbody>
                         @foreach (var l in Model.LatestLoans)
                         {
-                            <tr class="dashboard-table-row" style="transition:background .18s ease;">
+                            <tr>
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                 <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -118,160 +149,68 @@
     <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; margin-bottom:18px;"
          id="dashboardCardsGrid">
 
-        <section class="dashboard-hover-card"
-                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+        <section class="dashboard-summary-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; min-height:190px; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+            <div style="height:100%; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
-                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:10px;">
                         Книги за връщане днес
                     </div>
-                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.DueTodayCount</div>
+                    <div style="font-size:2.2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.DueTodayCount</div>
                 </div>
 
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#dueTodayModal"
                         class="dashboard-secondary-btn"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
+                        style="width:max-content; min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;">
                     Виж списъка
                 </button>
             </div>
-
-            @if (Model.DueTodayLoans == null || !Model.DueTodayLoans.Any())
-            {
-                <div style="color:#64748b;">Няма книги за връщане днес.</div>
-            }
-            else
-            {
-                <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
-                        <thead>
-                            <tr style="background:#f8fbff;">
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var l in Model.DueTodayLoans.Take(4))
-                            {
-                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
         </section>
 
-        <section class="dashboard-hover-card"
-                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+        <section class="dashboard-summary-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; min-height:190px; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+            <div style="height:100%; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
-                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:10px;">
                         Просрочени книги
                     </div>
-                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OverdueCount</div>
+                    <div style="font-size:2.2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OverdueCount</div>
                 </div>
 
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#overdueModal"
                         class="dashboard-secondary-btn"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
+                        style="width:max-content; min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;">
                     Виж списъка
                 </button>
             </div>
-
-            @if (Model.OverdueLoans == null || !Model.OverdueLoans.Any())
-            {
-                <div style="color:#64748b;">Няма просрочени книги.</div>
-            }
-            else
-            {
-                <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
-                        <thead>
-                            <tr style="background:#f8fbff;">
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Книга</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Срок</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var l in Model.OverdueLoans.Take(4))
-                            {
-                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
         </section>
 
-        <section class="dashboard-hover-card"
-                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; height:100%; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; margin-bottom:14px; flex-wrap:wrap;">
+        <section class="dashboard-summary-card"
+                 style="padding:20px; border-radius:18px; background:#ffffff; border:1px solid #dbe5ef; min-height:190px; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+            <div style="height:100%; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
-                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:6px;">
+                    <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6b7280; margin-bottom:10px;">
                         Заявки за смяна на парола
                     </div>
-                    <div style="font-size:2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OpenPasswordResetRequestsCount</div>
+                    <div style="font-size:2.2rem; font-weight:800; color:#1d4f91; line-height:1;">@Model.OpenPasswordResetRequestsCount</div>
                 </div>
 
                 <button type="button"
                         data-bs-toggle="modal"
                         data-bs-target="#passwordResetModal"
                         class="dashboard-secondary-btn"
-                        style="min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:all .18s ease;">
+                        style="width:max-content; min-width:120px; height:40px; border:1px solid #93c5fd; background:#ffffff; color:#2563eb; border-radius:10px; font-weight:700; transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;">
                     Виж списъка
                 </button>
             </div>
-
-            @if (Model.OpenPasswordResetRequests == null || !Model.OpenPasswordResetRequests.Any())
-            {
-                <div style="color:#64748b;">Няма активни заявки.</div>
-            }
-            else
-            {
-                <div style="overflow-x:auto;">
-                    <table style="width:100%; border-collapse:separate; border-spacing:0;">
-                        <thead>
-                            <tr style="background:#f8fbff;">
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Читател</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Карта</th>
-                                <th style="padding:12px; text-align:left; border-bottom:1px solid #dbe5ef;">Подадена</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var r in Model.OpenPasswordResetRequests.Take(4))
-                            {
-                                var fullName = r.Client != null
-                                ? $"{r.Client.FirstName} {r.Client.LastName}"
-                                : "-";
-
-                                <tr class="dashboard-table-row" style="transition:background .18s ease;">
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@fullName</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
-                                    <td style="padding:12px; border-bottom:1px solid #edf2f7;">@r.RequestedOn.ToString("dd.MM.yyyy HH:mm")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
         </section>
     </div>
 
-    <section class="dashboard-hover-card"
-             style="background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:18px; margin-bottom:18px; box-shadow:0 10px 24px rgba(15,23,42,.04); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+    <section style="background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:18px; margin-bottom:18px; box-shadow:0 10px 24px rgba(15,23,42,.04);">
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:10px; flex-wrap:wrap;">
             <h5 style="font-weight:800; color:#0f172a; margin:0;">
@@ -283,7 +222,8 @@
                class="dashboard-link-btn"
                style="height:34px; padding:0 12px; display:flex; align-items:center;
                       border:1px solid #93c5fd; border-radius:8px;
-                      text-decoration:none; color:#2563eb; font-weight:700; transition:all .18s ease;">
+                      text-decoration:none; color:#2563eb; font-weight:700; background:#ffffff;
+                      transition:background .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;">
                 Още
             </a>
         </div>
@@ -295,36 +235,46 @@
         else
         {
             <div id="latestBooksGrid"
-                 style="display:flex; justify-content:center; gap:18px; flex-wrap:nowrap; overflow-x:auto; padding:4px 2px 2px 2px;">
+                 style="display:flex; justify-content:center; gap:26px; flex-wrap:nowrap; overflow-x:auto; padding:6px 2px 2px 2px;">
 
                 @foreach (var b in Model.LatestBookTitles.Take(5))
                 {
-                    <a href="@Url.Action("Details", "Book", new { id = b.Id })"
-                       class="latest-book-item dashboard-book-card"
-                       style="width:146px; min-width:146px;
-                                      display:flex; flex-direction:column; align-items:center;
-                                      text-decoration:none; color:inherit;
-                                      background:#f8fbff; border:1px solid #e2e8f0; border-radius:16px; padding:10px 8px 12px 8px;
-                                      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;">
+                    <div style="width:136px; min-width:136px; display:flex; flex-direction:column; align-items:center;">
+                        <a href="@Url.Action("Details", "Book", new { id = b.Id })"
+                           class="dashboard-book-cover-link"
+                           style="width:100%;
+                                          height:208px;
+                                          display:flex;
+                                          align-items:center;
+                                          justify-content:center;
+                                          text-decoration:none;
+                                          background:#ffffff;
+                                          border-radius:12px;
+                                          overflow:hidden;
+                                          margin-bottom:10px;">
 
-                        <div style="width:100%; height:208px;
-                                            display:flex; align-items:center; justify-content:center;
-                                            background:#ffffff;
-                                            border-radius:12px;
-                                            overflow:hidden;
-                                            margin-bottom:10px;
-                                            border:1px solid #edf2f7;">
+                            <div class="dashboard-book-cover-frame"
+                                 style="width:100%;
+                                                height:100%;
+                                                display:flex;
+                                                align-items:center;
+                                                justify-content:center;
+                                                border-radius:12px;
+                                                overflow:hidden;
+                                                transition:transform .18s ease, box-shadow .18s ease;">
 
-                            <img src="@b.CoverPath"
-                                 alt="@b.Title"
-                                 style="max-width:100%; max-height:100%; object-fit:contain;"
-                                 onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;color:#94a3b8;font-size:11px;font-weight:700;&quot;>Няма корица</span>';" />
-                        </div>
+                                <img src="@b.CoverPath"
+                                     alt="@b.Title"
+                                     class="dashboard-book-cover-image"
+                                     style="max-width:100%; max-height:100%; object-fit:contain; transition:transform .22s ease;"
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;color:#94a3b8;font-size:11px;font-weight:700;&quot;>Няма корица</span>';" />
+                            </div>
+                        </a>
 
                         <div style="text-align:center; font-weight:700; font-size:14px; line-height:1.3; color:#0f172a;">
                             @b.Title
                         </div>
-                    </a>
+                    </div>
                 }
             </div>
         }
@@ -359,7 +309,7 @@
                             <tbody>
                                 @foreach (var l in Model.DueTodayLoans)
                                 {
-                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
+                                    <tr>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -369,7 +319,7 @@
                                                asp-action="Return"
                                                asp-route-id="@l.Id"
                                                class="dashboard-action-link"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:color .18s ease, text-decoration .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -412,7 +362,7 @@
                             <tbody>
                                 @foreach (var l in Model.OverdueLoans)
                                 {
-                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
+                                    <tr>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@($"{l.Client?.FirstName} {l.Client?.LastName}".Trim())</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.Client?.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@l.BookCopy?.Book?.Title</td>
@@ -422,7 +372,7 @@
                                                asp-action="Return"
                                                asp-route-id="@l.Id"
                                                class="dashboard-action-link"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:color .18s ease, text-decoration .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -469,7 +419,7 @@
                                     ? $"{r.Client.FirstName} {r.Client.LastName}"
                                     : "-";
 
-                                    <tr class="dashboard-table-row" style="transition:background .18s ease;">
+                                    <tr>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@fullName</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.CardNumber</td>
                                         <td style="padding:14px; border-bottom:1px solid #edf2f7;">@r.PhoneNumber</td>
@@ -478,7 +428,7 @@
                                             <a asp-controller="Clients"
                                                asp-action="PasswordResetRequests"
                                                class="dashboard-action-link"
-                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:all .18s ease;">
+                                               style="color:#2563eb; text-decoration:none; font-weight:700; transition:color .18s ease, text-decoration .18s ease;">
                                                 Отвори
                                             </a>
                                         </td>
@@ -516,15 +466,31 @@
             }
 
             if (window.innerWidth <= 640) {
-                if (searchRow) searchRow.style.gridTemplateColumns = '1fr';
-                if (digitsWrapper) digitsWrapper.style.justifyContent = 'flex-start';
+                if (searchRow) {
+                    searchRow.style.justifyContent = 'flex-start';
+                    searchRow.style.gap = '4px';
+                }
+
+                if (digitsWrapper) {
+                    digitsWrapper.style.justifyContent = 'flex-start';
+                    digitsWrapper.style.gap = '6px';
+                }
+
                 if (latestBooksGrid) {
                     latestBooksGrid.style.justifyContent = 'flex-start';
                     latestBooksGrid.style.paddingBottom = '4px';
                 }
             } else {
-                if (searchRow) searchRow.style.gridTemplateColumns = '1fr auto';
-                if (digitsWrapper) digitsWrapper.style.justifyContent = 'flex-start';
+                if (searchRow) {
+                    searchRow.style.justifyContent = 'flex-start';
+                    searchRow.style.gap = '4px';
+                }
+
+                if (digitsWrapper) {
+                    digitsWrapper.style.justifyContent = 'flex-start';
+                    digitsWrapper.style.gap = '6px';
+                }
+
                 if (latestBooksGrid) latestBooksGrid.style.justifyContent = 'center';
             }
         }
@@ -628,36 +594,36 @@
             });
         }
 
-        function initializeDashboardHoverEffects() {
-            document.querySelectorAll('.dashboard-hover-card').forEach(card => {
-                card.addEventListener('mouseenter', function () {
-                    card.style.transform = 'translateY(-3px)';
-                    card.style.boxShadow = '0 16px 34px rgba(15,23,42,.08)';
-                    card.style.borderColor = '#c9d9ec';
-                });
-
-                card.addEventListener('mouseleave', function () {
-                    card.style.transform = 'translateY(0)';
-                    card.style.boxShadow = '0 10px 24px rgba(15,23,42,.04)';
-                    card.style.borderColor = '#dbe5ef';
-                });
+        function initializeDashboardEffects() {
+                    document.querySelectorAll('.dashboard-secondary-btn, .dashboard-link-btn, .dashboard-search-btn, .card-digit-box').forEach(el => {
+            el.addEventListener('mouseenter', function () {
+                if (el.classList.contains('card-digit-box')) {
+                    el.style.borderColor = '#60a5fa';
+                    el.style.boxShadow = '0 8px 18px rgba(37,99,235,.08)';
+                    el.style.transform = 'translateY(-1px)';
+                } else {
+                    el.style.background = '#eff6ff';
+                    el.style.borderColor = '#60a5fa';
+                    el.style.transform = 'translateY(-1px)';
+                    el.style.boxShadow = '0 8px 18px rgba(37,99,235,.10)';
+                }
             });
 
-            document.querySelectorAll('.dashboard-primary-btn').forEach(btn => {
-                btn.addEventListener('mouseenter', function () {
-                    btn.style.transform = 'translateY(-1px)';
-                    btn.style.boxShadow = '0 14px 28px rgba(59,130,246,.28)';
-                    btn.style.filter = 'brightness(1.02)';
-                });
-
-                btn.addEventListener('mouseleave', function () {
-                    btn.style.transform = 'translateY(0)';
-                    btn.style.boxShadow = '0 10px 22px rgba(59,130,246,.22)';
-                    btn.style.filter = 'none';
-                });
+            el.addEventListener('mouseleave', function () {
+                if (el.classList.contains('card-digit-box')) {
+                    el.style.borderColor = '#cbd5e1';
+                    el.style.boxShadow = 'inset 0 1px 2px rgba(15,23,42,.03)';
+                    el.style.transform = 'translateY(0)';
+                } else {
+                    el.style.background = '#ffffff';
+                    el.style.borderColor = '#93c5fd';
+                    el.style.transform = 'translateY(0)';
+                    el.style.boxShadow = 'none';
+                }
             });
+        });
 
-            document.querySelectorAll('.dashboard-secondary-btn').forEach(btn => {
+            document.querySelectorAll('.dashboard-secondary-btn, .dashboard-link-btn, .dashboard-search-btn').forEach(btn => {
                 btn.addEventListener('mouseenter', function () {
                     btn.style.background = '#eff6ff';
                     btn.style.borderColor = '#60a5fa';
@@ -673,41 +639,25 @@
                 });
             });
 
-            document.querySelectorAll('.dashboard-link-btn').forEach(link => {
-                link.addEventListener('mouseenter', function () {
-                    link.style.background = '#eff6ff';
-                    link.style.borderColor = '#60a5fa';
-                    link.style.transform = 'translateY(-1px)';
+            document.querySelectorAll('.dashboard-book-cover-frame').forEach(frame => {
+                frame.addEventListener('mouseenter', function () {
+                    frame.style.transform = 'translateY(-3px)';
+                    frame.style.boxShadow = '0 14px 26px rgba(15,23,42,.12)';
+
+                    const image = frame.querySelector('.dashboard-book-cover-image');
+                    if (image) {
+                        image.style.transform = 'scale(1.05)';
+                    }
                 });
 
-                link.addEventListener('mouseleave', function () {
-                    link.style.background = 'transparent';
-                    link.style.borderColor = '#93c5fd';
-                    link.style.transform = 'translateY(0)';
-                });
-            });
+                frame.addEventListener('mouseleave', function () {
+                    frame.style.transform = 'translateY(0)';
+                    frame.style.boxShadow = 'none';
 
-            document.querySelectorAll('.dashboard-book-card').forEach(card => {
-                card.addEventListener('mouseenter', function () {
-                    card.style.transform = 'translateY(-4px)';
-                    card.style.boxShadow = '0 14px 30px rgba(15,23,42,.10)';
-                    card.style.borderColor = '#bfdbfe';
-                });
-
-                card.addEventListener('mouseleave', function () {
-                    card.style.transform = 'translateY(0)';
-                    card.style.boxShadow = 'none';
-                    card.style.borderColor = '#e2e8f0';
-                });
-            });
-
-            document.querySelectorAll('.dashboard-table-row').forEach(row => {
-                row.addEventListener('mouseenter', function () {
-                    row.style.background = '#f8fbff';
-                });
-
-                row.addEventListener('mouseleave', function () {
-                    row.style.background = 'transparent';
+                    const image = frame.querySelector('.dashboard-book-cover-image');
+                    if (image) {
+                        image.style.transform = 'scale(1)';
+                    }
                 });
             });
 
@@ -727,7 +677,7 @@
 
         applyDashboardResponsive();
         initializeCardNumberBoxes();
-        initializeDashboardHoverEffects();
+        initializeDashboardEffects();
         window.addEventListener('resize', applyDashboardResponsive);
     </script>
 }

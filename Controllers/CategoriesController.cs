@@ -23,8 +23,6 @@ namespace ObreshkovLibrary.Controllers
         {
             _context = context;
         }
-
-        // GET: Categories
         public async Task<IActionResult> Index()
         {
             var categories = await _context.Categories
@@ -43,7 +41,6 @@ namespace ObreshkovLibrary.Controllers
             return View(categories);
         }
 
-        // GET: Categories/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -152,13 +149,14 @@ namespace ObreshkovLibrary.Controllers
             if (category == null)
                 return NotFound();
 
-            bool hasActiveBooks = await _context.Books
-                .AnyAsync(b => b.CategoryId == id && b.IsActive);
+            bool hasBooks = await _context.Books
+                .IgnoreQueryFilters()
+                .AnyAsync(b => b.CategoryId == id);
 
-            if (hasActiveBooks)
+            if (hasBooks)
             {
-                TempData["Error"] = "Категорията не може да бъде деактивирана, защото има книги в нея.";
-                return RedirectToAction(nameof(Index));
+                TempData["Error"] = "Категорията не може да бъде деактивирана, защото в нея има книги.";
+                return RedirectToAction(nameof(Edit), new { id });
             }
 
             bool hasActiveChildren = await _context.Categories
@@ -168,13 +166,14 @@ namespace ObreshkovLibrary.Controllers
             if (hasActiveChildren)
             {
                 TempData["Error"] = "Категорията не може да бъде деактивирана, защото има активни подкатегории.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Edit), new { id });
             }
 
             category.IsActive = false;
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            TempData["Success"] = "Категорията е преместена в архива.";
+            return RedirectToAction(nameof(Edit), new { id });
         }
 
         private bool CategoryExists(int id)

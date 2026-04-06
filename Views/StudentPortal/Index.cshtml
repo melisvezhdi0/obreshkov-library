@@ -3,210 +3,218 @@
 @{
     ViewData["Title"] = "Моят профил";
     Layout = "_StudentLayout";
-
-    var currentAction = ViewContext?.RouteData?.Values["action"]?.ToString() ?? "";
-
-    string sideStyle(string action)
-    {
-        var isActive = currentAction == action;
-
-        return isActive
-            ? "display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#1d4ed8; background:#eef4ff; border:1px solid #dbe7fb;"
-            : "display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:#334155; background:transparent; border:1px solid transparent;";
-    }
 }
 
-<div style="width:100%; margin:0; padding:0;">
+<div class="student-portal-page">
 
-    <div style="display:grid; grid-template-columns:260px minmax(0, 1fr); background:#ffffff; border-top:1px solid #e5e7eb; min-height:calc(100vh - 110px); overflow:hidden;">
+    <aside class="student-portal-sidebar">
+        <div class="student-portal-sidebar-inner">
+            <div class="student-portal-sidebar-label">Student Portal</div>
+            <h1 class="student-portal-sidebar-title">Моят профил</h1>
 
-        <aside style="background:#f9fafb; border-right:1px solid #e5e7eb; padding:0;">
-            <div style="padding:24px 18px 18px 18px; border-bottom:1px solid #e5e7eb;">
-                <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
-                    Student Portal
-                </div>
-
-                <h1 style="margin:12px 0 0 0; color:#17325c; font-size:1.8rem; font-weight:900; line-height:1.1;">
-                    Моят профил
-                </h1>
-            </div>
-
-            <nav style="display:flex; flex-direction:column; gap:4px; padding:10px;">
-                <a asp-controller="StudentPortal"
-                   asp-action="Index"
-                   style="@sideStyle("Index")"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='@(currentAction == "Index" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Index" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Index" ? "#dbe7fb" : "transparent")';">
-                    Начало
+            <nav id="studentScrollspy" class="student-portal-nav">
+                <a href="#current-loans" class="student-nav-link active">
+                    <span class="student-nav-line"></span>
+                    <span>Текущо заети книги</span>
                 </a>
 
-                <a asp-controller="StudentPortal"
-                   asp-action="MyBooks"
-                   style="@sideStyle("MyBooks")"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='@(currentAction == "MyBooks" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "MyBooks" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "MyBooks" ? "#dbe7fb" : "transparent")';">
-                    Текущо заети книги
+                <a href="#favorites" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>Любими книги</span>
                 </a>
 
-                <a asp-controller="StudentPortal"
-                   asp-action="History"
-                   style="@sideStyle("History")"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='@(currentAction == "History" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "History" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "History" ? "#dbe7fb" : "transparent")';">
-                    История на заемания
+                <a href="#notifications" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>Известия</span>
                 </a>
 
-                <a asp-controller="StudentPortal"
-                   asp-action="Favorites"
-                   style="@sideStyle("Favorites")"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='@(currentAction == "Favorites" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Favorites" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Favorites" ? "#dbe7fb" : "transparent")';">
-                    Любими книги
+                <a href="#history" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>История на заеманията</span>
                 </a>
 
-                <a asp-controller="StudentPortal"
-                   asp-action="Notifications"
-                   style="@sideStyle("Notifications")"
-                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                   onmouseout="this.style.background='@(currentAction == "Notifications" ? "#eef4ff" : "transparent")'; this.style.color='@(currentAction == "Notifications" ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(currentAction == "Notifications" ? "#dbe7fb" : "transparent")';">
-                    Съобщения
+                <a href="#notes" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>Лична бележка към заемана книга</span>
+                </a>
+
+                <a href="#extension" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>Заявка за удължаване</span>
+                </a>
+
+                <a href="#profile" class="student-nav-link">
+                    <span class="student-nav-line"></span>
+                    <span>Лични данни</span>
                 </a>
             </nav>
-        </aside>
+        </div>
+    </aside>
 
-        <section style="padding:24px 28px; min-width:0; background:#ffffff;">
-            <div style="padding-bottom:18px; border-bottom:1px solid #e5e7eb; margin-bottom:20px;">
-                <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
-                    Добре дошъл
-                </div>
+    <main class="student-portal-content">
 
-                <h2 style="margin:10px 0 0 0; color:#17325c; font-size:2.2rem; font-weight:900; line-height:1.1;">
-                    Здравей, @Model.StudentName
-                </h2>
-
-                <p style="margin:14px 0 0 0; color:#64748b; font-size:1rem; font-weight:700; line-height:1.6;">
-                    Тук можеш бързо да виждаш най-важното за профила си.
+        <!-- 1. ТЕКУЩО ЗАЕТИ КНИГИ -->
+        <section id="current-loans" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Текущо заети книги</h2>
+                <p class="student-section-subtitle">
+                    Преглед на всички книги, които са заети в момента.
                 </p>
             </div>
 
-            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-bottom:20px;">
-                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
-                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
-                        Текущо заети книги
-                    </div>
-                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
-                        @Model.CurrentLoansCount
-                    </div>
-                </div>
+            @if (Model.CurrentLoans != null && Model.CurrentLoans.Any())
+            {
+                <div class="student-table-wrap">
+                    <table class="student-loans-table">
+                        <thead>
+                            <tr>
+                                <th style="width:72px;">Корица</th>
+                                <th>Заглавие</th>
+                                <th style="width:170px;">Дата на заемане</th>
+                                <th style="width:240px;">Дата на връщане</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.CurrentLoans)
+                            {
+                                var overdueDays = item.IsOverdue
+                                ? (DateTime.Today - item.DueDate.Date).Days
+                                : 0;
 
-                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
-                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
-                        Любими книги
-                    </div>
-                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
-                        @Model.FavoritesCount
-                    </div>
-                </div>
+                                <tr>
+                                    <td>
+                                        <div class="student-cover-box">
+                                            @if (!string.IsNullOrWhiteSpace(item.CoverPath))
+                                            {
+                                                <img src="@item.CoverPath"
+                                                     alt="@item.Title"
+                                                     class="student-mini-cover" />
+                                            }
+                                            else
+                                            {
+                                                <div class="student-mini-cover student-cover-placeholder">
+                                                    Няма
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
 
-                <div style="border:1px solid #e3e8ef; border-radius:12px; padding:18px; background:#ffffff;">
-                    <div style="color:#64748b; font-size:.95rem; font-weight:800;">
-                        Непрочетени съобщения
-                    </div>
-                    <div style="margin-top:10px; color:#17325c; font-size:2rem; font-weight:900;">
-                        @Model.UnreadNotificationsCount
-                    </div>
-                </div>
-            </div>
+                                    <td>
+                                        <div class="student-book-cell">
+                                            <div class="student-book-title">@item.Title</div>
+                                            <div class="student-book-author">@item.Author</div>
+                                        </div>
+                                    </td>
 
-            <section style="border:1px solid #e3e8ef; border-radius:12px; overflow:hidden; background:#ffffff;">
-                <div style="padding:18px 20px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:start; gap:12px; flex-wrap:wrap;">
-                    <div>
-                        <h3 style="margin:0; color:#17325c; font-size:1.35rem; font-weight:900;">
-                            В момента заемани книги
-                        </h3>
-                        <p style="margin:8px 0 0 0; color:#64748b; font-size:.95rem; font-weight:700; line-height:1.6;">
-                            Книгите, които са при теб сега.
-                        </p>
-                    </div>
+                                    <td>
+                                        <div class="student-date-cell">
+                                            @item.LoanDate.ToString("dd.MM.yyyy")
+                                        </div>
+                                    </td>
 
-                    <a asp-action="MyBooks"
-                       style="text-decoration:none; color:#2563eb; font-weight:800; padding:8px 10px; border-radius:8px;"
-                       onmouseover="this.style.background='#f3f6fa';"
-                       onmouseout="this.style.background='transparent';">
-                        Виж всички
-                    </a>
-                </div>
-
-                @if (Model.CurrentLoans != null && Model.CurrentLoans.Any())
-                {
-                    <div style="display:flex; flex-direction:column;">
-                        @foreach (var item in Model.CurrentLoans)
-                        {
-                            <article style="display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:18px; padding:18px 20px; border-top:1px solid #eef2f6;">
-                                <div style="min-width:0;">
-                                    <h4 style="margin:0; color:#17325c; font-size:1.08rem; font-weight:900; line-height:1.35;">
-                                        @item.Title
-                                    </h4>
-                                    <div style="margin-top:6px; color:#64748b; font-size:.95rem; font-weight:700;">
-                                        @item.Author
-                                    </div>
-                                </div>
-
-                                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; justify-content:flex-end;">
-                                    <div style="min-width:120px;">
-                                        <div style="color:#64748b; font-size:.8rem; font-weight:800; margin-bottom:4px;">Взета на</div>
-                                        <div style="color:#17325c; font-size:.95rem; font-weight:900;">@item.LoanDate.ToString("dd.MM.yyyy")</div>
-                                    </div>
-
-                                    <div style="min-width:120px;">
-                                        <div style="color:#64748b; font-size:.8rem; font-weight:800; margin-bottom:4px;">Връща се на</div>
-                                        <div style="color:#17325c; font-size:.95rem; font-weight:900;">@item.DueDate.ToString("dd.MM.yyyy")</div>
-                                    </div>
-
-                                    <div>
+                                    <td>
                                         @if (item.IsOverdue)
                                         {
-                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#fef2f2; color:#dc2626;">
-                                                Просрочена
-                                            </span>
+                                            <div class="student-return-status overdue">
+                                                Просрочена с @overdueDays @(overdueDays == 1 ? "ден" : "дни")
+                                            </div>
                                         }
                                         else if (item.IsExtended)
                                         {
-                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#eff6ff; color:#1d4ed8;">
-                                                Удължена
-                                            </span>
+                                            <div class="student-return-status extended">
+                                                Удължена до @item.DueDate.ToString("dd.MM.yyyy")
+                                            </div>
                                         }
                                         else
                                         {
-                                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:32px; padding:0 12px; border-radius:999px; font-size:.86rem; font-weight:800; background:#ecfdf3; color:#15803d;">
-                                                Активна
-                                            </span>
+                                            <div class="student-return-status normal">
+                                                @item.DueDate.ToString("dd.MM.yyyy")
+                                            </div>
                                         }
-                                    </div>
-
-                                    <a asp-controller="Catalog"
-                                       asp-action="StudentDetails"
-                                       asp-route-id="@item.BookId"
-                                       style="display:inline-flex; align-items:center; justify-content:center; min-height:34px; padding:0 12px; border-radius:8px; border:1px solid #dbe4ef; background:#ffffff; color:#1d4ed8; text-decoration:none; font-weight:800;"
-                                       onmouseover="this.style.background='#f3f6fa';"
-                                       onmouseout="this.style.background='#ffffff';">
-                                        Детайли
-                                    </a>
-                                </div>
-                            </article>
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div style="padding:22px 20px; color:#64748b; font-weight:700; line-height:1.6;">
-                        В момента нямаш заемани книги.
-                    </div>
-                }
-            </section>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="student-empty-state">
+                    В момента нямаш заети книги.
+                </div>
+            }
         </section>
-    </div>
+
+        <!-- 2. ЛЮБИМИ -->
+        <section id="favorites" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Любими книги</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+        <!-- 3. ИЗВЕСТИЯ -->
+        <section id="notifications" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Известия</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+        <!-- 4. ИСТОРИЯ -->
+        <section id="history" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">История на заеманията</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+        <!-- 5. ЛИЧНА БЕЛЕЖКА -->
+        <section id="notes" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Лична бележка към заемана книга</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+        <!-- 6. УДЪЛЖАВАНЕ -->
+        <section id="extension" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Заявка за удължаване</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+        <!-- 7. ЛИЧНИ ДАННИ -->
+        <section id="profile" class="student-portal-section">
+            <div class="student-section-header">
+                <h2 class="student-section-title">Лични данни</h2>
+            </div>
+
+            <div class="student-empty-state">
+                Тази секция ще я подредим след това.
+            </div>
+        </section>
+
+    </main>
 </div>
+
 @if (ViewBag.RequirePasswordChange == true)
 {
     <div id="passwordOverlay"
@@ -222,7 +230,7 @@
 
         <div style="width:460px;
                         max-width:100%;
-                        background:linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+                        background:#ffffff;
                         border:1px solid #dbe5ef;
                         border-radius:24px;
                         padding:30px 28px 26px 28px;
@@ -283,96 +291,344 @@
                 <div style="display:grid; gap:14px;">
 
                     <div>
-                        <label style="display:block;
-                                          margin-bottom:7px;
-                                          color:#0f172a;
-                                          font-size:.95rem;
-                                          font-weight:800;">
+                        <label style="display:block; margin-bottom:7px; color:#0f172a; font-size:.95rem; font-weight:800;">
                             Текуща парола
                         </label>
                         <input type="password"
                                name="CurrentPassword"
                                class="student-password-input"
-                               style="width:100%;
-                                          height:50px;
-                                          border-radius:14px;
-                                          border:1px solid #cbd5e1;
-                                          background:#ffffff;
-                                          box-shadow:none;
-                                          font-size:.98rem;
-                                          padding:0 14px;
-                                          outline:none;
-                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                               style="width:100%; height:50px; border-radius:14px; border:1px solid #cbd5e1; background:#ffffff; box-shadow:none; font-size:.98rem; padding:0 14px; outline:none; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
                     </div>
 
                     <div>
-                        <label style="display:block;
-                                          margin-bottom:7px;
-                                          color:#0f172a;
-                                          font-size:.95rem;
-                                          font-weight:800;">
+                        <label style="display:block; margin-bottom:7px; color:#0f172a; font-size:.95rem; font-weight:800;">
                             Нова парола
                         </label>
                         <input type="password"
                                name="NewPassword"
                                class="student-password-input"
-                               style="width:100%;
-                                          height:50px;
-                                          border-radius:14px;
-                                          border:1px solid #cbd5e1;
-                                          background:#ffffff;
-                                          box-shadow:none;
-                                          font-size:.98rem;
-                                          padding:0 14px;
-                                          outline:none;
-                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                               style="width:100%; height:50px; border-radius:14px; border:1px solid #cbd5e1; background:#ffffff; box-shadow:none; font-size:.98rem; padding:0 14px; outline:none; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
                     </div>
 
                     <div>
-                        <label style="display:block;
-                                          margin-bottom:7px;
-                                          color:#0f172a;
-                                          font-size:.95rem;
-                                          font-weight:800;">
+                        <label style="display:block; margin-bottom:7px; color:#0f172a; font-size:.95rem; font-weight:800;">
                             Потвърди новата парола
                         </label>
                         <input type="password"
                                name="ConfirmPassword"
                                class="student-password-input"
-                               style="width:100%;
-                                          height:50px;
-                                          border-radius:14px;
-                                          border:1px solid #cbd5e1;
-                                          background:#ffffff;
-                                          box-shadow:none;
-                                          font-size:.98rem;
-                                          padding:0 14px;
-                                          outline:none;
-                                          transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
+                               style="width:100%; height:50px; border-radius:14px; border:1px solid #cbd5e1; background:#ffffff; box-shadow:none; font-size:.98rem; padding:0 14px; outline:none; transition:border-color .18s ease, box-shadow .18s ease, transform .18s ease;" />
                     </div>
                 </div>
 
                 <div style="margin-top:18px;">
                     <button type="submit"
                             id="saveStudentPasswordBtn"
-                            style="width:100%;
-                                       height:50px;
-                                       border:none;
-                                       border-radius:14px;
-                                       background:linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-                                       color:#ffffff;
-                                       font-size:1rem;
-                                       font-weight:800;
-                                       box-shadow:0 14px 28px rgba(37,99,235,.18);
-                                       transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;">
+                            style="width:100%; height:50px; border:none; border-radius:14px; background:linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); color:#ffffff; font-size:1rem; font-weight:800; box-shadow:0 14px 28px rgba(37,99,235,.18); transition:transform .18s ease, box-shadow .18s ease, filter .18s ease;">
                         Запази новата парола
                     </button>
                 </div>
             </form>
         </div>
     </div>
+}
 
-    <script>
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+
+    .student-portal-page {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 270px minmax(0, 1fr);
+        gap: 42px;
+        align-items: start;
+        padding-top: 8px;
+    }
+
+    .student-portal-sidebar {
+        position: sticky;
+        top: 92px;
+        align-self: start;
+    }
+
+    .student-portal-sidebar-inner {
+        padding-top: 4px;
+    }
+
+    .student-portal-sidebar-label {
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: .75rem;
+        font-weight: 800;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+    }
+
+    .student-portal-sidebar-title {
+        margin: 0 0 24px 0;
+        color: #0f172a;
+        font-size: 1.9rem;
+        line-height: 1.08;
+        font-weight: 900;
+    }
+
+    .student-portal-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .student-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 42px;
+        text-decoration: none;
+        color: #475569;
+        font-size: .97rem;
+        font-weight: 700;
+        line-height: 1.4;
+        transition: .18s ease;
+    }
+
+        .student-nav-link:hover {
+            color: #2563eb;
+        }
+
+        .student-nav-link.active {
+            color: #2563eb;
+            font-weight: 900;
+        }
+
+    .student-nav-line {
+        width: 3px;
+        height: 24px;
+        border-radius: 999px;
+        background: transparent;
+        transition: .18s ease;
+        flex: 0 0 3px;
+    }
+
+    .student-nav-link.active .student-nav-line {
+        background: #2563eb;
+    }
+
+    .student-portal-content {
+        min-width: 0;
+        padding-right: 6px;
+    }
+
+    .student-portal-section {
+        scroll-margin-top: 110px;
+        margin-bottom: 60px;
+    }
+
+    .student-section-header {
+        margin-bottom: 18px;
+    }
+
+    .student-section-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1.95rem;
+        line-height: 1.08;
+        font-weight: 900;
+        letter-spacing: -.02em;
+    }
+
+    .student-section-subtitle {
+        margin: 8px 0 0 0;
+        color: #64748b;
+        font-size: .98rem;
+        font-weight: 700;
+        line-height: 1.65;
+    }
+
+    .student-table-wrap {
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, .04);
+    }
+
+    .student-loans-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .student-loans-table thead th {
+            background: #f8fafc;
+            color: #475569;
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            padding: 15px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        .student-loans-table tbody td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .student-loans-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .student-loans-table tbody tr:hover {
+            background: #fbfdff;
+        }
+
+    .student-cover-box {
+        display: flex;
+        align-items: center;
+    }
+
+    .student-mini-cover {
+        width: 42px;
+        height: 58px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 1px solid #dbe4ef;
+        background: #f8fafc;
+        display: block;
+    }
+
+    .student-cover-placeholder {
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        display: flex;
+    }
+
+    .student-book-cell {
+        min-width: 0;
+    }
+
+    .student-book-title {
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+    .student-book-author {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: .92rem;
+        font-weight: 700;
+        line-height: 1.5;
+    }
+
+    .student-date-cell {
+        color: #0f172a;
+        font-size: .94rem;
+        font-weight: 800;
+    }
+
+    .student-return-status {
+        font-size: .94rem;
+        font-weight: 800;
+        line-height: 1.45;
+    }
+
+        .student-return-status.normal {
+            color: #0f172a;
+        }
+
+        .student-return-status.overdue {
+            color: #dc2626;
+        }
+
+        .student-return-status.extended {
+            color: #ca8a04;
+        }
+
+    .student-empty-state {
+        color: #64748b;
+        font-size: .98rem;
+        font-weight: 700;
+        line-height: 1.7;
+        padding-top: 4px;
+    }
+
+    @@media (max-width: 1100px) {
+        .student-portal-page {
+            grid-template-columns: 230px minmax(0, 1fr);
+            gap: 28px;
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .student-portal-page {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .student-portal-sidebar {
+            position: relative;
+            top: auto;
+        }
+
+        .student-portal-sidebar-title {
+            margin-bottom: 16px;
+        }
+
+        .student-portal-nav {
+            gap: 4px;
+        }
+
+        .student-loans-table {
+            min-width: 720px;
+        }
+
+        .student-table-wrap {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<script>
+    (function () {
+        const links = Array.from(document.querySelectorAll('#studentScrollspy .student-nav-link'));
+        const sections = Array.from(document.querySelectorAll('.student-portal-section'));
+
+        function setActive(hash) {
+            links.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('href') === hash);
+            });
+        }
+
+        links.forEach(link => {
+            link.addEventListener('click', function () {
+                setActive(link.getAttribute('href'));
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            const visible = entries
+                .filter(entry => entry.isIntersecting)
+                .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
+
+            if (visible.length > 0) {
+                setActive('#' + visible[0].target.id);
+            }
+        }, {
+            rootMargin: '-18% 0px -62% 0px',
+            threshold: [0.15, 0.35, 0.55]
+        });
+
+        sections.forEach(section => observer.observe(section));
+
         document.querySelectorAll('.student-password-input').forEach(input => {
             input.addEventListener('mouseenter', function () {
                 if (document.activeElement !== input) {
@@ -417,5 +673,5 @@
                 saveStudentPasswordBtn.style.filter = 'none';
             });
         }
-    </script>
-}
+    })();
+</script>

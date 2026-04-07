@@ -134,9 +134,16 @@
                         </div>
 
                         <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Клас</div>
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Класове</div>
                             <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
                                 @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
+                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Ключови думи</div>
+                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800; white-space:pre-line;">
+                                @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
                             </div>
                         </div>
 

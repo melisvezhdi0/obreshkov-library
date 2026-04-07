@@ -109,7 +109,7 @@
                 <div class="book-cover-box @(string.IsNullOrWhiteSpace(coverValue) ? "no-cover" : "")">
                     @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
-                            <img src="@Url.Content("~/" + coverValue)"
+                        <img src="@Url.Content("~/" + coverValue)"
                              alt="@Model.Title"
                              onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
                     }
@@ -146,7 +146,7 @@
                     </div>
 
                     <div class="book-info-row">
-                        <div class="book-info-label">Клас</div>
+                        <div class="book-info-label">Класове</div>
                         <div class="book-info-value">
                             @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
                         </div>
@@ -173,6 +173,13 @@
                             {
                                 <span class="status-badge status-inactive">Неактивна</span>
                             }
+                        </div>
+                    </div>
+
+                    <div class="book-info-row">
+                        <div class="book-info-label">Ключови думи</div>
+                        <div class="book-info-value">
+                            @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
                         </div>
                     </div>
 

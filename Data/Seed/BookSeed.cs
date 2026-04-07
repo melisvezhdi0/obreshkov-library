@@ -223,25 +223,26 @@ namespace ObreshkovLibrary.Data.Seed
                 },
 
                 new BookSeedItem
-                {
-                    Title = "Разкази. Гераците",
-                    Author = "Елин Пелин",
-                    Description = "",
-                    Year = 2004,
-                    CopiesCount = 5,
-                    SchoolClass = "10 клас",
-                    CoverPath = "books/elin-pelin-razkazi-geratsite.jpg",
-                    CategoryId = storyCategory?.Id ?? 0,
-                    Tags =
-                        BookTags.BulgarianLiterature |
-                        BookTags.ClassicLiterature |
-                        BookTags.Social |
-                        BookTags.BulgarianAuthor |
-                        BookTags.RequiredReading |
-                        BookTags.ForMatura |
-                        BookTags.ClassicalWork |
-                        BookTags.Prose
-                }
+{
+    Title = "Разкази",
+    Author = "Елин Пелин",
+    Description = "Сборник с едни от най-известните разкази на Елин Пелин, свързани със селския живот, човешката съдба, бедността, труда и нравствените конфликти.",
+    Year = 2004,
+    CopiesCount = 5,
+    SchoolClass = "5 клас, 6 клас, 7 клас, 10 клас",
+    CoverPath = "books/elin-pelin-razkazi-geratsite.jpg",
+    CategoryId = storyCategory?.Id ?? 0,
+    Tags =
+        BookTags.BulgarianLiterature |
+        BookTags.ClassicLiterature |
+        BookTags.Social |
+        BookTags.BulgarianAuthor |
+        BookTags.RequiredReading |
+        BookTags.ForMatura |
+        BookTags.ClassicalWork |
+        BookTags.Prose,
+    SearchKeywords = "Косачи; По жицата; На оня свят; Андрешко; Чорба от греховете на отец Никодим; Задушница; Напаст божия; Ветрената мелница; Мечтатели; разказ; разкази; сборник с разкази; Елин Пелин разкази"
+}
             };
 
             foreach (var seed in books)
@@ -266,6 +267,7 @@ namespace ObreshkovLibrary.Data.Seed
                     CoverPath = seed.CoverPath,
                     CategoryId = seed.CategoryId,
                     Tags = seed.Tags,
+                    SearchKeywords = seed.SearchKeywords,
                     CreatedOn = DateTime.Now,
                     IsActive = true
                 };
@@ -300,6 +302,7 @@ namespace ObreshkovLibrary.Data.Seed
             public string? CoverPath { get; set; }
             public int CategoryId { get; set; }
             public BookTags Tags { get; set; }
+            public string? SearchKeywords { get; set; }
         }
     }
 }

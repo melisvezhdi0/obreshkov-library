@@ -70,6 +70,8 @@ namespace ObreshkovLibrary.Controllers
                     (b.Title != null && b.Title.ToLower().Contains(normalizedSearch)) ||
                     (b.Author != null && b.Author.ToLower().Contains(normalizedSearch)) ||
                     (b.Description != null && b.Description.ToLower().Contains(normalizedSearch)) ||
+                    (b.SchoolClass != null && b.SchoolClass.ToLower().Contains(normalizedSearch)) ||
+                    (b.SearchKeywords != null && b.SearchKeywords.ToLower().Contains(normalizedSearch)) ||
                     (b.Category != null && b.Category.Name.ToLower().Contains(normalizedSearch)) ||
                     (b.Category != null &&
                      b.Category.ParentCategory != null &&
@@ -158,6 +160,8 @@ namespace ObreshkovLibrary.Controllers
                     (b.Title != null && b.Title.ToLower().Contains(normalizedSearch)) ||
                     (b.Author != null && b.Author.ToLower().Contains(normalizedSearch)) ||
                     (b.Description != null && b.Description.ToLower().Contains(normalizedSearch)) ||
+                    (b.SchoolClass != null && b.SchoolClass.ToLower().Contains(normalizedSearch)) ||
+                    (b.SearchKeywords != null && b.SearchKeywords.ToLower().Contains(normalizedSearch)) ||
                     (b.Category != null && b.Category.Name.ToLower().Contains(normalizedSearch)) ||
                     (b.Category != null &&
                      b.Category.ParentCategory != null &&

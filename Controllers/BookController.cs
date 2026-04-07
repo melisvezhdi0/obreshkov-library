@@ -180,8 +180,17 @@ namespace ObreshkovLibrary.Controllers
                     (b.Category != null &&
                      b.Category.ParentCategory != null &&
                      b.Category.ParentCategory.Name.ToLower().Contains(normalizedSearch)) ||
-                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch))
+                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch)) ||
+                    (b.SchoolClass != null && b.SchoolClass.ToLower().Contains(normalizedSearch)) ||
+                    (b.SearchKeywords != null && b.SearchKeywords.ToLower().Contains(normalizedSearch))
                 );
+            }
+
+            if (!string.IsNullOrWhiteSpace(schoolClass))
+            {
+                var normalizedClass = schoolClass.Replace(" ", string.Empty).Trim().ToLower();
+                query = query.Where(b => b.SchoolClass != null &&
+                                         b.SchoolClass.Replace(" ", string.Empty).ToLower().Contains(normalizedClass));
             }
 
             query = sort switch
@@ -225,7 +234,9 @@ namespace ObreshkovLibrary.Controllers
                     (b.Category != null &&
                      b.Category.ParentCategory != null &&
                      b.Category.ParentCategory.Name.ToLower().Contains(normalizedSearch)) ||
-                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch))
+                    (b.Description != null && b.Description.ToLower().Contains(normalizedSearch)) ||
+                    (b.SchoolClass != null && b.SchoolClass.ToLower().Contains(normalizedSearch)) ||
+                    (b.SearchKeywords != null && b.SearchKeywords.ToLower().Contains(normalizedSearch))
                 );
             }
 
@@ -297,6 +308,8 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? string.Empty).Trim();
             vm.Author = (vm.Author ?? string.Empty).Trim();
             vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
+            vm.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
+            vm.SearchKeywords = string.IsNullOrWhiteSpace(vm.SearchKeywords) ? null : vm.SearchKeywords.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
 
@@ -327,6 +340,8 @@ namespace ObreshkovLibrary.Controllers
                 Year = vm.Year,
                 Description = vm.Description,
                 CoverPath = savedCoverPath,
+                SchoolClass = vm.SchoolClass,
+                SearchKeywords = vm.SearchKeywords,
                 CategoryId = finalCategoryId.Value,
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
                 IsActive = true
@@ -396,6 +411,8 @@ namespace ObreshkovLibrary.Controllers
                 Description = book.Description,
                 CoverPath = book.CoverPath,
                 CurrentCoverPath = book.CoverPath,
+                SchoolClass = book.SchoolClass,
+                SearchKeywords = book.SearchKeywords,
                 Level1Id = level1Id,
                 Level2Id = level2Id,
                 CopiesCount = Math.Max(1, await _context.BookCopies
@@ -425,6 +442,8 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? string.Empty).Trim();
             vm.Author = (vm.Author ?? string.Empty).Trim();
             vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
+            vm.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
+            vm.SearchKeywords = string.IsNullOrWhiteSpace(vm.SearchKeywords) ? null : vm.SearchKeywords.Trim();
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
             if (!finalCategoryId.HasValue)
@@ -453,7 +472,8 @@ namespace ObreshkovLibrary.Controllers
             book.Author = vm.Author;
             book.Year = vm.Year;
             book.Description = vm.Description;
-            book.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
+            book.SchoolClass = vm.SchoolClass;
+            book.SearchKeywords = vm.SearchKeywords;
             book.CategoryId = finalCategoryId.Value;
             book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
 

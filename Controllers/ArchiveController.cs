@@ -79,6 +79,7 @@ namespace ObreshkovLibrary.Controllers
                     (b.Author ?? "").ToLower().Contains(s) ||
                     (b.Description ?? "").ToLower().Contains(s) ||
                     (b.SchoolClass ?? "").ToLower().Contains(s) ||
+                    (b.SearchKeywords ?? "").ToLower().Contains(s) ||
                     (b.Category != null && b.Category.Name.ToLower().Contains(s)));
 
                 clientsQ = clientsQ.Where(c =>
@@ -187,6 +188,7 @@ namespace ObreshkovLibrary.Controllers
                     (b.Author ?? "").ToLower().Contains(s) ||
                     (b.Description ?? "").ToLower().Contains(s) ||
                     (b.SchoolClass ?? "").ToLower().Contains(s) ||
+                    (b.SearchKeywords ?? "").ToLower().Contains(s) ||
                     (b.Category != null && (b.Category.Name ?? "").ToLower().Contains(s)) ||
                     (b.Category != null && b.Category.ParentCategory != null && (b.Category.ParentCategory.Name ?? "").ToLower().Contains(s)));
             }

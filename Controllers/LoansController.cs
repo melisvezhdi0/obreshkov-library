@@ -64,7 +64,7 @@ namespace ObreshkovLibrary.Controllers
             var query = _context.Books
                 .Include(b => b.Category)
                     .ThenInclude(c => c.ParentCategory)
-                .Where(b => b.IsActive && b.Title.Contains(title));
+                .Where(b => b.IsActive && (b.Title.Contains(title) || (b.SearchKeywords != null && b.SearchKeywords.Contains(title))));
 
             if (!string.IsNullOrWhiteSpace(author))
             {

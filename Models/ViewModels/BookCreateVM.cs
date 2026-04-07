@@ -22,6 +22,7 @@ namespace ObreshkovLibrary.Models.ViewModels
         public IFormFile? CoverFile { get; set; }
 
         public string? SchoolClass { get; set; }
+        public string? SearchKeywords { get; set; }
 
         public int? Level1Id { get; set; }
         public int? Level2Id { get; set; }

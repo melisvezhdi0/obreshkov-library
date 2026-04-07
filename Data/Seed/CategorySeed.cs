@@ -7,13 +7,6 @@ namespace ObreshkovLibrary.Data.Seed
     {
         public static async Task SeedCategoriesAsync(ObreshkovLibraryContext context)
         {
-            bool alreadySeeded = await context.Categories
-                .IgnoreQueryFilters()
-                .AnyAsync(c => c.Name == "Стихотворение");
-
-            if (alreadySeeded)
-                return;
-
             var fiction = await context.Categories
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Name == "Художествена литература" && c.ParentCategoryId == null);
@@ -102,6 +95,7 @@ namespace ObreshkovLibrary.Data.Seed
             await AddChildIfMissing("Приказка", children.Id);
             await AddChildIfMissing("Психология", science.Id);
             await AddChildIfMissing("Учебник", school.Id);
+            await AddChildIfMissing("Помагало", school.Id);
 
             await context.SaveChangesAsync();
         }

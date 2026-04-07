@@ -3,7 +3,7 @@
 namespace ObreshkovLibrary.Models
 {
     [Flags]
-    public enum BookTags
+    public enum BookTags : long
     {
         None = 0,
 
@@ -38,6 +38,16 @@ namespace ObreshkovLibrary.Models
 
         Poetry = 1 << 23,
         Prose = 1 << 24,
-        Dramaturgy = 1 << 25
+        Dramaturgy = 1 << 25,
+
+        Mathematics = 1 << 24,
+        BulgarianLanguage = 1 << 25,
+        History = 1 << 26,
+        Geography = 1 << 27,
+        Biology = 1 << 28,
+        Chemistry = 1 << 29,
+        Physics = 1 << 30,
+        Philosophy = 1 << 31,
+        IT = 1 << 32
     }
 }

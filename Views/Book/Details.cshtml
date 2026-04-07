@@ -61,6 +61,16 @@
     if ((Model.Tags & BookTags.Poetry) == BookTags.Poetry) tagNames.Add("Поезия");
     if ((Model.Tags & BookTags.Prose) == BookTags.Prose) tagNames.Add("Проза");
     if ((Model.Tags & BookTags.Dramaturgy) == BookTags.Dramaturgy) tagNames.Add("Драматургия");
+
+    if ((Model.Tags & BookTags.Mathematics) == BookTags.Mathematics) tagNames.Add("Математика");
+    if ((Model.Tags & BookTags.BulgarianLanguage) == BookTags.BulgarianLanguage) tagNames.Add("Български език");
+    if ((Model.Tags & BookTags.History) == BookTags.History) tagNames.Add("История");
+    if ((Model.Tags & BookTags.Geography) == BookTags.Geography) tagNames.Add("География");
+    if ((Model.Tags & BookTags.Biology) == BookTags.Biology) tagNames.Add("Биология");
+    if ((Model.Tags & BookTags.Chemistry) == BookTags.Chemistry) tagNames.Add("Химия");
+    if ((Model.Tags & BookTags.Physics) == BookTags.Physics) tagNames.Add("Физика");
+    if ((Model.Tags & BookTags.Philosophy) == BookTags.Philosophy) tagNames.Add("Философия");
+    if ((Model.Tags & BookTags.IT) == BookTags.IT) tagNames.Add("Информационни технологии/Информатика");
 }
 
 <div class="book-details-page">
@@ -99,7 +109,7 @@
                 <div class="book-cover-box @(string.IsNullOrWhiteSpace(coverValue) ? "no-cover" : "")">
                     @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
-                        <img src="@coverValue"
+                            <img src="@Url.Content("~/" + coverValue)"
                              alt="@Model.Title"
                              onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
                     }

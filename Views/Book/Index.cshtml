@@ -146,7 +146,7 @@
                                 <div style="width:42px; height:62px; border-radius:10px; overflow:hidden; border:1px solid #D7DFEA; background:#F8FAFD; display:flex; align-items:center; justify-content:center; flex:0 0 42px;">
                                     @if (!string.IsNullOrWhiteSpace(coverValue))
                                     {
-                                        <img src="@coverValue"
+                                        <img src="@Url.Content("~/" + book.CoverPath)"
                                              alt="@book.Title"
                                              style="width:100%; height:100%; object-fit:cover;" />
                                     }

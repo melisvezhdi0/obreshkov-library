@@ -26,7 +26,7 @@
                         <div style="height:240px; border:1px solid #e2e8f0; border-radius:18px; background:#f8fbff; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                             @if (!string.IsNullOrWhiteSpace(item.CoverPath))
                             {
-                                <img src="@item.CoverPath" alt="@item.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                <img src="@Url.Content("~/" + item.CoverPath)" alt="@item.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
                             }
                             else
                             {

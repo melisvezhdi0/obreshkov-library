@@ -85,7 +85,7 @@
                         <div style="height:200px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#fff; border-radius:14px;">
                             @if (!string.IsNullOrWhiteSpace(coverValue))
                             {
-                                <img src="@coverValue"
+                                <img src="@Url.Content("~/" + book.CoverPath)"
                                      alt="@book.Title"
                                      style="max-width:100%; max-height:100%; object-fit:contain; transition:transform .2s ease;"
                                      onmouseover="this.style.transform='scale(1.05)'"

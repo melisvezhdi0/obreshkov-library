@@ -86,7 +86,7 @@
                                         <div class="student-cover-box">
                                             @if (!string.IsNullOrWhiteSpace(item.CoverPath))
                                             {
-                                                <img src="@item.CoverPath"
+                                                <img src="@Url.Content("~/" + item.CoverPath)"
                                                      alt="@item.Title"
                                                      class="student-mini-cover" />
                                             }

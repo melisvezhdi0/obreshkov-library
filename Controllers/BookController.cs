@@ -80,6 +80,15 @@ namespace ObreshkovLibrary.Controllers
             BookTags.Poetry => "Поезия",
             BookTags.Prose => "Проза",
             BookTags.Dramaturgy => "Драматургия",
+            BookTags.Mathematics => "Математика",
+            BookTags.BulgarianLanguage => "Български език",
+            BookTags.History => "История",
+            BookTags.Geography => "География",
+            BookTags.Biology => "Биология",
+            BookTags.Chemistry => "Химия",
+            BookTags.Physics => "Физика",
+            BookTags.Philosophy => "Философия",
+            BookTags.IT => "Информационни технологии",
             _ => t.ToString()
         };
 
@@ -106,6 +115,35 @@ namespace ObreshkovLibrary.Controllers
                 .Select(t => (int)t)
                 .Distinct()
                 .ToList();
+        }
+
+
+        private static List<string> ParseSelectedSchoolClasses(string? schoolClass)
+        {
+            if (string.IsNullOrWhiteSpace(schoolClass))
+                return new List<string>();
+
+            return schoolClass
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
+        private static string? BuildSchoolClassString(List<string>? selected)
+        {
+            if (selected == null || selected.Count == 0)
+                return null;
+
+            var values = selected
+                .Select(x => x?.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x)
+                .ToList();
+
+            return values.Count == 0 ? null : string.Join(", ", values);
         }
 
         private async Task PopulateBookVmAsync(BookCreateVM vm)
@@ -188,9 +226,8 @@ namespace ObreshkovLibrary.Controllers
 
             if (!string.IsNullOrWhiteSpace(schoolClass))
             {
-                var normalizedClass = schoolClass.Replace(" ", string.Empty).Trim().ToLower();
-                query = query.Where(b => b.SchoolClass != null &&
-                                         b.SchoolClass.Replace(" ", string.Empty).ToLower().Contains(normalizedClass));
+                var normalizedClass = schoolClass.Trim().ToLower();
+                query = query.Where(b => b.SchoolClass != null && b.SchoolClass.ToLower().Contains(normalizedClass));
             }
 
             query = sort switch
@@ -308,8 +345,8 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? string.Empty).Trim();
             vm.Author = (vm.Author ?? string.Empty).Trim();
             vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
-            vm.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
             vm.SearchKeywords = string.IsNullOrWhiteSpace(vm.SearchKeywords) ? null : vm.SearchKeywords.Trim();
+            vm.SchoolClass = BuildSchoolClassString(vm.SelectedSchoolClasses);
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
 
@@ -339,9 +376,9 @@ namespace ObreshkovLibrary.Controllers
                 Author = vm.Author,
                 Year = vm.Year,
                 Description = vm.Description,
+                SearchKeywords = vm.SearchKeywords,
                 CoverPath = savedCoverPath,
                 SchoolClass = vm.SchoolClass,
-                SearchKeywords = vm.SearchKeywords,
                 CategoryId = finalCategoryId.Value,
                 Tags = BuildTagsFromSelected(vm.SelectedTagValues),
                 IsActive = true
@@ -409,10 +446,11 @@ namespace ObreshkovLibrary.Controllers
                 Author = book.Author,
                 Year = book.Year,
                 Description = book.Description,
-                CoverPath = book.CoverPath,
-                CurrentCoverPath = book.CoverPath,
-                SchoolClass = book.SchoolClass,
                 SearchKeywords = book.SearchKeywords,
+                CoverPath = book.CoverPath,
+                SchoolClass = book.SchoolClass,
+                SelectedSchoolClasses = ParseSelectedSchoolClasses(book.SchoolClass),
+                CurrentCoverPath = book.CoverPath,
                 Level1Id = level1Id,
                 Level2Id = level2Id,
                 CopiesCount = Math.Max(1, await _context.BookCopies
@@ -442,8 +480,8 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? string.Empty).Trim();
             vm.Author = (vm.Author ?? string.Empty).Trim();
             vm.Description = string.IsNullOrWhiteSpace(vm.Description) ? null : vm.Description.Trim();
-            vm.SchoolClass = string.IsNullOrWhiteSpace(vm.SchoolClass) ? null : vm.SchoolClass.Trim();
             vm.SearchKeywords = string.IsNullOrWhiteSpace(vm.SearchKeywords) ? null : vm.SearchKeywords.Trim();
+            vm.SchoolClass = BuildSchoolClassString(vm.SelectedSchoolClasses);
 
             var finalCategoryId = vm.Level2Id ?? vm.Level1Id;
             if (!finalCategoryId.HasValue)
@@ -472,8 +510,8 @@ namespace ObreshkovLibrary.Controllers
             book.Author = vm.Author;
             book.Year = vm.Year;
             book.Description = vm.Description;
-            book.SchoolClass = vm.SchoolClass;
             book.SearchKeywords = vm.SearchKeywords;
+            book.SchoolClass = vm.SchoolClass;
             book.CategoryId = finalCategoryId.Value;
             book.Tags = BuildTagsFromSelected(vm.SelectedTagValues);
 
@@ -494,7 +532,8 @@ namespace ObreshkovLibrary.Controllers
             try
             {
                 await _bookDeactivate.DeactivateBookTitleAsync(id);
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = "Деактивирането е успешно.";
+                return RedirectToAction(nameof(Edit), new { id });
             }
             catch (InvalidOperationException ex)
             {

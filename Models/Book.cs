@@ -21,7 +21,6 @@ namespace ObreshkovLibrary.Models
 
         public string? CoverPath { get; set; }
 
-        [StringLength(120)]
         public string? SchoolClass { get; set; }
 
         [StringLength(1200)]

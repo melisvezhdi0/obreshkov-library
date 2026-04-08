@@ -2,9 +2,26 @@
 
 @{
     ViewData["Title"] = "Редактиране на книга";
+
+    string ResolveCoverUrl(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        return path.StartsWith("/")
+            ? Url.Content("~" + path)
+            : Url.Content("~/" + path.TrimStart('/'));
+    }
 }
 
 <div class="book-edit-page" style="width:100%; padding-top:6px;">
+
+    @if (TempData["Error"] != null)
+    {
+        <div style="margin-bottom:14px; padding:12px 14px; border-radius:12px; border:1px solid #F5C2C7; background:#FEF2F2; color:#B42318; font-weight:700;">
+            @TempData["Error"]
+        </div>
+    }
 
     <div style="margin-bottom:16px;">
         <h2 class="section-title mb-1">Редактиране на книга</h2>
@@ -28,6 +45,14 @@
             <input asp-for="CurrentCoverPath" type="hidden" />
             <input asp-for="Level1Id" type="hidden" id="Level1Hidden" />
             <input asp-for="Level2Id" type="hidden" id="Level2Hidden" />
+            <input asp-for="SchoolClass" type="hidden" id="SchoolClassValueHidden" />
+
+            <div id="selectedSchoolClassesHiddenInputs">
+                @foreach (var cls in Model.SelectedSchoolClasses)
+                {
+                    <input type="hidden" name="SelectedSchoolClasses" value="@cls" />
+                }
+            </div>
 
             <div id="selectedTagsHiddenInputs">
                 @foreach (var selectedTag in Model.SelectedTagValues)
@@ -87,11 +112,21 @@
                                 </div>
 
                                 <div style="display:flex; flex-direction:column;">
-                                    <label asp-for="SchoolClass" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Класове</label>
-                                    <input asp-for="SchoolClass"
-                                           class="form-control"
-                                           placeholder="например: 5, 6, 7 клас"
-                                           style="min-height:48px; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;" />
+                                    <label style="font-weight:800; color:#1F2937; margin-bottom:7px;">Класове</label>
+
+                                    <button type="button"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#classesPickerModal"
+                                            onmouseenter="this.style.background='#EFF6FF';this.style.borderColor='#60A5FA';this.style.transform='translateY(-1px)'"
+                                            onmouseleave="this.style.background='#FFFFFF';this.style.borderColor='#93C5FD';this.style.transform='translateY(0)'"
+                                            style="width:100%; min-height:48px; padding:0 14px; border-radius:13px; border:1px solid #CBD5E1; background:#FFFFFF; color:#2563EB; font-weight:800; text-align:center; transition:all .18s ease;">
+                                        Избери
+                                    </button>
+
+                                    <div style="color:#64748B; font-size:.95rem; margin-top:8px;">
+                                        Избрани: <span id="selectedClassesCount">0</span>
+                                    </div>
+
                                     <span asp-validation-for="SchoolClass" class="text-danger"></span>
                                 </div>
                             </div>
@@ -100,13 +135,10 @@
                         <div style="display:flex; flex-direction:column; margin-top:16px;">
                             <label asp-for="SearchKeywords" style="font-weight:800; color:#1F2937; margin-bottom:7px;">Съдържание / ключови думи</label>
                             <textarea asp-for="SearchKeywords"
-                                      rows="3"
+                                      rows="4"
                                       class="form-control"
                                       placeholder="например: Косачи; По жицата; На оня свят; разкази; сборник"
-                                      style="min-height:96px; resize:vertical; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;"></textarea>
-                            <div style="margin-top:7px; color:#64748B; font-size:.9rem;">
-                                Добави отделни разкази, алтернативни заглавия или ключови думи, по които книгата да излиза в търсачката.
-                            </div>
+                                      style="min-height:116px; resize:vertical; border-radius:13px; border:1px solid #CBD5E1; box-shadow:none; padding:12px 14px; background:#FFFFFF;"></textarea>
                             <span asp-validation-for="SearchKeywords" class="text-danger"></span>
                         </div>
 
@@ -136,7 +168,9 @@
                             <button type="button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#categoryPickerModal"
-                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                    onmouseenter="this.style.background='#EFF6FF';this.style.borderColor='#60A5FA';this.style.transform='translateY(-1px)'"
+                                    onmouseleave="this.style.background='#FFFFFF';this.style.borderColor='#93C5FD';this.style.transform='translateY(0)'"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; transition:all .18s ease;">
                                 Избери категория
                             </button>
                         </div>
@@ -158,7 +192,9 @@
                             <button type="button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#tagsPickerModal"
-                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800;">
+                                    onmouseenter="this.style.background='#EFF6FF';this.style.borderColor='#60A5FA';this.style.transform='translateY(-1px)'"
+                                    onmouseleave="this.style.background='#FFFFFF';this.style.borderColor='#93C5FD';this.style.transform='translateY(0)'"
+                                    style="min-width:150px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; transition:all .18s ease;">
                                 Избери етикети
                             </button>
                         </div>
@@ -168,13 +204,17 @@
                         <div style="display:flex; flex-wrap:wrap; gap:10px; padding-top:14px; border-top:1px solid #D9E2EC;"
                              class="book-edit-actions">
                             <button type="submit"
-                                    style="min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18);">
+                                    onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 12px 22px rgba(59,130,246,.22)'"
+                                    onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 18px rgba(59,130,246,.18)'"
+                                    style="min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800; box-shadow:0 8px 18px rgba(59,130,246,.18); transition:all .18s ease;">
                                 Запази
                             </button>
 
                             <a asp-action="Details"
                                asp-route-id="@ViewBag.BookId"
-                               style="display:inline-flex; align-items:center; justify-content:center; min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; text-decoration:none;">
+                               onmouseenter="this.style.background='#EFF6FF';this.style.borderColor='#60A5FA';this.style.transform='translateY(-1px)'"
+                               onmouseleave="this.style.background='#FFFFFF';this.style.borderColor='#93C5FD';this.style.transform='translateY(0)'"
+                               style="display:inline-flex; align-items:center; justify-content:center; min-width:148px; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #93C5FD; background:#FFFFFF; color:#2563EB; font-weight:800; text-decoration:none; transition:all .18s ease;">
                                 Назад
                             </a>
                         </div>
@@ -182,7 +222,6 @@
                 </div>
 
                 <aside style="min-width:0;" class="book-edit-side-panel">
-
                     <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px; margin-bottom:18px;">
                         <div style="font-size:.82rem; text-transform:uppercase; font-weight:800; letter-spacing:.04em; color:#6B7280; margin-bottom:14px;">
                             Корица
@@ -194,7 +233,7 @@
 
                             <div style="width:100%; padding:16px; background:#FFFFFF; border:1px solid #E2E8F0; border-radius:16px; display:flex; justify-content:center; align-items:center; min-height:280px;">
                                 <img id="coverPreviewImage"
-                                     src="@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")"
+                                     src="@ResolveCoverUrl(Model.CurrentCoverPath)"
                                      alt="Корица"
                                      style="@(string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? "display:none;" : "display:block;") max-width:100%; max-height:320px; border-radius:14px; object-fit:cover; border:1px solid #E2E8F0;" />
                                 <span id="coverPreviewEmpty"
@@ -219,6 +258,7 @@
                             Поддържани формати: JPG, PNG, WEBP
                         </div>
                     </div>
+
                     @if (ViewBag.IsBookActive == true)
                     {
                         <div style="background:#F9FBFD; border:1px solid #D9E2EC; border-radius:16px; padding:18px;">
@@ -238,7 +278,9 @@
                                 @Html.AntiForgeryToken()
 
                                 <button type="submit"
-                                        style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800;">
+                                        onmouseenter="this.style.background='#FEF2F2';this.style.transform='translateY(-1px)'"
+                                        onmouseleave="this.style.background='#FFFFFF';this.style.transform='translateY(0)'"
+                                        style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800; transition:all .18s ease;">
                                     Деактивирай заглавието
                                 </button>
                             </form>
@@ -300,6 +342,48 @@
                                 <button type="button"
                                         id="btnSaveCategory"
                                         style="min-height:44px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800;">
+                                    Запази
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="classesPickerModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-md modal-dialog-scrollable">
+                    <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
+                        <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
+                            <h5 class="modal-title">Класове</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div id="classesList" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 14px;">
+                                @for (int cls = 5; cls <= 12; cls++)
+                                {
+                                    var classText = $"{cls} клас";
+                                    var isChecked = Model.SelectedSchoolClasses != null && Model.SelectedSchoolClasses.Contains(classText);
+
+                                    <label class="class-item"
+                                           data-class-text="@classText.ToLowerInvariant()"
+                                           style="margin:0; padding:12px 14px; border:1px solid #E2E8F0; border-radius:12px; background:#F8FAFC; display:flex; align-items:center;">
+                                        <input class="class-checkbox"
+                                               type="checkbox"
+                                               value="@classText"
+                                               style="width:16px; height:16px;"
+                                               @(isChecked ? "checked" : "") />
+                                        <span style="margin-left:10px;">@classText</span>
+                                    </label>
+                                }
+                            </div>
+
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:18px;" class="book-edit-modal-actions">
+                                <button type="button"
+                                        id="btnSaveClasses"
+                                        onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 8px 16px rgba(59,130,246,.16)'"
+                                        onmouseleave="this.style.transform='translateY(0)';this.style.boxShadow='none'"
+                                        style="min-height:42px; padding:0 16px; border-radius:12px; border:1px solid #2563EB; background:linear-gradient(135deg, #2563EB, #3B82F6); color:#FFFFFF; font-weight:800; transition:all .18s ease;">
                                     Запази
                                 </button>
                             </div>
@@ -373,6 +457,13 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMessage = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"]?.ToString() ?? ""));
+            if (successMessage && typeof window.showAdminSuccessModal === 'function') {
+                window.showAdminSuccessModal(successMessage);
+            }
+        });
+
         const categoryModalEl = document.getElementById('categoryPickerModal');
         const tagsModalEl = document.getElementById('tagsPickerModal');
 
@@ -635,10 +726,73 @@
 
         renderCommittedTagsPreview();
 
+        const classesModalEl = document.getElementById('classesPickerModal');
+        const selectedClassesHiddenInputs = document.getElementById('selectedSchoolClassesHiddenInputs');
+        const selectedClassesCount = document.getElementById('selectedClassesCount');
+        const schoolClassValueHidden = document.getElementById('SchoolClassValueHidden');
+        const classCheckboxes = [...document.querySelectorAll('.class-checkbox')];
+        const btnSaveClasses = document.getElementById('btnSaveClasses');
+
+        let committedClassValues = classCheckboxes
+            .filter(x => x.checked)
+            .map(x => String(x.value));
+
+        function writeCommittedClassesToHiddenInputs() {
+            if (!selectedClassesHiddenInputs) return;
+
+            selectedClassesHiddenInputs.innerHTML = '';
+
+            committedClassValues.forEach(v => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedSchoolClasses';
+                input.value = v;
+                selectedClassesHiddenInputs.appendChild(input);
+            });
+
+            if (schoolClassValueHidden) {
+                schoolClassValueHidden.value = committedClassValues.join(', ');
+            }
+        }
+
+        function renderCommittedClassesPreview() {
+            if (selectedClassesCount) {
+                selectedClassesCount.textContent = String(committedClassValues.length);
+            }
+
+            writeCommittedClassesToHiddenInputs();
+        }
+
+        if (btnSaveClasses) {
+            btnSaveClasses.addEventListener('click', () => {
+                committedClassValues = classCheckboxes
+                    .filter(x => x.checked)
+                    .map(x => String(x.value))
+                    .sort((a, b) => parseInt(a) - parseInt(b));
+
+                renderCommittedClassesPreview();
+
+                const modalInstance = bootstrap.Modal.getInstance(classesModalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+            });
+        }
+
+        if (classesModalEl) {
+            classesModalEl.addEventListener('show.bs.modal', () => {
+                classCheckboxes.forEach(x => {
+                    x.checked = committedClassValues.includes(String(x.value));
+                });
+            });
+        }
+
+        renderCommittedClassesPreview();
+
         const coverInput = document.getElementById('coverFileInput');
         const coverPreviewImage = document.getElementById('coverPreviewImage');
         const coverPreviewEmpty = document.getElementById('coverPreviewEmpty');
-        const currentSrc = '@(!string.IsNullOrWhiteSpace(Model.CurrentCoverPath) ? Url.Content(Model.CurrentCoverPath) : "")';
+        const currentSrc = '@ResolveCoverUrl(Model.CurrentCoverPath)';
 
         if (coverInput) {
             coverInput.addEventListener('change', () => {

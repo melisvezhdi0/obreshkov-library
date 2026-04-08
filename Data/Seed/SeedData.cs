@@ -20,6 +20,8 @@ namespace ObreshkovLibrary.Data.Seed
             await CategorySeed.SeedCategoriesAsync(context);
             await ClientSeed.SeedClientsAsync(context);
             await BookSeed.SeedBooksAsync(context);
+            await SchoolNewsSeed.SeedSchoolNewsAsync(context);
+            await LoanSeed.SeedArchivedLoansAsync(context);
         }
     }
 }

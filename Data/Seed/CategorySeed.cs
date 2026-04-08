@@ -98,6 +98,56 @@ namespace ObreshkovLibrary.Data.Seed
             await AddChildIfMissing("Помагало", school.Id);
 
             await context.SaveChangesAsync();
+
+            var reference = await context.Categories
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Name == "Справочна литература" && c.ParentCategoryId == null);
+
+            if (reference == null)
+            {
+                reference = new Category
+                {
+                    Name = "Справочна литература",
+                    IsActive = false
+                };
+
+                context.Categories.Add(reference);
+                await context.SaveChangesAsync();
+            }
+            else if (reference.IsActive)
+            {
+                reference.IsActive = false;
+                await context.SaveChangesAsync();
+            }
+
+            async Task AddArchivedChildIfMissing(string name, int parentId)
+            {
+                var existing = await context.Categories
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(c => c.Name == name && c.ParentCategoryId == parentId);
+
+                if (existing == null)
+                {
+                    context.Categories.Add(new Category
+                    {
+                        Name = name,
+                        ParentCategoryId = parentId,
+                        IsActive = false
+                    });
+                }
+                else if (existing.IsActive)
+                {
+                    existing.IsActive = false;
+                }
+            }
+
+            await AddArchivedChildIfMissing("Енциклопедия", reference.Id);
+            await AddArchivedChildIfMissing("Атлас", reference.Id);
+            await AddArchivedChildIfMissing("Басня", children.Id);
+            await AddArchivedChildIfMissing("Биология", science.Id);
+            await AddArchivedChildIfMissing("Речник", school.Id);
+
+            await context.SaveChangesAsync();
         }
     }
 }

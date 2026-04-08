@@ -289,6 +289,184 @@ namespace ObreshkovLibrary.Data.Seed
                 context.BookCopies.AddRange(copies);
                 await context.SaveChangesAsync();
             }
+
+            await SeedArchivedBooksAsync(context,
+                novelCategory?.Id ?? 0,
+                storyCategory?.Id ?? 0,
+                fairyTaleCategory?.Id ?? 0,
+                psychologyCategory?.Id ?? 0,
+                textbookCategory?.Id ?? 0,
+                workbookCategory?.Id ?? 0);
+
+            await SeedArchivedCopiesAsync(context);
+        }
+
+        private static async Task SeedArchivedBooksAsync(
+            ObreshkovLibraryContext context,
+            int novelCategoryId,
+            int storyCategoryId,
+            int fairyTaleCategoryId,
+            int psychologyCategoryId,
+            int textbookCategoryId,
+            int workbookCategoryId)
+        {
+            var archivedBooks = new List<BookSeedItem>
+            {
+                new BookSeedItem
+                {
+                    Title = "Под игото - архив",
+                    Author = "Иван Вазов",
+                    Description = "Архивен тестов запис за роман от българската класика.",
+                    Year = 1894,
+                    CopiesCount = 2,
+                    SchoolClass = "11 клас",
+                    CategoryId = novelCategoryId,
+                    Tags = BookTags.BulgarianLiterature | BookTags.ClassicLiterature | BookTags.BulgarianAuthor | BookTags.ClassicalWork | BookTags.Prose,
+                    SearchKeywords = "архив; роман; Иван Вазов"
+                },
+                new BookSeedItem
+                {
+                    Title = "Старопланински легенди - архив",
+                    Author = "Йордан Йовков",
+                    Description = "Архивен тестов запис за сборник с разкази.",
+                    Year = 1927,
+                    CopiesCount = 2,
+                    SchoolClass = "10 клас",
+                    CategoryId = storyCategoryId,
+                    Tags = BookTags.BulgarianLiterature | BookTags.ClassicLiterature | BookTags.BulgarianAuthor | BookTags.Prose,
+                    SearchKeywords = "архив; разкази; Йовков"
+                },
+                new BookSeedItem
+                {
+                    Title = "Патиланско царство - архив",
+                    Author = "Ран Босилек",
+                    Description = "Архивен тестов запис за детска книга.",
+                    Year = 1948,
+                    CopiesCount = 1,
+                    SchoolClass = null,
+                    CategoryId = fairyTaleCategoryId,
+                    Tags = BookTags.BulgarianLiterature | BookTags.BulgarianAuthor | BookTags.RecommendedReading | BookTags.Prose,
+                    SearchKeywords = "архив; детска литература"
+                },
+                new BookSeedItem
+                {
+                    Title = "Основи на психологията - архив",
+                    Author = "Мария Петрова",
+                    Description = "Архивен тестов запис за научнопопулярно заглавие.",
+                    Year = 2019,
+                    CopiesCount = 1,
+                    SchoolClass = null,
+                    CategoryId = psychologyCategoryId,
+                    Tags = BookTags.Psychological | BookTags.EducationalContent | BookTags.Prose,
+                    SearchKeywords = "архив; психология"
+                },
+                new BookSeedItem
+                {
+                    Title = "История и цивилизации за 10. клас - архив",
+                    Author = "Анубис",
+                    Description = "Архивен тестов запис за учебник.",
+                    Year = 2022,
+                    CopiesCount = 2,
+                    SchoolClass = "10 клас",
+                    CategoryId = textbookCategoryId,
+                    Tags = BookTags.EducationalContent | BookTags.History | BookTags.Prose,
+                    SearchKeywords = "архив; учебник; история"
+                },
+                new BookSeedItem
+                {
+                    Title = "Литературни анализи за 12. клас - архив",
+                    Author = "Просвета",
+                    Description = "Архивен тестов запис за помагало по литература.",
+                    Year = 2023,
+                    CopiesCount = 2,
+                    SchoolClass = "12 клас",
+                    CategoryId = workbookCategoryId,
+                    Tags = BookTags.EducationalContent | BookTags.ForMatura | BookTags.BulgarianLanguage | BookTags.Prose,
+                    SearchKeywords = "архив; помагало; матура"
+                }
+            };
+
+            foreach (var seed in archivedBooks)
+            {
+                if (seed.CategoryId == 0)
+                    continue;
+
+                var existingBook = await context.Books
+                    .IgnoreQueryFilters()
+                    .Include(b => b.Copies)
+                    .FirstOrDefaultAsync(b => b.Title == seed.Title && b.Author == seed.Author);
+
+                if (existingBook != null)
+                    continue;
+
+                var book = new Book
+                {
+                    Title = seed.Title,
+                    Author = seed.Author,
+                    Description = seed.Description,
+                    Year = seed.Year,
+                    SchoolClass = seed.SchoolClass,
+                    CoverPath = seed.CoverPath,
+                    CategoryId = seed.CategoryId,
+                    Tags = seed.Tags,
+                    SearchKeywords = seed.SearchKeywords,
+                    CreatedOn = DateTime.Now.AddDays(-120),
+                    IsActive = false
+                };
+
+                context.Books.Add(book);
+                await context.SaveChangesAsync();
+
+                var copies = new List<BookCopy>();
+                for (int i = 0; i < seed.CopiesCount; i++)
+                {
+                    copies.Add(new BookCopy
+                    {
+                        BookId = book.Id,
+                        IsActive = false
+                    });
+                }
+
+                context.BookCopies.AddRange(copies);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task SeedArchivedCopiesAsync(ObreshkovLibraryContext context)
+        {
+            var targetTitles = new[]
+            {
+                "Ана Каренина",
+                "Железният светилник",
+                "Разкази",
+                "Изкуството да обичаш",
+                "Български език за 12. клас - задължителна подготовка"
+            };
+
+            foreach (var title in targetTitles)
+            {
+                var book = await context.Books
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(b => b.Title == title && b.IsActive);
+
+                if (book == null)
+                    continue;
+
+                bool hasInactiveCopy = await context.BookCopies
+                    .IgnoreQueryFilters()
+                    .AnyAsync(c => c.BookId == book.Id && !c.IsActive);
+
+                if (hasInactiveCopy)
+                    continue;
+
+                context.BookCopies.Add(new BookCopy
+                {
+                    BookId = book.Id,
+                    IsActive = false
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
 
         private class BookSeedItem

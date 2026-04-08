@@ -90,39 +90,38 @@
                         </span>
                     </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Достъп</span>
-                        <span class="detail-value">Ученик</span>
+                    <div class="details-info-row">
+                        <span class="details-label">Достъп</span>
+                        <span class="details-value">Ученик</span>
                     </div>
 
-                    <div class="detail-row">
-                        <span class="detail-label">Парола</span>
-                        <span class="detail-value">
+                    <div class="details-info-row">
+                        <span class="details-label">Парола</span>
+                        <span class="details-value">
                             @if (Model.PasswordChangedByStudent)
                             {
-                                <span style="color:#166534; font-weight:700;">Успешно сменена от ученика</span>
+                                <span class="status-badge status-active">Сменена</span>
                             }
                             else if (!string.IsNullOrWhiteSpace(Model.LastTemporaryPassword))
                             {
-                                <span style="display:inline-block; padding:6px 10px; background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; font-weight:800; letter-spacing:.03em;">
+                                <span style="display:inline-block; padding:6px 10px; background:#ffffff; border:1px solid #CBD5E1; border-radius:8px; font-weight:800; letter-spacing:.03em; color:#1F2937;">
                                     @Model.LastTemporaryPassword
                                 </span>
                             }
                             else
                             {
-                                <span style="color:#64748b;">Няма данни</span>
+                                <span style="color:#64748B;">Няма данни</span>
                             }
                         </span>
                     </div>
 
                     @if (Model.LastPasswordChangeOn != null)
                     {
-                        <div class="detail-row">
-                            <span class="detail-label">Последна смяна</span>
-                            <span class="detail-value">@Model.LastPasswordChangeOn.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                        <div class="details-info-row">
+                            <span class="details-label">Последна смяна</span>
+                            <span class="details-value">@Model.LastPasswordChangeOn.Value.ToString("dd.MM.yyyy HH:mm")</span>
                         </div>
                     }
-                </div>
 
                 <div class="details-panel-footer">
                     <a class="btn btn-outline-primary w-100"

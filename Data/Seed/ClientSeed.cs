@@ -66,6 +66,12 @@ namespace ObreshkovLibrary.Data.Seed
                 return phone;
             }
 
+            string GenerateTemporaryPassword(int grade, int index, bool isActive)
+            {
+                int baseNumber = isActive ? 100000 : 200000;
+                return (baseNumber + grade * 10 + index).ToString();
+            }
+
             Client CreateClient(int grade, int index, bool isActive, int createdDaysOffset)
             {
                 var first = firstNames[(grade * 10 + index) % firstNames.Length];
@@ -91,7 +97,10 @@ namespace ObreshkovLibrary.Data.Seed
                     Grade = grade,
                     Section = section,
                     IsActive = isActive,
-                    CreatedOn = DateTime.Now.AddDays(-createdDaysOffset)
+                    CreatedOn = DateTime.Now.AddDays(-createdDaysOffset),
+                    LastTemporaryPassword = GenerateTemporaryPassword(grade, index, isActive),
+                    PasswordChangedByStudent = false,
+                    LastPasswordChangeOn = null
                 };
             }
 

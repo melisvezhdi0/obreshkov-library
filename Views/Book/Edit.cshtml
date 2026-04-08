@@ -270,20 +270,13 @@
                                 Деактивирай заглавието, ако искаш да го скриеш от активните записи.
                             </div>
 
-                            <form asp-action="Deactivate"
-                                  asp-route-id="@ViewBag.BookId"
-                                  method="post"
-                                  data-gate="1"
-                                  style="margin:0;">
-                                @Html.AntiForgeryToken()
-
-                                <button type="submit"
-                                        onmouseenter="this.style.background='#FEF2F2';this.style.transform='translateY(-1px)'"
-                                        onmouseleave="this.style.background='#FFFFFF';this.style.transform='translateY(0)'"
-                                        style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800; transition:all .18s ease;">
-                                    Деактивирай заглавието
-                                </button>
-                            </form>
+                            <button type="submit"
+                                    form="deactivateBookForm"
+                                    onmouseenter="this.style.background='#FEF2F2';this.style.transform='translateY(-1px)'"
+                                    onmouseleave="this.style.background='#FFFFFF';this.style.transform='translateY(0)'"
+                                    style="width:100%; min-height:46px; padding:0 18px; border-radius:12px; border:1px solid #DC3545; background:#FFFFFF; color:#DC3545; font-weight:800; transition:all .18s ease;">
+                                Деактивирай заглавието
+                            </button>
                         </div>
                     }
                 </aside>
@@ -450,6 +443,18 @@
                 </div>
             </div>
         </form>
+
+        @if (ViewBag.IsBookActive == true)
+        {
+            <form id="deactivateBookForm"
+                  asp-action="Deactivate"
+                  asp-route-id="@ViewBag.BookId"
+                  method="post"
+                  data-gate="1"
+                  style="display:none;">
+                @Html.AntiForgeryToken()
+            </form>
+        }
     </section>
 </div>
 
@@ -457,10 +462,37 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+              document.addEventListener('DOMContentLoaded', function () {
             const successMessage = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"]?.ToString() ?? ""));
+            const booksIndexUrl = '@Url.Action("Index", "Book")';
+            const successBackdrop = document.getElementById('successModalBackdrop');
+            const successCloseBtn = document.getElementById('successModalCloseBtn');
+
             if (successMessage && typeof window.showAdminSuccessModal === 'function') {
                 window.showAdminSuccessModal(successMessage);
+
+                const redirectToBooksIndex = () => {
+                    window.location.href = booksIndexUrl;
+                };
+
+                if (successCloseBtn) {
+                    successCloseBtn.addEventListener('click', redirectToBooksIndex, { once: true });
+                }
+
+                if (successBackdrop) {
+                    successBackdrop.addEventListener('click', function (e) {
+                        if (e.target === successBackdrop) {
+                            redirectToBooksIndex();
+                        }
+                    }, { once: true });
+                }
+
+                document.addEventListener('keydown', function onSuccessEsc(e) {
+                    if (e.key === 'Escape') {
+                        redirectToBooksIndex();
+                        document.removeEventListener('keydown', onSuccessEsc);
+                    }
+                });
             }
         });
 

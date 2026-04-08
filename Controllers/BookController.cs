@@ -565,6 +565,7 @@ namespace ObreshkovLibrary.Controllers
             copy.IsActive = false;
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Копието беше деактивирано успешно.";
             return RedirectToAction(nameof(Details), new { id = copy.BookId });
         }
 
@@ -573,6 +574,7 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> ReactivateCopy(int id)
         {
             var copy = await _context.BookCopies
+                .IgnoreQueryFilters()
                 .Include(c => c.Book)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -582,6 +584,7 @@ namespace ObreshkovLibrary.Controllers
             copy.IsActive = true;
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Копието беше активирано успешно.";
             return RedirectToAction(nameof(Details), new { id = copy.BookId });
         }
 

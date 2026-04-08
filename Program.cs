@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Data.Seed;
-using ObreshkovLibrary.Services;
+using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary
@@ -31,19 +31,19 @@ namespace ObreshkovLibrary
                 .SetApplicationName("ObreshkovLibrary");
 
             builder.Services
-       .AddDefaultIdentity<IdentityUser>(options =>
-       {
-           options.SignIn.RequireConfirmedAccount = false;
-           options.User.RequireUniqueEmail = true;
+                .AddDefaultIdentity<ApplicationUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+                    options.User.RequireUniqueEmail = true;
 
-           options.Password.RequiredLength = 6;
-           options.Password.RequireUppercase = true;
-           options.Password.RequireLowercase = false;
-           options.Password.RequireDigit = true;
-           options.Password.RequireNonAlphanumeric = false;
-       })
-       .AddRoles<IdentityRole>()
-       .AddEntityFrameworkStores<ObreshkovLibraryContext>();
+                    options.Password.RequiredLength = 6;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireNonAlphanumeric = false;
+                })
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ObreshkovLibraryContext>();
 
             builder.Services.ConfigureApplicationCookie(options =>
             {
@@ -80,7 +80,6 @@ namespace ObreshkovLibrary
             });
 
             builder.Services.AddScoped<IStudentNotificationService, StudentNotificationService>();
-
 
             var app = builder.Build();
 
@@ -127,7 +126,9 @@ namespace ObreshkovLibrary
                     HttpMethods.IsPost(method) &&
                     (
                         path.StartsWithSegments("/Clients/Deactivate") ||
-                        path.StartsWithSegments("/Categories/Deactivate")
+                        path.StartsWithSegments("/Categories/Deactivate") ||
+                        path.StartsWithSegments("/Book/Deactivate") ||
+                        path.StartsWithSegments("/Book/Reactivate")
                     );
 
                 if (needsGate)

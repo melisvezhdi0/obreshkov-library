@@ -8,6 +8,7 @@
     var activeLoanCopyIds = ViewBag.ActiveLoanCopyIds as List<int> ?? new List<int>();
     var copies = Model.Copies?.OrderBy(c => c.Id).ToList() ?? new List<ObreshkovLibrary.Models.BookCopy>();
     var activeCopies = copies.Count(c => c.IsActive);
+    var inactiveCopies = copies.Count(c => !c.IsActive);
 
     var coverPathProp = Model.GetType().GetProperty("CoverPath");
     var coverUrlProp = Model.GetType().GetProperty("CoverUrl");
@@ -103,14 +104,18 @@
     </div>
 
     <section class="details-panel card-soft book-main-panel">
-        <div class="book-top-layout">
+        <div class="book-top-layout"
+             style="display:grid; grid-template-columns:240px minmax(0, 1fr); gap:28px; align-items:start;">
 
-            <div class="book-cover-column">
-                <div class="book-cover-box @(string.IsNullOrWhiteSpace(coverValue) ? "no-cover" : "")">
+            <div class="book-cover-column"
+                 style="width:240px; min-width:240px; max-width:240px; display:flex; flex-direction:column; align-self:start;">
+                <div class="book-cover-box @(string.IsNullOrWhiteSpace(coverValue) ? "no-cover" : "")"
+                     style="width:240px; min-height:340px; padding:14px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                     @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
                         <img src="@Url.Content("~/" + coverValue)"
                              alt="@Model.Title"
+                             style="display:block; width:100%; max-width:100%; height:310px; object-fit:contain;"
                              onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
                     }
                 </div>
@@ -153,16 +158,6 @@
                     </div>
 
                     <div class="book-info-row">
-                        <div class="book-info-label">Копия</div>
-                        <div class="book-info-value">@copies.Count</div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Активни копия</div>
-                        <div class="book-info-value">@activeCopies</div>
-                    </div>
-
-                    <div class="book-info-row">
                         <div class="book-info-label">Статус</div>
                         <div class="book-info-value">
                             @if (Model.IsActive)
@@ -176,36 +171,56 @@
                         </div>
                     </div>
 
-                    <div class="book-info-row">
-                        <div class="book-info-label">Ключови думи</div>
-                        <div class="book-info-value">
-                            @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
-                        </div>
-                    </div>
-
-                    <div class="book-info-row">
-                        <div class="book-info-label">Етикети</div>
-                        <div class="book-info-value">
-                            @if (tagNames.Any())
-                            {
-                                <div class="tags-inline-wrap">
-                                    @foreach (var tag in tagNames)
-                                    {
-                                        <span class="tag-chip">@tag</span>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <span>Няма</span>
-                            }
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
         </div>
+    </section>
+
+    <section class="details-panel card-soft">
+
+        <div class="details-panel-head">
+            <h5 class="section-title mb-0">Ключови думи и етикети</h5>
+        </div>
+
+        <div style="display:grid; grid-template-columns:220px minmax(0,1fr); border-top:1px solid #E2E8F0;">
+
+            <div style="padding:16px 18px; font-weight:700; color:#64748B; border-right:1px solid #E2E8F0;">
+                Ключови думи
+            </div>
+
+            <div style="padding:16px 18px; color:#0F172A; line-height:1.75;">
+                @(string.IsNullOrWhiteSpace(Model.SearchKeywords)
+                                ? "Не са добавени"
+                                : Model.SearchKeywords)
+            </div>
+
+        </div>
+
+        <div style="display:grid; grid-template-columns:220px minmax(0,1fr); border-top:1px solid #E2E8F0;">
+
+            <div style="padding:16px 18px; font-weight:700; color:#64748B; border-right:1px solid #E2E8F0;">
+                Етикети
+            </div>
+
+            <div style="padding:16px 18px;">
+                @if (tagNames.Any())
+                {
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        @foreach (var tag in tagNames)
+                        {
+                            <span class="tag-chip">@tag</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span style="color:#0F172A;">Няма</span>
+                }
+            </div>
+
+        </div>
+
     </section>
 
     <section class="details-panel card-soft book-description-panel">
@@ -228,7 +243,11 @@
     <section class="details-panel card-soft copies-panel">
         <div class="details-panel-head details-panel-head-flex">
             <h5 class="section-title mb-0">Копия</h5>
-            <span class="count-badge">@copies.Count</span>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span class="count-badge">@copies.Count</span>
+                <span class="status-badge status-active">Активни: @activeCopies</span>
+                <span class="status-badge status-inactive">Неактивни: @inactiveCopies</span>
+            </div>
         </div>
 
         @if (!copies.Any())
@@ -250,12 +269,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var copy in copies)
+                        @for (int i = 0; i < copies.Count; i++)
                         {
+                            var copy = copies[i];
                             var isLoaned = activeLoanCopyIds.Contains(copy.Id);
 
                             <tr>
-                                <td class="copy-id-cell">Копие #@copy.Id</td>
+                                <td class="copy-id-cell">Копие @(i + 1)</td>
 
                                 <td>
                                     @if (!copy.IsActive)

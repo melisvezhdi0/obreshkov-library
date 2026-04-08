@@ -31,7 +31,7 @@ namespace ObreshkovLibrary
                 .SetApplicationName("ObreshkovLibrary");
 
             builder.Services
-                .AddDefaultIdentity<ApplicationUser>(options =>
+                .AddDefaultIdentity<IdentityUser>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.User.RequireUniqueEmail = true;
@@ -127,8 +127,7 @@ namespace ObreshkovLibrary
                     (
                         path.StartsWithSegments("/Clients/Deactivate") ||
                         path.StartsWithSegments("/Categories/Deactivate") ||
-                        path.StartsWithSegments("/Book/Deactivate") ||
-                        path.StartsWithSegments("/Book/Reactivate")
+                        path.StartsWithSegments("/Book/Deactivate") 
                     );
 
                 if (needsGate)

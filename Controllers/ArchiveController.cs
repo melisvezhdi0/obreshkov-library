@@ -60,15 +60,17 @@ namespace ObreshkovLibrary.Controllers
                 .AsQueryable();
 
             var newsQ = _context.SchoolNews
+                .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(n => !n.IsActive)
                 .AsQueryable();
 
             var passwordRequestsQ = _context.PasswordResetRequests
-                .AsNoTracking()
-                .Include(r => r.Client)
-                .Where(r => r.IsCompleted)
-                .AsQueryable();
+               .IgnoreQueryFilters()
+               .AsNoTracking()
+               .Include(r => r.Client)
+               .Where(r => r.IsCompleted)
+               .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -376,10 +378,10 @@ namespace ObreshkovLibrary.Controllers
             search = (search ?? "").Trim();
 
             var q = _context.SchoolNews
-                .AsNoTracking()
-                .Where(n => !n.IsActive)
-                .AsQueryable();
-
+              .IgnoreQueryFilters()
+              .AsNoTracking()
+              .Where(n => !n.IsActive)
+              .AsQueryable();
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.ToLower();
@@ -404,6 +406,7 @@ namespace ObreshkovLibrary.Controllers
             search = (search ?? "").Trim();
 
             var q = _context.PasswordResetRequests
+                .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Include(r => r.Client)
                 .Where(r => r.IsCompleted)
@@ -445,7 +448,18 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
 
             book.IsActive = true;
+
+            var copies = await _context.BookCopies
+                .IgnoreQueryFilters()
+                .Where(c => c.BookId == id)
+                .ToListAsync();
+
+            foreach (var copy in copies)
+                copy.IsActive = true;
+
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Книгата беше възстановена успешно.";
 
             return RedirectToAction(nameof(Books));
         }
@@ -463,6 +477,8 @@ namespace ObreshkovLibrary.Controllers
 
             client.IsActive = true;
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Читателят беше възстановен успешно.";
 
             return RedirectToAction(nameof(Clients));
         }
@@ -498,6 +514,8 @@ namespace ObreshkovLibrary.Controllers
             category.IsActive = true;
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Категорията беше възстановена успешно.";
+
             return RedirectToAction(nameof(Categories));
         }
 
@@ -515,12 +533,15 @@ namespace ObreshkovLibrary.Controllers
 
             if (!copy.Book.IsActive)
             {
-                TempData["ArchiveError"] = "Първо възстанови книгата, към която принадлежи копието.";
+                TempData["ArchiveError"] = "Копието не може да бъде възстановено, защото книгата е архивирана.";
                 return RedirectToAction(nameof(Copies));
             }
 
             copy.IsActive = true;
+
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Копието беше възстановено успешно.";
 
             return RedirectToAction(nameof(Copies));
         }
@@ -557,12 +578,15 @@ namespace ObreshkovLibrary.Controllers
 
             if (hasOpenLoanForCopy)
             {
-                TempData["ArchiveError"] = "Това копие вече е заето и заемът не може да бъде върнат в активни.";
+                TempData["ArchiveError"] = "Това копие вече е заето.";
                 return RedirectToAction(nameof(Loans));
             }
 
             loan.ReturnDate = null;
+
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Заемът беше възстановен успешно.";
 
             return RedirectToAction(nameof(Loans));
         }
@@ -572,6 +596,7 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> RestoreSchoolNews(int id)
         {
             var news = await _context.SchoolNews
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(n => n.Id == id);
 
             if (news == null)
@@ -579,6 +604,8 @@ namespace ObreshkovLibrary.Controllers
 
             news.IsActive = true;
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Публикацията беше възстановена успешно.";
 
             return RedirectToAction(nameof(SchoolNews));
         }

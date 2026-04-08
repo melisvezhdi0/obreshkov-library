@@ -7,6 +7,13 @@
     var classes = ViewBag.AvailableClasses as List<string> ?? new List<string>();
 }
 
+@if (TempData["Success"] != null)
+{
+    <div style="margin-bottom:1rem; padding:12px 14px; border-radius:12px; border:1px solid #CBD5E1; background:#F8FAFC; color:#1E293B; font-weight:600;">
+        @TempData["Success"]
+    </div>
+}
+
 <div style="width:100%; padding-top:6px;">
 
     <div style="display:flex; align-items:end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">

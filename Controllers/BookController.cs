@@ -196,8 +196,6 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
-        [HttpGet]
         public async Task<IActionResult> Index(string? search, string? schoolClass, string? sort)
         {
             var query = _context.Books

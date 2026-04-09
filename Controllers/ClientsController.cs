@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -33,22 +35,20 @@ namespace ObreshkovLibrary.Controllers
             var clients = await _context.Clients
                 .Where(c => c.IsActive)
                 .ToListAsync();
-
             var availableClasses = clients
-                .Where(c => c.Grade.HasValue)
-                .Select(c =>
-                {
-                    var grade = c.Grade.Value.ToString();
-                    var section = (c.Section ?? "").Trim();
-
-                    return string.IsNullOrWhiteSpace(section)
-                        ? grade
-                        : $"{grade}{section}".Replace(" ", "").ToUpper();
-                })
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .OrderBy(x => x)
-                .ToList();
+     .Where(c => c.Grade.HasValue)
+     .Select(c => new
+     {
+         Grade = c.Grade.Value,
+         Section = (c.Section ?? "").Trim().ToUpper()
+     })
+     .Distinct()
+     .OrderBy(c => c.Grade)
+     .ThenBy(c => c.Section)
+     .Select(c => string.IsNullOrWhiteSpace(c.Section)
+         ? c.Grade.ToString()
+         : $"{c.Grade}{c.Section}")
+     .ToList();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {

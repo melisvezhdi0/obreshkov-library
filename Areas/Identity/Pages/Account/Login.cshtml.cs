@@ -1,6 +1,4 @@
-﻿#nullable disable
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,14 +28,14 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
         }
 
         [BindProperty]
-        public InputModel Input { get; set; }
+        public InputModel Input { get; set; } = new();
 
         public IList<AuthenticationScheme> ExternalLogins { get; set; } = new List<AuthenticationScheme>();
 
-        public string ReturnUrl { get; set; }
+        public string ReturnUrl { get; set; } = string.Empty;
 
         [TempData]
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
 
         public class InputModel
         {
@@ -49,16 +47,16 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
 
             [Required(ErrorMessage = "Полето за парола е задължително.")]
             [DataType(DataType.Password)]
-            public string Password { get; set; }
+            public string Password { get; set; } = string.Empty;
 
             [Display(Name = "Запомни ме")]
             public bool RememberMe { get; set; }
 
             [Required(ErrorMessage = "Избери роля.")]
-            public string SelectedRole { get; set; }
+            public string SelectedRole { get; set; } = "Student";
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string? returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
@@ -67,13 +65,13 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
 
             returnUrl ??= Url.Content("~/");
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            ReturnUrl = returnUrl;
+            ReturnUrl = returnUrl ?? string.Empty;
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            ReturnUrl = returnUrl;
+            ReturnUrl = returnUrl ?? string.Empty;
 
             _logger.LogInformation("RememberMe = {RememberMe}", Input.RememberMe);
 
@@ -127,14 +125,26 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                     return Page();
                 }
 
-                var normalizedCardNumber = Input.CardNumber.Trim().ToUpper();
+                var normalizedCardNumber = Input.CardNumber
+     .Trim()
+     .Replace(" ", "")
+     .ToUpper();
 
                 var client = await _context.Clients
-                    .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == normalizedCardNumber);
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(c =>
+                        c.CardNumber != null &&
+                        c.CardNumber.Replace(" ", "").ToUpper() == normalizedCardNumber);
 
                 if (client == null)
                 {
-                    ModelState.AddModelError(string.Empty, "Няма активен ученик с такава читателска карта.");
+                    ModelState.AddModelError(string.Empty, "Няма ученик с такава читателска карта.");
+                    return Page();
+                }
+
+                if (!client.IsActive)
+                {
+                    ModelState.AddModelError(string.Empty, "Този ученик е архивиран и не може да влиза в системата.");
                     return Page();
                 }
 

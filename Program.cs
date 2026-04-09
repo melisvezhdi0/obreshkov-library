@@ -37,7 +37,7 @@ namespace ObreshkovLibrary
                     options.User.RequireUniqueEmail = true;
 
                     options.Password.RequiredLength = 6;
-                    options.Password.RequireUppercase = true;
+                    options.Password.RequireUppercase = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireDigit = true;
                     options.Password.RequireNonAlphanumeric = false;

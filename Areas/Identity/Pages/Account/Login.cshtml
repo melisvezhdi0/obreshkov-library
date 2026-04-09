@@ -3,6 +3,7 @@
 
 @{
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
+    ViewData["Title"] = "Вход в системата";
     var selectedRole = Model.Input?.SelectedRole ?? "Student";
 }
 
@@ -52,7 +53,7 @@
 
                             <input asp-for="Input.CardNumber"
                                    id="studentCardNumberInput"
-                                   placeholder="Напр. 766399"
+                                   placeholder="Номер на читателска карта"
                                    autocomplete="username"
                                    style="width:100%; height:46px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#ffffff; box-sizing:border-box; outline:none; transition:border .18s ease, box-shadow .18s ease;" />
 
@@ -68,7 +69,7 @@
 
                             <input asp-for="Input.Email"
                                    id="adminEmailInput"
-                                   placeholder="admin@obreshkov.bg"
+                                   placeholder="Имейл"
                                    autocomplete="username"
                                    style="width:100%; height:46px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#ffffff; box-sizing:border-box; outline:none; transition:border .18s ease, box-shadow .18s ease;" />
 
@@ -82,6 +83,7 @@
                         </label>
 
                         <input asp-for="Input.Password"
+                               id="passwordInput"
                                autocomplete="current-password"
                                placeholder="Парола"
                                style="width:100%; height:46px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#ffffff; box-sizing:border-box; outline:none; transition:border .18s ease, box-shadow .18s ease;" />
@@ -127,6 +129,9 @@
         const studentFields = document.getElementById('studentFields');
         const adminFields = document.getElementById('adminFields');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const studentCardNumberInput = document.getElementById('studentCardNumberInput');
+        const adminEmailInput = document.getElementById('adminEmailInput');
+        const passwordInput = document.getElementById('passwordInput');
 
         function setRole(role) {
             selectedRoleInput.value = role;
@@ -145,6 +150,12 @@
                 adminRoleBtn.style.fontWeight = '700';
                 adminRoleBtn.style.borderBottom = '3px solid transparent';
 
+                if (adminEmailInput) adminEmailInput.value = '';
+                if (studentCardNumberInput) {
+                    studentCardNumberInput.placeholder = 'Номер на читателска карта';
+                    studentCardNumberInput.focus();
+                }
+
                 forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Student';
             } else {
                 studentFields.style.display = 'none';
@@ -160,8 +171,16 @@
                 studentRoleBtn.style.fontWeight = '700';
                 studentRoleBtn.style.borderBottom = '3px solid transparent';
 
+                if (studentCardNumberInput) studentCardNumberInput.value = '';
+                if (adminEmailInput) {
+                    adminEmailInput.placeholder = 'Имейл';
+                    adminEmailInput.focus();
+                }
+
                 forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Admin';
             }
+
+            if (passwordInput) passwordInput.value = '';
         }
 
         studentRoleBtn.addEventListener('click', () => setRole('Student'));

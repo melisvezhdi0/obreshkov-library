@@ -284,7 +284,6 @@ namespace ObreshkovLibrary.Controllers
 
             var isStudent = User.Identity?.IsAuthenticated == true && User.IsInRole("Student");
             var isFavorite = false;
-            var hasAvailabilityRequest = false;
 
             if (isStudent)
             {
@@ -304,10 +303,6 @@ namespace ObreshkovLibrary.Controllers
                         isFavorite = await _context.ClientFavoriteBooks
                             .AsNoTracking()
                             .AnyAsync(f => f.ClientId == clientId.Value && f.BookId == book.Id);
-
-                        hasAvailabilityRequest = await _context.BookAvailabilityRequests
-                            .AsNoTracking()
-                            .AnyAsync(r => r.ClientId == clientId.Value && r.BookId == book.Id && r.IsActive);
                     }
                 }
             }
@@ -317,7 +312,6 @@ namespace ObreshkovLibrary.Controllers
             ViewBag.SimilarBooks = similarBooks;
             ViewBag.IsStudent = isStudent;
             ViewBag.IsFavorite = isFavorite;
-            ViewBag.HasAvailabilityRequest = hasAvailabilityRequest;
         }
 
         private static List<BookTags> GetTagValues(BookTags tags)

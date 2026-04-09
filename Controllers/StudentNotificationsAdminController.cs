@@ -47,14 +47,5 @@ namespace ObreshkovLibrary.Controllers
             TempData["SuccessMessage"] = "Проверката за напомнянията е изпълнена.";
             return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RunAvailabilityNotifications()
-        {
-            await _notificationService.ProcessAvailabilityNotificationsAsync();
-            TempData["SuccessMessage"] = "Проверката за налични книги е изпълнена.";
-            return RedirectToAction(nameof(Index));
-        }
     }
 }

@@ -21,9 +21,7 @@ namespace ObreshkovLibrary.Data
 
         public DbSet<ClientFavoriteBook> ClientFavoriteBooks { get; set; } = null!;
         public DbSet<LoanPersonalNote> LoanPersonalNotes { get; set; } = null!;
-        public DbSet<BookAvailabilityRequest> BookAvailabilityRequests { get; set; } = null!;
         public DbSet<StudentNotification> StudentNotifications { get; set; } = null!;
-        public DbSet<LoanExtensionRequest> LoanExtensionRequests { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -82,21 +80,6 @@ namespace ObreshkovLibrary.Data
                 .HasForeignKey(x => x.LoanId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<BookAvailabilityRequest>()
-                .HasOne(x => x.Client)
-                .WithMany(x => x.AvailabilityRequests)
-                .HasForeignKey(x => x.ClientId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<BookAvailabilityRequest>()
-                .HasOne(x => x.Book)
-                .WithMany(x => x.AvailabilityRequests)
-                .HasForeignKey(x => x.BookId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<BookAvailabilityRequest>()
-                .HasIndex(x => new { x.ClientId, x.BookId, x.IsActive });
-
             modelBuilder.Entity<StudentNotification>()
                 .HasOne(x => x.Client)
                 .WithMany(x => x.Notifications)
@@ -114,16 +97,6 @@ namespace ObreshkovLibrary.Data
                 .WithMany()
                 .HasForeignKey(x => x.LoanId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<LoanExtensionRequest>()
-                .HasOne(x => x.Loan)
-                .WithMany(x => x.ExtensionRequests)
-                .HasForeignKey(x => x.LoanId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<LoanExtensionRequest>()
-                .HasIndex(x => x.LoanId)
-                .IsUnique();
 
             modelBuilder.Entity<Client>()
                 .HasQueryFilter(x => x.IsActive);

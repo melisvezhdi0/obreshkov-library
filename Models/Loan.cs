@@ -32,6 +32,5 @@ namespace ObreshkovLibrary.Models
 
         public ICollection<LoanPersonalNote> PersonalNotes { get; set; } = new List<LoanPersonalNote>();
 
-        public ICollection<LoanExtensionRequest> ExtensionRequests { get; set; } = new List<LoanExtensionRequest>();
     }
 }

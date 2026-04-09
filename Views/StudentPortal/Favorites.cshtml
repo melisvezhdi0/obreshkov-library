@@ -59,18 +59,6 @@
                             Премахни от любими
                         </button>
                     </form>
-
-                    @if (!item.IsAvailable)
-                    {
-                        <form asp-action="RequestAvailabilityNotification" method="post" class="mt-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="bookId" value="@item.BookId" />
-                            <input type="hidden" name="returnUrl" value="@returnUrl" />
-                            <button type="submit" class="btn btn-primary w-100">
-                                Уведоми ме при наличност
-                            </button>
-                        </form>
-                    }
                 </div>
             }
         </div>

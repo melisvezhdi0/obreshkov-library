@@ -15,14 +15,10 @@ namespace ObreshkovLibrary.Controllers
     public class LoansController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
-        private readonly IStudentNotificationService _notificationService;
 
-        public LoansController(
-            ObreshkovLibraryContext context,
-            IStudentNotificationService notificationService)
+        public LoansController(ObreshkovLibraryContext context)
         {
             _context = context;
-            _notificationService = notificationService;
         }
 
         public IActionResult Index()
@@ -221,7 +217,6 @@ namespace ObreshkovLibrary.Controllers
                 loan.ReturnDate = DateTime.Now;
                 await _context.SaveChangesAsync();
 
-                await _notificationService.ProcessAvailabilityNotificationsAsync();
 
                 TempData["SuccessMessage"] = "Успешно върната книга.";
             }

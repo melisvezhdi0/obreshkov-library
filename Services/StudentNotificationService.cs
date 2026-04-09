@@ -112,52 +112,6 @@ namespace ObreshkovLibrary.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task ProcessAvailabilityNotificationsAsync()
-        {
-            var activeRequests = await _context.BookAvailabilityRequests
-                .Include(r => r.Book)
-                    .ThenInclude(b => b.Copies)
-                .Include(r => r.Client)
-                .Where(r => r.IsActive)
-                .ToListAsync();
-
-            foreach (var request in activeRequests)
-            {
-                var availableCopyIds = request.Book.Copies
-                    .Where(c => c.IsActive)
-                    .Select(c => c.Id)
-                    .ToList();
-
-                if (!availableCopyIds.Any())
-                    continue;
-
-                var activeLoanCopyIds = await _context.Loans
-                    .Where(l => availableCopyIds.Contains(l.BookCopyId) && l.ReturnDate == null)
-                    .Select(l => l.BookCopyId)
-                    .ToListAsync();
-
-                var isAvailable = request.Book.Copies
-                    .Any(c => c.IsActive && !activeLoanCopyIds.Contains(c.Id));
-
-                if (!isAvailable)
-                    continue;
-
-                await CreateNotificationAsync(
-                    request.ClientId,
-                    $"Книгата е налична: {request.Book.Title}",
-                    $"Книгата „{request.Book.Title}“ вече е налична в библиотеката.",
-                    StudentNotificationType.Availability,
-                    request.BookId,
-                    null);
-
-                request.IsActive = false;
-                request.NotifiedOn = DateTime.Now;
-                request.DeactivatedOn = DateTime.Now;
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
         public async Task NotifyForNewBookAsync(Book book)
         {
             var clients = await _context.Clients

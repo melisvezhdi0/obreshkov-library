@@ -10,7 +10,6 @@
     var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
     var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
     var isFavorite = (ViewBag.IsFavorite as bool?) ?? false;
-    var hasAvailabilityRequest = (ViewBag.HasAvailabilityRequest as bool?) ?? false;
     var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 
     string categoryName = "Няма категория";
@@ -200,31 +199,6 @@
                                     </button>
                                 }
                             </form>
-
-                            @if (!isAvailable)
-                            {
-                                @if (hasAvailabilityRequest)
-                                {
-                                    <div style="display:flex; align-items:center; min-height:42px; padding:0 14px; border-radius:10px; background:#eff6ff; border:1px solid #cfe0fb; color:#1d4ed8; font-size:.92rem; font-weight:800;">
-                                        Ще получиш съобщение, когато книгата стане налична.
-                                    </div>
-                                }
-                                else
-                                {
-                                    <form asp-controller="StudentPortal" asp-action="RequestAvailabilityNotification" method="post" style="margin:0;">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="bookId" value="@Model.Id" />
-                                        <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
-
-                                        <button type="submit"
-                                                style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; font-weight:800; cursor:pointer;"
-                                                onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
-                                                onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
-                                            Уведоми ме, когато е налична
-                                        </button>
-                                    </form>
-                                }
-                            }
                         </div>
                     </section>
                 </div>

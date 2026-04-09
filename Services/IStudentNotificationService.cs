@@ -13,7 +13,6 @@ namespace ObreshkovLibrary.Services
             int? loanId = null);
 
         Task ProcessLoanDueRemindersAsync();
-        Task ProcessAvailabilityNotificationsAsync();
         Task NotifyForNewBookAsync(Book book);
         Task SendAdminNotificationToAllAsync(string title, string message);
     }

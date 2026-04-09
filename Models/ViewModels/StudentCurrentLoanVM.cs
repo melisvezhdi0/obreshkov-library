@@ -1,6 +1,4 @@
-﻿using ObreshkovLibrary.Models;
-
-namespace ObreshkovLibrary.Models.ViewModels
+﻿namespace ObreshkovLibrary.Models.ViewModels
 {
     public class StudentCurrentLoanVM
     {
@@ -18,9 +16,5 @@ namespace ObreshkovLibrary.Models.ViewModels
         public bool IsExtended { get; set; }
 
         public string CurrentNote { get; set; } = string.Empty;
-
-        public bool CanRequestExtension { get; set; }
-        public bool HasExtensionRequest { get; set; }
-        public LoanExtensionRequestStatus? ExtensionRequestStatus { get; set; }
     }
 }

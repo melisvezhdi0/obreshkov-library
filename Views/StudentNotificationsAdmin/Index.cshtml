@@ -51,13 +51,6 @@
                             Стартирай напомняния за връщане
                         </button>
                     </form>
-
-                    <form asp-action="RunAvailabilityNotifications" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-outline-success w-100">
-                            Провери наличните книги
-                        </button>
-                    </form>
                 </div>
             </div>
 
@@ -65,7 +58,7 @@
                 <div class="card-body">
                     <div class="fw-bold mb-2">Какво правят бутоните?</div>
                     <div class="text-muted small">
-                        Първият проверява всички активни заеми и създава съобщения за 7 дни, 3 дни, утре и просрочия през 3 дни. Вторият проверява книгите, за които учениците чакат известяване при наличност.
+                        Бутонът проверява всички активни заеми и създава съобщения за 7 дни, 3 дни, утре и просрочия през 3 дни.
                     </div>
                 </div>
             </div>

@@ -181,24 +181,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
         private async Task SignInUserExplicitlyAsync(IdentityUser user, bool rememberMe)
         {
             await _signInManager.SignOutAsync();
-
-            var principal = await _signInManager.CreateUserPrincipalAsync(user);
-
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = rememberMe,
-                AllowRefresh = true
-            };
-
-            if (rememberMe)
-            {
-                authProperties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(14);
-            }
-
-            await HttpContext.SignInAsync(
-                IdentityConstants.ApplicationScheme,
-                principal,
-                authProperties);
+            await _signInManager.SignInAsync(user, isPersistent: rememberMe);
         }
     }
 }

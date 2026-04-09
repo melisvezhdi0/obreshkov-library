@@ -94,7 +94,7 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap;">
                         <label asp-for="Input.RememberMe"
                                style="display:flex; align-items:center; gap:8px; color:#475569; font-weight:600; margin:0;">
-                            <input asp-for="Input.RememberMe" style="accent-color:#2563eb;" />
+                            <input asp-for="Input.RememberMe" id="rememberMeInput" style="accent-color:#2563eb;" />
                             <span>Запомни ме</span>
                         </label>
 
@@ -131,7 +131,7 @@
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
         const studentCardNumberInput = document.getElementById('studentCardNumberInput');
         const adminEmailInput = document.getElementById('adminEmailInput');
-        const passwordInput = document.getElementById('passwordInput');
+        const rememberMeInput = document.getElementById('rememberMeInput');
 
         function setRole(role) {
             selectedRoleInput.value = role;
@@ -150,10 +150,8 @@
                 adminRoleBtn.style.fontWeight = '700';
                 adminRoleBtn.style.borderBottom = '3px solid transparent';
 
-                if (adminEmailInput) adminEmailInput.value = '';
                 if (studentCardNumberInput) {
                     studentCardNumberInput.placeholder = 'Номер на читателска карта';
-                    studentCardNumberInput.focus();
                 }
 
                 forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Student';
@@ -171,22 +169,16 @@
                 studentRoleBtn.style.fontWeight = '700';
                 studentRoleBtn.style.borderBottom = '3px solid transparent';
 
-                if (studentCardNumberInput) studentCardNumberInput.value = '';
                 if (adminEmailInput) {
                     adminEmailInput.placeholder = 'Имейл';
-                    adminEmailInput.focus();
                 }
 
                 forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Admin';
             }
-
-            if (passwordInput) passwordInput.value = '';
         }
 
         studentRoleBtn.addEventListener('click', () => setRole('Student'));
         adminRoleBtn.addEventListener('click', () => setRole('Admin'));
-
-        setRole('@selectedRole');
     </script>
 
     <script>
@@ -233,6 +225,76 @@
                 loginButton.addEventListener('mouseout', function () {
                     this.style.transform = 'translateY(0)';
                     this.style.boxShadow = '0 6px 16px rgba(37,99,235,.25)';
+                });
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('account');
+
+            const rememberSaved = localStorage.getItem('loginRememberMe') === 'true';
+            const savedRole = localStorage.getItem('loginRole');
+            const savedStudentCard = localStorage.getItem('savedStudentCard');
+            const savedAdminEmail = localStorage.getItem('savedAdminEmail');
+
+            if (rememberMeInput) {
+                rememberMeInput.checked = rememberSaved;
+            }
+
+            const initialRole =
+                rememberSaved && (savedRole === 'Admin' || savedRole === 'Student')
+                    ? savedRole
+                    : '@selectedRole';
+
+            setRole(initialRole);
+
+            if (rememberSaved) {
+                if (initialRole === 'Student') {
+                    if (studentCardNumberInput && savedStudentCard) {
+                        studentCardNumberInput.value = savedStudentCard;
+                    }
+                    if (adminEmailInput) {
+                        adminEmailInput.value = '';
+                    }
+                } else {
+                    if (adminEmailInput && savedAdminEmail) {
+                        adminEmailInput.value = savedAdminEmail;
+                    }
+                    if (studentCardNumberInput) {
+                        studentCardNumberInput.value = '';
+                    }
+                }
+            } else {
+                if (studentCardNumberInput) studentCardNumberInput.value = '';
+                if (adminEmailInput) adminEmailInput.value = '';
+            }
+
+            if (form) {
+                form.addEventListener('submit', function () {
+                    const currentRole = selectedRoleInput ? selectedRoleInput.value : 'Student';
+                    const remember = rememberMeInput ? rememberMeInput.checked : false;
+
+                    if (remember) {
+                        localStorage.setItem('loginRememberMe', 'true');
+                        localStorage.setItem('loginRole', currentRole);
+
+                        if (currentRole === 'Student' && studentCardNumberInput) {
+                            localStorage.setItem('savedStudentCard', studentCardNumberInput.value.trim());
+                            localStorage.removeItem('savedAdminEmail');
+                        }
+
+                        if (currentRole === 'Admin' && adminEmailInput) {
+                            localStorage.setItem('savedAdminEmail', adminEmailInput.value.trim());
+                            localStorage.removeItem('savedStudentCard');
+                        }
+                    } else {
+                        localStorage.removeItem('loginRememberMe');
+                        localStorage.removeItem('loginRole');
+                        localStorage.removeItem('savedStudentCard');
+                        localStorage.removeItem('savedAdminEmail');
+                    }
                 });
             }
         });

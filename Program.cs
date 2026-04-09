@@ -29,7 +29,7 @@ namespace ObreshkovLibrary
                 .AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
                 .SetApplicationName("ObreshkovLibrary");
-
+ 
             builder.Services
                 .AddDefaultIdentity<IdentityUser>(options =>
                 {

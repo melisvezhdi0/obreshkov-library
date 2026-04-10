@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ObreshkovLibrary.Models
 {
@@ -13,6 +12,6 @@ namespace ObreshkovLibrary.Models
         public int BookId { get; set; }
         public Book Book { get; set; } = null!;
 
-        public DateTime CreatedOn { get; set; } = DateTime.Now;
+        public DateTime CreatedOn { get; set; } = DateTime.UtcNow;
     }
 }

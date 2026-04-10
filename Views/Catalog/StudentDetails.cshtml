@@ -9,7 +9,7 @@
     var isAvailable = (ViewBag.IsAvailable as bool?) ?? false;
     var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
     var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
-    var isFavorite = (ViewBag.IsFavorite as bool?) ?? false;
+    var isInReadingList = (ViewBag.IsFavorite as bool?) ?? false;
     var currentReturnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 
     string categoryName = "Няма категория";
@@ -170,34 +170,47 @@
 
                     <section style="border:1px solid #d8e1eb; border-radius:18px; background:#ffffff; padding:18px;">
                         <h3 style="margin:0 0 14px 0; color:#17325c; font-size:1.06rem; font-weight:900;">
-                            Опции за ученик
+                            Списък за четене
                         </h3>
 
                         <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-
                             <form asp-controller="StudentPortal" asp-action="ToggleFavorite" method="post" style="margin:0;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="bookId" value="@Model.Id" />
                                 <input type="hidden" name="returnUrl" value="@currentReturnUrl" />
 
-                                @if (isFavorite)
-                                {
-                                    <button type="submit"
-                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #f1b8b8; background:#fff5f5; color:#c81e1e; font-weight:800; cursor:pointer;"
-                                            onmouseover="this.style.background='#feecec';"
-                                            onmouseout="this.style.background='#fff5f5';">
-                                        Премахни от любими
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button type="submit"
-                                            style="display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 16px; border-radius:10px; border:1px solid #2563eb; background:#2563eb; color:#ffffff; font-weight:800; cursor:pointer;"
-                                            onmouseover="this.style.background='#1d4ed8'; this.style.borderColor='#1d4ed8';"
-                                            onmouseout="this.style.background='#2563eb'; this.style.borderColor='#2563eb';">
-                                        Добави в любими
-                                    </button>
-                                }
+                                <button type="submit"
+                                        title="@(isInReadingList ? "Премахни от списъка за четене" : "Добави в списъка за четене")"
+                                        aria-label="@(isInReadingList ? "Премахни от списъка за четене" : "Добави в списъка за четене")"
+                                        style="display:inline-flex; align-items:center; gap:10px; min-height:46px; padding:0 16px; border-radius:12px; border:1px solid @(isInReadingList ? "#f3b2b2" : "#d7e3f4"); background:@(isInReadingList ? "#fff1f1" : "#f8fbff"); color:@(isInReadingList ? "#c81e1e" : "#17325c"); font-weight:800; cursor:pointer; transition:all .18s ease; box-shadow:0 4px 14px rgba(15,23,42,0.04);"
+                                        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 10px 24px rgba(15,23,42,0.08)';"
+                                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 14px rgba(15,23,42,0.04)';">
+
+                                    @if (isInReadingList)
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             width="18"
+                                             height="18"
+                                             viewBox="0 0 16 16"
+                                             fill="currentColor"
+                                             style="display:block; flex:0 0 auto;">
+                                            <path d="M2 2a2 2 0 0 1 2-2h7a1 1 0 0 1 1 1v13l-4-2-4 2V2z" />
+                                        </svg>
+                                        <span>В списъка за четене</span>
+                                    }
+                                    else
+                                    {
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             width="18"
+                                             height="18"
+                                             viewBox="0 0 16 16"
+                                             fill="currentColor"
+                                             style="display:block; flex:0 0 auto;">
+                                            <path d="M2 1.5A1.5 1.5 0 0 1 3.5 0h7A1.5 1.5 0 0 1 12 1.5V14l-5-2.5L2 14V1.5zM3.5 1a.5.5 0 0 0-.5.5v10.691l4-2 4 2V1.5a.5.5 0 0 0-.5-.5h-7z" />
+                                        </svg>
+                                        <span>Добави в списъка за четене</span>
+                                    }
+                                </button>
                             </form>
                         </div>
                     </section>

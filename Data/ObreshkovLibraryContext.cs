@@ -15,19 +15,19 @@ namespace ObreshkovLibrary.Data
         public DbSet<BookCopy> BookCopies { get; set; } = null!;
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
-        public DbSet<Client> Clients { get; set; } = null!;
+        public DbSet<Reader> readers { get; set; } = null!;
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
         public DbSet<SchoolNews> SchoolNews { get; set; } = null!;
 
-        public DbSet<ClientFavoriteBook> ClientFavoriteBooks { get; set; } = null!;
+        public DbSet<ReaderFavoriteBook> readerFavoriteBooks { get; set; } = null!;
         public DbSet<LoanPersonalNote> LoanPersonalNotes { get; set; } = null!;
-        public DbSet<StudentNotification> StudentNotifications { get; set; } = null!;
+        public DbSet<ReaderNotification> ReaderNotifications { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Client>()
+            modelBuilder.Entity<Reader>()
                 .HasIndex(c => c.CardNumber)
                 .IsUnique();
 
@@ -47,9 +47,9 @@ namespace ObreshkovLibrary.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PasswordResetRequest>()
-                .HasOne(r => r.Client)
+                .HasOne(r => r.reader)
                 .WithMany()
-                .HasForeignKey(r => r.ClientId)
+                .HasForeignKey(r => r.readerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Category>()
@@ -58,20 +58,20 @@ namespace ObreshkovLibrary.Data
                 .HasForeignKey(c => c.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ClientFavoriteBook>()
-                .HasOne(x => x.Client)
+            modelBuilder.Entity<ReaderFavoriteBook>()
+                .HasOne(x => x.reader)
                 .WithMany(x => x.FavoriteBooks)
-                .HasForeignKey(x => x.ClientId)
+                .HasForeignKey(x => x.readerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ClientFavoriteBook>()
+            modelBuilder.Entity<ReaderFavoriteBook>()
                 .HasOne(x => x.Book)
-                .WithMany(x => x.FavoritedByClients)
+                .WithMany(x => x.FavoritedByreaders)
                 .HasForeignKey(x => x.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<ClientFavoriteBook>()
-                .HasIndex(x => new { x.ClientId, x.BookId })
+            modelBuilder.Entity<ReaderFavoriteBook>()
+                .HasIndex(x => new { x.readerId, x.BookId })
                 .IsUnique();
 
             modelBuilder.Entity<LoanPersonalNote>()
@@ -80,25 +80,25 @@ namespace ObreshkovLibrary.Data
                 .HasForeignKey(x => x.LoanId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<StudentNotification>()
-                .HasOne(x => x.Client)
+            modelBuilder.Entity<ReaderNotification>()
+                .HasOne(x => x.Reader)
                 .WithMany(x => x.Notifications)
-                .HasForeignKey(x => x.ClientId)
+                .HasForeignKey(x => x.ReaderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<StudentNotification>()
+            modelBuilder.Entity<ReaderNotification>()
                 .HasOne(x => x.Book)
                 .WithMany(x => x.Notifications)
                 .HasForeignKey(x => x.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<StudentNotification>()
+            modelBuilder.Entity<ReaderNotification>()
                 .HasOne(x => x.Loan)
                 .WithMany()
                 .HasForeignKey(x => x.LoanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Client>()
+            modelBuilder.Entity<Reader>()
                 .HasQueryFilter(x => x.IsActive);
 
             modelBuilder.Entity<Book>()
@@ -111,10 +111,10 @@ namespace ObreshkovLibrary.Data
                 .HasQueryFilter(x => x.IsActive && x.Book.IsActive);
 
             modelBuilder.Entity<Loan>()
-                .HasQueryFilter(x => x.Client.IsActive && x.BookCopy.IsActive && x.BookCopy.Book.IsActive);
+                .HasQueryFilter(x => x.reader.IsActive && x.BookCopy.IsActive && x.BookCopy.Book.IsActive);
 
             modelBuilder.Entity<PasswordResetRequest>()
-                .HasQueryFilter(x => x.Client != null && x.Client.IsActive);
+                .HasQueryFilter(x => x.reader != null && x.reader.IsActive);
         }
     }
 }

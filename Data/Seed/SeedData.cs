@@ -18,7 +18,7 @@ namespace ObreshkovLibrary.Data.Seed
             await RoleSeed.SeedRolesAsync(roleManager);
             await AdminUserSeed.SeedAdminAsync(userManager, roleManager);
             await CategorySeed.SeedCategoriesAsync(context);
-            await ClientSeed.SeedClientsAsync(context, userManager);
+            await readerSeed.SeedreadersAsync(context, userManager);
             await BookSeed.SeedBooksAsync(context);
         }
     }

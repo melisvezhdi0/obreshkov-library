@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.Enums;
 
 namespace ObreshkovLibrary.Data.Seed
 {

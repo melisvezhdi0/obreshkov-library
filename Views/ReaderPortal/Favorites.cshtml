@@ -1,0 +1,175 @@
+﻿@model IEnumerable<ObreshkovLibrary.Models.ViewModels.ReaderFavoriteBookVM>
+
+@{
+    Layout = "~/Views/Shared/_ReaderLayout.cshtml";
+    ViewData["Title"] = "Списък за четене";
+
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+    var sort = Context.Request.Query["sort"].ToString();
+
+    string ResolveCoverUrl(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        return path.StartsWith("/")
+            ? Url.Content("~" + path)
+            : Url.Content("~/" + path.TrimStart('/'));
+    }
+
+    var items = Model ?? Enumerable.Empty<ObreshkovLibrary.Models.ViewModels.ReaderFavoriteBookVM>();
+
+    items = sort switch
+    {
+        "name_desc" => items.OrderByDescending(x => x.Title),
+        "date_desc" => items.OrderByDescending(x => x.CreatedOn),
+        "date_asc" => items.OrderBy(x => x.CreatedOn),
+        _ => items.OrderBy(x => x.Title)
+    };
+
+    var groupedItems = items
+        .GroupBy(x => string.IsNullOrWhiteSpace(x.CategoryName) ? "Без категория" : x.CategoryName)
+        .OrderBy(g => g.Key)
+        .ToList();
+}
+
+<div style="width:min(1280px, calc(100% - 32px)); margin:26px auto 42px;">
+
+    <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:24px; padding:28px 26px; margin-bottom:24px; box-shadow:0 10px 30px rgba(15,23,42,0.04);">
+        <div style="display:flex; justify-content:space-between; align-items:end; gap:18px; flex-wrap:wrap;">
+            <div>
+                <h1 style="margin:0; color:#17325c; font-size:2.05rem; font-weight:900; line-height:1.1;">
+                    Списък за четене
+                </h1>
+                <div style="width:62px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%);"></div>
+                <div style="margin-top:12px; color:#64748b; font-size:.98rem; font-weight:700;">
+                    Запази книги, които искаш да прочетеш по-късно.
+                </div>
+            </div>
+
+            <form method="get" asp-action="Favorites" style="margin:0;">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <label for="sort" style="color:#17325c; font-size:.95rem; font-weight:800;">Подреди по</label>
+                    <select id="sort"
+                            name="sort"
+                            onchange="this.form.submit()"
+                            style="min-width:230px; height:46px; border:1px solid #d5deea; border-radius:12px; padding:0 14px; background:#f8fbff; color:#17325c; font-size:.95rem; font-weight:700; outline:none;">
+                        <option value="name_asc" selected="@(sort == "name_asc" || string.IsNullOrWhiteSpace(sort))">Име (А-Я)</option>
+                        <option value="name_desc" selected="@(sort == "name_desc")">Име (Я-А)</option>
+                        <option value="date_desc" selected="@(sort == "date_desc")">Най-ново добавени</option>
+                        <option value="date_asc" selected="@(sort == "date_asc")">Най-старо добавени</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    @if (groupedItems.Any())
+    {
+        @foreach (var group in groupedItems)
+        {
+            <section style="margin-bottom:28px;">
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+                    <h2 style="margin:0; color:#17325c; font-size:1.22rem; font-weight:900; white-space:nowrap;">
+                        @group.Key
+                    </h2>
+                    <div style="height:1px; flex:1; background:#dbe5ef;"></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:18px;">
+                    @foreach (var item in group)
+                    {
+                        var coverUrl = ResolveCoverUrl(item.CoverPath);
+
+                        <article style="background:#ffffff; border:1px solid #dbe4ee; border-radius:20px; overflow:hidden; box-shadow:0 8px 24px rgba(15,23,42,0.05); transition:transform .18s ease, box-shadow .18s ease;"
+                                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 32px rgba(15,23,42,0.10)';"
+                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(15,23,42,0.05)';">
+
+                            <div style="position:relative;">
+                                <a asp-controller="Catalog"
+                                   asp-action="ReaderDetails"
+                                   asp-route-id="@item.BookId"
+                                   style="display:block; text-decoration:none;">
+                                    <div style="height:280px; background:linear-gradient(180deg,#f8fbff 0%,#eef4fa 100%); display:flex; align-items:center; justify-content:center; padding:18px; overflow:hidden; border-bottom:1px solid #e8eef5;">
+                                        @if (!string.IsNullOrWhiteSpace(coverUrl))
+                                        {
+                                            <img src="@coverUrl"
+                                                 alt="@item.Title"
+                                                 style="max-width:100%; max-height:100%; object-fit:contain; display:block; filter:drop-shadow(0 8px 18px rgba(15,23,42,0.10));" />
+                                        }
+                                        else
+                                        {
+                                            <div style="width:100%; height:100%; border:2px dashed #cad5e0; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:.95rem; font-weight:800; background:#f8fbff;">
+                                                Няма корица
+                                            </div>
+                                        }
+                                    </div>
+                                </a>
+
+                                <form asp-action="ToggleFavorite"
+                                      method="post"
+                                      style="position:absolute; top:12px; right:12px; margin:0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="bookId" value="@item.BookId" />
+                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+                                    <button type="submit"
+                                            title="Премахни от списъка за четене"
+                                            aria-label="Премахни от списъка за четене"
+                                            style="width:38px; height:38px; border:none; border-radius:999px; background:rgba(255,255,255,0.96); color:#2563eb; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 8px 18px rgba(15,23,42,0.12); transition:all .18s ease;"
+                                            onmouseover="this.style.transform='scale(1.06)'; this.style.background='#eff6ff';"
+                                            onmouseout="this.style.transform='scale(1)'; this.style.background='rgba(255,255,255,0.96)';">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             width="17"
+                                             height="17"
+                                             viewBox="0 0 16 16"
+                                             fill="currentColor"
+                                             style="display:block;">
+                                            <path d="M2 2a2 2 0 0 1 2-2h7a1 1 0 0 1 1 1v13l-4-2-4 2V2z" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div style="padding:14px 14px 16px 14px;">
+                                <a asp-controller="Catalog"
+                                   asp-action="ReaderDetails"
+                                   asp-route-id="@item.BookId"
+                                   style="text-decoration:none;">
+                                    <div style="color:#17325c; font-weight:900; font-size:1rem; line-height:1.38; min-height:66px;">
+                                        @item.Title
+                                    </div>
+                                </a>
+
+                                <div style="margin-top:6px; color:#64748b; font-size:.92rem; font-weight:700; min-height:21px;">
+                                    @item.Author
+                                </div>
+
+                                <div style="margin-top:12px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                                    <span style="display:inline-flex; align-items:center; min-height:31px; padding:0 12px; border-radius:999px; font-size:.82rem; font-weight:900; @(item.IsAvailable ? "background:#e8f7ee; color:#2f7d32; border:1px solid #cfe7d3;" : "background:#f1f5f9; color:#64748b; border:1px solid #d8e1eb;")">
+                                        @(item.IsAvailable ? "Налична" : "Заета")
+                                    </span>
+
+                                    <span style="color:#94a3b8; font-size:.8rem; font-weight:800; white-space:nowrap;">
+                                        @item.CreatedOn.ToLocalTime().ToString("dd.MM.yyyy")
+                                    </span>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </section>
+        }
+    }
+    else
+    {
+        <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:24px; padding:28px; box-shadow:0 10px 30px rgba(15,23,42,0.04);">
+            <div style="color:#17325c; font-size:1.08rem; font-weight:900; margin-bottom:8px;">
+                Списъкът за четене е празен
+            </div>
+            <div style="color:#64748b; font-size:.97rem; font-weight:700; line-height:1.7;">
+                Когато добавиш книга от страницата с детайли, тя ще се появи тук.
+            </div>
+        </section>
+    }
+</div>

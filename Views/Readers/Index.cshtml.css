@@ -1,0 +1,222 @@
+﻿.readers-page {
+    width: 100%;
+    padding-top: 6px;
+}
+
+.readers-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.readers-add-btn {
+    min-width: 150px;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.readers-toolbar {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.readers-search-wrap {
+    position: relative;
+    min-width: 0;
+}
+
+.readers-search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 1rem;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.readers-search-input {
+    width: 100% !important;
+    height: 50px !important;
+    border-radius: 16px !important;
+    border: 1px solid #D7DFEA !important;
+    background: #fff !important;
+    color: #0F172A !important;
+    padding-left: 40px !important;
+    padding-right: 42px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+}
+
+    .readers-search-input::placeholder {
+        color: #94A3B8;
+        font-weight: 500;
+    }
+
+    .readers-search-input:focus {
+        border-color: #93C5FD !important;
+        box-shadow: 0 0 0 0.12rem rgba(59, 130, 246, .12) !important;
+    }
+
+.readers-clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: #E2E8F0;
+    color: #475569;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+
+    .readers-clear-btn.visible {
+        display: inline-flex;
+    }
+
+    .readers-clear-btn:hover {
+        background: #CBD5E1;
+    }
+
+.readers-class-select {
+    width: 150px !important;
+    height: 50px !important;
+    border-radius: 16px !important;
+    border: 1px solid #D7DFEA !important;
+    background: #fff !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+}
+
+    .readers-class-select:focus {
+        border-color: #93C5FD !important;
+        box-shadow: 0 0 0 0.12rem rgba(59, 130, 246, .12) !important;
+    }
+
+.readers-search-btn {
+    background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 800 !important;
+}
+
+    .readers-search-btn:hover {
+        filter: brightness(.96);
+    }
+
+.document-panel {
+    padding: 0;
+    overflow: hidden;
+}
+
+.document-head {
+    padding: 1.1rem 1.2rem .9rem;
+    border-bottom: 1px solid #D9E0E7;
+    background: #FBFCFD;
+}
+
+.readers-empty-title {
+    padding: 1.2rem 1.2rem .35rem;
+    font-weight: 900;
+    color: #1F2937;
+    font-size: 1.08rem;
+}
+
+.readers-empty-text {
+    padding: 0 1.2rem 1.2rem;
+    color: #6B7280;
+    font-weight: 600;
+}
+
+    .readers-empty-text strong {
+        color: #1F2937;
+    }
+
+.readers-doc-table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .readers-doc-table thead th {
+        background: #F3F6F9;
+        color: #6B7280;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .03em;
+        font-weight: 800;
+        padding: .95rem 1.2rem;
+        border-bottom: 1px solid #D9E0E7;
+        white-space: nowrap;
+    }
+
+.class-group-row td {
+    background: #ECEFF3;
+    color: #6B7280;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 900;
+    padding: .7rem 1.2rem;
+    border-bottom: 1px solid #D9E0E7;
+}
+
+.readers-doc-table tbody td {
+    padding: 1rem 1.2rem;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5EAF0;
+    vertical-align: middle;
+}
+
+.readers-doc-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.reader-row {
+    transition: background-color .15s ease;
+}
+
+    .reader-row:hover td {
+        background: #FAFCFF;
+        cursor: pointer;
+    }
+
+.reader-name-cell {
+    font-weight: 700;
+    color: #1F2937;
+}
+
+@media (max-width: 767.98px) {
+    .readers-header {
+        align-items: stretch;
+    }
+
+    .readers-add-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .readers-search-form {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .readers-doc-table thead th,
+    .readers-doc-table tbody td,
+    .class-group-row td {
+        padding-left: .9rem;
+        padding-right: .9rem;
+    }
+}

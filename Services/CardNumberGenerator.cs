@@ -21,7 +21,7 @@ namespace ObreshkovLibrary.Services
                 var randomSixDigits = RandomNumberGenerator.GetInt32(100000, 1000000);
                 var cardNumber = $"{year}{randomSixDigits}";
 
-                bool exists = await _db.Clients
+                bool exists = await _db.readers
                     .IgnoreQueryFilters()
                     .AnyAsync(c => c.CardNumber == cardNumber);
 

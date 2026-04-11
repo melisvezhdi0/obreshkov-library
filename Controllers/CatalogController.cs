@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.Enums;
 using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Controllers
@@ -114,13 +115,13 @@ namespace ObreshkovLibrary.Controllers
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var client = await _context.Clients
+                    var reader = await _context.readers
                         .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
-                    if (client != null)
+                    if (reader != null)
                     {
-                        ViewBag.FavoriteBookIds = await _context.ClientFavoriteBooks
-                            .Where(f => f.ClientId == client.Id)
+                        ViewBag.FavoriteBookIds = await _context.readerFavoriteBooks
+                            .Where(f => f.readerId == reader.Id)
                             .Select(f => f.BookId)
                             .ToListAsync();
                     }
@@ -130,7 +131,7 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> StudentIndex(string? search, int? categoryId, string? sort)
+        public async Task<IActionResult> ReaderIndex(string? search, int? categoryId, string? sort)
         {
             sort ??= "date_desc";
 
@@ -223,20 +224,20 @@ namespace ObreshkovLibrary.Controllers
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var client = await _context.Clients
+                    var reader = await _context.readers
                         .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
-                    if (client != null)
+                    if (reader != null)
                     {
-                        ViewBag.FavoriteBookIds = await _context.ClientFavoriteBooks
-                            .Where(f => f.ClientId == client.Id)
+                        ViewBag.FavoriteBookIds = await _context.readerFavoriteBooks
+                            .Where(f => f.readerId == reader.Id)
                             .Select(f => f.BookId)
                             .ToListAsync();
                     }
                 }
             }
 
-            return View("StudentIndex", vm);
+            return View("ReaderIndex", vm);
         }
 
         [HttpGet]
@@ -251,9 +252,9 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> StudentDetails(int id)
+        public async Task<IActionResult> ReaderDetails(int id)
         {
-            if (!(User.Identity?.IsAuthenticated == true && User.IsInRole("Student")))
+            if (!(User.Identity?.IsAuthenticated == true && User.IsInRole("Reader")))
             {
                 return RedirectToAction(nameof(Details), new { id });
             }
@@ -321,27 +322,27 @@ namespace ObreshkovLibrary.Controllers
                     .ToList();
             }
 
-            var isStudent = User.Identity?.IsAuthenticated == true && User.IsInRole("Student");
+            var isReader = User.Identity?.IsAuthenticated == true && User.IsInRole("Reader");
             var isFavorite = false;
 
-            if (isStudent)
+            if (isReader)
             {
                 var user = await _userManager.GetUserAsync(User);
                 var cardNumber = user?.UserName?.Trim().ToUpper();
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var clientId = await _context.Clients
+                    var readerId = await _context.readers
                         .AsNoTracking()
                         .Where(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber)
                         .Select(c => (int?)c.Id)
                         .FirstOrDefaultAsync();
 
-                    if (clientId.HasValue)
+                    if (readerId.HasValue)
                     {
-                        isFavorite = await _context.ClientFavoriteBooks
+                        isFavorite = await _context.readerFavoriteBooks
                             .AsNoTracking()
-                            .AnyAsync(f => f.ClientId == clientId.Value && f.BookId == book.Id);
+                            .AnyAsync(f => f.readerId == readerId.Value && f.BookId == book.Id);
                     }
                 }
             }
@@ -349,7 +350,7 @@ namespace ObreshkovLibrary.Controllers
             ViewBag.IsAvailable = isAvailable;
             ViewBag.RelatedBooks = authorBooks;
             ViewBag.SimilarBooks = similarBooks;
-            ViewBag.IsStudent = isStudent;
+            ViewBag.IsReader = isReader;
             ViewBag.IsFavorite = isFavorite;
         }
 

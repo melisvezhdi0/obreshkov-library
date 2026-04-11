@@ -53,7 +53,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
 
             [Required(ErrorMessage = "Избери роля.")]
-            public string SelectedRole { get; set; } = "Student";
+            public string SelectedRole { get; set; } = "Reader";
         }
 
         public async Task OnGetAsync(string? returnUrl = null)
@@ -117,7 +117,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 return LocalRedirect(Url.Action("Index", "Dashboard") ?? "/Dashboard");
             }
 
-            if (Input.SelectedRole == "Student")
+            if (Input.SelectedRole == "Reader")
             {
                 if (string.IsNullOrWhiteSpace(Input.CardNumber))
                 {
@@ -130,48 +130,48 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
      .Replace(" ", "")
      .ToUpper();
 
-                var client = await _context.Clients
+                var reader = await _context.readers
                     .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(c =>
                         c.CardNumber != null &&
                         c.CardNumber.Replace(" ", "").ToUpper() == normalizedCardNumber);
 
-                if (client == null)
+                if (reader == null)
                 {
                     ModelState.AddModelError(string.Empty, "Няма ученик с такава читателска карта.");
                     return Page();
                 }
 
-                if (!client.IsActive)
+                if (!reader.IsActive)
                 {
                     ModelState.AddModelError(string.Empty, "Този ученик е архивиран и не може да влиза в системата.");
                     return Page();
                 }
 
-                var studentUser = await _userManager.FindByNameAsync(normalizedCardNumber);
-                if (studentUser == null || !await _userManager.IsInRoleAsync(studentUser, "Student"))
+                var ReaderUser = await _userManager.FindByNameAsync(normalizedCardNumber);
+                if (ReaderUser == null || !await _userManager.IsInRoleAsync(ReaderUser, "Reader"))
                 {
                     ModelState.AddModelError(string.Empty, "Няма ученически профил за тази карта.");
                     return Page();
                 }
 
-                var passwordOk = await _userManager.CheckPasswordAsync(studentUser, Input.Password);
+                var passwordOk = await _userManager.CheckPasswordAsync(ReaderUser, Input.Password);
                 if (!passwordOk)
                 {
                     ModelState.AddModelError(string.Empty, "Невалиден опит за вход.");
                     return Page();
                 }
 
-                await SignInUserExplicitlyAsync(studentUser, Input.RememberMe);
+                await SignInUserExplicitlyAsync(ReaderUser, Input.RememberMe);
 
-                _logger.LogInformation("Student logged in.");
+                _logger.LogInformation("Reader logged in.");
 
-                if (!client.PasswordChangedByStudent)
+                if (!reader.PasswordChangedByReader)
                 {
-                    return LocalRedirect(Url.Action("Index", "StudentPortal") ?? "/StudentPortal");
+                    return LocalRedirect(Url.Action("Index", "ReaderPortal") ?? "/ReaderPortal");
                 }
 
-                return LocalRedirect(Url.Action("Index", "StudentPortal") ?? "/StudentPortal");
+                return LocalRedirect(Url.Action("Index", "ReaderPortal") ?? "/ReaderPortal");
             }
 
             ModelState.AddModelError(string.Empty, "Невалидна роля.");

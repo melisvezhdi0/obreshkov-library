@@ -79,7 +79,7 @@ namespace ObreshkovLibrary
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
 
-            builder.Services.AddScoped<IStudentNotificationService, StudentNotificationService>();
+            builder.Services.AddScoped<IReaderNotificationService, ReaderNotificationService>();
 
             var app = builder.Build();
 
@@ -125,7 +125,7 @@ namespace ObreshkovLibrary
                 bool needsGate =
                     HttpMethods.IsPost(method) &&
                     (
-                        path.StartsWithSegments("/Clients/Deactivate") ||
+                        path.StartsWithSegments("/readers/Deactivate") ||
                         path.StartsWithSegments("/Categories/Deactivate") ||
                         path.StartsWithSegments("/Book/Deactivate") 
                     );

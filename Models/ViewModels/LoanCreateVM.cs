@@ -5,9 +5,9 @@ namespace ObreshkovLibrary.Models.ViewModels
     public class LoanCreateVM
     {
         [Required]
-        public int ClientId { get; set; }
+        public int readerId { get; set; }
 
-        public string ClientName { get; set; } = string.Empty;
+        public string readerName { get; set; } = string.Empty;
 
         public string CardNumber { get; set; } = string.Empty;
 

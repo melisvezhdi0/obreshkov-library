@@ -6,7 +6,7 @@ namespace ObreshkovLibrary.Data.Seed
     {
         public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         {
-            string[] roles = { "Admin", "Student" };
+            string[] roles = { "Admin", "Reader" };
 
             foreach (var role in roles)
             {

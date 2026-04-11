@@ -5,7 +5,7 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     bool isRecent = currentAction == "Index";
     bool isBooks = currentAction == "Books";
-    bool isClients = currentAction == "Clients";
+    bool isreaders = currentAction == "readers";
     bool isCategories = currentAction == "Categories";
     bool isCopies = currentAction == "Copies";
     bool isLoans = currentAction == "Loans";
@@ -34,8 +34,8 @@
                 Книги
             </a>
 
-            <a asp-controller="Archive" asp-action="Clients"
-               style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; @(isClients ? "background:#FFFFFF; color:#1F2937; font-weight:800;" : "background:#F8FBFF; color:#64748B; font-weight:700;")">
+            <a asp-controller="Archive" asp-action="readers"
+               style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; @(isreaders ? "background:#FFFFFF; color:#1F2937; font-weight:800;" : "background:#F8FBFF; color:#64748B; font-weight:700;")">
                 Читатели
             </a>
 
@@ -131,13 +131,13 @@
                 <h5 class="section-title mb-0">Читатели</h5>
             </div>
             <div style="padding:.25rem 1.2rem 1rem;">
-                @if (!Model.RecentClients.Any())
+                @if (!Model.Recentreaders.Any())
                 {
                     <div style="padding-top:.9rem; color:#6B7280; font-weight:600;">Няма архивирани читатели.</div>
                 }
                 else
                 {
-                    foreach (var item in Model.RecentClients)
+                    foreach (var item in Model.Recentreaders)
                     {
                         <div style="padding:.9rem 0; border-bottom:1px solid #E5EAF0;">
                             <div style="font-weight:800; color:#1F2937;">@item.FirstName @item.MiddleName @item.LastName</div>
@@ -208,7 +208,7 @@
                     foreach (var item in Model.RecentLoans)
                     {
                         <div style="padding:.9rem 0; border-bottom:1px solid #E5EAF0;">
-                            <div style="font-weight:800; color:#1F2937;">@item.Client?.FirstName @item.Client?.LastName</div>
+                            <div style="font-weight:800; color:#1F2937;">@item.reader?.FirstName @item.reader?.LastName</div>
                             <div style="margin-top:4px; color:#6B7280; font-weight:600;">@item.BookCopy?.Book?.Title</div>
                         </div>
                     }
@@ -251,8 +251,8 @@
                 {
                     foreach (var item in Model.RecentPasswordRequests)
                     {
-                        var fullName = item.Client != null
-                        ? $"{item.Client.FirstName} {item.Client.LastName}"
+                        var fullName = item.reader != null
+                        ? $"{item.reader.FirstName} {item.reader.LastName}"
                         : "Неизвестен читател";
 
                         <div style="padding:.9rem 0; border-bottom:1px solid #E5EAF0;">

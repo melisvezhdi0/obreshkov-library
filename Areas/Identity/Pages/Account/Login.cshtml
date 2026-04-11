@@ -4,7 +4,7 @@
 @{
     Layout = "~/Views/Shared/_LoginLayout.cshtml";
     ViewData["Title"] = "Вход в системата";
-    var selectedRole = Model.Input?.SelectedRole ?? "Student";
+    var selectedRole = Model.Input?.SelectedRole ?? "Reader";
 }
 
 <div style="min-height:calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:24px 16px 40px 16px; box-sizing:border-box;">
@@ -27,7 +27,7 @@
 
             <div style="display:grid; grid-template-columns:1fr 1fr; background:#f8fbff; border-bottom:1px solid #d9e2ec;">
                 <button type="button"
-                        id="studentRoleBtn"
+                        id="ReaderRoleBtn"
                         style="height:60px; border:none; border-right:1px solid #d9e2ec; border-bottom:3px solid #2563eb; background:#ffffff; color:#1f2937; font-size:1rem; font-weight:800; transition:all .18s ease;">
                     Ученик
                 </button>
@@ -45,14 +45,14 @@
 
                     <input asp-for="Input.SelectedRole" type="hidden" id="selectedRoleInput" />
 
-                    <div id="studentFields">
+                    <div id="ReaderFields">
                         <div style="margin-bottom:16px;">
                             <label style="display:block; margin-bottom:7px; font-weight:800; color:#334155; font-size:0.98rem;">
                                 Номер на читателска карта
                             </label>
 
                             <input asp-for="Input.CardNumber"
-                                   id="studentCardNumberInput"
+                                   id="ReaderCardNumberInput"
                                    placeholder="Номер на читателска карта"
                                    autocomplete="username"
                                    style="width:100%; height:46px; border:1px solid #cbd5e1; border-radius:12px; padding:0 14px; background:#ffffff; box-sizing:border-box; outline:none; transition:border .18s ease, box-shadow .18s ease;" />
@@ -124,39 +124,39 @@
 
     <script>
         const selectedRoleInput = document.getElementById('selectedRoleInput');
-        const studentRoleBtn = document.getElementById('studentRoleBtn');
+        const ReaderRoleBtn = document.getElementById('ReaderRoleBtn');
         const adminRoleBtn = document.getElementById('adminRoleBtn');
-        const studentFields = document.getElementById('studentFields');
+        const ReaderFields = document.getElementById('ReaderFields');
         const adminFields = document.getElementById('adminFields');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-        const studentCardNumberInput = document.getElementById('studentCardNumberInput');
+        const ReaderCardNumberInput = document.getElementById('ReaderCardNumberInput');
         const adminEmailInput = document.getElementById('adminEmailInput');
         const rememberMeInput = document.getElementById('rememberMeInput');
 
         function setRole(role) {
             selectedRoleInput.value = role;
 
-            if (role === 'Student') {
-                studentFields.style.display = 'block';
+            if (role === 'Reader') {
+                ReaderFields.style.display = 'block';
                 adminFields.style.display = 'none';
 
-                studentRoleBtn.style.background = '#ffffff';
-                studentRoleBtn.style.color = '#1f2937';
-                studentRoleBtn.style.fontWeight = '800';
-                studentRoleBtn.style.borderBottom = '3px solid #2563eb';
+                ReaderRoleBtn.style.background = '#ffffff';
+                ReaderRoleBtn.style.color = '#1f2937';
+                ReaderRoleBtn.style.fontWeight = '800';
+                ReaderRoleBtn.style.borderBottom = '3px solid #2563eb';
 
                 adminRoleBtn.style.background = '#f8fbff';
                 adminRoleBtn.style.color = '#64748b';
                 adminRoleBtn.style.fontWeight = '700';
                 adminRoleBtn.style.borderBottom = '3px solid transparent';
 
-                if (studentCardNumberInput) {
-                    studentCardNumberInput.placeholder = 'Номер на читателска карта';
+                if (ReaderCardNumberInput) {
+                    ReaderCardNumberInput.placeholder = 'Номер на читателска карта';
                 }
 
-                forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Student';
+                forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Reader';
             } else {
-                studentFields.style.display = 'none';
+                ReaderFields.style.display = 'none';
                 adminFields.style.display = 'block';
 
                 adminRoleBtn.style.background = '#ffffff';
@@ -164,10 +164,10 @@
                 adminRoleBtn.style.fontWeight = '800';
                 adminRoleBtn.style.borderBottom = '3px solid #2563eb';
 
-                studentRoleBtn.style.background = '#f8fbff';
-                studentRoleBtn.style.color = '#64748b';
-                studentRoleBtn.style.fontWeight = '700';
-                studentRoleBtn.style.borderBottom = '3px solid transparent';
+                ReaderRoleBtn.style.background = '#f8fbff';
+                ReaderRoleBtn.style.color = '#64748b';
+                ReaderRoleBtn.style.fontWeight = '700';
+                ReaderRoleBtn.style.borderBottom = '3px solid transparent';
 
                 if (adminEmailInput) {
                     adminEmailInput.placeholder = 'Имейл';
@@ -177,7 +177,7 @@
             }
         }
 
-        studentRoleBtn.addEventListener('click', () => setRole('Student'));
+        ReaderRoleBtn.addEventListener('click', () => setRole('Reader'));
         adminRoleBtn.addEventListener('click', () => setRole('Admin'));
     </script>
 
@@ -236,7 +236,7 @@
 
             const rememberSaved = localStorage.getItem('loginRememberMe') === 'true';
             const savedRole = localStorage.getItem('loginRole');
-            const savedStudentCard = localStorage.getItem('savedStudentCard');
+            const savedReaderCard = localStorage.getItem('savedReaderCard');
             const savedAdminEmail = localStorage.getItem('savedAdminEmail');
 
             if (rememberMeInput) {
@@ -244,16 +244,16 @@
             }
 
             const initialRole =
-                rememberSaved && (savedRole === 'Admin' || savedRole === 'Student')
+                rememberSaved && (savedRole === 'Admin' || savedRole === 'Reader')
                     ? savedRole
                     : '@selectedRole';
 
             setRole(initialRole);
 
             if (rememberSaved) {
-                if (initialRole === 'Student') {
-                    if (studentCardNumberInput && savedStudentCard) {
-                        studentCardNumberInput.value = savedStudentCard;
+                if (initialRole === 'Reader') {
+                    if (ReaderCardNumberInput && savedReaderCard) {
+                        ReaderCardNumberInput.value = savedReaderCard;
                     }
                     if (adminEmailInput) {
                         adminEmailInput.value = '';
@@ -262,37 +262,37 @@
                     if (adminEmailInput && savedAdminEmail) {
                         adminEmailInput.value = savedAdminEmail;
                     }
-                    if (studentCardNumberInput) {
-                        studentCardNumberInput.value = '';
+                    if (ReaderCardNumberInput) {
+                        ReaderCardNumberInput.value = '';
                     }
                 }
             } else {
-                if (studentCardNumberInput) studentCardNumberInput.value = '';
+                if (ReaderCardNumberInput) ReaderCardNumberInput.value = '';
                 if (adminEmailInput) adminEmailInput.value = '';
             }
 
             if (form) {
                 form.addEventListener('submit', function () {
-                    const currentRole = selectedRoleInput ? selectedRoleInput.value : 'Student';
+                    const currentRole = selectedRoleInput ? selectedRoleInput.value : 'Reader';
                     const remember = rememberMeInput ? rememberMeInput.checked : false;
 
                     if (remember) {
                         localStorage.setItem('loginRememberMe', 'true');
                         localStorage.setItem('loginRole', currentRole);
 
-                        if (currentRole === 'Student' && studentCardNumberInput) {
-                            localStorage.setItem('savedStudentCard', studentCardNumberInput.value.trim());
+                        if (currentRole === 'Reader' && ReaderCardNumberInput) {
+                            localStorage.setItem('savedReaderCard', ReaderCardNumberInput.value.trim());
                             localStorage.removeItem('savedAdminEmail');
                         }
 
                         if (currentRole === 'Admin' && adminEmailInput) {
                             localStorage.setItem('savedAdminEmail', adminEmailInput.value.trim());
-                            localStorage.removeItem('savedStudentCard');
+                            localStorage.removeItem('savedReaderCard');
                         }
                     } else {
                         localStorage.removeItem('loginRememberMe');
                         localStorage.removeItem('loginRole');
-                        localStorage.removeItem('savedStudentCard');
+                        localStorage.removeItem('savedReaderCard');
                         localStorage.removeItem('savedAdminEmail');
                     }
                 });

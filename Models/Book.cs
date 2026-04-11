@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using ObreshkovLibrary.Models.Enums;
 
 namespace ObreshkovLibrary.Models
 {
@@ -37,9 +38,9 @@ namespace ObreshkovLibrary.Models
 
         public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
 
-        public ICollection<ClientFavoriteBook> FavoritedByClients { get; set; } = new List<ClientFavoriteBook>();
+        public ICollection<ReaderFavoriteBook> FavoritedByreaders { get; set; } = new List<ReaderFavoriteBook>();
 
-        public ICollection<StudentNotification> Notifications { get; set; } = new List<StudentNotification>();
+        public ICollection<ReaderNotification> Notifications { get; set; } = new List<ReaderNotification>();
 
         [NotMapped]
         public int AvailableCopies { get; set; }

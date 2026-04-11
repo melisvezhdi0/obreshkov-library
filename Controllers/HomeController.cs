@@ -30,9 +30,9 @@ namespace ObreshkovLibrary.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Reader")]
         [HttpGet]
-        public async Task<IActionResult> StudentIndex()
+        public async Task<IActionResult> ReaderIndex()
         {
             var latestNews = await _context.SchoolNews
                 .AsNoTracking()

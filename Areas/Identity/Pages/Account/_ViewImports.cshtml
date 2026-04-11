@@ -115,7 +115,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                                 return LocalRedirect(Url.Action("Index", "Dashboard") ?? "/Dashboard");
                                 }
 
-                                if (Input.SelectedRole == "Student")
+                                if (Input.SelectedRole == "Reader")
                                 {
                                 return LocalRedirect(Url.Action("Index", "Catalog") ?? "/Catalog");
                                 }

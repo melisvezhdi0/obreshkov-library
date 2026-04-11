@@ -8,7 +8,7 @@ namespace ObreshkovLibrary.Models.ViewModels
         public string Search { get; set; } = string.Empty;
 
         public int BooksCount { get; set; }
-        public int ClientsCount { get; set; }
+        public int readersCount { get; set; }
         public int CategoriesCount { get; set; }
         public int CopiesCount { get; set; }
         public int LoansCount { get; set; }
@@ -16,7 +16,7 @@ namespace ObreshkovLibrary.Models.ViewModels
         public int PasswordRequestsCount { get; set; }
 
         public List<Book> RecentBooks { get; set; } = new();
-        public List<Client> RecentClients { get; set; } = new();
+        public List<Reader> Recentreaders { get; set; } = new();
         public List<Category> RecentCategories { get; set; } = new();
         public List<BookCopy> RecentCopies { get; set; } = new();
         public List<Loan> RecentLoans { get; set; } = new();

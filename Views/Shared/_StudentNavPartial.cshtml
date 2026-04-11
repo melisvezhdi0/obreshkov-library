@@ -6,7 +6,7 @@
     bool isCatalogActive = currentController == "Catalog";
     bool isNotificationsActive = currentAction == "Notifications";
     bool isFavoritesActive = currentAction == "Favorites";
-    bool isProfileActive = currentController == "StudentPortal" && currentAction == "Index";
+    bool isProfileActive = currentController == "ReaderPortal" && currentAction == "Index";
 
     bool hasUnread = ViewBag.HasUnreadNotifications == true;
 
@@ -40,7 +40,7 @@
                 box-sizing:border-box;">
 
         <a asp-controller="Home"
-           asp-action="StudentIndex"
+           asp-action="ReaderIndex"
            style="text-decoration:none; color:#17325c; font-size:1.08rem; font-weight:900; letter-spacing:.01em; white-space:nowrap;">
             Училищна библиотека „Обрешков“
         </a>
@@ -52,7 +52,7 @@
                     flex-wrap:wrap;">
 
             <a asp-controller="Home"
-               asp-action="StudentIndex"
+               asp-action="ReaderIndex"
                style="@textStyle(isHomeActive)"
                onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
                onmouseout="this.style.background='@(isHomeActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isHomeActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isHomeActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isHomeActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';">
@@ -60,14 +60,14 @@
             </a>
 
             <a asp-controller="Catalog"
-               asp-action="StudentIndex"
+               asp-action="ReaderIndex"
                style="@textStyle(isCatalogActive)"
                onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
                onmouseout="this.style.background='@(isCatalogActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isCatalogActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isCatalogActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isCatalogActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';">
                 Каталог
             </a>
 
-            <a asp-controller="StudentPortal"
+            <a asp-controller="ReaderPortal"
                asp-action="Notifications"
                style="@iconStyle(isNotificationsActive)"
                onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
@@ -98,7 +98,7 @@
                 }
             </a>
 
-            <a asp-controller="StudentPortal"
+            <a asp-controller="ReaderPortal"
                asp-action="Favorites"
                style="@iconStyle(isFavoritesActive)"
                onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
@@ -116,7 +116,7 @@
                 </svg>
             </a>
 
-            <a asp-controller="StudentPortal"
+            <a asp-controller="ReaderPortal"
                asp-action="Index"
                style="@textStyle(isProfileActive)"
                onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"

@@ -13,7 +13,7 @@ namespace ObreshkovLibrary.Services
             _db = db;
         }
 
-        public async Task<int> LoanByTitleAsync(int clientId, int bookTitleId, int days = 14)
+        public async Task<int> LoanByTitleAsync(int readerId, int bookTitleId, int days = 14)
         {
             var availableCopy = await _db.BookCopies
                 .Where(c => c.
@@ -27,7 +27,7 @@ namespace ObreshkovLibrary.Services
 
             var loan = new Loan
             {
-                ClientId = clientId,
+                readerId = readerId,
                 BookCopyId = availableCopy.Id,
                 LoanDate = DateTime.Now,
                 DueDate = DateTime.Now.AddDays(days)

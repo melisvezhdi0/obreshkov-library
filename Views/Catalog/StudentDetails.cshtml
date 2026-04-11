@@ -1,9 +1,10 @@
 ﻿@model ObreshkovLibrary.Models.Book
-@using ObreshkovLibrary.Models
 @using System.Linq
+@using ObreshkovLibrary.Models
+@using ObreshkovLibrary.Models.Enums
 
 @{
-    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    Layout = "~/Views/Shared/_ReaderLayout.cshtml";
     ViewData["Title"] = "Детайли за книга";
 
     var isAvailable = (ViewBag.IsAvailable as bool?) ?? false;
@@ -104,7 +105,7 @@
         <div style="display:grid; grid-template-columns:320px minmax(0,1fr); gap:0; align-items:stretch;">
 
             <div style="position:relative; background:linear-gradient(180deg,#f8fbff 0%,#f2f7fc 100%); border-right:1px solid #e2e8f0; padding:28px; display:flex; align-items:center; justify-content:center; min-height:460px;">
-                <form asp-controller="StudentPortal"
+                <form asp-controller="ReaderPortal"
                       asp-action="ToggleFavorite"
                       method="post"
                       style="position:absolute; top:16px; right:16px; margin:0; z-index:2;">
@@ -278,7 +279,7 @@
                     var relatedCover = ResolveCoverUrl(book.CoverPath);
 
                     <a asp-controller="Catalog"
-                       asp-action="StudentDetails"
+                       asp-action="ReaderDetails"
                        asp-route-id="@book.Id"
                        style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:18px; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); padding:12px; box-shadow:0 10px 20px rgba(15,23,42,.04); transition:all .18s ease;"
                        onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 28px rgba(15,23,42,.10)'; this.style.borderColor='#d7e4ff';"
@@ -326,7 +327,7 @@
                     var similarCover = ResolveCoverUrl(book.CoverPath);
 
                     <a asp-controller="Catalog"
-                       asp-action="StudentDetails"
+                       asp-action="ReaderDetails"
                        asp-route-id="@book.Id"
                        style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:18px; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); padding:12px; box-shadow:0 10px 20px rgba(15,23,42,.04); transition:all .18s ease;"
                        onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 28px rgba(15,23,42,.10)'; this.style.borderColor='#d7e4ff';"

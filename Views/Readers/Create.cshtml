@@ -1,0 +1,210 @@
+﻿@model ObreshkovLibrary.Models.Reader
+
+@{
+    ViewData["Title"] = "Регистриране на читател";
+}
+
+<div class="reader-edit-page" style="width:100%; padding-top:6px;">
+
+    <h2 class="section-title mb-1">Регистриране на читател</h2>
+    <div class="accent-line"></div>
+
+    <div class="card-soft reader-edit-card" style="padding:20px; margin-top:10px;">
+
+        <form asp-action="Create" method="post" data-gate="1" style="margin:0;">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="edit-layout" style="display:flex; flex-direction:column; gap:14px;">
+
+                <div class="edit-section"
+                     style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div class="edit-section-title"
+                         style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:10px;">
+                        Лични данни
+                    </div>
+
+                    <div class="form-grid form-grid-3"
+                         style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;"
+                         id="readerCreateGridNames">
+
+                        <div class="form-field" style="display:flex; flex-direction:column;">
+                            <label asp-for="FirstName" style="font-weight:700; margin-bottom:6px;">Име</label>
+                            <input asp-for="FirstName"
+                                   class="form-control"
+                                   style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field" style="display:flex; flex-direction:column;">
+                            <label asp-for="MiddleName" style="font-weight:700; margin-bottom:6px;">Презиме</label>
+                            <input asp-for="MiddleName"
+                                   class="form-control"
+                                   style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;" />
+                            <span asp-validation-for="MiddleName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field" style="display:flex; flex-direction:column;">
+                            <label asp-for="LastName" style="font-weight:700; margin-bottom:6px;">Фамилия</label>
+                            <input asp-for="LastName"
+                                   class="form-control"
+                                   style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-2 mt-3"
+                         style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;"
+                         id="readerCreateGridPhone">
+                        <div class="form-field" style="display:flex; flex-direction:column;">
+                            <label asp-for="PhoneNumber" style="font-weight:700; margin-bottom:6px;">Телефонен номер</label>
+                            <input asp-for="PhoneNumber"
+                                   class="form-control"
+                                   style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-section"
+                     style="background:#F9FBFD; border:1px solid #D9E0E7; border-radius:14px; padding:16px; margin-bottom:16px;">
+                    <div class="edit-section-title"
+                         style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:10px;">
+                        Училищна информация
+                    </div>
+
+                    <div class="form-grid form-grid-2"
+                         style="display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;"
+                         id="readerCreateGridSchool">
+
+                        <div class="form-field" style="display:flex; flex-direction:column;">
+                            <label asp-for="Grade" style="font-weight:700; margin-bottom:6px;">Клас</label>
+                            <select asp-for="Grade"
+                                    id="gradeSelect"
+                                    class="form-select"
+                                    style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;">
+                                <option value="">-- Избери --</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                            </select>
+                            <span asp-validation-for="Grade" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-field"
+                             id="sectionWrapper"
+                             style="display:flex; flex-direction:column;">
+                            <label asp-for="Section" style="font-weight:700; margin-bottom:6px;">Паралелка</label>
+                            <select asp-for="Section"
+                                    id="sectionSelect"
+                                    class="form-select"
+                                    style="min-height:46px; border-radius:12px; border:1px solid #CBD5E1; box-shadow:none; background:#FFFFFF;">
+                                <option value="">-- Избери --</option>
+                                <option value="А">А</option>
+                                <option value="Б">Б</option>
+                                <option value="В">В</option>
+                                <option value="Г">Г</option>
+                            </select>
+                            <span asp-validation-for="Section" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="left-actions"
+                     style="display:flex; gap:10px; padding-top:14px; border-top:1px solid #D9E0E7;"
+                     id="readerCreateActions">
+                    <button type="submit"
+                            class="btn btn-accent"
+                            style="min-width:140px; font-weight:800;">
+                        Регистрирай
+                    </button>
+
+                    <a asp-action="Index"
+                       class="btn btn-outline-primary"
+                       style="min-width:140px; font-weight:800;">
+                        Назад
+                    </a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        function applyreaderCreateResponsive() {
+            const namesGrid = document.getElementById('readerCreateGridNames');
+            const phoneGrid = document.getElementById('readerCreateGridPhone');
+            const schoolGrid = document.getElementById('readerCreateGridSchool');
+            const actions = document.getElementById('readerCreateActions');
+
+            if (window.innerWidth <= 600) {
+                if (namesGrid) namesGrid.style.gridTemplateColumns = '1fr';
+                if (phoneGrid) phoneGrid.style.gridTemplateColumns = '1fr';
+                if (schoolGrid) schoolGrid.style.gridTemplateColumns = '1fr';
+                if (actions) {
+                    actions.style.flexDirection = 'column';
+                    actions.style.alignItems = 'stretch';
+                }
+            }
+            else if (window.innerWidth <= 900) {
+                if (namesGrid) namesGrid.style.gridTemplateColumns = '1fr 1fr';
+                if (phoneGrid) phoneGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                if (schoolGrid) schoolGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                if (actions) {
+                    actions.style.flexDirection = 'row';
+                    actions.style.alignItems = '';
+                }
+            }
+            else {
+                if (namesGrid) namesGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                if (phoneGrid) phoneGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                if (schoolGrid) schoolGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+                if (actions) {
+                    actions.style.flexDirection = 'row';
+                    actions.style.alignItems = '';
+                }
+            }
+        }
+
+        function toggleSectionField() {
+            const gradeSelect = document.getElementById('gradeSelect');
+            const sectionWrapper = document.getElementById('sectionWrapper');
+            const sectionSelect = document.getElementById('sectionSelect');
+
+            if (!gradeSelect || !sectionWrapper || !sectionSelect) {
+                return;
+            }
+
+            const grade = parseInt(gradeSelect.value);
+
+            if (!isNaN(grade) && grade >= 5 && grade <= 7) {
+                sectionWrapper.style.display = 'none';
+                sectionSelect.value = '';
+            } else {
+                sectionWrapper.style.display = 'flex';
+            }
+        }
+
+        applyreaderCreateResponsive();
+        toggleSectionField();
+
+        window.addEventListener('resize', applyreaderCreateResponsive);
+
+        const gradeSelect = document.getElementById('gradeSelect');
+        if (gradeSelect) {
+            gradeSelect.addEventListener('change', toggleSectionField);
+        }
+    </script>
+}

@@ -27,7 +27,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required(ErrorMessage = "Избери роля.")]
-            public string Role { get; set; } = "Student";
+            public string Role { get; set; } = "Reader";
 
             public string? Email { get; set; }
 
@@ -38,7 +38,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
 
         public void OnGet(string? role = null)
         {
-            Input.Role = string.IsNullOrWhiteSpace(role) ? "Student" : role;
+            Input.Role = string.IsNullOrWhiteSpace(role) ? "Reader" : role;
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -64,27 +64,27 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             var normalizedCard = Input.CardNumber.Trim().ToUpper();
             var normalizedPhone = Input.PhoneNumber.Trim();
 
-            var client = await _context.Clients
+            var reader = await _context.readers
                 .FirstOrDefaultAsync(c =>
                     c.CardNumber.ToUpper() == normalizedCard &&
                     c.PhoneNumber == normalizedPhone);
 
-            if (client == null)
+            if (reader == null)
             {
                 ModelState.AddModelError(string.Empty, "Няма съвпадение между читателската карта и телефонния номер.");
                 return Page();
             }
 
             bool alreadyOpen = await _context.PasswordResetRequests
-                .AnyAsync(r => r.ClientId == client.Id && !r.IsCompleted);
+                .AnyAsync(r => r.readerId == reader.Id && !r.IsCompleted);
 
             if (!alreadyOpen)
             {
                 var request = new PasswordResetRequest
                 {
-                    ClientId = client.Id,
-                    CardNumber = client.CardNumber,
-                    PhoneNumber = client.PhoneNumber,
+                    readerId = reader.Id,
+                    CardNumber = reader.CardNumber,
+                    PhoneNumber = reader.PhoneNumber,
                     RequestedOn = DateTime.Now,
                     IsCompleted = false
                 };
@@ -94,7 +94,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             }
 
             StatusMessage = "Заявката е приета. Обърнете се към библиотекар или администратор за нова временна парола.";
-            return RedirectToPage(new { role = "Student" });
+            return RedirectToPage(new { role = "Reader" });
         }
     }
 }

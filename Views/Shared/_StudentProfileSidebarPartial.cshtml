@@ -3,66 +3,66 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
     string activeClass(string controller, string action)
-        => currentController == controller && currentAction == action ? "student-side-link active" : "student-side-link";
+        => currentController == controller && currentAction == action ? "Reader-side-link active" : "Reader-side-link";
 }
 
-<div class="student-profile-sidebar">
-    <div class="student-profile-sidebar-header">
-        <div class="student-profile-sidebar-kicker">Student Portal</div>
-        <h2 class="student-profile-sidebar-title">Моят профил</h2>
-        <div class="student-profile-sidebar-line"></div>
-        <p class="student-profile-sidebar-text">
+<div class="Reader-profile-sidebar">
+    <div class="Reader-profile-sidebar-header">
+        <div class="Reader-profile-sidebar-kicker">Reader Portal</div>
+        <h2 class="Reader-profile-sidebar-title">Моят профил</h2>
+        <div class="Reader-profile-sidebar-line"></div>
+        <p class="Reader-profile-sidebar-text">
             Бърз достъп до най-важните неща в профила ти.
         </p>
     </div>
 
-    <nav class="student-profile-sidebar-nav">
-        <a asp-controller="StudentPortal"
+    <nav class="Reader-profile-sidebar-nav">
+        <a asp-controller="ReaderPortal"
            asp-action="Index"
-           class="@activeClass("StudentPortal", "Index")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderPortal", "Index")">
+            <span class="Reader-side-icon">●</span>
             <span>Начало</span>
         </a>
 
-        <a asp-controller="StudentPortal"
+        <a asp-controller="ReaderPortal"
            asp-action="MyBooks"
-           class="@activeClass("StudentPortal", "MyBooks")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderPortal", "MyBooks")">
+            <span class="Reader-side-icon">●</span>
             <span>Текущо заети книги</span>
         </a>
 
-        <a asp-controller="StudentPortal"
+        <a asp-controller="ReaderPortal"
            asp-action="History"
-           class="@activeClass("StudentPortal", "History")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderPortal", "History")">
+            <span class="Reader-side-icon">●</span>
             <span>История на заемания</span>
         </a>
 
-        <a asp-controller="StudentPortal"
+        <a asp-controller="ReaderPortal"
            asp-action="Favorites"
-           class="@activeClass("StudentPortal", "Favorites")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderPortal", "Favorites")">
+            <span class="Reader-side-icon">●</span>
             <span>Списък за четене</span>
         </a>
 
-        <a asp-controller="StudentPortal"
+        <a asp-controller="ReaderPortal"
            asp-action="Notifications"
-           class="@activeClass("StudentPortal", "Notifications")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderPortal", "Notifications")">
+            <span class="Reader-side-icon">●</span>
             <span>Съобщения</span>
         </a>
 
-        <a asp-controller="StudentAccount"
+        <a asp-controller="ReaderAccount"
            asp-action="ChangePassword"
-           class="@activeClass("StudentAccount", "ChangePassword")">
-            <span class="student-side-icon">●</span>
+           class="@activeClass("ReaderAccount", "ChangePassword")">
+            <span class="Reader-side-icon">●</span>
             <span>Промяна на парола</span>
         </a>
     </nav>
 </div>
 
 <style>
-    .student-profile-sidebar {
+    .Reader-profile-sidebar {
         position: sticky;
         top: 24px;
         background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
@@ -72,11 +72,11 @@
         box-shadow: 0 16px 34px rgba(15, 23, 42, 0.06);
     }
 
-    .student-profile-sidebar-header {
+    .Reader-profile-sidebar-header {
         margin-bottom: 22px;
     }
 
-    .student-profile-sidebar-kicker {
+    .Reader-profile-sidebar-kicker {
         color: #64748b;
         font-size: .78rem;
         font-weight: 800;
@@ -84,7 +84,7 @@
         text-transform: uppercase;
     }
 
-    .student-profile-sidebar-title {
+    .Reader-profile-sidebar-title {
         margin: 8px 0 0 0;
         color: #17325c;
         font-size: 1.65rem;
@@ -92,7 +92,7 @@
         line-height: 1.15;
     }
 
-    .student-profile-sidebar-line {
+    .Reader-profile-sidebar-line {
         width: 62px;
         height: 4px;
         border-radius: 999px;
@@ -100,7 +100,7 @@
         background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
     }
 
-    .student-profile-sidebar-text {
+    .Reader-profile-sidebar-text {
         margin: 14px 0 0 0;
         color: #64748b;
         font-size: .95rem;
@@ -108,13 +108,13 @@
         line-height: 1.6;
     }
 
-    .student-profile-sidebar-nav {
+    .Reader-profile-sidebar-nav {
         display: flex;
         flex-direction: column;
         gap: 10px;
     }
 
-    .student-side-link {
+    .Reader-side-link {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -128,28 +128,28 @@
         transition: .18s ease;
     }
 
-        .student-side-link:hover {
+        .Reader-side-link:hover {
             color: #1d4ed8;
             background: #ffffff;
             border-color: #cfe0f7;
             transform: translateX(2px);
         }
 
-        .student-side-link.active {
+        .Reader-side-link.active {
             color: #0f3ea9;
             background: linear-gradient(90deg, #dbeafe 0%, #eff6ff 100%);
             border-color: #bfd7fb;
             box-shadow: 0 8px 18px rgba(37, 99, 235, 0.10);
         }
 
-    .student-side-icon {
+    .Reader-side-icon {
         color: #2563eb;
         font-size: .85rem;
         line-height: 1;
     }
 
     @@media (max-width: 991.98px) {
-        .student-profile-sidebar {
+        .Reader-profile-sidebar {
             position: static;
         }
     }

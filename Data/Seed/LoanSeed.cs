@@ -14,7 +14,7 @@ namespace ObreshkovLibrary.Data.Seed
             if (existingSeedLoans >= 6)
                 return;
 
-            var clients = await context.Clients
+            var readers = await context.readers
                 .IgnoreQueryFilters()
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Id)
@@ -29,7 +29,7 @@ namespace ObreshkovLibrary.Data.Seed
                 .Take(20)
                 .ToListAsync();
 
-            if (clients.Count < 6 || copies.Count < 6)
+            if (readers.Count < 6 || copies.Count < 6)
                 return;
 
             var availableCopies = new List<BookCopy>();
@@ -54,7 +54,7 @@ namespace ObreshkovLibrary.Data.Seed
             {
                 context.Loans.Add(new Loan
                 {
-                    ClientId = clients[i].Id,
+                    readerId = readers[i].Id,
                     BookCopyId = availableCopies[i].Id,
                     LoanDate = DateTime.Now.AddDays(-(45 + i * 3)),
                     DueDate = DateTime.Now.AddDays(-(15 + i * 2)),

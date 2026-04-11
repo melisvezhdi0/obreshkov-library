@@ -67,36 +67,40 @@
                 Каталог
             </a>
 
-            <a asp-controller="ReaderPortal"
-               asp-action="Notifications"
-               style="@iconStyle(isNotificationsActive)"
-               onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
-               onmouseout="this.style.background='@(isNotificationsActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isNotificationsActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isNotificationsActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isNotificationsActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';"
-               title="Съобщения"
-               aria-label="Съобщения">
+            <div style="position:relative;">
+                <button type="button"
+                        id="readerNotificationsToggle"
+                        style="@iconStyle(isNotificationsActive); cursor:pointer;"
+                        onmouseover="this.style.background='#f8fbff'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.06)'; this.style.transform='translateY(-1px)';"
+                        onmouseout="this.style.background='@(isNotificationsActive ? "linear-gradient(180deg,#eef4ff 0%,#e9f1ff 100%)" : "transparent")'; this.style.color='@(isNotificationsActive ? "#2563eb" : "#475569")'; this.style.borderColor='@(isNotificationsActive ? "#dbe7fb" : "transparent")'; this.style.boxShadow='@(isNotificationsActive ? "0 8px 18px rgba(37,99,235,.08)" : "none")'; this.style.transform='translateY(0)';"
+                        title="Съобщения"
+                        aria-label="Съобщения">
 
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     width="19"
-                     height="19"
-                     viewBox="0 0 16 16"
-                     fill="currentColor"
-                     style="display:block;">
-                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         width="19"
+                         height="19"
+                         viewBox="0 0 16 16"
+                         fill="currentColor"
+                         style="display:block;">
+                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                    </svg>
 
-                @if (hasUnread)
-                {
-                    <span style="position:absolute;
-                                     top:8px;
-                                     right:8px;
-                                     width:8px;
-                                     height:8px;
-                                     border-radius:50%;
-                                     background:#2563eb;
-                                     box-shadow:0 0 0 3px #ffffff;">
-                    </span>
-                }
-            </a>
+                    @if (hasUnread)
+                    {
+                        <span style="position:absolute;
+                             top:8px;
+                             right:8px;
+                             width:8px;
+                             height:8px;
+                             border-radius:50%;
+                             background:#2563eb;
+                             box-shadow:0 0 0 3px #ffffff;">
+                        </span>
+                    }
+                </button>
+
+                @await Component.InvokeAsync("ReaderNotifications")
+            </div>
 
             <a asp-controller="ReaderPortal"
                asp-action="Favorites"
@@ -127,3 +131,25 @@
         </div>
     </div>
 </nav>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("readerNotificationsToggle");
+        const dropdown = document.getElementById("readerNotificationsDropdown");
+
+        if (!toggle || !dropdown) return;
+
+        toggle.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        document.addEventListener("click", function (e) {
+            if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+    });
+</script>

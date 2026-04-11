@@ -1,0 +1,95 @@
+﻿@model ObreshkovLibrary.Models.ViewModels.ReaderNotificationDropdownVM
+@using ObreshkovLibrary.Models.Enums
+
+<div id="readerNotificationsDropdown"
+     style="display:none; position:absolute; top:54px; right:0; width:340px; max-width:calc(100vw - 24px); background:#ffffff; border:1px solid #dbe4ee; border-radius:18px; overflow:hidden; box-shadow:0 20px 40px rgba(15,23,42,.18); z-index:1200;">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; background:linear-gradient(180deg,#2f5f93 0%,#315f8f 100%); border-bottom:1px solid #254a70;">
+        <div style="color:#ffffff; font-size:1rem; font-weight:900;">
+            @Model.UnreadCount @(Model.UnreadCount == 1 ? "непрочетено" : "непрочетени")
+        </div>
+
+        <a asp-controller="ReaderPortal"
+           asp-action="Notifications"
+           style="color:#dbeafe; text-decoration:none; font-size:.82rem; font-weight:800;">
+            Виж всички
+        </a>
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        <div style="max-height:420px; overflow-y:auto; background:#f8fbff;">
+            @foreach (var item in Model.Items)
+            {
+                var accentColor = item.Type switch
+                {
+                    ReaderNotificationType.OverdueReminder => "#dc2626",
+                    ReaderNotificationType.Admin => "#315f8f",
+                    ReaderNotificationType.NewCategory => "#2563eb",
+                    _ => "#22c55e"
+                };
+
+                var accentBg = item.Type switch
+                {
+                    ReaderNotificationType.OverdueReminder => "#fee2e2",
+                    ReaderNotificationType.Admin => "#eaf2fb",
+                    ReaderNotificationType.NewCategory => "#eaf2ff",
+                    _ => "#ecfdf3"
+                };
+
+                <a asp-controller="ReaderPortal"
+                   asp-action="Notifications"
+                   style="display:grid; grid-template-columns:34px minmax(0,1fr) auto; gap:10px; align-items:center; padding:11px 12px; background:@(item.IsRead ? "#ffffff" : "#f8fbff"); border-bottom:1px solid #e8edf4; text-decoration:none;"
+                   onmouseover="this.style.background='#f1f6fd';"
+                   onmouseout="this.style.background='@(item.IsRead ? "#ffffff" : "#f8fbff")';">
+
+                    <div style="width:34px; height:34px; border-radius:10px; background:@accentBg; color:@accentColor; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:900;">
+                        @if (item.Type == ReaderNotificationType.OverdueReminder)
+                        {
+                            <span>!</span>
+                        }
+                        else if (item.Type == ReaderNotificationType.Admin)
+                        {
+                            <span>i</span>
+                        }
+                        else if (item.Type == ReaderNotificationType.NewCategory)
+                        {
+                            <span>+</span>
+                        }
+                        else
+                        {
+                            <span>•</span>
+                        }
+                    </div>
+
+                    <div style="min-width:0;">
+                        <div style="color:#334155; font-size:.92rem; font-weight:@(item.IsRead ? "700" : "900"); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            @item.Title
+                        </div>
+                    </div>
+
+                    <div style="color:#94a3b8; font-size:.74rem; font-weight:800; white-space:nowrap;">
+                        @if ((DateTime.Now - item.CreatedOn).TotalDays < 1)
+                        {
+                            @item.CreatedOn.ToString("HH:mm")
+                        }
+                        else if ((DateTime.Now - item.CreatedOn).TotalDays < 7)
+                        {
+                            @($"{Math.Max(1, (int)(DateTime.Now - item.CreatedOn).TotalDays)} д.")
+                        }
+                        else
+                        {
+                            @item.CreatedOn.ToString("dd.MM")
+                        }
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div style="padding:18px 16px; color:#64748b; font-size:.92rem; font-weight:700; background:#f8fbff;">
+            Нямаш съобщения.
+        </div>
+    }
+</div>

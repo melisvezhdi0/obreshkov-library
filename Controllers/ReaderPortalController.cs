@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.Enums;
 using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Controllers
@@ -216,14 +217,27 @@ namespace ObreshkovLibrary.Controllers
             var notifications = await _context.ReaderNotifications
                 .Where(n => n.ReaderId == reader.Id)
                 .OrderByDescending(n => n.CreatedOn)
+                .Select(n => new ReaderNotificationItemVM
+                {
+                    NotificationId = n.Id,
+                    Title = n.Title,
+                    Message = n.Message,
+                    CreatedOn = n.CreatedOn,
+                    IsRead = n.IsRead,
+                    BookId = n.BookId,
+                    CategoryId = n.CategoryId,
+                    Type = n.Type
+                })
                 .ToListAsync();
+
+            ViewBag.UnreadCount = notifications.Count(n => !n.IsRead);
 
             return View(notifications);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MarkNotificationAsRead(int id)
+        public async Task<IActionResult> MarkNotificationAsRead(int id, string? returnUrl = null)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -253,9 +267,16 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
             }
 
-            notification.IsRead = true;
+            if (!notification.IsRead)
+            {
+                notification.IsRead = true;
+                await _context.SaveChangesAsync();
+            }
 
-            await _context.SaveChangesAsync();
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
 
             return RedirectToAction(nameof(Notifications));
         }

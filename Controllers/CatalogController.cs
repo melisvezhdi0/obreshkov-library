@@ -107,6 +107,25 @@ namespace ObreshkovLibrary.Controllers
                 SelectedCategoryName = selectedCategoryName
             };
 
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var cardNumber = user.UserName?.Trim().ToUpper();
+
+                if (!string.IsNullOrWhiteSpace(cardNumber))
+                {
+                    var client = await _context.Clients
+                        .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
+
+                    if (client != null)
+                    {
+                        ViewBag.FavoriteBookIds = await _context.ClientFavoriteBooks
+                            .Where(f => f.ClientId == client.Id)
+                            .Select(f => f.BookId)
+                            .ToListAsync();
+                    }
+                }
+            }
             return View(vm);
         }
 

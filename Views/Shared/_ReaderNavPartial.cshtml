@@ -2,10 +2,10 @@
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
 
-    bool isHomeActive = currentController == "Home";
+    bool isHomeActive = currentController == "Home" && currentAction == "ReaderIndex";
     bool isCatalogActive = currentController == "Catalog";
-    bool isNotificationsActive = currentAction == "Notifications";
-    bool isFavoritesActive = currentAction == "Favorites";
+    bool isNotificationsActive = currentController == "ReaderPortal" && currentAction == "Notifications";
+    bool isFavoritesActive = currentController == "ReaderPortal" && currentAction == "Favorites";
     bool isProfileActive = currentController == "ReaderPortal" && currentAction == "Index";
 
     bool hasUnread = ViewBag.HasUnreadNotifications == true;

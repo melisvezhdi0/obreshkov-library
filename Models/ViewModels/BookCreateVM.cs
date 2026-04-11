@@ -8,11 +8,11 @@ namespace ObreshkovLibrary.Models.ViewModels
 {
     public class BookCreateVM
     {
-        [Required]
-        public string Title { get; set; } = "";
+        [Required(ErrorMessage = "Моля, въведете заглавие.")]
+        public string Title { get; set; }
 
-        [Required]
-        public string Author { get; set; } = "";
+        [Required(ErrorMessage = "Моля, въведете автор.")]
+        public string Author { get; set; }
 
         public int? Year { get; set; }
         public string? Description { get; set; }
@@ -25,6 +25,7 @@ namespace ObreshkovLibrary.Models.ViewModels
         public string? SchoolClass { get; set; }
         public List<string> SelectedSchoolClasses { get; set; } = new();
 
+        [Required(ErrorMessage = "Моля, изберете категория.")]
         public int? Level1Id { get; set; }
         public int? Level2Id { get; set; }
 

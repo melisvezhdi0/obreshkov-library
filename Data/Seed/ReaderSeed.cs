@@ -74,7 +74,7 @@ namespace ObreshkovLibrary.Data.Seed
                     return (baseNumber + grade * 10 + index).ToString();
                 }
 
-                Reader Createreader(int grade, int index, bool isActive, int createdDaysOffset)
+                Reader CreateReader(int grade, int index, bool isActive, int createdDaysOffset)
                 {
                     var first = firstNames[(grade * 10 + index) % firstNames.Length];
                     var middle = middleNames[(grade * 7 + index) % middleNames.Length];
@@ -110,7 +110,7 @@ namespace ObreshkovLibrary.Data.Seed
                 {
                     for (int i = 0; i < 4; i++)
                     {
-                        readers.Add(Createreader(
+                        readers.Add(CreateReader(
                             grade: grade,
                             index: i,
                             isActive: true,
@@ -119,7 +119,7 @@ namespace ObreshkovLibrary.Data.Seed
 
                     for (int i = 0; i < 2; i++)
                     {
-                        readers.Add(Createreader(
+                        readers.Add(CreateReader(
                             grade: grade,
                             index: i + 20,
                             isActive: false,
@@ -191,15 +191,15 @@ namespace ObreshkovLibrary.Data.Seed
                 .Where(c => !string.IsNullOrWhiteSpace(c.CardNumber))
                 .ToListAsync();
 
-            var legacyreaders = readers
+            var LegacyReaders = readers
                 .Where(c => IsLegacySeedCardNumber(c.CardNumber!))
                 .OrderBy(c => c.CardNumber)
                 .ToList();
 
-            if (!legacyreaders.Any())
+            if (!LegacyReaders.Any())
                 return;
 
-            var legacyIds = legacyreaders
+            var legacyIds =  LegacyReaders
                 .Select(c => c.Id)
                 .ToHashSet();
 
@@ -208,7 +208,7 @@ namespace ObreshkovLibrary.Data.Seed
                 .Select(c => c.CardNumber!)
                 .ToHashSet();
 
-            foreach (var reader in legacyreaders)
+            foreach (var reader in LegacyReaders)
             {
                 var proposedNumber = reader.CardNumber![^6..];
 

@@ -27,7 +27,7 @@
         <div style="display:grid; grid-template-columns:repeat(7,1fr);">
             <a asp-action="Index" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Скоро архивирани</a>
             <a asp-action="Books" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Книги</a>
-            <a asp-action="readers" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#FFFFFF; color:#1F2937; font-weight:800;">Читатели</a>
+            <a asp-action="Readers" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#FFFFFF; color:#1F2937; font-weight:800;">Читатели</a>
             <a asp-action="Categories" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Категории</a>
             <a asp-action="Copies" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Копия</a>
             <a asp-action="Loans" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Заеми</a>
@@ -36,7 +36,7 @@
     </section>
 
     <section class="card-soft" style="padding:1rem; margin-bottom:1rem;">
-        <form method="get" asp-action="readers" style="display:flex; align-items:center; gap:12px; width:100%; flex-wrap:nowrap;">
+        <form method="get" asp-action="Readers" style="display:flex; align-items:center; gap:12px; width:100%; flex-wrap:nowrap;">
 
             <div style="position:relative; flex:1 1 auto; min-width:0;">
                 <span style="position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#94A3B8; font-size:1rem; pointer-events:none; z-index:2;">⌕</span>
@@ -114,7 +114,7 @@
                                 <td style="padding:1rem 1.2rem;">@item.CardNumber</td>
                                 <td style="padding:1rem 1.2rem;">@className</td>
                                 <td style="padding:1rem 1.2rem; text-align:right; white-space:nowrap;">
-                                    <a asp-controller="readers"
+                                    <a asp-controller="Readers"
                                        asp-action="Details"
                                        asp-route-id="@item.Id"
                                        style="color:#3B82F6; font-weight:800; text-decoration:none; margin-right:14px;">

@@ -5,7 +5,7 @@
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     bool isRecent = currentAction == "Index";
     bool isBooks = currentAction == "Books";
-    bool isreaders = currentAction == "readers";
+    bool isReaders = currentAction == "Readers";
     bool isCategories = currentAction == "Categories";
     bool isCopies = currentAction == "Copies";
     bool isLoans = currentAction == "Loans";
@@ -34,8 +34,8 @@
                 Книги
             </a>
 
-            <a asp-controller="Archive" asp-action="readers"
-               style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; @(isreaders ? "background:#FFFFFF; color:#1F2937; font-weight:800;" : "background:#F8FBFF; color:#64748B; font-weight:700;")">
+            <a asp-controller="Archive" asp-action="Readers"
+               style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; @(isReaders ? "background:#FFFFFF; color:#1F2937; font-weight:800;" : "background:#F8FBFF; color:#64748B; font-weight:700;")">
                 Читатели
             </a>
 

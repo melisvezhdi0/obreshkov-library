@@ -143,8 +143,8 @@
                             {
                                 <tr role="button"
                                     tabindex="0"
-                                    onclick="window.location.href='@Url.Action("Details", "readers", new { id = item.Id })';"
-                                    onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "readers", new { id = item.Id })'; }">
+                                    onclick="window.location.href='@Url.Action("Details", "Readers", new { id = item.Id })';"
+                                    onkeydown="if(event.key==='Enter'){ window.location.href='@Url.Action("Details", "Readers", new { id = item.Id })'; }">
                                     <td style="padding:1rem 1.2rem; background:#fff; border-bottom:1px solid #E5EAF0; vertical-align:middle; font-weight:700; color:#1F2937;">
                                         @(($"{item.FirstName} {item.MiddleName} {item.LastName}").Replace("  ", " ").Trim())
                                     </td>

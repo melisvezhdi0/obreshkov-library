@@ -65,7 +65,7 @@ namespace ObreshkovLibrary.Data
 
             modelBuilder.Entity<ReaderFavoriteBook>()
                 .HasOne(x => x.Book)
-                .WithMany(x => x.FavoritedByreaders)
+                .WithMany(x => x.FavoritedByReaders)
                 .HasForeignKey(x => x.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 

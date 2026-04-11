@@ -350,7 +350,7 @@ namespace ObreshkovLibrary.Controllers
             ViewBag.IsAvailable = isAvailable;
             ViewBag.RelatedBooks = authorBooks;
             ViewBag.SimilarBooks = similarBooks;
-            ViewBag.IsReader = isReader;
+            ViewBag.isReader = isReader;
             ViewBag.IsFavorite = isFavorite;
         }
 

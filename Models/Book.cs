@@ -38,7 +38,7 @@ namespace ObreshkovLibrary.Models
 
         public ICollection<BookCopy> Copies { get; set; } = new List<BookCopy>();
 
-        public ICollection<ReaderFavoriteBook> FavoritedByreaders { get; set; } = new List<ReaderFavoriteBook>();
+        public ICollection<ReaderFavoriteBook> FavoritedByReaders { get; set; } = new List<ReaderFavoriteBook>();
 
         public ICollection<ReaderNotification> Notifications { get; set; } = new List<ReaderNotification>();
 

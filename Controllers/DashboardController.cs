@@ -136,7 +136,7 @@ namespace ObreshkovLibrary.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return RedirectToAction("Details", "readers", new { id = reader.Id });
+            return RedirectToAction("Details", "Readers", new { id = reader.Id });
         }
     }
 }

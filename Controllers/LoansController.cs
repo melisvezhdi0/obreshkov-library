@@ -199,7 +199,7 @@ namespace ObreshkovLibrary.Controllers
             _context.Loans.Add(loan);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", "readers", new { id = reader.Id });
+            return RedirectToAction("Details", "Readers", new { id = reader.Id });
         }
 
         [HttpPost]
@@ -221,7 +221,7 @@ namespace ObreshkovLibrary.Controllers
                 TempData["SuccessMessage"] = "Успешно върната книга.";
             }
 
-            return RedirectToAction("Details", "readers", new { id = loan.ReaderId });
+            return RedirectToAction("Details", "Readers", new { id = loan.ReaderId });
         }
     }
 }

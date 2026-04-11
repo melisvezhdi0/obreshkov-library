@@ -1,6 +1,7 @@
 ﻿@model ObreshkovLibrary.Models.ViewModels.CatalogIndexVM
 @using ObreshkovLibrary.Models
 @using System.Linq
+@using System.Collections.Generic
 
 @{
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
@@ -27,40 +28,56 @@
         }
     }
 
-    string GetCover(Book book) => book.CoverPath ?? "";
+    string GetCover(Book book)
+    {
+        if (string.IsNullOrWhiteSpace(book.CoverPath))
+            return "";
+
+        return book.CoverPath.StartsWith("/")
+            ? Url.Content("~" + book.CoverPath)
+            : Url.Content("~/" + book.CoverPath.TrimStart('/'));
+    }
+
     List<Category> GetChildren(int parentId)
         => categories.Where(c => c.ParentCategoryId == parentId).OrderBy(c => c.Name).ToList();
+
+    var booksCount = Model.Books?.Count ?? 0;
 }
 
-<div style="width:100%; margin:0; padding:0; background:#ffffff;">
-    <div style="width:100%; margin:0; padding:0;">
+<div style="width:100%; margin:0; padding:0; background:
+    radial-gradient(circle at 10% 12%, rgba(37,99,235,.03), transparent 24%),
+    radial-gradient(circle at 92% 8%, rgba(59,130,246,.025), transparent 20%),
+    linear-gradient(180deg, #f8fafc 0%, #f4f7fb 100%);">
 
-        <div style="display:grid; grid-template-columns:270px minmax(0,1fr); min-height:calc(100vh - 78px); background:#ffffff; border-top:1px solid #e5e7eb;">
+    <div style="display:grid; grid-template-columns:214px minmax(0,1fr); min-height:calc(100vh - 78px); border-top:1px solid #e5e7eb;">
 
-            <aside style="background:#f9fafb; border-right:1px solid #e5e7eb; padding:0;">
-                <div style="padding:24px 18px 18px 18px; border-bottom:1px solid #e5e7eb;">
-                    <div style="color:#64748b; font-size:.78rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
+        <aside style="background:linear-gradient(180deg,#f8fafc 0%,#f4f7fb 100%); border-right:1px solid #e2e8f0; min-width:0;">
+            <div style="position:sticky; top:0; height:calc(100vh - 78px); overflow-y:auto; overflow-x:hidden;">
+
+                <div style="padding:16px 12px 10px 12px; border-bottom:1px solid #e5e7eb; background:rgba(248,250,252,.95); backdrop-filter:blur(8px);">
+                    <div style="color:#64748b; font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
                         Каталог
                     </div>
 
-                    <h1 style="margin:12px 0 0 0; color:#17325c; font-size:1.8rem; font-weight:900; line-height:1.1;">
+                    <h1 style="margin:7px 0 0 0; color:#17325c; font-size:1.05rem; font-weight:900; line-height:1.1;">
                         Книги
                     </h1>
 
-                    <p style="margin:12px 0 0 0; color:#64748b; font-size:.95rem; font-weight:700; line-height:1.6;">
-                        Разгледай по категория.
+                    <p style="margin:5px 0 0 0; color:#64748b; font-size:.8rem; font-weight:700; line-height:1.4;">
+                        Подреди по категории.
                     </p>
                 </div>
 
-                <div style="padding:10px;">
+                <div style="padding:10px 9px; display:flex; flex-direction:column; gap:7px;">
                     <a asp-controller="Catalog"
                        asp-action="Index"
                        asp-route-search="@Model.Search"
                        asp-route-sort="@Model.Sort"
-                       style="display:block; padding:12px 14px; border-radius:8px; text-decoration:none; font-weight:800; color:@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155"); background:@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent"); border:1px solid @(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent"); margin-bottom:8px;"
-                       onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderColor='#e2e8f0';"
-                       onmouseout="this.style.background='@(Model.SelectedCategoryId == null ? "#eef4ff" : "transparent")'; this.style.color='@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155")'; this.style.borderColor='@(Model.SelectedCategoryId == null ? "#dbe7fb" : "transparent")';">
-                        Всички книги
+                       style="display:flex; align-items:center; gap:8px; padding:11px 12px; border-radius:12px; text-decoration:none; font-weight:900; font-size:.9rem; color:@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155"); background:@(Model.SelectedCategoryId == null ? "#eef4ff" : "#ffffff"); border:1px solid @(Model.SelectedCategoryId == null ? "#dbe7fb" : "#e5e7eb"); box-shadow:@(Model.SelectedCategoryId == null ? "0 8px 16px rgba(37,99,235,.08)" : "0 2px 8px rgba(15,23,42,.025)"); transition:all .18s ease;"
+                       onmouseover="this.style.background='#f3f6fa'; this.style.borderColor='#dbe7fb'; this.style.color='#1d4ed8';"
+                       onmouseout="this.style.background='@(Model.SelectedCategoryId == null ? "#eef4ff" : "#ffffff")'; this.style.borderColor='@(Model.SelectedCategoryId == null ? "#dbe7fb" : "#e5e7eb")'; this.style.color='@(Model.SelectedCategoryId == null ? "#1d4ed8" : "#334155")';">
+                        <span style="width:8px; height:8px; border-radius:999px; background:@(Model.SelectedCategoryId == null ? "#2563eb" : "#cbd5e1");"></span>
+                        <span>Всички книги</span>
                     </a>
 
                     @foreach (var root in rootCategories)
@@ -69,21 +86,26 @@
                         var open = openIds.Contains(root.Id);
                         var selected = Model.SelectedCategoryId == root.Id;
 
-                        <div style="margin-bottom:6px; border-radius:10px; border:1px solid #e5e7eb; background:#ffffff; overflow:hidden;">
-                            <div style="display:flex; align-items:center; gap:6px; padding:8px;">
+                        <div style="border-radius:13px; background:#ffffff; border:1px solid #e7edf4; overflow:hidden; box-shadow:0 2px 8px rgba(15,23,42,.02); transition:border-color .18s ease, box-shadow .18s ease;"
+                             onmouseover="this.style.borderColor='#dbe4ee'; this.style.boxShadow='0 8px 18px rgba(15,23,42,.045)';"
+                             onmouseout="this.style.borderColor='#e7edf4'; this.style.boxShadow='0 2px 8px rgba(15,23,42,.02)';">
+
+                            <div style="display:flex; align-items:center; gap:7px; padding:7px;">
                                 @if (children.Any())
                                 {
                                     <button type="button"
                                             class="tree-toggle-btn"
                                             data-target="guest-cat-@root.Id"
-                                            style="width:28px; height:28px; border:none; border-radius:8px; background:#eef4ff; color:#1d4ed8; font-weight:900; cursor:pointer;">
+                                            style="width:28px; height:28px; min-width:28px; border:none; border-radius:8px; background:@(open ? "#e8f0ff" : "#f1f5f9"); color:#2563eb; font-weight:900; cursor:pointer; transition:all .18s ease;"
+                                            onmouseover="this.style.background='#e8f0ff';"
+                                            onmouseout="this.style.background='@(open ? "#e8f0ff" : "#f1f5f9")';">
                                         <span class="tree-plus" style="display:@(open ? "none" : "inline")">+</span>
                                         <span class="tree-minus" style="display:@(open ? "inline" : "none")">−</span>
                                     </button>
                                 }
                                 else
                                 {
-                                    <span style="width:28px; height:28px;"></span>
+                                    <span style="width:28px; height:28px; min-width:28px; border-radius:8px; background:#f1f5f9; display:inline-flex; align-items:center; justify-content:center; color:#cbd5e1; font-weight:900;">•</span>
                                 }
 
                                 <a asp-controller="Catalog"
@@ -91,53 +113,92 @@
                                    asp-route-categoryId="@root.Id"
                                    asp-route-search="@Model.Search"
                                    asp-route-sort="@Model.Sort"
-                                   style="flex:1; display:block; padding:6px 8px; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:800; color:@(selected ? "#1d4ed8" : "#334155"); background:@(selected ? "#eef4ff" : "transparent");"
-                                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
-                                   onmouseout="this.style.background='@(selected ? "#eef4ff" : "transparent")'; this.style.color='@(selected ? "#1d4ed8" : "#334155")';">
+                                   style="flex:1; display:block; padding:8px 8px; border-radius:9px; text-decoration:none; font-size:.85rem; font-weight:900; line-height:1.35; color:@(selected ? "#1d4ed8" : "#334155"); background:@(selected ? "#eef4ff" : "transparent"); border-left:3px solid @(selected ? "#2563eb" : "transparent"); transition:all .18s ease;"
+                                   onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8'; this.style.borderLeftColor='#2563eb';"
+                                   onmouseout="this.style.background='@(selected ? "#eef4ff" : "transparent")'; this.style.color='@(selected ? "#1d4ed8" : "#334155")'; this.style.borderLeftColor='@(selected ? "#2563eb" : "transparent")';">
                                     @root.Name
                                 </a>
                             </div>
 
                             @if (children.Any())
                             {
-                                <div id="guest-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 8px 8px 8px;">
-                                    @foreach (var child in children)
-                                    {
-                                        var selectedChild = Model.SelectedCategoryId == child.Id;
+                                <div id="guest-cat-@root.Id" style="display:@(open ? "block" : "none"); padding:0 7px 7px 7px;">
+                                    <div style="margin-left:35px; display:flex; flex-direction:column; gap:5px;">
+                                        @foreach (var child in children)
+                                        {
+                                            var selectedChild = Model.SelectedCategoryId == child.Id;
 
-                                        <a asp-controller="Catalog"
-                                           asp-action="Index"
-                                           asp-route-categoryId="@child.Id"
-                                           asp-route-search="@Model.Search"
-                                           asp-route-sort="@Model.Sort"
-                                           style="display:block; padding:6px 10px 6px 36px; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:800; color:@(selectedChild ? "#1d4ed8" : "#4c647f"); background:@(selectedChild ? "#eef4ff" : "transparent");"
-                                           onmouseover="this.style.background='#f3f6fa'; this.style.color='#1d4ed8';"
-                                           onmouseout="this.style.background='@(selectedChild ? "#eef4ff" : "transparent")'; this.style.color='@(selectedChild ? "#1d4ed8" : "#4c647f")';">
-                                            @child.Name
-                                        </a>
-                                    }
+                                            <a asp-controller="Catalog"
+                                               asp-action="Index"
+                                               asp-route-categoryId="@child.Id"
+                                               asp-route-search="@Model.Search"
+                                               asp-route-sort="@Model.Sort"
+                                               style="display:block; padding:7px 9px; border-radius:9px; text-decoration:none; font-size:.77rem; font-weight:800; color:@(selectedChild ? "#1d4ed8" : "#52667d"); background:@(selectedChild ? "#eef4ff" : "#f8fafc"); transition:all .18s ease;"
+                                               onmouseover="this.style.background='#f1f5f9'; this.style.color='#1d4ed8';"
+                                               onmouseout="this.style.background='@(selectedChild ? "#eef4ff" : "#f8fafc")'; this.style.color='@(selectedChild ? "#1d4ed8" : "#52667d")';">
+                                                @child.Name
+                                            </a>
+                                        }
+                                    </div>
                                 </div>
                             }
                         </div>
                     }
                 </div>
-            </aside>
+            </div>
+        </aside>
 
-            <section style="padding:24px 28px; min-width:0; background:#ffffff;">
-                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; padding:14px; margin-bottom:20px;">
+        <section style="padding:14px 16px 16px 16px; min-width:0;">
+            <section style="border:1px solid #e3e8ef; border-radius:20px; background:rgba(255,255,255,.97); overflow:hidden; box-shadow:0 10px 24px rgba(15,23,42,.04);">
+
+                <div style="padding:12px 14px 10px 14px; border-bottom:1px solid #e8edf4; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%);">
                     <form method="get"
                           asp-action="Index"
-                          style="display:grid; grid-template-columns:1fr 220px 120px; gap:12px;">
+                          style="display:grid; grid-template-columns:minmax(0,1fr) 220px 108px; gap:10px; align-items:center; margin:0;">
 
                         <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
 
-                        <input name="search"
-                               value="@Model.Search"
-                               placeholder="Търси по заглавие, автор, разказ, клас, жанр или категория..."
-                               style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 18px; font-weight:700;" />
+                        <div style="position:relative;">
+                            <span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#94a3b8; display:flex; align-items:center; pointer-events:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="20"
+                                     height="20"
+                                     fill="none"
+                                     stroke="currentColor"
+                                     stroke-width="2"
+                                     stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     viewBox="0 0 24 24">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </span>
+
+                            <input name="search"
+                                   value="@Model.Search"
+                                   style="width:100%; height:44px; border-radius:14px; border:1px solid #dbe4ee; padding:0 44px 0 46px; font-weight:800; color:#0f172a; background:#ffffff; outline:none;"
+                                   onfocus="this.style.borderColor='#bfd4ff'; this.style.boxShadow='0 0 0 4px rgba(37,99,235,.08)';"
+                                   onblur="this.style.borderColor='#dbe4ee'; this.style.boxShadow='none';" />
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Search))
+                            {
+                                <a asp-controller="Catalog"
+                                   asp-action="Index"
+                                   asp-route-categoryId="@Model.SelectedCategoryId"
+                                   asp-route-sort="@Model.Sort"
+                                   style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:24px; height:24px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#94a3b8; text-decoration:none; font-size:1rem; font-weight:900; transition:all .18s ease;"
+                                   onmouseover="this.style.background='#f1f5f9'; this.style.color='#475569';"
+                                   onmouseout="this.style.background='transparent'; this.style.color='#94a3b8';"
+                                   title="Изчисти търсенето">
+                                    ×
+                                </a>
+                            }
+                        </div>
 
                         <select name="sort"
-                                style="height:50px; border-radius:10px; border:1px solid #dbe4ee; padding:0 14px; font-weight:800;">
+                                style="height:44px; border-radius:14px; border:1px solid #dbe4ee; padding:0 14px; font-weight:900; color:#0f172a; background:#ffffff; outline:none;"
+                                onfocus="this.style.borderColor='#bfd4ff'; this.style.boxShadow='0 0 0 4px rgba(37,99,235,.08)';"
+                                onblur="this.style.borderColor='#dbe4ee'; this.style.boxShadow='none';">
                             <option value="date_desc" selected="@(Model.Sort == "date_desc")">Най-нови първо</option>
                             <option value="date_asc" selected="@(Model.Sort == "date_asc")">Най-стари първо</option>
                             <option value="name_asc" selected="@(Model.Sort == "name_asc")">Име А-Я</option>
@@ -145,22 +206,31 @@
                         </select>
 
                         <button type="submit"
-                                style="border:none; border-radius:10px; background:#2563eb; color:#ffffff; font-weight:900; cursor:pointer;"
-                                onmouseover="this.style.background='#1d4ed8';"
-                                onmouseout="this.style.background='#2563eb';">
-                            Приложи
+                                style="height:44px; border:none; border-radius:14px; background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%); color:#ffffff; font-weight:900; cursor:pointer; box-shadow:0 10px 20px rgba(37,99,235,.18); transition:all .18s ease;"
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 14px 24px rgba(37,99,235,.24)';"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(37,99,235,.18)';">
+                            Търси
                         </button>
                     </form>
-                </section>
+                </div>
 
-                <section style="border:1px solid #e3e8ef; border-radius:12px; background:#ffffff; overflow:hidden;">
-                    <div style="padding:20px 22px; border-bottom:1px solid #e5e7eb;">
-                        <h2 style="margin:0; font-size:2rem; font-weight:900; color:#17325c; line-height:1.1;">
+                <div style="padding:14px 18px 6px 18px; display:flex; align-items:end; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                    <div>
+                        <h2 style="margin:0; font-size:2rem; font-weight:900; color:#17325c; line-height:1.04;">
                             @Model.SelectedCategoryName
                         </h2>
+                        <div style="width:58px; height:4px; border-radius:999px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%); margin-top:9px;"></div>
                     </div>
 
-                    <div style="padding:22px; display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:24px;">
+                    <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#f8fbff; border:1px solid #dbe7fb; color:#33527c; font-size:.82rem; font-weight:900;">
+                        <span style="width:8px; height:8px; border-radius:999px; background:#2563eb;"></span>
+                        @booksCount @(booksCount == 1 ? "книга" : "книги")
+                    </div>
+                </div>
+
+                @if (Model.Books != null && Model.Books.Any())
+                {
+                    <div style="padding:12px 18px 18px 18px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:16px;">
                         @foreach (var book in Model.Books)
                         {
                             var cover = GetCover(book);
@@ -168,35 +238,52 @@
                             <a asp-controller="Catalog"
                                asp-action="Details"
                                asp-route-id="@book.Id"
-                               style="position:relative; display:flex; flex-direction:column; border-radius:16px; padding:12px; background:#ffffff; border:1px solid #e6edf5; text-decoration:none; transition:.2s;"
-                               onmouseover="this.style.transform='translateY(-4px)'; this.querySelector('.overlay').style.opacity='1';"
-                               onmouseout="this.style.transform='translateY(0)'; this.querySelector('.overlay').style.opacity='0';">
+                               style="position:relative; display:block; border-radius:20px; overflow:hidden; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); border:1px solid #e6edf5; box-shadow:0 6px 16px rgba(15,23,42,.035); text-decoration:none; color:inherit; transition:all .2s ease;"
+                               onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 30px rgba(15,23,42,.09)'; this.style.borderColor='#d7e4ff'; this.querySelector('.book-overlay').style.opacity='1'; this.querySelector('.book-image').style.transform='scale(1.035)';"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 16px rgba(15,23,42,.035)'; this.style.borderColor='#e6edf5'; this.querySelector('.book-overlay').style.opacity='0'; this.querySelector('.book-image').style.transform='scale(1)';">
 
-                                <div style="height:210px; border-radius:12px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; background:#f4f7fb;">
+                                <div style="position:relative; height:100%; min-height:250px; display:flex; align-items:center; justify-content:center; padding:12px; background:linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);">
                                     @if (!string.IsNullOrEmpty(cover))
                                     {
-                                        <img src="@cover" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                        <img src="@cover"
+                                             alt="@book.Title"
+                                             class="book-image"
+                                             style="width:100%; height:226px; object-fit:contain; display:block; transition:transform .22s ease;" />
+                                    }
+                                    else
+                                    {
+                                        <div style="width:100%; height:226px; border:2px dashed #d7dfeb; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:.82rem; font-weight:800; text-align:center; padding:8px; background:#ffffff;">
+                                            Няма корица
+                                        </div>
                                     }
 
-                                    <div class="overlay"
-                                         style="position:absolute; inset:0; background:rgba(37,99,235,.78); display:flex; align-items:center; justify-content:center; font-weight:900; color:white; letter-spacing:.05em; font-size:.9rem; opacity:0; transition:.25s;">
-                                        Виж детайли
+                                    <div class="book-overlay"
+                                         style="position:absolute; inset:0; border-radius:20px; background:linear-gradient(180deg, rgba(15,23,42,.04) 0%, rgba(15,23,42,.18) 35%, rgba(15,23,42,.80) 100%); display:flex; align-items:flex-end; padding:14px; opacity:0; transition:opacity .22s ease; z-index:2;">
+                                        <div style="width:100%;">
+                                            <div title="@book.Title"
+                                                 style="color:#ffffff; font-size:.95rem; font-weight:900; line-height:1.22; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; text-shadow:0 2px 12px rgba(0,0,0,.25);">
+                                                @book.Title
+                                            </div>
+
+                                            <div title="@book.Author"
+                                                 style="margin-top:6px; color:rgba(255,255,255,.88); font-size:.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 2px 10px rgba(0,0,0,.2);">
+                                                @book.Author
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div style="margin-top:10px; font-weight:900; font-size:.95rem; color:#0f172a; line-height:1.35;">
-                                    @book.Title
-                                </div>
-
-                                <div style="font-size:.9rem; font-weight:700; color:#6b7f95;">
-                                    @book.Author
                                 </div>
                             </a>
                         }
                     </div>
-                </section>
+                }
+                else
+                {
+                    <div style="padding:24px 20px 22px 20px; color:#64748b; font-size:1rem; font-weight:700;">
+                        Няма намерени книги за избраните критерии.
+                    </div>
+                }
             </section>
-        </div>
+        </section>
     </div>
 </div>
 

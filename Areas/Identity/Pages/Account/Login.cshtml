@@ -133,8 +133,58 @@
         const adminEmailInput = document.getElementById('adminEmailInput');
         const rememberMeInput = document.getElementById('rememberMeInput');
 
+        function getRememberKey(role) {
+            return role === 'Admin' ? 'rememberAdminLogin' : 'rememberReaderLogin';
+        }
+
+        function getSavedValueKey(role) {
+            return role === 'Admin' ? 'savedAdminEmail' : 'savedReaderCard';
+        }
+
+        function isRoleRemembered(role) {
+            return localStorage.getItem(getRememberKey(role)) === 'true';
+        }
+
+        function loadSavedValueForRole(role) {
+            const valueKey = getSavedValueKey(role);
+            return localStorage.getItem(valueKey) || '';
+        }
+
+        function applyRememberStateForRole(role) {
+            if (!rememberMeInput) {
+                return;
+            }
+
+            rememberMeInput.checked = isRoleRemembered(role);
+        }
+
+        function applySavedIdentityForRole(role) {
+            if (role === 'Reader') {
+                if (ReaderCardNumberInput) {
+                    ReaderCardNumberInput.value = isRoleRemembered('Reader')
+                        ? loadSavedValueForRole('Reader')
+                        : '';
+                }
+
+                if (adminEmailInput) {
+                    adminEmailInput.value = '';
+                }
+            } else {
+                if (adminEmailInput) {
+                    adminEmailInput.value = isRoleRemembered('Admin')
+                        ? loadSavedValueForRole('Admin')
+                        : '';
+                }
+
+                if (ReaderCardNumberInput) {
+                    ReaderCardNumberInput.value = '';
+                }
+            }
+        }
+
         function setRole(role) {
             selectedRoleInput.value = role;
+            localStorage.setItem('lastLoginRole', role);
 
             if (role === 'Reader') {
                 ReaderFields.style.display = 'block';
@@ -175,6 +225,9 @@
 
                 forgotPasswordLink.href = '/Identity/Account/ForgotPassword?role=Admin';
             }
+
+            applyRememberStateForRole(role);
+            applySavedIdentityForRole(role);
         }
 
         ReaderRoleBtn.addEventListener('click', () => setRole('Reader'));
@@ -233,67 +286,40 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('account');
-
-            const rememberSaved = localStorage.getItem('loginRememberMe') === 'true';
-            const savedRole = localStorage.getItem('loginRole');
-            const savedReaderCard = localStorage.getItem('savedReaderCard');
-            const savedAdminEmail = localStorage.getItem('savedAdminEmail');
-
-            if (rememberMeInput) {
-                rememberMeInput.checked = rememberSaved;
-            }
+            const savedLastRole = localStorage.getItem('lastLoginRole');
 
             const initialRole =
-                rememberSaved && (savedRole === 'Admin' || savedRole === 'Reader')
-                    ? savedRole
+                savedLastRole === 'Admin' || savedLastRole === 'Reader'
+                    ? savedLastRole
                     : '@selectedRole';
 
             setRole(initialRole);
-
-            if (rememberSaved) {
-                if (initialRole === 'Reader') {
-                    if (ReaderCardNumberInput && savedReaderCard) {
-                        ReaderCardNumberInput.value = savedReaderCard;
-                    }
-                    if (adminEmailInput) {
-                        adminEmailInput.value = '';
-                    }
-                } else {
-                    if (adminEmailInput && savedAdminEmail) {
-                        adminEmailInput.value = savedAdminEmail;
-                    }
-                    if (ReaderCardNumberInput) {
-                        ReaderCardNumberInput.value = '';
-                    }
-                }
-            } else {
-                if (ReaderCardNumberInput) ReaderCardNumberInput.value = '';
-                if (adminEmailInput) adminEmailInput.value = '';
-            }
 
             if (form) {
                 form.addEventListener('submit', function () {
                     const currentRole = selectedRoleInput ? selectedRoleInput.value : 'Reader';
                     const remember = rememberMeInput ? rememberMeInput.checked : false;
 
-                    if (remember) {
-                        localStorage.setItem('loginRememberMe', 'true');
-                        localStorage.setItem('loginRole', currentRole);
+                    localStorage.setItem('lastLoginRole', currentRole);
 
-                        if (currentRole === 'Reader' && ReaderCardNumberInput) {
-                            localStorage.setItem('savedReaderCard', ReaderCardNumberInput.value.trim());
-                            localStorage.removeItem('savedAdminEmail');
-                        }
-
-                        if (currentRole === 'Admin' && adminEmailInput) {
-                            localStorage.setItem('savedAdminEmail', adminEmailInput.value.trim());
+                    if (currentRole === 'Reader') {
+                        if (remember) {
+                            localStorage.setItem('rememberReaderLogin', 'true');
+                            localStorage.setItem('savedReaderCard', ReaderCardNumberInput ? ReaderCardNumberInput.value.trim() : '');
+                        } else {
+                            localStorage.removeItem('rememberReaderLogin');
                             localStorage.removeItem('savedReaderCard');
                         }
-                    } else {
-                        localStorage.removeItem('loginRememberMe');
-                        localStorage.removeItem('loginRole');
-                        localStorage.removeItem('savedReaderCard');
-                        localStorage.removeItem('savedAdminEmail');
+                    }
+
+                    if (currentRole === 'Admin') {
+                        if (remember) {
+                            localStorage.setItem('rememberAdminLogin', 'true');
+                            localStorage.setItem('savedAdminEmail', adminEmailInput ? adminEmailInput.value.trim() : '');
+                        } else {
+                            localStorage.removeItem('rememberAdminLogin');
+                            localStorage.removeItem('savedAdminEmail');
+                        }
                     }
                 });
             }

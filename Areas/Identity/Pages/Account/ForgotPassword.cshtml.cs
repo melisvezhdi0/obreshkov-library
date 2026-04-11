@@ -64,7 +64,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             var normalizedCard = Input.CardNumber.Trim().ToUpper();
             var normalizedPhone = Input.PhoneNumber.Trim();
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .FirstOrDefaultAsync(c =>
                     c.CardNumber.ToUpper() == normalizedCard &&
                     c.PhoneNumber == normalizedPhone);
@@ -76,13 +76,13 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             }
 
             bool alreadyOpen = await _context.PasswordResetRequests
-                .AnyAsync(r => r.readerId == reader.Id && !r.IsCompleted);
+                .AnyAsync(r => r.ReaderId == reader.Id && !r.IsCompleted);
 
             if (!alreadyOpen)
             {
                 var request = new PasswordResetRequest
                 {
-                    readerId = reader.Id,
+                    ReaderId = reader.Id,
                     CardNumber = reader.CardNumber,
                     PhoneNumber = reader.PhoneNumber,
                     RequestedOn = DateTime.Now,

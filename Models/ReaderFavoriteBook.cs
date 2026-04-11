@@ -6,8 +6,8 @@ namespace ObreshkovLibrary.Models
     {
         public int Id { get; set; }
 
-        public int readerId { get; set; }
-        public Reader reader { get; set; } = null!;
+        public int ReaderId { get; set; }
+        public Reader Reader { get; set; } = null!;
 
         public int BookId { get; set; }
         public Book Book { get; set; } = null!;

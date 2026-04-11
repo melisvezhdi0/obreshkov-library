@@ -32,7 +32,7 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Index(string? search, string? classFilter)
         {
-            var readers = await _context.readers
+            var readers = await _context.Readers
                 .Where(c => c.IsActive)
                 .ToListAsync();
             var availableClasses = readers
@@ -104,7 +104,7 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Archived(string? search, string? classFilter)
         {
-            var q = _context.readers
+            var q = _context.Readers
                 .IgnoreQueryFilters()
                 .Where(c => !c.IsActive)
                 .AsQueryable();
@@ -156,14 +156,14 @@ namespace ObreshkovLibrary.Controllers
         {
             if (id == null) return NotFound();
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (reader == null) return NotFound();
 
             var activeLoans = await _context.Loans
-                .Where(l => l.readerId == reader.Id && l.ReturnDate == null)
+                .Where(l => l.ReaderId == reader.Id && l.ReturnDate == null)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
@@ -232,7 +232,7 @@ namespace ObreshkovLibrary.Controllers
 
             if (!createUserResult.Succeeded)
             {
-                _context.readers.Remove(reader);
+                _context.Readers.Remove(reader);
                 await _context.SaveChangesAsync();
 
                 foreach (var error in createUserResult.Errors)
@@ -248,7 +248,7 @@ namespace ObreshkovLibrary.Controllers
             if (!addRoleResult.Succeeded)
             {
                 await _userManager.DeleteAsync(ReaderUser);
-                _context.readers.Remove(reader);
+                _context.Readers.Remove(reader);
                 await _context.SaveChangesAsync();
 
                 foreach (var error in addRoleResult.Errors)
@@ -271,7 +271,7 @@ namespace ObreshkovLibrary.Controllers
             if (id == null)
                 return NotFound();
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -285,7 +285,7 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id)
         {
-            var readerToUpdate = await _context.readers
+            var readerToUpdate = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -321,7 +321,7 @@ namespace ObreshkovLibrary.Controllers
             if (id == null)
                 return NotFound();
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -335,7 +335,7 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -350,7 +350,7 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int Id)
         {
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == Id);
 
@@ -366,7 +366,7 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reactivate(int Id)
         {
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == Id);
 
@@ -381,7 +381,7 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> PasswordResetRequests()
         {
             var requests = await _context.PasswordResetRequests
-                .Include(r => r.reader)
+                .Include(r => r.Reader)
                 .OrderBy(r => r.IsCompleted)
                 .ThenByDescending(r => r.RequestedOn)
                 .ToListAsync();
@@ -394,7 +394,7 @@ namespace ObreshkovLibrary.Controllers
         public async Task<IActionResult> GenerateTemporaryPassword(int id)
         {
             var request = await _context.PasswordResetRequests
-                .Include(r => r.reader)
+                .Include(r => r.Reader)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null)
@@ -409,13 +409,13 @@ namespace ObreshkovLibrary.Controllers
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
-            if (string.IsNullOrWhiteSpace(request.reader.CardNumber))
+            if (string.IsNullOrWhiteSpace(request.Reader.CardNumber))
             {
                 TempData["Error"] = "Клиентът няма читателска карта.";
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
-            var normalizedCardNumber = request.reader.CardNumber.Trim().ToUpper();
+            var normalizedCardNumber = request.Reader.CardNumber.Trim().ToUpper();
 
             var user = await _userManager.FindByNameAsync(normalizedCardNumber);
             if (user == null)
@@ -435,9 +435,9 @@ namespace ObreshkovLibrary.Controllers
                 return RedirectToAction(nameof(PasswordResetRequests));
             }
 
-            request.reader.LastTemporaryPassword = tempPassword;
-            request.reader.PasswordChangedByReader = false;
-            request.reader.LastPasswordChangeOn = null;
+            request.Reader.LastTemporaryPassword = tempPassword;
+            request.Reader.PasswordChangedByReader = false;
+            request.Reader.LastPasswordChangeOn = null;
 
             request.GeneratedPassword = tempPassword;
             request.IsCompleted = true;
@@ -449,7 +449,7 @@ namespace ObreshkovLibrary.Controllers
         }
         private bool readerExists(int id)
         {
-            return _context.readers
+            return _context.Readers
                 .IgnoreQueryFilters()
                 .Any(e => e.Id == id);
         }
@@ -460,7 +460,7 @@ namespace ObreshkovLibrary.Controllers
             {
                 var number = Random.Shared.Next(100000, 1000000).ToString();
 
-                bool exists = await _context.readers
+                bool exists = await _context.Readers
                     .IgnoreQueryFilters()
                     .AnyAsync(c => c.CardNumber == number);
 
@@ -473,7 +473,7 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task PromoteReadersAsync()
         {
-            var Readers = await _context.readers
+            var Readers = await _context.Readers
                 .Where(c => c.IsActive && c.Grade != null)
                 .ToListAsync();
 

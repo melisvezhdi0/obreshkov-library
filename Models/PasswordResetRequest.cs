@@ -8,7 +8,7 @@ namespace ObreshkovLibrary.Models
         public int Id { get; set; }
 
         [Required]
-        public int readerId { get; set; }
+        public int ReaderId { get; set; }
 
         [Required, StringLength(20)]
         public string CardNumber { get; set; } = string.Empty;
@@ -26,6 +26,6 @@ namespace ObreshkovLibrary.Models
         [StringLength(50)]
         public string? GeneratedPassword { get; set; }
 
-        public Reader? reader { get; set; }
+        public Reader? Reader { get; set; }
     }
 }

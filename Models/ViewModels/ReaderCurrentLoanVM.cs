@@ -1,6 +1,6 @@
 ﻿namespace ObreshkovLibrary.Models.ViewModels
 {
-    public class RaederCurrentLoanVM
+    public class ReaderCurrentLoanVM
     {
         public int LoanId { get; set; }
         public int BookId { get; set; }

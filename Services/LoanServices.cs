@@ -27,7 +27,7 @@ namespace ObreshkovLibrary.Services
 
             var loan = new Loan
             {
-                readerId = readerId,
+                ReaderId = readerId,
                 BookCopyId = availableCopy.Id,
                 LoanDate = DateTime.Now,
                 DueDate = DateTime.Now.AddDays(days)

@@ -1,10 +1,10 @@
 ﻿
-.reader-details-page {
+.Reader-details-page {
     width: 100%;
     padding-top: 6px;
 }
 
-.reader-details-header {
+.Reader-details-header {
     display: flex;
     align-items: end;
     justify-content: space-between;
@@ -13,7 +13,7 @@
     margin-bottom: 1rem;
 }
 
-.reader-details-actions {
+.Reader-details-actions {
     display: flex;
     gap: .75rem;
     flex-wrap: wrap;
@@ -147,15 +147,15 @@
 }
 
 @media (max-width: 767.98px) {
-    .reader-details-header {
+    .Reader-details-header {
         align-items: stretch;
     }
 
-    .reader-details-actions {
+    .Reader-details-actions {
         width: 100%;
     }
 
-        .reader-details-actions .btn {
+        .Reader-details-actions .btn {
             flex: 1 1 auto;
             text-align: center;
         }

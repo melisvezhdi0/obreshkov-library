@@ -31,7 +31,7 @@ namespace ObreshkovLibrary.Controllers
 
             var latestLoansQuery = _context.Loans
                 .Where(l => l.LoanDate.Date >= latestLoansStartDate && l.LoanDate.Date <= today)
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
@@ -61,7 +61,7 @@ namespace ObreshkovLibrary.Controllers
 
             vm.DueTodayLoans = await _context.Loans
                 .Where(l => l.ReturnDate == null && l.DueDate.Date == today)
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderBy(l => l.DueDate)
@@ -71,7 +71,7 @@ namespace ObreshkovLibrary.Controllers
 
             vm.OverdueLoans = await _context.Loans
                 .Where(l => l.ReturnDate == null && l.DueDate.Date < today)
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderBy(l => l.DueDate)
@@ -81,7 +81,7 @@ namespace ObreshkovLibrary.Controllers
 
             vm.OpenPasswordResetRequests = await _context.PasswordResetRequests
                 .Where(r => !r.IsCompleted)
-                .Include(r => r.reader)
+                .Include(r => r.Reader)
                 .OrderByDescending(r => r.RequestedOn)
                 .Take(50)
                 .ToListAsync();
@@ -127,7 +127,7 @@ namespace ObreshkovLibrary.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);
 
             if (reader == null)

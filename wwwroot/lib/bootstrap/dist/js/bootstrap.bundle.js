@@ -1288,20 +1288,20 @@
     _addTouchEventListeners() {
       const start = event => {
         if (this._pointerEvent && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH)) {
-          this.touchStartX = event.readerX;
+          this.touchStartX = event.ReaderX;
         } else if (!this._pointerEvent) {
-          this.touchStartX = event.touches[0].readerX;
+          this.touchStartX = event.touches[0].ReaderX;
         }
       };
 
       const move = event => {
         // ensure swiping with one touch and not pinching
-        this.touchDeltaX = event.touches && event.touches.length > 1 ? 0 : event.touches[0].readerX - this.touchStartX;
+        this.touchDeltaX = event.touches && event.touches.length > 1 ? 0 : event.touches[0].ReaderX - this.touchStartX;
       };
 
       const end = event => {
         if (this._pointerEvent && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH)) {
-          this.touchDeltaX = event.readerX - this.touchStartX;
+          this.touchDeltaX = event.ReaderX - this.touchStartX;
         }
 
         this._handleSwipe();
@@ -2306,7 +2306,7 @@
     var endDiff = state.rects.reference[len] + state.rects.reference[axis] - popperOffsets[axis] - state.rects.popper[len];
     var startDiff = popperOffsets[axis] - state.rects.reference[axis];
     var arrowOffsetParent = getOffsetParent(arrowElement);
-    var readerSize = arrowOffsetParent ? axis === 'y' ? arrowOffsetParent.readerHeight || 0 : arrowOffsetParent.readerWidth || 0 : 0;
+    var readerSize = arrowOffsetParent ? axis === 'y' ? arrowOffsetParent.ReaderHeight || 0 : arrowOffsetParent.ReaderWidth || 0 : 0;
     var centerToReference = endDiff / 2 - startDiff / 2; // Make sure the arrow doesn't overflow the popper if the center point is
     // outside of the popper bounds
 
@@ -2590,12 +2590,12 @@
     var win = getWindow(element);
     var html = getDocumentElement(element);
     var visualViewport = win.visualViewport;
-    var width = html.readerWidth;
-    var height = html.readerHeight;
+    var width = html.ReaderWidth;
+    var height = html.ReaderHeight;
     var x = 0;
     var y = 0; // NB: This isn't supported on iOS <= 12. If the keyboard is open, the popper
     // can be obscured underneath it.
-    // Also, `html.readerHeight` adds the bottom bar height in Safari iOS, even
+    // Also, `html.ReaderHeight` adds the bottom bar height in Safari iOS, even
     // if it isn't open, so if this isn't available, the popper will be detected
     // to overflow the bottom of the screen too early.
 
@@ -2632,13 +2632,13 @@
     var html = getDocumentElement(element);
     var winScroll = getWindowScroll(element);
     var body = (_element$ownerDocumen = element.ownerDocument) == null ? void 0 : _element$ownerDocumen.body;
-    var width = max(html.scrollWidth, html.readerWidth, body ? body.scrollWidth : 0, body ? body.readerWidth : 0);
-    var height = max(html.scrollHeight, html.readerHeight, body ? body.scrollHeight : 0, body ? body.readerHeight : 0);
+    var width = max(html.scrollWidth, html.ReaderWidth, body ? body.scrollWidth : 0, body ? body.ReaderWidth : 0);
+    var height = max(html.scrollHeight, html.ReaderHeight, body ? body.scrollHeight : 0, body ? body.ReaderHeight : 0);
     var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
     var y = -winScroll.scrollTop;
 
     if (getComputedStyle$1(body || html).direction === 'rtl') {
-      x += max(html.readerWidth, body ? body.readerWidth : 0) - width;
+      x += max(html.ReaderWidth, body ? body.ReaderWidth : 0) - width;
     }
 
     return {
@@ -2706,12 +2706,12 @@
 
   function getInnerBoundingreaderRect(element) {
     var rect = getBoundingreaderRect(element);
-    rect.top = rect.top + element.readerTop;
-    rect.left = rect.left + element.readerLeft;
-    rect.bottom = rect.top + element.readerHeight;
-    rect.right = rect.left + element.readerWidth;
-    rect.width = element.readerWidth;
-    rect.height = element.readerHeight;
+    rect.top = rect.top + element.ReaderTop;
+    rect.left = rect.left + element.ReaderLeft;
+    rect.bottom = rect.top + element.ReaderHeight;
+    rect.right = rect.left + element.ReaderWidth;
+    rect.width = element.ReaderWidth;
+    rect.height = element.ReaderHeight;
     rect.x = rect.left;
     rect.y = rect.top;
     return rect;
@@ -3274,7 +3274,7 @@
       var minOffset = isBasePlacement ? referenceRect[len] / 2 - additive - arrowLen - arrowPaddingMin - tetherOffsetValue : minLen - arrowLen - arrowPaddingMin - tetherOffsetValue;
       var maxOffset = isBasePlacement ? -referenceRect[len] / 2 + additive + arrowLen + arrowPaddingMax + tetherOffsetValue : maxLen + arrowLen + arrowPaddingMax + tetherOffsetValue;
       var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
-      var readerOffset = arrowOffsetParent ? mainAxis === 'y' ? arrowOffsetParent.readerTop || 0 : arrowOffsetParent.readerLeft || 0 : 0;
+      var readerOffset = arrowOffsetParent ? mainAxis === 'y' ? arrowOffsetParent.ReaderTop || 0 : arrowOffsetParent.ReaderLeft || 0 : 0;
       var offsetModifierValue = state.modifiersData.offset ? state.modifiersData.offset[state.placement][mainAxis] : 0;
       var tetherMin = popperOffsets[mainAxis] + minOffset - offsetModifierValue - readerOffset;
       var tetherMax = popperOffsets[mainAxis] + maxOffset - offsetModifierValue;
@@ -3365,8 +3365,8 @@
 
       if (isHTMLElement(offsetParent)) {
         offsets = getBoundingreaderRect(offsetParent, true);
-        offsets.x += offsetParent.readerLeft;
-        offsets.y += offsetParent.readerTop;
+        offsets.x += offsetParent.ReaderLeft;
+        offsets.y += offsetParent.ReaderTop;
       } else if (documentElement) {
         offsets.x = getWindowScrollBarX(documentElement);
       }
@@ -4176,7 +4176,7 @@
 
     getWidth() {
       // https://developer.mozilla.org/en-US/docs/Web/API/Window/innerWidth#usage_notes
-      const documentWidth = document.documentElement.readerWidth;
+      const documentWidth = document.documentElement.ReaderWidth;
       return Math.abs(window.innerWidth - documentWidth);
     }
 
@@ -4204,7 +4204,7 @@
       const scrollbarWidth = this.getWidth();
 
       const manipulationCallBack = element => {
-        if (element !== this._element && window.innerWidth > element.readerWidth + scrollbarWidth) {
+        if (element !== this._element && window.innerWidth > element.ReaderWidth + scrollbarWidth) {
           return;
         }
 
@@ -4806,7 +4806,7 @@
         scrollHeight,
         style
       } = this._element;
-      const isModalOverflowing = scrollHeight > document.documentElement.readerHeight; // return if the following background transition hasn't yet completed
+      const isModalOverflowing = scrollHeight > document.documentElement.ReaderHeight; // return if the following background transition hasn't yet completed
 
       if (!isModalOverflowing && style.overflowY === 'hidden' || classList.contains(CLASS_NAME_STATIC)) {
         return;
@@ -4835,7 +4835,7 @@
 
 
     _adjustDialog() {
-      const isModalOverflowing = this._element.scrollHeight > document.documentElement.readerHeight;
+      const isModalOverflowing = this._element.scrollHeight > document.documentElement.ReaderHeight;
 
       const scrollbarWidth = this._scrollBar.getWidth();
 

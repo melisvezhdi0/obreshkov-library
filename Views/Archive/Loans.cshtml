@@ -94,8 +94,8 @@
                         {
                             <tr>
                                 <td style="padding:1rem 1.2rem; font-weight:700;">
-                                    @item.reader?.FirstName @item.reader?.LastName
-                                    <div style="margin-top:4px; color:#6B7280; font-weight:600;">№ карта: @item.reader?.CardNumber</div>
+                                    @item.Reader?.FirstName @item.Reader?.LastName
+                                    <div style="margin-top:4px; color:#6B7280; font-weight:600;">№ карта: @item.Reader?.CardNumber</div>
                                 </td>
                                 <td style="padding:1rem 1.2rem;">@item.BookCopy?.Book?.Title</td>
                                 <td style="padding:1rem 1.2rem;">@item.LoanDate.ToString("dd.MM.yyyy")</td>
@@ -103,7 +103,7 @@
                                 <td style="padding:1rem 1.2rem; text-align:right; white-space:nowrap;">
                                     <a asp-controller="readers"
                                        asp-action="Details"
-                                       asp-route-id="@item.readerId"
+                                       asp-route-id="@item.ReaderId"
                                        style="color:#3B82F6; font-weight:800; text-decoration:none; margin-right:14px;">
                                         Детайли
                                     </a>

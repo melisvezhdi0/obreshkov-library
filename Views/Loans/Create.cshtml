@@ -17,7 +17,7 @@
         <form id="loanSearchForm" method="post" asp-action="ConfirmCreate" style="margin:0;">
             @Html.AntiForgeryToken()
 
-            <input type="hidden" asp-for="readerId" />
+            <input type="hidden" asp-for="ReaderId" />
             <input type="hidden" asp-for="BookId" id="selectedBookId" />
 
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
@@ -74,7 +74,7 @@
                 <div style="background:#F8FBFF; border:1px solid #D9E8FF; border-radius:16px; padding:18px; display:flex; flex-direction:column; gap:14px;">
                     <div>
                         <div style="font-size:.8rem; text-transform:uppercase; font-weight:800; color:#6B7280; margin-bottom:8px;">Читател</div>
-                        <div style="font-size:1.12rem; font-weight:800; color:#0F172A; line-height:1.4;">@Model.readerName</div>
+                        <div style="font-size:1.12rem; font-weight:800; color:#0F172A; line-height:1.4;">@Model.ReaderName</div>
                         <div style="margin-top:4px; color:#64748B; font-weight:700;">Ученик</div>
                     </div>
 
@@ -349,7 +349,7 @@
 
                         try { const url = new URL('@Url.Action("SearchBook", "Loans")', window.location.origin);
         url.searchParams.set('title', title);
-        url.searchParams.set('readerId', '@Model.readerId');
+        url.searchParams.set('readerId', '@Model.ReaderId');
 
         if (author) {
             url.searchParams.set('author', author);

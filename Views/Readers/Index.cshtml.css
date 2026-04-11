@@ -1,9 +1,9 @@
-﻿.readers-page {
+﻿.Readers-page {
     width: 100%;
     padding-top: 6px;
 }
 
-.readers-header {
+.Readers-header {
     display: flex;
     align-items: end;
     justify-content: space-between;
@@ -12,23 +12,23 @@
     margin-bottom: 1rem;
 }
 
-.readers-add-btn {
+.Readers-add-btn {
     min-width: 150px;
     justify-content: center;
     white-space: nowrap;
 }
 
-.readers-toolbar {
+.Readers-toolbar {
     padding: 1rem;
     margin-bottom: 1rem;
 }
 
-.readers-search-wrap {
+.Readers-search-wrap {
     position: relative;
     min-width: 0;
 }
 
-.readers-search-icon {
+.Readers-search-icon {
     position: absolute;
     left: 15px;
     top: 50%;
@@ -39,7 +39,7 @@
     z-index: 2;
 }
 
-.readers-search-input {
+.Readers-search-input {
     width: 100% !important;
     height: 50px !important;
     border-radius: 16px !important;
@@ -52,17 +52,17 @@
     box-shadow: none !important;
 }
 
-    .readers-search-input::placeholder {
+    .Readers-search-input::placeholder {
         color: #94A3B8;
         font-weight: 500;
     }
 
-    .readers-search-input:focus {
+    .Readers-search-input:focus {
         border-color: #93C5FD !important;
         box-shadow: 0 0 0 0.12rem rgba(59, 130, 246, .12) !important;
     }
 
-.readers-clear-btn {
+.Readers-clear-btn {
     position: absolute;
     right: 12px;
     top: 50%;
@@ -82,15 +82,15 @@
     padding: 0;
 }
 
-    .readers-clear-btn.visible {
+    .Readers-clear-btn.visible {
         display: inline-flex;
     }
 
-    .readers-clear-btn:hover {
+    .Readers-clear-btn:hover {
         background: #CBD5E1;
     }
 
-.readers-class-select {
+.Readers-class-select {
     width: 150px !important;
     height: 50px !important;
     border-radius: 16px !important;
@@ -100,19 +100,19 @@
     box-shadow: none !important;
 }
 
-    .readers-class-select:focus {
+    .Readers-class-select:focus {
         border-color: #93C5FD !important;
         box-shadow: 0 0 0 0.12rem rgba(59, 130, 246, .12) !important;
     }
 
-.readers-search-btn {
+.Readers-search-btn {
     background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
     color: #fff !important;
     border: none !important;
     font-weight: 800 !important;
 }
 
-    .readers-search-btn:hover {
+    .Readers-search-btn:hover {
         filter: brightness(.96);
     }
 
@@ -127,30 +127,30 @@
     background: #FBFCFD;
 }
 
-.readers-empty-title {
+.Readers-empty-title {
     padding: 1.2rem 1.2rem .35rem;
     font-weight: 900;
     color: #1F2937;
     font-size: 1.08rem;
 }
 
-.readers-empty-text {
+.Readers-empty-text {
     padding: 0 1.2rem 1.2rem;
     color: #6B7280;
     font-weight: 600;
 }
 
-    .readers-empty-text strong {
+    .Readers-empty-text strong {
         color: #1F2937;
     }
 
-.readers-doc-table {
+.Readers-doc-table {
     margin-bottom: 0;
     border-collapse: separate;
     border-spacing: 0;
 }
 
-    .readers-doc-table thead th {
+    .Readers-doc-table thead th {
         background: #F3F6F9;
         color: #6B7280;
         font-size: .82rem;
@@ -173,48 +173,48 @@
     border-bottom: 1px solid #D9E0E7;
 }
 
-.readers-doc-table tbody td {
+.Readers-doc-table tbody td {
     padding: 1rem 1.2rem;
     background: #FFFFFF;
     border-bottom: 1px solid #E5EAF0;
     vertical-align: middle;
 }
 
-.readers-doc-table tbody tr:last-child td {
+.Readers-doc-table tbody tr:last-child td {
     border-bottom: none;
 }
 
-.reader-row {
+.Reader-row {
     transition: background-color .15s ease;
 }
 
-    .reader-row:hover td {
+    .Reader-row:hover td {
         background: #FAFCFF;
         cursor: pointer;
     }
 
-.reader-name-cell {
+.Reader-name-cell {
     font-weight: 700;
     color: #1F2937;
 }
 
 @media (max-width: 767.98px) {
-    .readers-header {
+    .Readers-header {
         align-items: stretch;
     }
 
-    .readers-add-btn {
+    .Readers-add-btn {
         width: 100%;
         text-align: center;
     }
 
-    .readers-search-form {
+    .Readers-search-form {
         flex-direction: column !important;
         align-items: stretch !important;
     }
 
-    .readers-doc-table thead th,
-    .readers-doc-table tbody td,
+    .Readers-doc-table thead th,
+    .Readers-doc-table tbody td,
     .class-group-row td {
         padding-left: .9rem;
         padding-right: .9rem;

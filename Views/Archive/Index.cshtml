@@ -208,7 +208,7 @@
                     foreach (var item in Model.RecentLoans)
                     {
                         <div style="padding:.9rem 0; border-bottom:1px solid #E5EAF0;">
-                            <div style="font-weight:800; color:#1F2937;">@item.reader?.FirstName @item.reader?.LastName</div>
+                            <div style="font-weight:800; color:#1F2937;">@item.Reader?.FirstName @item.Reader?.LastName</div>
                             <div style="margin-top:4px; color:#6B7280; font-weight:600;">@item.BookCopy?.Book?.Title</div>
                         </div>
                     }
@@ -251,8 +251,8 @@
                 {
                     foreach (var item in Model.RecentPasswordRequests)
                     {
-                        var fullName = item.reader != null
-                        ? $"{item.reader.FirstName} {item.reader.LastName}"
+                        var fullName = item.Reader != null
+                        ? $"{item.Reader.FirstName} {item.Reader.LastName}"
                         : "Неизвестен читател";
 
                         <div style="padding:.9rem 0; border-bottom:1px solid #E5EAF0;">

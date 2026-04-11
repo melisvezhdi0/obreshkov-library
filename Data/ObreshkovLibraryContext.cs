@@ -15,11 +15,10 @@ namespace ObreshkovLibrary.Data
         public DbSet<BookCopy> BookCopies { get; set; } = null!;
         public DbSet<Loan> Loans { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
-        public DbSet<Reader> readers { get; set; } = null!;
+        public DbSet<Reader> Readers { get; set; } = null!;
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
         public DbSet<SchoolNews> SchoolNews { get; set; } = null!;
-
-        public DbSet<ReaderFavoriteBook> readerFavoriteBooks { get; set; } = null!;
+        public DbSet<ReaderFavoriteBook> ReaderFavoriteBooks { get; set; } = null!;
         public DbSet<LoanPersonalNote> LoanPersonalNotes { get; set; } = null!;
         public DbSet<ReaderNotification> ReaderNotifications { get; set; } = null!;
 
@@ -28,40 +27,40 @@ namespace ObreshkovLibrary.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Reader>()
-                .HasIndex(c => c.CardNumber)
+                .HasIndex(x => x.CardNumber)
                 .IsUnique();
 
             modelBuilder.Entity<Loan>()
-                .HasIndex(l => new { l.BookCopyId, l.ReturnDate });
+                .HasIndex(x => new { x.BookCopyId, x.ReturnDate });
 
             modelBuilder.Entity<Book>()
-                .HasOne(b => b.Category)
-                .WithMany(c => c.Books)
-                .HasForeignKey(b => b.CategoryId)
+                .HasOne(x => x.Category)
+                .WithMany(x => x.Books)
+                .HasForeignKey(x => x.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<BookCopy>()
-                .HasOne(bc => bc.Book)
-                .WithMany(b => b.Copies)
-                .HasForeignKey(bc => bc.BookId)
+                .HasOne(x => x.Book)
+                .WithMany(x => x.Copies)
+                .HasForeignKey(x => x.BookId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<PasswordResetRequest>()
-                .HasOne(r => r.reader)
+                .HasOne(x => x.Reader)
                 .WithMany()
-                .HasForeignKey(r => r.readerId)
+                .HasForeignKey(x => x.ReaderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Category>()
-                .HasOne(c => c.ParentCategory)
-                .WithMany(c => c.Children)
-                .HasForeignKey(c => c.ParentCategoryId)
+                .HasOne(x => x.ParentCategory)
+                .WithMany(x => x.Children)
+                .HasForeignKey(x => x.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ReaderFavoriteBook>()
-                .HasOne(x => x.reader)
+                .HasOne(x => x.Reader)
                 .WithMany(x => x.FavoriteBooks)
-                .HasForeignKey(x => x.readerId)
+                .HasForeignKey(x => x.ReaderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ReaderFavoriteBook>()
@@ -71,7 +70,7 @@ namespace ObreshkovLibrary.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<ReaderFavoriteBook>()
-                .HasIndex(x => new { x.readerId, x.BookId })
+                .HasIndex(x => new { x.ReaderId, x.BookId })
                 .IsUnique();
 
             modelBuilder.Entity<LoanPersonalNote>()
@@ -111,10 +110,10 @@ namespace ObreshkovLibrary.Data
                 .HasQueryFilter(x => x.IsActive && x.Book.IsActive);
 
             modelBuilder.Entity<Loan>()
-                .HasQueryFilter(x => x.reader.IsActive && x.BookCopy.IsActive && x.BookCopy.Book.IsActive);
+                .HasQueryFilter(x => x.Reader.IsActive && x.BookCopy.IsActive && x.BookCopy.Book.IsActive);
 
             modelBuilder.Entity<PasswordResetRequest>()
-                .HasQueryFilter(x => x.reader != null && x.reader.IsActive);
+                .HasQueryFilter(x => x.Reader != null && x.Reader.IsActive);
         }
     }
 }

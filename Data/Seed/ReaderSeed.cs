@@ -15,7 +15,7 @@ namespace ObreshkovLibrary.Data.Seed
             var oldSeedMarker = "2026001001";
             var newSeedMarker = "001001";
 
-            bool alreadySeeded = await context.readers
+            bool alreadySeeded = await context.Readers
                 .IgnoreQueryFilters()
                 .AnyAsync(c => c.CardNumber == oldSeedMarker || c.CardNumber == newSeedMarker);
 
@@ -127,7 +127,7 @@ namespace ObreshkovLibrary.Data.Seed
                     }
                 }
 
-                await context.readers.AddRangeAsync(readers);
+                await context.Readers.AddRangeAsync(readers);
                 await context.SaveChangesAsync();
             }
 
@@ -138,7 +138,7 @@ namespace ObreshkovLibrary.Data.Seed
             ObreshkovLibraryContext context,
             UserManager<IdentityUser> userManager)
         {
-            var readers = await context.readers
+            var readers = await context.Readers
                 .IgnoreQueryFilters()
                 .Where(c => !string.IsNullOrWhiteSpace(c.CardNumber)
                             && !string.IsNullOrWhiteSpace(c.LastTemporaryPassword))
@@ -186,7 +186,7 @@ namespace ObreshkovLibrary.Data.Seed
 
         private static async Task NormalizeLegacySeedCardNumbersAsync(ObreshkovLibraryContext context)
         {
-            var readers = await context.readers
+            var readers = await context.Readers
                 .IgnoreQueryFilters()
                 .Where(c => !string.IsNullOrWhiteSpace(c.CardNumber))
                 .ToListAsync();
@@ -246,7 +246,7 @@ namespace ObreshkovLibrary.Data.Seed
             ObreshkovLibraryContext context,
             HashSet<string> reservedNumbers)
         {
-            var maxExisting = await context.readers
+            var maxExisting = await context.Readers
                 .IgnoreQueryFilters()
                 .Where(c => c.CardNumber != null
                             && c.CardNumber.Length == 6

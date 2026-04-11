@@ -115,13 +115,13 @@ namespace ObreshkovLibrary.Controllers
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var reader = await _context.readers
+                    var reader = await _context.Readers
                         .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
                     if (reader != null)
                     {
-                        ViewBag.FavoriteBookIds = await _context.readerFavoriteBooks
-                            .Where(f => f.readerId == reader.Id)
+                        ViewBag.FavoriteBookIds = await _context.ReaderFavoriteBooks
+                            .Where(f => f.ReaderId == reader.Id)
                             .Select(f => f.BookId)
                             .ToListAsync();
                     }
@@ -224,13 +224,13 @@ namespace ObreshkovLibrary.Controllers
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var reader = await _context.readers
+                    var reader = await _context.Readers
                         .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
                     if (reader != null)
                     {
-                        ViewBag.FavoriteBookIds = await _context.readerFavoriteBooks
-                            .Where(f => f.readerId == reader.Id)
+                        ViewBag.FavoriteBookIds = await _context.ReaderFavoriteBooks
+                            .Where(f => f.ReaderId == reader.Id)
                             .Select(f => f.BookId)
                             .ToListAsync();
                     }
@@ -332,7 +332,7 @@ namespace ObreshkovLibrary.Controllers
 
                 if (!string.IsNullOrWhiteSpace(cardNumber))
                 {
-                    var readerId = await _context.readers
+                    var readerId = await _context.Readers
                         .AsNoTracking()
                         .Where(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber)
                         .Select(c => (int?)c.Id)
@@ -340,9 +340,9 @@ namespace ObreshkovLibrary.Controllers
 
                     if (readerId.HasValue)
                     {
-                        isFavorite = await _context.readerFavoriteBooks
+                        isFavorite = await _context.ReaderFavoriteBooks
                             .AsNoTracking()
-                            .AnyAsync(f => f.readerId == readerId.Value && f.BookId == book.Id);
+                            .AnyAsync(f => f.ReaderId == readerId.Value && f.BookId == book.Id);
                     }
                 }
             }

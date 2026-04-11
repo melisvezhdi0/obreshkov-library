@@ -1284,20 +1284,20 @@ class Carousel extends BaseComponent {
   _addTouchEventListeners() {
     const start = event => {
       if (this._pointerEvent && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH)) {
-        this.touchStartX = event.readerX;
+        this.touchStartX = event.ReaderX;
       } else if (!this._pointerEvent) {
-        this.touchStartX = event.touches[0].readerX;
+        this.touchStartX = event.touches[0].ReaderX;
       }
     };
 
     const move = event => {
       // ensure swiping with one touch and not pinching
-      this.touchDeltaX = event.touches && event.touches.length > 1 ? 0 : event.touches[0].readerX - this.touchStartX;
+      this.touchDeltaX = event.touches && event.touches.length > 1 ? 0 : event.touches[0].ReaderX - this.touchStartX;
     };
 
     const end = event => {
       if (this._pointerEvent && (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH)) {
-        this.touchDeltaX = event.readerX - this.touchStartX;
+        this.touchDeltaX = event.ReaderX - this.touchStartX;
       }
 
       this._handleSwipe();
@@ -2396,7 +2396,7 @@ class ScrollBarHelper {
 
   getWidth() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Window/innerWidth#usage_notes
-    const documentWidth = document.documentElement.readerWidth;
+    const documentWidth = document.documentElement.ReaderWidth;
     return Math.abs(window.innerWidth - documentWidth);
   }
 
@@ -2424,7 +2424,7 @@ class ScrollBarHelper {
     const scrollbarWidth = this.getWidth();
 
     const manipulationCallBack = element => {
-      if (element !== this._element && window.innerWidth > element.readerWidth + scrollbarWidth) {
+      if (element !== this._element && window.innerWidth > element.ReaderWidth + scrollbarWidth) {
         return;
       }
 
@@ -3026,7 +3026,7 @@ class Modal extends BaseComponent {
       scrollHeight,
       style
     } = this._element;
-    const isModalOverflowing = scrollHeight > document.documentElement.readerHeight; // return if the following background transition hasn't yet completed
+    const isModalOverflowing = scrollHeight > document.documentElement.ReaderHeight; // return if the following background transition hasn't yet completed
 
     if (!isModalOverflowing && style.overflowY === 'hidden' || classList.contains(CLASS_NAME_STATIC)) {
       return;
@@ -3055,7 +3055,7 @@ class Modal extends BaseComponent {
 
 
   _adjustDialog() {
-    const isModalOverflowing = this._element.scrollHeight > document.documentElement.readerHeight;
+    const isModalOverflowing = this._element.scrollHeight > document.documentElement.ReaderHeight;
 
     const scrollbarWidth = this._scrollBar.getWidth();
 

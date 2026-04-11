@@ -130,7 +130,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
      .Replace(" ", "")
      .ToUpper();
 
-                var reader = await _context.readers
+                var reader = await _context.Readers
                     .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(c =>
                         c.CardNumber != null &&

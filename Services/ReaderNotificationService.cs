@@ -46,7 +46,7 @@ namespace ObreshkovLibrary.Services
             var activeLoans = await _context.Loans
                 .Include(l => l.BookCopy)
                     .ThenInclude(c => c.Book)
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Where(l => l.ReturnDate == null)
                 .ToListAsync();
 
@@ -58,7 +58,7 @@ namespace ObreshkovLibrary.Services
                 if (daysLeft == 7 && !loan.Reminder7DaysSent)
                 {
                     await CreateNotificationAsync(
-                        loan.readerId,
+                        loan.ReaderId,
                         $"Напомняне за връщане: {bookTitle}",
                         $"Книгата „{bookTitle}“ трябва да се върне до 7 дни.",
                         ReaderNotificationType.LoanReminder,
@@ -70,7 +70,7 @@ namespace ObreshkovLibrary.Services
                 else if (daysLeft == 3 && !loan.Reminder3DaysSent)
                 {
                     await CreateNotificationAsync(
-                        loan.readerId,
+                        loan.ReaderId,
                         $"Напомняне за връщане: {bookTitle}",
                         $"Книгата „{bookTitle}“ трябва да се върне до 3 дни.",
                         ReaderNotificationType.LoanReminder,
@@ -82,7 +82,7 @@ namespace ObreshkovLibrary.Services
                 else if (daysLeft == 1 && !loan.Reminder1DaySent)
                 {
                     await CreateNotificationAsync(
-                        loan.readerId,
+                        loan.ReaderId,
                         $"Напомняне за връщане: {bookTitle}",
                         $"Книгата „{bookTitle}“ трябва да се върне най-късно утре.",
                         ReaderNotificationType.LoanReminder,
@@ -100,7 +100,7 @@ namespace ObreshkovLibrary.Services
                     if (shouldSendOverdueReminder)
                     {
                         await CreateNotificationAsync(
-                            loan.readerId,
+                            loan.ReaderId,
                             $"Просрочена книга: {bookTitle}",
                             $"Книгата „{bookTitle}“ е просрочена.",
                             ReaderNotificationType.OverdueReminder,
@@ -117,7 +117,7 @@ namespace ObreshkovLibrary.Services
 
         public async Task NotifyForNewCategoryAsync(Category category)
         {
-            var readerIds = await _context.readers
+            var readerIds = await _context.Readers
                 .Select(c => c.Id)
                 .ToListAsync();
 
@@ -144,7 +144,7 @@ namespace ObreshkovLibrary.Services
 
         public async Task SendAdminNotificationToAllAsync(string title, string message)
         {
-            var readerIds = await _context.readers
+            var readerIds = await _context.Readers
                 .Select(c => c.Id)
                 .ToListAsync();
 

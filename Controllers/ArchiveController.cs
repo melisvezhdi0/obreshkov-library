@@ -30,7 +30,7 @@ namespace ObreshkovLibrary.Controllers
                 .Where(b => !b.IsActive)
                 .AsQueryable();
 
-            var readersQ = _context.readers
+            var readersQ = _context.Readers
                 .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(c => !c.IsActive)
@@ -53,7 +53,7 @@ namespace ObreshkovLibrary.Controllers
             var loansQ = _context.Loans
                 .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .Where(l => l.ReturnDate != null)
@@ -68,7 +68,7 @@ namespace ObreshkovLibrary.Controllers
             var passwordRequestsQ = _context.PasswordResetRequests
                .IgnoreQueryFilters()
                .AsNoTracking()
-               .Include(r => r.reader)
+               .Include(r => r.Reader)
                .Where(r => r.IsCompleted)
                .AsQueryable();
 
@@ -100,8 +100,8 @@ namespace ObreshkovLibrary.Controllers
                     (c.Book.Author ?? "").ToLower().Contains(s));
 
                 loansQ = loansQ.Where(l =>
-                    (((l.reader.FirstName ?? "") + " " + (l.reader.LastName ?? "")).ToLower().Contains(s)) ||
-                    (l.reader.CardNumber ?? "").ToLower().Contains(s) ||
+                    (((l.Reader.FirstName ?? "") + " " + (l.Reader.LastName ?? "")).ToLower().Contains(s)) ||
+                    (l.Reader.CardNumber ?? "").ToLower().Contains(s) ||
                     ((l.BookCopy.Book.Title ?? "").ToLower().Contains(s)) ||
                     ((l.BookCopy.Book.Author ?? "").ToLower().Contains(s)));
 
@@ -110,8 +110,8 @@ namespace ObreshkovLibrary.Controllers
                     (n.Summary ?? "").ToLower().Contains(s));
 
                 passwordRequestsQ = passwordRequestsQ.Where(r =>
-                    (((r.reader != null ? r.reader.FirstName : "") ?? "") + " " +
-                     ((r.reader != null ? r.reader.LastName : "") ?? "")).ToLower().Contains(s) ||
+                    (((r.Reader != null ? r.Reader.FirstName : "") ?? "") + " " +
+                     ((r.Reader != null ? r.Reader.LastName : "") ?? "")).ToLower().Contains(s) ||
                     (r.CardNumber ?? "").ToLower().Contains(s) ||
                     (r.PhoneNumber ?? "").ToLower().Contains(s) ||
                     (r.Notes ?? "").ToLower().Contains(s));
@@ -211,7 +211,7 @@ namespace ObreshkovLibrary.Controllers
             search = (search ?? "").Trim();
             classFilter = (classFilter ?? "").Trim();
 
-            var q = _context.readers
+            var q = _context.Readers
                 .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(c => !c.IsActive)
@@ -239,7 +239,7 @@ namespace ObreshkovLibrary.Controllers
                     ((c.CardNumber ?? "").Replace(" ", "").Replace("-", "").ToLower().Contains(compact)));
             }
 
-            var allArchived = await _context.readers
+            var allArchived = await _context.Readers
                 .IgnoreQueryFilters()
                 .AsNoTracking()
                 .Where(c => !c.IsActive)
@@ -345,7 +345,7 @@ namespace ObreshkovLibrary.Controllers
             var q = _context.Loans
                 .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .Where(l => l.ReturnDate != null)
@@ -356,8 +356,8 @@ namespace ObreshkovLibrary.Controllers
                 var s = search.ToLower();
 
                 q = q.Where(l =>
-                    (((l.reader.FirstName ?? "") + " " + (l.reader.MiddleName ?? "") + " " + (l.reader.LastName ?? "")).ToLower().Contains(s)) ||
-                    (l.reader.CardNumber ?? "").ToLower().Contains(s) ||
+                    (((l.Reader.FirstName ?? "") + " " + (l.Reader.MiddleName ?? "") + " " + (l.Reader.LastName ?? "")).ToLower().Contains(s)) ||
+                    (l.Reader.CardNumber ?? "").ToLower().Contains(s) ||
                     (l.BookCopy.Book.Title ?? "").ToLower().Contains(s) ||
                     (l.BookCopy.Book.Author ?? "").ToLower().Contains(s));
             }
@@ -408,7 +408,7 @@ namespace ObreshkovLibrary.Controllers
             var q = _context.PasswordResetRequests
                 .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Include(r => r.reader)
+                .Include(r => r.Reader)
                 .Where(r => r.IsCompleted)
                 .AsQueryable();
 
@@ -418,9 +418,9 @@ namespace ObreshkovLibrary.Controllers
                 var compact = s.Replace(" ", "").Replace("-", "");
 
                 q = q.Where(r =>
-                    (((r.reader != null ? r.reader.FirstName : "") ?? "") + " " +
-                     ((r.reader != null ? r.reader.MiddleName : "") ?? "") + " " +
-                     ((r.reader != null ? r.reader.LastName : "") ?? "")).ToLower().Contains(s) ||
+                    (((r.Reader != null ? r.Reader.FirstName : "") ?? "") + " " +
+                     ((r.Reader != null ? r.Reader.MiddleName : "") ?? "") + " " +
+                     ((r.Reader != null ? r.Reader.LastName : "") ?? "")).ToLower().Contains(s) ||
                     (r.CardNumber ?? "").ToLower().Contains(s) ||
                     (r.PhoneNumber ?? "").ToLower().Contains(s) ||
                     ((r.CardNumber ?? "").Replace(" ", "").Replace("-", "").ToLower().Contains(compact)) ||
@@ -468,7 +468,7 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Restorereader(int id)
         {
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -552,7 +552,7 @@ namespace ObreshkovLibrary.Controllers
         {
             var loan = await _context.Loans
                 .IgnoreQueryFilters()
-                .Include(l => l.reader)
+                .Include(l => l.Reader)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .FirstOrDefaultAsync(l => l.Id == id);
@@ -566,7 +566,7 @@ namespace ObreshkovLibrary.Controllers
                 return RedirectToAction(nameof(Loans));
             }
 
-            if (!loan.reader.IsActive || !loan.BookCopy.IsActive || !loan.BookCopy.Book.IsActive)
+            if (!loan.Reader.IsActive || !loan.BookCopy.IsActive || !loan.BookCopy.Book.IsActive)
             {
                 TempData["ArchiveError"] = "Заемът не може да бъде възстановен, защото читателят, книгата или копието са архивирани.";
                 return RedirectToAction(nameof(Loans));

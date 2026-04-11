@@ -14,7 +14,7 @@ namespace ObreshkovLibrary.Data.Seed
             if (existingSeedLoans >= 6)
                 return;
 
-            var readers = await context.readers
+            var readers = await context.Readers
                 .IgnoreQueryFilters()
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Id)
@@ -54,7 +54,7 @@ namespace ObreshkovLibrary.Data.Seed
             {
                 context.Loans.Add(new Loan
                 {
-                    readerId = readers[i].Id,
+                    ReaderId = readers[i].Id,
                     BookCopyId = availableCopies[i].Id,
                     LoanDate = DateTime.Now.AddDays(-(45 + i * 3)),
                     DueDate = DateTime.Now.AddDays(-(15 + i * 2)),

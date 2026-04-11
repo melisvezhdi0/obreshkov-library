@@ -29,13 +29,13 @@ namespace ObreshkovLibrary.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int readerId)
         {
-            var reader = await _context.readers.FirstOrDefaultAsync(c => c.Id == readerId);
+            var reader = await _context.Readers.FirstOrDefaultAsync(c => c.Id == readerId);
             if (reader == null) return NotFound();
 
             var vm = new LoanCreateVM
             {
-                readerId = reader.Id,
-                readerName = ($"{reader.FirstName} {reader.MiddleName} {reader.LastName}").Replace("  ", " ").Trim(),
+                ReaderId = reader.Id,
+                ReaderName = ($"{reader.FirstName} {reader.MiddleName} {reader.LastName}").Replace("  ", " ").Trim(),
                 CardNumber = reader.CardNumber
             };
 
@@ -84,7 +84,7 @@ namespace ObreshkovLibrary.Controllers
             bool alreadyHasThisBook = await _context.Loans
                 .Include(l => l.BookCopy)
                 .AnyAsync(l =>
-                    l.readerId == readerId &&
+                    l.ReaderId == readerId &&
                     l.ReturnDate == null &&
                     l.BookCopy != null &&
                     l.BookCopy.BookId == book.Id);
@@ -135,13 +135,13 @@ namespace ObreshkovLibrary.Controllers
             vm.Title = (vm.Title ?? string.Empty).Trim();
             vm.Author = string.IsNullOrWhiteSpace(vm.Author) ? null : vm.Author.Trim();
 
-            var reader = await _context.readers
-                .FirstOrDefaultAsync(c => c.Id == vm.readerId);
+            var reader = await _context.Readers
+                .FirstOrDefaultAsync(c => c.Id == vm.ReaderId);
 
             if (reader == null)
                 return NotFound();
 
-            vm.readerName = ($"{reader.FirstName} {reader.MiddleName} {reader.LastName}")
+            vm.ReaderName = ($"{reader.FirstName} {reader.MiddleName} {reader.LastName}")
                 .Replace("  ", " ")
                 .Trim();
 
@@ -165,7 +165,7 @@ namespace ObreshkovLibrary.Controllers
             bool alreadyHasThisBook = await _context.Loans
                 .Include(l => l.BookCopy)
                 .AnyAsync(l =>
-                    l.readerId == reader.Id &&
+                    l.ReaderId == reader.Id &&
                     l.ReturnDate == null &&
                     l.BookCopy != null && l.BookCopy.BookId == book.Id);
 
@@ -190,7 +190,7 @@ namespace ObreshkovLibrary.Controllers
 
             var loan = new Loan
             {
-                readerId = reader.Id,
+                ReaderId = reader.Id,
                 BookCopyId = availableCopy.Id,
                 LoanDate = DateTime.Now,
                 ReturnDate = null
@@ -221,7 +221,7 @@ namespace ObreshkovLibrary.Controllers
                 TempData["SuccessMessage"] = "Успешно върната книга.";
             }
 
-            return RedirectToAction("Details", "readers", new { id = loan.readerId });
+            return RedirectToAction("Details", "readers", new { id = loan.ReaderId });
         }
     }
 }

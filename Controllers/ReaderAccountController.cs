@@ -26,7 +26,7 @@ namespace ObreshkovLibrary.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(RaederChangePasswordVM model)
+        public async Task<IActionResult> ChangePassword(ReaderChangePasswordVM model)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -50,7 +50,7 @@ namespace ObreshkovLibrary.Controllers
 
             if (!string.IsNullOrWhiteSpace(cardNumber))
             {
-                var reader = await _context.readers
+                var reader = await _context.Readers
                     .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
                 if (reader != null)

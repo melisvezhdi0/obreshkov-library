@@ -34,7 +34,7 @@ namespace ObreshkovLibrary.Controllers
                 return Challenge();
             }
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
             if (reader == null)
@@ -43,7 +43,7 @@ namespace ObreshkovLibrary.Controllers
             }
 
             var currentLoans = await _context.Loans
-                .Where(l => l.readerId == reader.Id && l.ReturnDate == null)
+                .Where(l => l.ReaderId == reader.Id && l.ReturnDate == null)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
@@ -53,10 +53,10 @@ namespace ObreshkovLibrary.Controllers
             var vm = new ReaderDashboardVM
             {
                 ReaderName = $"{reader.FirstName} {reader.LastName}".Trim(),
-                CurrentLoansCount = await _context.Loans.CountAsync(l => l.readerId == reader.Id && l.ReturnDate == null),
-                FavoritesCount = await _context.readerFavoriteBooks.CountAsync(f => f.readerId == reader.Id),
+                CurrentLoansCount = await _context.Loans.CountAsync(l => l.ReaderId == reader.Id && l.ReturnDate == null),
+                FavoritesCount = await _context.ReaderFavoriteBooks.CountAsync(f => f.ReaderId == reader.Id),
                 UnreadNotificationsCount = await _context.ReaderNotifications.CountAsync(n => n.ReaderId == reader.Id && !n.IsRead),
-                CurrentLoans = currentLoans.Select(l => new RaederCurrentLoanVM
+                CurrentLoans = currentLoans.Select(l => new ReaderCurrentLoanVM
                 {
                     BookId = l.BookCopy.Book.Id,
                     Title = l.BookCopy.Book.Title,
@@ -87,7 +87,7 @@ namespace ObreshkovLibrary.Controllers
                 return Challenge();
             }
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
             if (reader == null)
@@ -95,8 +95,8 @@ namespace ObreshkovLibrary.Controllers
                 return Challenge();
             }
 
-            var favorites = await _context.readerFavoriteBooks
-                .Where(f => f.readerId == reader.Id)
+            var favorites = await _context.ReaderFavoriteBooks
+                .Where(f => f.ReaderId == reader.Id)
                 .Include(f => f.Book)
                     .ThenInclude(b => b.Category)
                         .ThenInclude(c => c.ParentCategory)
@@ -156,7 +156,7 @@ namespace ObreshkovLibrary.Controllers
                 return Challenge();
             }
 
-            var reader = await _context.readers
+            var reader = await _context.Readers
                 .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
 
             if (reader == null)
@@ -164,18 +164,18 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
             }
 
-            var existing = await _context.readerFavoriteBooks
-                .FirstOrDefaultAsync(f => f.readerId == reader.Id && f.BookId == bookId);
+            var existing = await _context.ReaderFavoriteBooks
+                .FirstOrDefaultAsync(f => f.ReaderId == reader.Id && f.BookId == bookId);
 
             if (existing != null)
             {
-                _context.readerFavoriteBooks.Remove(existing);
+                _context.ReaderFavoriteBooks.Remove(existing);
             }
             else
             {
-                _context.readerFavoriteBooks.Add(new ReaderFavoriteBook
+                _context.ReaderFavoriteBooks.Add(new ReaderFavoriteBook
                 {
-                    readerId = reader.Id,
+                    ReaderId = reader.Id,
                     BookId = bookId,
                     CreatedOn = DateTime.UtcNow
                 });
@@ -189,6 +189,75 @@ namespace ObreshkovLibrary.Controllers
             }
 
             return RedirectToAction("ReaderDetails", "Catalog", new { id = bookId });
+        }
+
+        public async Task<IActionResult> Notifications()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var cardNumber = user.UserName?.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(cardNumber))
+            {
+                return Challenge();
+            }
+
+            var reader = await _context.Readers
+                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
+
+            if (reader == null)
+            {
+                return NotFound();
+            }
+
+            var notifications = await _context.ReaderNotifications
+                .Where(n => n.ReaderId == reader.Id)
+                .OrderByDescending(n => n.CreatedOn)
+                .ToListAsync();
+
+            return View(notifications);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkNotificationAsRead(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Challenge();
+            }
+
+            var cardNumber = user.UserName?.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(cardNumber))
+            {
+                return Challenge();
+            }
+
+            var reader = await _context.Readers
+                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
+
+            if (reader == null)
+            {
+                return NotFound();
+            }
+
+            var notification = await _context.ReaderNotifications
+                .FirstOrDefaultAsync(n => n.Id == id && n.ReaderId == reader.Id);
+
+            if (notification == null)
+            {
+                return NotFound();
+            }
+
+            notification.IsRead = true;
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Notifications));
         }
     }
 }

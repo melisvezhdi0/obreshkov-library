@@ -2,7 +2,7 @@
 
 namespace ObreshkovLibrary.Models.ViewModels
 {
-    public class RaederChangePasswordVM
+    public class ReaderChangePasswordVM
     {
         [Required(ErrorMessage = "Въведи текущата парола.")]
         [DataType(DataType.Password)]

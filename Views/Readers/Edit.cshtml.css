@@ -1,9 +1,9 @@
-﻿.reader-edit-page {
+﻿.Reader-edit-page {
     width: 100%;
     padding-top: 6px;
 }
 
-.reader-edit-card {
+.Reader-edit-card {
     padding: 20px;
     margin-top: 10px;
 }
@@ -74,7 +74,7 @@
     margin: 0;
 }
 
-.reader-status-muted {
+.Reader-status-muted {
     color: #6B7280;
     font-weight: 800;
 }

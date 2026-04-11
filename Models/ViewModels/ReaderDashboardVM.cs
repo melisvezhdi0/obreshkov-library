@@ -8,7 +8,7 @@
         public int FavoritesCount { get; set; }
         public int UnreadNotificationsCount { get; set; }
 
-        public List<RaederCurrentLoanVM> CurrentLoans { get; set; } = new();
+        public List<ReaderCurrentLoanVM> CurrentLoans { get; set; } = new();
         public List<ReaderFavoriteBookVM> FavoriteBooks { get; set; } = new();
         public List<ReaderNotificationItemVM> LatestNotifications { get; set; } = new();
     }

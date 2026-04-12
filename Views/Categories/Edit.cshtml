@@ -6,91 +6,147 @@
 
 <div style="width:100%; padding-top:6px;">
 
-    <div style="margin-bottom:14px;">
+    <div style="margin-bottom:16px;">
         <h2 class="section-title mb-1">Редактиране на категория</h2>
         <div class="accent-line"></div>
     </div>
 
     @if (TempData["Error"] != null)
     {
-        <div style="max-width:760px; margin-bottom:14px; padding:12px 14px; border-radius:12px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; font-weight:600;">
+        <div style="max-width:860px; margin-bottom:14px; padding:12px 14px; border-radius:14px; border:1px solid #FECACA; background:#FEF2F2; color:#B91C1C; font-weight:700; box-shadow:0 8px 20px rgba(185,28,28,.06);">
             @TempData["Error"]
         </div>
     }
 
     @if (TempData["Success"] != null)
     {
-        <div style="max-width:760px; margin-bottom:14px; padding:12px 14px; border-radius:12px; border:1px solid #bbf7d0; background:#f0fdf4; color:#166534; font-weight:600;">
+        <div style="max-width:860px; margin-bottom:14px; padding:12px 14px; border-radius:14px; border:1px solid #BBF7D0; background:#F0FDF4; color:#166534; font-weight:700; box-shadow:0 8px 20px rgba(22,101,52,.06);">
             @TempData["Success"]
         </div>
     }
 
-    <section style="max-width:760px; background:#ffffff; border:1px solid #dbe5ef; border-radius:18px; padding:22px; box-shadow:0 10px 24px rgba(15,23,42,.04);">
+    <section class="card-soft"
+             style="max-width:860px; background:#FFFFFF; border:1px solid #D9E2EC; border-radius:22px; padding:24px; box-shadow:0 14px 34px rgba(15,23,42,.06);">
 
-        <form asp-action="Edit" method="post" style="margin:0;">
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger"
+             style="margin-bottom:14px; padding:10px 12px; border-radius:12px; background:#FEF2F2; border:1px solid #FECACA;"></div>
+
+        <form asp-action="Edit"
+              method="post"
+              id="categoryEditForm"
+              style="margin:0;">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div style="display:flex; flex-direction:column; gap:18px;">
 
-            <div style="display:grid; gap:16px;">
+                <div style="background:#F8FAFC; border:1px solid #D9E2EC; border-radius:18px; padding:18px;">
+                    <div style="font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; font-weight:800; color:#64748B; margin-bottom:14px;">
+                        Основна информация
+                    </div>
 
-                <div>
-                    <label asp-for="Name" style="display:block; font-weight:800; color:#0f172a; margin-bottom:6px;">Име</label>
-                    <input asp-for="Name"
-                           class="form-control"
-                           style="height:48px; border-radius:12px; border:1px solid #cbd5e1; box-shadow:none;" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+                    <div style="display:grid; gap:16px;">
 
-                <div>
-                    <label asp-for="ParentCategoryId" style="display:block; font-weight:800; color:#0f172a; margin-bottom:6px;">Родителска категория</label>
-                    <select asp-for="ParentCategoryId"
-                            asp-items="ViewBag.ParentCategoryId"
-                            class="form-select"
-                            style="height:48px; border-radius:12px; border:1px solid #cbd5e1; box-shadow:none;">
-                        <option value="">(Няма)</option>
-                    </select>
-                    <span asp-validation-for="ParentCategoryId" class="text-danger"></span>
-                    <div style="margin-top:7px; color:#64748b; font-size:.95rem;">
-                        Избери родител, ако това е подкатегория.
+                        <div style="display:flex; flex-direction:column;">
+                            <label asp-for="Name" style="display:block; font-weight:800; color:#0F172A; margin-bottom:7px;">Име</label>
+                            <input asp-for="Name"
+                                   class="form-control category-input"
+                                   style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;" />
+                            <span asp-validation-for="Name" class="text-danger" style="margin-top:6px;"></span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column;">
+                            <label asp-for="ParentCategoryId" style="display:block; font-weight:800; color:#0F172A; margin-bottom:7px;">Родителска категория</label>
+                            <select asp-for="ParentCategoryId"
+                                    asp-items="ViewBag.ParentCategoryId"
+                                    class="form-select category-input"
+                                    style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;">
+                                <option value="">(Няма)</option>
+                            </select>
+                            <span asp-validation-for="ParentCategoryId" class="text-danger" style="margin-top:6px;"></span>
+                            <div style="margin-top:8px; color:#64748B; font-size:.96rem; line-height:1.45;">
+                                Избери родител, ако това е подкатегория.
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
-            </div>
+                <div id="categoryEditActions"
+                     style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding-top:4px; flex-wrap:wrap;">
 
-            <div style="margin-top:22px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="submit" class="btn btn-primary">
-                        Запази
-                    </button>
-
-                    <a asp-action="Index" class="btn btn-outline-primary">
-                        Назад
-                    </a>
-                </div>
-
-                @if (Model.IsActive)
-                {
-                    <form asp-action="Deactivate"
-                          asp-route-id="@Model.Id"
-                          method="post"
-                          style="margin:0;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-outline-danger">
-                            Деактивирай
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button type="submit"
+                                class="category-action-btn category-save-btn"
+                                style="min-width:128px; min-height:46px; border:none; border-radius:12px; background:linear-gradient(135deg,#3B82F6,#2563EB); color:#FFFFFF; font-weight:800; padding:0 18px; transition:all .18s ease; box-shadow:0 10px 22px rgba(37,99,235,.20);">
+                            Запази
                         </button>
-                    </form>
-                }
-                else
-                {
-                    <span style="font-weight:700; color:#64748b;">Категорията е деактивирана</span>
-                }
+
+                        <a asp-action="Index"
+                           class="category-action-btn category-back-btn"
+                           style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none; min-width:116px; min-height:46px; border-radius:12px; border:1px solid #3B82F6; background:#FFFFFF; color:#2563EB; font-weight:800; padding:0 18px; transition:all .18s ease;">
+                            Назад
+                        </a>
+                    </div>
+
+                    <div style="display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap;">
+                        @if (Model.IsActive)
+                        {
+                            <form asp-action="Deactivate"
+                                  asp-route-id="@Model.Id"
+                                  method="post"
+                                  style="margin:0;">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="category-action-btn category-danger-btn"
+                                        style="min-width:150px; min-height:46px; border:none; border-radius:12px; background:linear-gradient(135deg,#EF4444,#DC2626); color:#FFFFFF; font-weight:800; padding:0 18px; transition:all .18s ease; box-shadow:0 10px 22px rgba(220,38,38,.16);">
+                                    Деактивирай
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div style="display:inline-flex; align-items:center; min-height:46px; padding:0 14px; border-radius:12px; background:#F1F5F9; color:#64748B; font-weight:700; border:1px solid #CBD5E1;">
+                                Категорията е деактивирана
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </form>
-
     </section>
 </div>
+
+<style>
+    .category-input:focus {
+        border-color: #3B82F6 !important;
+        box-shadow: 0 0 0 4px rgba(59,130,246,.14) !important;
+        outline: none !important;
+    }
+
+    .category-action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .category-save-btn:hover {
+        box-shadow: 0 14px 28px rgba(37,99,235,.28) !important;
+        filter: brightness(1.02);
+    }
+
+    .category-back-btn:hover {
+        background: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        border-color: #2563EB !important;
+        box-shadow: 0 10px 22px rgba(37,99,235,.12);
+    }
+
+    .category-danger-btn:hover {
+        box-shadow: 0 14px 28px rgba(220,38,38,.22) !important;
+        filter: brightness(1.02);
+    }
+</style>
 
 @section Scripts {
     @{

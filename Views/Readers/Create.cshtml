@@ -11,7 +11,7 @@
 
     <div class="card-soft reader-edit-card" style="padding:20px; margin-top:10px;">
 
-        <form asp-action="Create" method="post" data-gate="1" style="margin:0;">
+        <form asp-action="Create" method="post" style="margin:0;">
             @Html.AntiForgeryToken()
 
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>

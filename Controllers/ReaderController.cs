@@ -300,6 +300,22 @@ namespace ObreshkovLibrary.Controllers
                 c => c.Grade,
                 c => c.Section))
             {
+                if (readerToUpdate.Grade.HasValue)
+                {
+                    if (readerToUpdate.Grade.Value >= 5 && readerToUpdate.Grade.Value <= 7)
+                    {
+                        readerToUpdate.Section = null;
+                    }
+
+                    if (readerToUpdate.Grade.Value >= 8 &&
+                        readerToUpdate.Grade.Value <= 12 &&
+                        string.IsNullOrWhiteSpace(readerToUpdate.Section))
+                    {
+                        ModelState.AddModelError("Section", "За 8. до 12. клас паралелката е задължителна.");
+                        return View(readerToUpdate);
+                    }
+                }
+
                 try
                 {
                     await _context.SaveChangesAsync();
@@ -309,13 +325,13 @@ namespace ObreshkovLibrary.Controllers
                 {
                     if (!readerExists(readerToUpdate.Id))
                         return NotFound();
+
                     throw;
                 }
             }
 
             return View(readerToUpdate);
         }
-
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

@@ -4,65 +4,199 @@
     ViewData["Title"] = "Добавяне на новина";
 }
 
-<div class="page-container" style="padding-top: 110px; padding-bottom: 28px;">
-    <div class="mb-4">
+<div style="width:100%; padding-top:6px; padding-bottom:28px;">
+
+    <div style="margin-bottom:16px;">
         <h2 class="section-title mb-1">Добавяне на новина</h2>
         <div class="accent-line"></div>
     </div>
 
-    <section class="card-soft" style="padding: 24px; border-radius: 18px; background: #ffffff;">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
+    <section class="card-soft"
+             style="padding:24px; border-radius:22px; background:#FFFFFF; border:1px solid #D9E2EC; box-shadow:0 14px 34px rgba(15,23,42,.06); overflow:visible;">
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data" id="schoolNewsCreateForm" style="margin:0;">
             @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"
+                 style="margin-bottom:14px; padding:10px 12px; border-radius:12px; background:#FEF2F2; border:1px solid #FECACA;"></div>
 
-            <div class="row g-3">
-                <div class="col-md-8">
-                    <label asp-for="Title" class="form-label fw-bold"></label>
-                    <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
+            <div style="display:flex; flex-direction:column; gap:18px;">
 
-                <div class="col-md-4">
-                    <label asp-for="PublishedOn" class="form-label fw-bold"></label>
-                    <input asp-for="PublishedOn" type="date" class="form-control" />
-                    <span asp-validation-for="PublishedOn" class="text-danger"></span>
-                </div>
+                <div style="background:linear-gradient(180deg,#F8FAFC 0%, #FDFEFF 100%); border:1px solid #D9E2EC; border-radius:18px; padding:18px;">
+                    <div style="font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; font-weight:800; color:#64748B; margin-bottom:14px;">
+                        Основна информация
+                    </div>
 
-                <div class="col-12">
-                    <label asp-for="Summary" class="form-label fw-bold"></label>
-                    <textarea asp-for="Summary" rows="5" class="form-control"></textarea>
-                    <span asp-validation-for="Summary" class="text-danger"></span>
-                </div>
+                    <div id="schoolNewsTopGrid"
+                         style="display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start;">
 
-                <div class="col-md-8">
-                    <label asp-for="NewsUrl" class="form-label fw-bold"></label>
-                    <input asp-for="NewsUrl" class="form-control" />
-                    <span asp-validation-for="NewsUrl" class="text-danger"></span>
-                </div>
+                        <div style="display:flex; flex-direction:column;">
+                            <label asp-for="Title" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+                            <input asp-for="Title"
+                                   class="form-control schoolnews-input"
+                                   placeholder="Въведи заглавие на новината"
+                                   style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;" />
+                            <span asp-validation-for="Title" class="text-danger" style="margin-top:6px;"></span>
+                        </div>
 
-                <div class="col-md-2 d-flex align-items-end">
-                    <div class="form-check">
-                        <input asp-for="IsActive" class="form-check-input" />
-                        <label asp-for="IsActive" class="form-check-label fw-bold"></label>
+                        <div class="schoolnews-date-wrap" style="display:flex; flex-direction:column; position:relative;">
+                            <label asp-for="PublishedOn" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+                            <input asp-for="PublishedOn"
+                                   type="date"
+                                   class="form-control schoolnews-input schoolnews-date-input"
+                                   style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;" />
+                            <span asp-validation-for="PublishedOn" class="text-danger" style="margin-top:6px;"></span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px; display:flex; flex-direction:column;">
+                        <label asp-for="Summary" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+                        <textarea asp-for="Summary"
+                                  rows="6"
+                                  class="form-control schoolnews-input schoolnews-textarea"
+                                  placeholder="Добави кратко описание на новината..."
+                                  style="border-radius:16px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none; resize:vertical; min-height:150px; padding-top:14px;"></textarea>
+                        <span asp-validation-for="Summary" class="text-danger" style="margin-top:6px;"></span>
+                    </div>
+
+                    <div id="newsLinkActiveRow"
+                         style="display:grid; grid-template-columns:minmax(0,1fr) 190px; gap:16px; align-items:start; margin-top:16px;">
+
+                        <div style="display:flex; flex-direction:column;">
+                            <label asp-for="NewsUrl" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+                            <input asp-for="NewsUrl"
+                                   class="form-control schoolnews-input"
+                                   placeholder="https://..."
+                                   style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;" />
+                            <span asp-validation-for="NewsUrl" class="text-danger" style="margin-top:6px;"></span>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; align-self:start;">
+                            <label style="font-weight:800; color:#0F172A; margin-bottom:12px;">Статус</label>
+
+                            <label style="display:flex; align-items:center; gap:10px; min-height:50px; padding:0 14px; border-radius:14px; border:1px solid #D9E2EC; background:#FFFFFF; margin:0; font-weight:800; color:#0F172A; cursor:pointer; transition:all .18s ease;">
+                                <input asp-for="IsActive"
+                                       type="checkbox"
+                                       style="width:18px; height:18px; margin:0;" />
+                                <span>@Html.DisplayNameFor(m => m.IsActive)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:16px; display:flex; flex-direction:column;">
+                        <label asp-for="ImageFile" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+                        <input asp-for="ImageFile"
+                               type="file"
+                               accept=".jpg,.jpeg,.png,.webp,image/*"
+                               class="form-control schoolnews-file-input"
+                               style="height:52px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none; padding-top:12px;" />
+                        <span asp-validation-for="ImageFile" class="text-danger" style="margin-top:6px;"></span>
                     </div>
                 </div>
 
-                <div class="col-12">
-                    <label asp-for="ImageFile" class="form-label fw-bold"></label>
-                    <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/*" class="form-control" />
-                    <span asp-validation-for="ImageFile" class="text-danger"></span>
-                </div>
-            </div>
+                <div id="schoolNewsActions"
+                     style="display:flex; justify-content:flex-start; align-items:center; gap:10px; padding-top:2px; flex-wrap:wrap;">
 
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-primary">Запази</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
+                    <button type="submit"
+                            class="schoolnews-action-btn schoolnews-save-btn"
+                            style="min-width:138px; min-height:48px; border:none; border-radius:13px; background:linear-gradient(135deg,#3B82F6,#2563EB); color:#FFFFFF; font-weight:800; padding:0 20px; transition:all .18s ease; box-shadow:0 10px 22px rgba(37,99,235,.20);">
+                        Запази
+                    </button>
+
+                    <a asp-action="Index"
+                       class="schoolnews-action-btn schoolnews-back-btn"
+                       style="display:inline-flex; align-items:center; justify-content:center; text-decoration:none; min-width:118px; min-height:48px; border-radius:13px; border:1px solid #3B82F6; background:#FFFFFF; color:#2563EB; font-weight:800; padding:0 20px; transition:all .18s ease;">
+                        Назад
+                    </a>
+                </div>
             </div>
         </form>
     </section>
 </div>
 
+<style>
+    .schoolnews-input:focus,
+    .schoolnews-file-input:focus {
+        border-color: #3B82F6 !important;
+        box-shadow: 0 0 0 4px rgba(59,130,246,.14) !important;
+        outline: none !important;
+    }
+
+    .schoolnews-input::placeholder,
+    .schoolnews-textarea::placeholder {
+        color: #94A3B8;
+    }
+
+    .schoolnews-date-wrap,
+    .schoolnews-date-wrap * {
+        overflow: visible !important;
+    }
+
+    .schoolnews-date-input {
+        font-weight: 700;
+        color: #0F172A;
+    }
+
+    .schoolnews-textarea {
+        line-height: 1.55;
+    }
+
+    .schoolnews-file-input {
+        cursor: pointer;
+    }
+
+    .schoolnews-action-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .schoolnews-save-btn:hover {
+        box-shadow: 0 14px 28px rgba(37,99,235,.28) !important;
+        filter: brightness(1.02);
+    }
+
+    .schoolnews-back-btn:hover {
+        background: #EFF6FF !important;
+        color: #1D4ED8 !important;
+        border-color: #2563EB !important;
+        box-shadow: 0 10px 22px rgba(37,99,235,.12);
+    }
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function applySchoolNewsCreateResponsive() {
+            const topGrid = document.getElementById('schoolNewsTopGrid');
+            const linkActiveRow = document.getElementById('newsLinkActiveRow');
+            const actions = document.getElementById('schoolNewsActions');
+
+            if (window.innerWidth <= 700) {
+                if (topGrid) topGrid.style.gridTemplateColumns = '1fr';
+                if (linkActiveRow) linkActiveRow.style.gridTemplateColumns = '1fr';
+                if (actions) {
+                    actions.style.flexDirection = 'column';
+                    actions.style.alignItems = 'stretch';
+                }
+            } else if (window.innerWidth <= 980) {
+                if (topGrid) topGrid.style.gridTemplateColumns = '1fr';
+                if (linkActiveRow) linkActiveRow.style.gridTemplateColumns = '1fr';
+                if (actions) {
+                    actions.style.flexDirection = 'row';
+                    actions.style.alignItems = 'center';
+                }
+            } else {
+                if (topGrid) topGrid.style.gridTemplateColumns = 'minmax(0,1fr) 320px';
+                if (linkActiveRow) linkActiveRow.style.gridTemplateColumns = 'minmax(0,1fr) 190px';
+                if (actions) {
+                    actions.style.flexDirection = 'row';
+                    actions.style.alignItems = 'center';
+                }
+            }
+        }
+
+        applySchoolNewsCreateResponsive();
+        window.addEventListener('resize', applySchoolNewsCreateResponsive);
+    </script>
 }

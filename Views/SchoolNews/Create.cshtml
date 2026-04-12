@@ -40,12 +40,30 @@
                             <span asp-validation-for="Title" class="text-danger" style="margin-top:6px;"></span>
                         </div>
 
-                        <div class="schoolnews-date-wrap" style="display:flex; flex-direction:column; position:relative;">
+                        <div class="schoolnews-date-wrap" style="display:flex; flex-direction:column;">
                             <label asp-for="PublishedOn" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
-                            <input asp-for="PublishedOn"
-                                   type="date"
-                                   class="form-control schoolnews-input schoolnews-date-input"
-                                   style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none;" />
+
+                            <div style="position:relative;">
+                                <input asp-for="PublishedOn"
+                                       type="date"
+                                       id="createPublishedOn"
+                                       class="form-control schoolnews-input schoolnews-date-input"
+                                       style="height:50px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none; padding-right:52px;" />
+
+                                <button type="button"
+                                        class="schoolnews-date-trigger"
+                                        data-target="createPublishedOn"
+                                        aria-label="Отвори календара"
+                                        style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:36px; height:36px; border:none; border-radius:10px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; transition:all .18s ease; cursor:pointer;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"></rect>
+                                        <path d="M16 3V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                                        <path d="M8 3V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                                        <path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
                             <span asp-validation-for="PublishedOn" class="text-danger" style="margin-top:6px;"></span>
                         </div>
                     </div>
@@ -86,12 +104,31 @@
 
                     <div style="margin-top:16px; display:flex; flex-direction:column;">
                         <label asp-for="ImageFile" style="font-weight:800; color:#0F172A; margin-bottom:7px;"></label>
+
                         <input asp-for="ImageFile"
                                type="file"
+                               id="createNewsImageFile"
                                accept=".jpg,.jpeg,.png,.webp,image/*"
-                               class="form-control schoolnews-file-input"
-                               style="height:52px; border-radius:14px; border:1px solid #CBD5E1; background:#FFFFFF; box-shadow:none; padding-top:12px;" />
-                        <span asp-validation-for="ImageFile" class="text-danger" style="margin-top:6px;"></span>
+                               style="display:none;" />
+
+                        <label for="createNewsImageFile"
+                               class="schoolnews-file-picker"
+                               style="display:flex; align-items:center; gap:12px; min-height:60px; padding:10px 14px; border-radius:16px; border:1px solid #CBD5E1; background:#FFFFFF; cursor:pointer; transition:all .18s ease;">
+
+                            <span class="schoolnews-file-button"
+                                  style="display:inline-flex; align-items:center; justify-content:center; min-width:132px; min-height:40px; padding:0 14px; border-radius:12px; background:#EFF6FF; color:#2563EB; font-weight:800; border:1px solid #BFDBFE; transition:all .18s ease;">
+                                Избор на файл
+                            </span>
+
+                            <span id="createNewsImageFileName"
+                                  style="color:#64748B; font-weight:600; line-height:1.4;">
+                                Няма избран файл
+                            </span>
+                        </label>
+
+                        <span asp-validation-for="ImageFile"
+                              class="text-danger"
+                              style="display:block; margin-top:6px;"></span>
                     </div>
                 </div>
 
@@ -114,54 +151,6 @@
         </form>
     </section>
 </div>
-
-<style>
-    .schoolnews-input:focus,
-    .schoolnews-file-input:focus {
-        border-color: #3B82F6 !important;
-        box-shadow: 0 0 0 4px rgba(59,130,246,.14) !important;
-        outline: none !important;
-    }
-
-    .schoolnews-input::placeholder,
-    .schoolnews-textarea::placeholder {
-        color: #94A3B8;
-    }
-
-    .schoolnews-date-wrap,
-    .schoolnews-date-wrap * {
-        overflow: visible !important;
-    }
-
-    .schoolnews-date-input {
-        font-weight: 700;
-        color: #0F172A;
-    }
-
-    .schoolnews-textarea {
-        line-height: 1.55;
-    }
-
-    .schoolnews-file-input {
-        cursor: pointer;
-    }
-
-    .schoolnews-action-btn:hover {
-        transform: translateY(-1px);
-    }
-
-    .schoolnews-save-btn:hover {
-        box-shadow: 0 14px 28px rgba(37,99,235,.28) !important;
-        filter: brightness(1.02);
-    }
-
-    .schoolnews-back-btn:hover {
-        background: #EFF6FF !important;
-        color: #1D4ED8 !important;
-        border-color: #2563EB !important;
-        box-shadow: 0 10px 22px rgba(37,99,235,.12);
-    }
-</style>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
@@ -196,7 +185,46 @@
             }
         }
 
+        function bindDateTrigger(buttonSelector) {
+            document.querySelectorAll(buttonSelector).forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+
+                    if (typeof input.showPicker === 'function') {
+                        input.showPicker();
+                    } else {
+                        input.focus();
+                        input.click();
+                    }
+                });
+            });
+        }
+
+        function bindFileName(inputId, fileNameId) {
+            const input = document.getElementById(inputId);
+            const fileName = document.getElementById(fileNameId);
+
+            if (!input || !fileName) return;
+
+            input.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    fileName.textContent = this.files[0].name;
+                    fileName.style.color = '#0F172A';
+                    fileName.style.fontWeight = '700';
+                } else {
+                    fileName.textContent = 'Няма избран файл';
+                    fileName.style.color = '#64748B';
+                    fileName.style.fontWeight = '600';
+                }
+            });
+        }
+
         applySchoolNewsCreateResponsive();
+        bindDateTrigger('.schoolnews-date-trigger');
+        bindFileName('createNewsImageFile', 'createNewsImageFileName');
+
         window.addEventListener('resize', applySchoolNewsCreateResponsive);
     </script>
 }

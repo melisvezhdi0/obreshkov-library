@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
@@ -12,11 +13,16 @@ namespace ObreshkovLibrary.Controllers
     {
         private readonly ObreshkovLibraryContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public SchoolNewsController(ObreshkovLibraryContext context, IWebHostEnvironment environment)
+        public SchoolNewsController(
+            ObreshkovLibraryContext context,
+            IWebHostEnvironment environment,
+            UserManager<IdentityUser> userManager)
         {
             _context = context;
             _environment = environment;
+            _userManager = userManager;
         }
 
         private static bool IsAllowedImageExtension(string extension)
@@ -31,16 +37,25 @@ namespace ObreshkovLibrary.Controllers
                 return null;
 
             var extension = Path.GetExtension(imageFile.FileName);
-            if (string.IsNullOrWhiteSpace(extension) || !IsAllowedImageExtension(extension))
+
+            if (string.IsNullOrWhiteSpace(extension) ||
+                !IsAllowedImageExtension(extension))
                 return null;
 
-            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "school-news");
+            var uploadsFolder = Path.Combine(
+                _environment.WebRootPath,
+                "uploads",
+                "school-news"
+            );
+
             Directory.CreateDirectory(uploadsFolder);
 
             var fileName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+
             var filePath = Path.Combine(uploadsFolder, fileName);
 
             using var stream = new FileStream(filePath, FileMode.Create);
+
             await imageFile.CopyToAsync(stream);
 
             return $"/uploads/school-news/{fileName}";
@@ -48,29 +63,40 @@ namespace ObreshkovLibrary.Controllers
 
         private void DeleteImage(string? imagePath)
         {
-            if (string.IsNullOrWhiteSpace(imagePath) || !imagePath.StartsWith("/uploads/school-news/"))
+            if (string.IsNullOrWhiteSpace(imagePath) ||
+                !imagePath.StartsWith("/uploads/school-news/"))
                 return;
 
-            var relativePath = imagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-            var absolutePath = Path.Combine(_environment.WebRootPath, relativePath);
+            var relativePath = imagePath
+                .TrimStart('/')
+                .Replace('/', Path.DirectorySeparatorChar);
+
+            var absolutePath = Path.Combine(
+                _environment.WebRootPath,
+                relativePath
+            );
 
             if (System.IO.File.Exists(absolutePath))
                 System.IO.File.Delete(absolutePath);
         }
+
+        // ================= INDEX =================
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var news = await _context.SchoolNews
                 .AsNoTracking()
-                .Where(n => n.IsActive)
-                .OrderBy(n => n.DisplayOrder)
-                .ThenByDescending(n => n.PublishedOn)
-                .ThenByDescending(n => n.CreatedOn)
+                .Where(x => x.IsActive)
+                .OrderBy(x => x.DisplayOrder)
+                .ThenByDescending(x => x.PublishedOn)
+                .ThenByDescending(x => x.CreatedOn)
                 .ToListAsync();
 
             return View(news);
         }
+
+        // ================= CREATE =================
 
         [HttpGet]
         public IActionResult Create()
@@ -88,15 +114,10 @@ namespace ObreshkovLibrary.Controllers
         {
             if (vm.ImageFile == null)
             {
-                ModelState.AddModelError(nameof(vm.ImageFile), "Снимката е задължителна.");
-            }
-            else
-            {
-                var extension = Path.GetExtension(vm.ImageFile.FileName);
-                if (!IsAllowedImageExtension(extension))
-                {
-                    ModelState.AddModelError(nameof(vm.ImageFile), "Позволени са само файлове: .jpg, .jpeg, .png, .webp");
-                }
+                ModelState.AddModelError(
+                    nameof(vm.ImageFile),
+                    "Снимката е задължителна."
+                );
             }
 
             if (!ModelState.IsValid)
@@ -116,11 +137,15 @@ namespace ObreshkovLibrary.Controllers
             };
 
             _context.SchoolNews.Add(entity);
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Новината е добавена успешно.";
+
             return RedirectToAction(nameof(Index));
         }
+
+        // ================= EDIT =================
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -139,7 +164,7 @@ namespace ObreshkovLibrary.Controllers
                 CurrentImagePath = entity.ImagePath,
                 NewsUrl = entity.NewsUrl,
                 PublishedOn = entity.PublishedOn,
-                IsActive = entity.IsActive,
+                IsActive = entity.IsActive
             };
 
             return View(vm);
@@ -152,18 +177,11 @@ namespace ObreshkovLibrary.Controllers
             if (id != vm.Id)
                 return NotFound();
 
-            var entity = await _context.SchoolNews.FirstOrDefaultAsync(x => x.Id == id);
+            var entity = await _context.SchoolNews
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (entity == null)
                 return NotFound();
-
-            if (vm.ImageFile != null)
-            {
-                var extension = Path.GetExtension(vm.ImageFile.FileName);
-                if (!IsAllowedImageExtension(extension))
-                {
-                    ModelState.AddModelError(nameof(vm.ImageFile), "Позволени са само файлове: .jpg, .jpeg, .png, .webp");
-                }
-            }
 
             if (!ModelState.IsValid)
             {
@@ -172,6 +190,7 @@ namespace ObreshkovLibrary.Controllers
             }
 
             var oldImagePath = entity.ImagePath;
+
             var newImagePath = await SaveImageAsync(vm.ImageFile);
 
             entity.Title = vm.Title.Trim();
@@ -189,34 +208,41 @@ namespace ObreshkovLibrary.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Новината е редактирана успешно.";
+
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        // ================= ARCHIVE =================
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int id, string password)
         {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var validPassword = await _userManager.CheckPasswordAsync(user, password);
+
+            if (!validPassword)
+            {
+                TempData["Error"] = "Грешна парола.";
+                return RedirectToAction(nameof(Index));
+            }
+
             var entity = await _context.SchoolNews
-                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (entity == null)
                 return NotFound();
 
-            return View(entity);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var entity = await _context.SchoolNews.FirstOrDefaultAsync(x => x.Id == id);
-            if (entity == null)
-                return NotFound();
-
             entity.IsActive = false;
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Новината е архивирана успешно.";
+
             return RedirectToAction(nameof(Index));
         }
     }

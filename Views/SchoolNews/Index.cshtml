@@ -2,88 +2,204 @@
 
 @{
     ViewData["Title"] = "Актуално в ППМГ";
+
+    string ResolveImageUrl(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        if (path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return path;
+        }
+
+        return path.StartsWith("/")
+            ? Url.Content("~" + path)
+            : Url.Content("~/" + path.TrimStart('/'));
+    }
 }
 
-<div class="page-container" style="padding-top: 110px; padding-bottom: 28px;">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+<div style="width:100%; padding-top:6px; padding-bottom:28px;">
+
+    <div id="schoolNewsHeader"
+         style="display:flex; align-items:end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
         <div>
             <h2 class="section-title mb-1">Актуално в ППМГ</h2>
             <div class="accent-line"></div>
         </div>
 
-        <a asp-controller="SchoolNews" asp-action="Create" class="btn btn-primary" style="border-radius:12px; font-weight:700;">
+        <a asp-action="Create"
+           class="schoolnews-top-btn"
+           style="display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 20px; border-radius:14px; text-decoration:none; border:none; background:linear-gradient(135deg,#3B82F6,#2563EB); color:#FFFFFF; font-weight:800; box-shadow:0 10px 24px rgba(37,99,235,.20); transition:all .18s ease;">
             Добави новина
         </a>
     </div>
 
+    @if (TempData["Success"] != null)
+    {
+        <div style="margin-bottom:16px; padding:14px 16px; border-radius:16px; border:1px solid #BBF7D0; background:linear-gradient(180deg,#F0FDF4 0%, #ECFDF3 100%); color:#166534; font-weight:700; box-shadow:0 8px 20px rgba(22,101,52,.06);">
+            @TempData["Success"]
+        </div>
+    }
+
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success" style="border-radius:14px;">
+        <div style="margin-bottom:16px; padding:14px 16px; border-radius:16px; border:1px solid #BBF7D0; background:linear-gradient(180deg,#F0FDF4 0%, #ECFDF3 100%); color:#166534; font-weight:700; box-shadow:0 8px 20px rgba(22,101,52,.06);">
             @TempData["SuccessMessage"]
         </div>
     }
 
-    <section class="card-soft" style="padding: 18px; border-radius: 18px; background: #ffffff;">
-        @if (!Model.Any())
-        {
-            <div style="padding: 24px 10px; color: #64748b;">Все още няма добавени новини.</div>
-        }
-        else
+    @if (TempData["Error"] != null)
+    {
+        <div style="margin-bottom:16px; padding:14px 16px; border-radius:16px; border:1px solid #FECACA; background:linear-gradient(180deg,#FEF2F2 0%, #FFF5F5 100%); color:#B91C1C; font-weight:700; box-shadow:0 8px 20px rgba(185,28,28,.06);">
+            @TempData["Error"]
+        </div>
+    }
+
+    <section class="card-soft"
+             style="background:#FFFFFF; border:1px solid #D9E2EC; border-radius:22px; padding:18px 18px 12px 18px; box-shadow:0 14px 34px rgba(15,23,42,.06);">
+
+        @if (Model != null && Model.Any())
         {
             <div style="overflow-x:auto;">
-                <table class="table align-middle mb-0">
+                <table style="width:100%; border-collapse:separate; border-spacing:0; min-width:1040px;">
                     <thead>
                         <tr>
-                            <th>Снимка</th>
-                            <th>Заглавие</th>
-                            <th>Дата</th>
-                            <th>Ред</th>
-                            <th>Статус</th>
-                            <th>Линк</th>
-                            <th class="text-end">Действия</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Снимка</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Заглавие и описание</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Дата</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Ред</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Статус</th>
+                            <th style="text-align:left; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Линк</th>
+                            <th style="text-align:right; padding:14px 10px; color:#64748B; font-size:.98rem; font-weight:800; border-bottom:1px solid #CBD5E1;">Действия</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td style="width:110px;">
-                                    @if (!string.IsNullOrWhiteSpace(item.ImagePath))
+                            var imageUrl = ResolveImageUrl(item.ImagePath);
+                            var hasImage = !string.IsNullOrWhiteSpace(imageUrl);
+                            var hasLink = !string.IsNullOrWhiteSpace(item.NewsUrl);
+
+                            <tr class="schoolnews-row">
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    @if (hasImage)
                                     {
-                                        <img src="@Url.Content(item.ImagePath)"
+                                        <img src="@imageUrl"
                                              alt="@item.Title"
-                                             style="width:80px;height:56px;object-fit:cover;border-radius:10px;border:1px solid #dbe5ef;" />
-                                    }
-                                </td>
-                                <td>
-                                    <div style="font-weight:800; color:#1f2937;">@item.Title</div>
-                                    <div style="font-size:.92rem; color:#64748b; max-width:420px;">
-                                        @item.Summary
-                                    </div>
-                                </td>
-                                <td>@item.PublishedOn.ToString("dd.MM.yyyy")</td>
-                                <td>@item.DisplayOrder</td>
-                                <td>
-                                    @if (item.IsActive)
-                                    {
-                                        <span class="badge bg-success">Активна</span>
+                                             style="width:84px; height:56px; object-fit:cover; border-radius:14px; display:block; border:1px solid #D9E2EC; box-shadow:0 6px 16px rgba(15,23,42,.08);" />
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Скрита</span>
+                                        <div style="width:84px; height:56px; border-radius:14px; border:1px dashed #CBD5E1; background:linear-gradient(180deg,#F8FAFC 0%, #F1F5F9 100%); display:flex; align-items:center; justify-content:center; color:#94A3B8; font-size:.82rem; font-weight:700;">
+                                            Няма
+                                        </div>
                                     }
                                 </td>
-                                <td>
-                                    <a href="@item.NewsUrl" target="_blank" style="font-weight:700;">Отвори</a>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    <div style="display:flex; flex-direction:column; gap:6px;">
+                                        <div style="font-size:1.12rem; line-height:1.25; font-weight:800; color:#0F172A;">
+                                            @item.Title
+                                        </div>
+
+                                        <div style="color:#64748B; line-height:1.5; font-size:.98rem; max-width:520px;">
+                                            @(string.IsNullOrWhiteSpace(item.Summary) ? "Няма кратко описание." : item.Summary)
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="text-end">
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-2">Редактирай</a>
-                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Изтрий</a>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    <div style="display:inline-flex; align-items:center; min-height:38px; padding:0 12px; border-radius:12px; background:#F8FAFC; border:1px solid #E2E8F0; color:#0F172A; font-weight:700;">
+                                        @item.PublishedOn.ToString("dd.MM.yyyy")
+                                    </div>
+                                </td>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    <div style="display:inline-flex; align-items:center; justify-content:center; min-width:42px; min-height:38px; padding:0 10px; border-radius:12px; background:#F8FAFC; border:1px solid #E2E8F0; color:#0F172A; font-weight:800;">
+                                        @item.DisplayOrder
+                                    </div>
+                                </td>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    @if (item.IsActive)
+                                    {
+                                        <span style="display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:999px; background:#DCFCE7; color:#166534; font-weight:800; font-size:.92rem; border:1px solid #BBF7D0;">
+                                            Активна
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span style="display:inline-flex; align-items:center; min-height:30px; padding:0 10px; border-radius:999px; background:#F1F5F9; color:#64748B; font-weight:800; font-size:.92rem; border:1px solid #CBD5E1;">
+                                            Архивирана
+                                        </span>
+                                    }
+                                </td>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0;">
+                                    @if (hasLink)
+                                    {
+                                        <a href="@item.NewsUrl"
+                                           target="_blank"
+                                           rel="noopener noreferrer"
+                                           class="schoolnews-link-btn"
+                                           style="display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:0 12px; border-radius:12px; text-decoration:none; background:#EFF6FF; color:#2563EB; font-weight:800; border:1px solid #BFDBFE; transition:all .18s ease;">
+                                            Отвори
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:#94A3B8; font-weight:700;">Няма</span>
+                                    }
+                                </td>
+
+                                <td style="padding:14px 10px; vertical-align:middle; border-bottom:1px solid #E2E8F0; text-align:right;">
+                                    <div style="display:flex; flex-direction:column; gap:10px; align-items:flex-end;">
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.Id"
+                                           class="schoolnews-action-btn schoolnews-edit-btn"
+                                           style="display:inline-flex; align-items:center; justify-content:center; min-width:132px; min-height:40px; padding:0 16px; border-radius:12px; text-decoration:none; background:#FFFFFF; color:#2563EB; font-weight:800; border:1px solid #3B82F6; transition:all .18s ease;">
+                                            Редактирай
+                                        </a>
+
+                                        <form asp-action="Archive"
+                                              asp-route-id="@item.Id"
+                                              method="post"
+                                              data-gate="1"
+                                              style="margin:0;">
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="schoolnews-action-btn schoolnews-archive-btn"
+                                                    style="min-width:132px; min-height:40px; padding:0 16px; border-radius:12px; border:1px solid #F87171; background:#FFFFFF; color:#DC2626; font-weight:800; transition:all .18s ease;">
+                                                Архивирай
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
+            </div>
+        }
+        else
+        {
+            <div style="padding:32px 16px; text-align:center; border-radius:18px; background:linear-gradient(180deg,#F8FAFC 0%, #FDFEFF 100%); border:1px dashed #CBD5E1;">
+                <div style="font-size:1.2rem; font-weight:800; color:#0F172A; margin-bottom:6px;">
+                    Все още няма новини
+                </div>
+                <div style="color:#64748B; margin-bottom:16px;">
+                    Добави първата новина, за да се появи тук.
+                </div>
+
+                <a asp-action="Create"
+                   class="schoolnews-top-btn"
+                   style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 20px; border-radius:14px; text-decoration:none; border:none; background:linear-gradient(135deg,#3B82F6,#2563EB); color:#FFFFFF; font-weight:800; box-shadow:0 10px 24px rgba(37,99,235,.20); transition:all .18s ease;">
+                    Добави новина
+                </a>
             </div>
         }
     </section>

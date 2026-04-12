@@ -49,24 +49,23 @@
                         </div>
                     </div>
 
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;" id="loanCreateActions">
-                        <div id="loanSearchStatus"
-                             style="display:none; min-height:46px; align-items:center; border-radius:14px; padding:0 16px; border:1px solid #DBEAFE; background:#EFF6FF; color:#1D4ED8; font-weight:800;">
-                        </div>
-
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap;" id="loanCreateActions">
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                             <button type="button"
                                     id="loanSearchButton"
-                                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:150px;">
+                                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 12px 24px rgba(59,130,246,.22)'; this.style.filter='brightness(1.03)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 18px rgba(59,130,246,.18)'; this.style.filter='none'"
+                                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:150px; transition:all .18s ease;">
                                 Търси
                             </button>
 
-                            <a asp-controller="Home"
-                               asp-action="Index"
-                               asp-route-cardNumber="@Model.CardNumber"
-                               style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; text-decoration:none; font-weight:800; border:1px solid #CBD5E1; min-width:120px;">
+                            <button type="button"
+                                    onclick="history.back()"
+                                    onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#60A5FA'; this.style.color='#1D4ED8'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.10)'"
+                                    onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; text-decoration:none; font-weight:800; border:1px solid #CBD5E1; min-width:120px; transition:all .18s ease;">
                                 Назад
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -126,7 +125,6 @@
         <div style="padding:20px;">
             <div id="loanModalEmptyState" style="display:none;">
                 <div style="border:1px dashed #CBD5E1; border-radius:18px; padding:28px 20px; background:#F8FAFC; text-align:center;">
-
                     <div id="loanModalEmptyMessage" style="font-size:1.08rem; font-weight:800; color:#0F172A; margin-bottom:8px;">Не са намерени резултати.</div>
                     <div style="color:#64748B; font-weight:600; line-height:1.55;">Провери заглавието или опитай отново с по-точно търсене.</div>
                 </div>
@@ -139,8 +137,12 @@
                             <img id="loanModalCover"
                                  src=""
                                  alt="Корица"
-                                 style="display:none; width:100%; height:100%; object-fit:cover;" />
-                            <div id="loanModalCoverFallback" style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:#94A3B8; font-size:2rem; font-weight:800;">—</div>
+                                 onerror="this.style.display='none'; document.getElementById('loanModalCoverFallback').style.display='flex';"
+                                 style="display:none; width:100%; height:100%; object-fit:contain; background:#FFFFFF;" />
+                            <div id="loanModalCoverFallback"
+                                 style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:#94A3B8; font-size:1rem; font-weight:800; text-align:center; padding:14px;">
+                                Няма корица
+                            </div>
                         </div>
                     </div>
 
@@ -178,27 +180,30 @@
         <div style="padding:0 20px 20px 20px; display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap;">
             <button type="button"
                     id="loanModalCloseSecondaryBtn"
-                    onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#3B82F6'; this.style.color='#1D4ED8';"
-                    onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569';"
+                    onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#3B82F6'; this.style.color='#1D4ED8'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.10)'"
+                    onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
                     style="
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        min-height:46px;
-        padding:0 1.2rem;
-        border-radius:14px;
-        background:#FFFFFF;
-        color:#475569;
-        text-decoration:none;
-        font-weight:800;
-        border:1px solid #CBD5E1;
-        min-width:120px;">
+                        display:inline-flex;
+                        align-items:center;
+                        justify-content:center;
+                        min-height:46px;
+                        padding:0 1.2rem;
+                        border-radius:14px;
+                        background:#FFFFFF;
+                        color:#475569;
+                        text-decoration:none;
+                        font-weight:800;
+                        border:1px solid #CBD5E1;
+                        min-width:120px;
+                        transition:all .18s ease;">
                 Добре
             </button>
 
             <button type="button"
                     id="loanConfirmButton"
-                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:160px;">
+                    onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 12px 24px rgba(59,130,246,.22)'; this.style.filter='brightness(1.03)'"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 18px rgba(59,130,246,.18)'; this.style.filter='none'"
+                    style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.25rem; border-radius:14px; background:linear-gradient(180deg,#4D8AF7 0%,#3B82F6 100%); color:#fff; text-decoration:none; font-weight:800; border:1px solid #3B82F6; box-shadow:0 8px 18px rgba(59,130,246,.18); min-width:160px; transition:all .18s ease;">
                 Заеми
             </button>
         </div>
@@ -218,7 +223,6 @@
             const titleInput = document.getElementById('loanTitleInput');
             const authorInput = document.getElementById('loanAuthorInput');
             const bookIdInput = document.getElementById('selectedBookId');
-            const statusBox = document.getElementById('loanSearchStatus');
             const overlay = document.getElementById('loanPreviewOverlay');
             const closeButtons = [
                 document.getElementById('closeLoanPreviewBtn'),
@@ -238,28 +242,14 @@
             const modalCover = document.getElementById('loanModalCover');
             const modalCoverFallback = document.getElementById('loanModalCoverFallback');
 
+            function resolveCoverUrl(path) {
+                if (!path) return '';
+                return path.startsWith('/') ? path : '/' + path.replace(/^\/+/, '');
+            }
+
             function setStatus(message, type) {
-                if (!message) {
-                    statusBox.style.display = 'none';
-                    statusBox.textContent = '';
-                    return;
-                }
-
-                statusBox.style.display = 'inline-flex';
-                statusBox.textContent = message;
-
-                if (type === 'error') {
-                    statusBox.style.background = '#FEF2F2';
-                    statusBox.style.borderColor = '#FECACA';
-                    statusBox.style.color = '#B91C1C';
-                } else if (type === 'success') {
-                    statusBox.style.background = '#ECFDF5';
-                    statusBox.style.borderColor = '#BBF7D0';
-                    statusBox.style.color = '#15803D';
-                } else {
-                    statusBox.style.background = '#EFF6FF';
-                    statusBox.style.borderColor = '#DBEAFE';
-                    statusBox.style.color = '#1D4ED8';
+                if (type === 'error' && message) {
+                    console.warn(message);
                 }
             }
 
@@ -308,7 +298,7 @@
                 modalMessageBox.textContent = data.message || '';
 
                 if (data.coverPath) {
-                    modalCover.src = data.coverPath;
+                    modalCover.src = resolveCoverUrl(data.coverPath);
                     modalCover.style.display = 'block';
                     modalCoverFallback.style.display = 'none';
                 }
@@ -343,17 +333,14 @@
                 }
 
                 bookIdInput.value = '';
-                setStatus('Търсене на книга...', 'info');
                 searchButton.disabled = true;
                 searchButton.textContent = 'Търсене...';
 
-                        try { const url = new URL('@Url.Action("SearchBook", "Loans")', window.location.origin);
-        url.searchParams.set('title', title);
-        url.searchParams.set('readerId', '@Model.ReaderId');
+                try {
+                    const url = new URL('@Url.Action("SearchBook", "Loans")', window.location.origin);
+                    url.searchParams.set('title', title);
+                    url.searchParams.set('readerId', '@Model.ReaderId');
 
-        if (author) {
-            url.searchParams.set('author', author);
-        }
                     if (author) {
                         url.searchParams.set('author', author);
                     }
@@ -371,23 +358,19 @@
                         throw new Error('Грешка при търсенето.');
                     }
 
-                           if (!data.found) {
-            setStatus(data.message || 'Не са намерени резултати.', 'error');
-            showEmptyModal(data.message || 'Не са намерени резултати.');
-            return;
-        }
+                    if (!data.found) {
+                        showEmptyModal(data.message || 'Не са намерени резултати.');
+                        return;
+                    }
 
-        if (data.alreadyTaken) {
-            setStatus('', 'info');
-            showEmptyModal(data.message || 'Ученикът вече има заета тази книга.');
-            return;
-        }
+                    if (data.alreadyTaken) {
+                        showEmptyModal(data.message || 'Ученикът вече има заета тази книга.');
+                        return;
+                    }
 
-        setStatus(data.message || 'Книгата е намерена.', data.hasAvailableCopy ? 'success' : 'error');
-        showBookModal(data);
+                    showBookModal(data);
 
                 } catch (error) {
-                    setStatus('Възникна проблем при търсенето. Опитай отново.', 'error');
                     showEmptyModal('Възникна проблем при търсенето. Опитай отново.');
                 } finally {
                     searchButton.disabled = false;
@@ -449,7 +432,7 @@
                     if (howGrid) howGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
                     if (modalBookGrid) modalBookGrid.style.gridTemplateColumns = '160px minmax(0, 1fr)';
                     if (modalInfoGrid) modalInfoGrid.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-                    if (actions) actions.style.justifyContent = 'space-between';
+                    if (actions) actions.style.justifyContent = 'flex-end';
                 }
             }
 

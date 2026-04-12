@@ -1,32 +1,65 @@
-﻿@using ObreshkovLibrary.Models
+﻿@using Microsoft.EntityFrameworkCore
+@using ObreshkovLibrary.Models
+@inject ObreshkovLibrary.Data.ObreshkovLibraryContext DbContext
 @model ObreshkovLibrary.Models.Reader
 
 @{
     ViewData["Title"] = "Читател";
+
     var loans = ViewBag.ActiveLoans as List<Loan> ?? new List<Loan>();
     var successMessage = TempData["SuccessMessage"] as string;
+
+    var returnedLoans = await DbContext.Loans
+        .IgnoreQueryFilters()
+        .Where(l => l.ReaderId == Model.Id && l.ReturnDate != null)
+        .Include(l => l.BookCopy)
+            .ThenInclude(bc => bc.Book)
+        .OrderByDescending(l => l.ReturnDate)
+        .ThenByDescending(l => l.Id)
+        .Take(3)
+        .ToListAsync();
+
+    var readerFullName = $"{Model.FirstName} {Model.MiddleName} {Model.LastName}".Replace("  ", " ").Trim();
 }
 
-<div class="reader-details-page">
+<div style="width:100%; padding-top:6px;">
 
-    <div class="reader-details-header">
-        <div>
-            <h2 class="section-title mb-1">
-                @($"{Model.FirstName} {Model.MiddleName} {Model.LastName}".Replace("  ", " ").Trim())
-            </h2>
-            <div class="accent-line"></div>
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px;">
+        <div style="min-width:0;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                <h2 class="section-title mb-1" style="margin:0;">@readerFullName</h2>
+
+                @if (Model.IsActive)
+                {
+                    <span style="display:inline-flex; align-items:center; min-height:34px; padding:0 14px; border-radius:999px; background:#EEF4FF; border:1px solid #D6E4FF; color:#2563EB; font-weight:800; font-size:.95rem;">
+                        Активен
+                    </span>
+                }
+                else
+                {
+                    <span style="display:inline-flex; align-items:center; min-height:34px; padding:0 14px; border-radius:999px; background:#F3F4F6; border:1px solid #D1D5DB; color:#6B7280; font-weight:800; font-size:.95rem;">
+                        Неактивен
+                    </span>
+                }
+            </div>
+
+            <div class="accent-line" style="margin-top:8px;"></div>
         </div>
 
-        <div class="reader-details-actions">
-            <a class="btn btn-outline-primary"
-               asp-action="Index">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-left:auto;">
+            <a asp-action="Index"
+               onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#60A5FA'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.10)'"
+               onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#3B82F6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+               style="display:inline-flex; align-items:center; justify-content:center; min-width:110px; min-height:40px; padding:0 16px; border-radius:12px; border:1px solid #3B82F6; background:#FFFFFF; color:#2563EB; text-decoration:none; font-weight:800; transition:all .18s ease;">
                 Назад
             </a>
 
-            <a class="btn btn-accent"
-               asp-controller="Loans"
+            <a asp-controller="Loans"
                asp-action="Create"
-               asp-route-readerId="@Model.Id">
+               asp-route-readerId="@Model.Id"
+               onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 12px 24px rgba(37,99,235,.22)'; this.style.filter='brightness(1.03)'"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.18)'; this.style.filter='none'"
+               style="display:inline-flex; align-items:center; justify-content:center; min-width:110px; min-height:40px; padding:0 16px; border-radius:12px; border:1px solid #3B82F6; background:linear-gradient(135deg,#2563EB,#3B82F6); color:#FFFFFF; text-decoration:none; font-weight:800; box-shadow:0 8px 18px rgba(37,99,235,.18); transition:all .18s ease;">
                 Нов заем
             </a>
         </div>
@@ -34,99 +67,85 @@
 
     <div class="row g-4">
         <div class="col-lg-4">
-            <section class="details-panel card-soft">
-                <div class="details-panel-head">
-                    <h5 class="section-title mb-0">Данни</h5>
+            <section style="background:#FFFFFF; border:1px solid #D9E2EC; border-radius:18px; overflow:hidden; box-shadow:0 10px 24px rgba(15,23,42,.04);">
+                <div style="padding:16px 18px 14px 18px; border-bottom:1px solid #D9E2EC;">
+                    <h5 class="section-title mb-0" style="margin:0;">Данни</h5>
                 </div>
 
-                <div class="details-info-list">
-                    <div class="details-info-row">
-                        <span class="details-label">№ карта</span>
-                        <span class="details-value">@Model.CardNumber</span>
+                <div style="padding:12px 18px 0 18px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                        <div style="color:#64748B; font-weight:700;">№ карта</div>
+                        <div style="color:#0F172A; font-weight:800;">@Model.CardNumber</div>
                     </div>
 
-                    <div class="details-info-row">
-                        <span class="details-label">Име</span>
-                        <span class="details-value">@Model.FirstName</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                        <div style="color:#64748B; font-weight:700;">Име</div>
+                        <div style="color:#0F172A; font-weight:800;">@Model.FirstName</div>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.MiddleName))
                     {
-                        <div class="details-info-row">
-                            <span class="details-label">Презиме</span>
-                            <span class="details-value">@Model.MiddleName</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                            <div style="color:#64748B; font-weight:700;">Презиме</div>
+                            <div style="color:#0F172A; font-weight:800;">@Model.MiddleName</div>
                         </div>
                     }
 
-                    <div class="details-info-row">
-                        <span class="details-label">Фамилия</span>
-                        <span class="details-value">@Model.LastName</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                        <div style="color:#64748B; font-weight:700;">Фамилия</div>
+                        <div style="color:#0F172A; font-weight:800;">@Model.LastName</div>
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
                     {
-                        <div class="details-info-row">
-                            <span class="details-label">Телефон</span>
-                            <span class="details-value">@Model.PhoneNumber</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                            <div style="color:#64748B; font-weight:700;">Телефон</div>
+                            <div style="color:#0F172A; font-weight:800;">@Model.PhoneNumber</div>
                         </div>
                     }
 
-                    <div class="details-info-row">
-                        <span class="details-label">Създаден</span>
-                        <span class="details-value">@Model.CreatedOn.ToString("dd.MM.yyyy")</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                        <div style="color:#64748B; font-weight:700;">Създаден</div>
+                        <div style="color:#0F172A; font-weight:800;">@Model.CreatedOn.ToString("dd.MM.yyyy")</div>
                     </div>
 
-                    <div class="details-info-row">
-                        <span class="details-label">Статус</span>
-                        <span class="details-value">
-                            @if (Model.IsActive)
-                            {
-                                <span class="status-badge status-active">Активен</span>
-                            }
-                            else
-                            {
-                                <span class="status-badge status-inactive">Неактивен</span>
-                            }
-                        </span>
-                    </div>
-
-                    <div class="details-info-row">
-                        <span class="details-label">Достъп</span>
-                        <span class="details-value">Ученик</span>
-                    </div>
-
-                    <div class="details-info-row">
-                        <span class="details-label">Парола</span>
-                        <span class="details-value">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                        <div style="color:#64748B; font-weight:700;">Парола</div>
+                        <div>
                             @if (Model.PasswordChangedByReader)
                             {
-                                <span class="status-badge status-active">Сменена</span>
+                                <span style="display:inline-flex; align-items:center; min-height:34px; padding:0 12px; border-radius:999px; background:#EEF4FF; border:1px solid #D6E4FF; color:#2563EB; font-weight:800; font-size:.92rem;">
+                                    Сменена
+                                </span>
                             }
                             else if (!string.IsNullOrWhiteSpace(Model.LastTemporaryPassword))
                             {
-                                <span style="display:inline-block; padding:6px 10px; background:#ffffff; border:1px solid #CBD5E1; border-radius:8px; font-weight:800; letter-spacing:.03em; color:#1F2937;">
+                                <span style="display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:0 12px; border-radius:10px; border:1px solid #CBD5E1; background:#FFFFFF; color:#0F172A; font-weight:800; letter-spacing:.02em;">
                                     @Model.LastTemporaryPassword
                                 </span>
                             }
                             else
                             {
-                                <span style="color:#64748B;">Няма данни</span>
+                                <span style="color:#94A3B8; font-weight:700;">Няма данни</span>
                             }
-                        </span>
+                        </div>
                     </div>
 
                     @if (Model.LastPasswordChangeOn != null)
                     {
-                        <div class="details-info-row">
-                            <span class="details-label">Последна смяна</span>
-                            <span class="details-value">@Model.LastPasswordChangeOn.Value.ToString("dd.MM.yyyy HH:mm")</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid #E5EAF0;">
+                            <div style="color:#64748B; font-weight:700;">Последна смяна</div>
+                            <div style="color:#0F172A; font-weight:800;">@Model.LastPasswordChangeOn.Value.ToString("dd.MM.yyyy HH:mm")</div>
                         </div>
                     }
+                </div>
 
-                <div class="details-panel-footer">
-                    <a class="btn btn-outline-primary w-100"
-                       asp-action="Edit"
-                       asp-route-id="@Model.Id">
+                <div style="padding:18px;">
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#60A5FA'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.10)'"
+                       onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#3B82F6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                       style="display:inline-flex; align-items:center; justify-content:center; width:100%; min-height:42px; border-radius:12px; border:1px solid #3B82F6; background:#FFFFFF; color:#2563EB; text-decoration:none; font-weight:800; transition:all .18s ease;">
                         Редактиране
                     </a>
                 </div>
@@ -134,47 +153,125 @@
         </div>
 
         <div class="col-lg-8">
-            <section class="details-panel card-soft">
-                <div class="details-panel-head details-panel-head-flex">
-                    <h5 class="section-title mb-0">Активни заеми</h5>
-                    <span class="count-badge">@loans.Count</span>
+            <section style="background:#FFFFFF; border:1px solid #D9E2EC; border-radius:18px; overflow:hidden; box-shadow:0 10px 24px rgba(15,23,42,.04);">
+                <div style="padding:16px 18px 14px 18px; border-bottom:1px solid #D9E2EC; display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                    <h5 class="section-title mb-0" style="margin:0;">Активни заеми</h5>
+                    <span style="display:inline-flex; align-items:center; justify-content:center; min-width:34px; height:34px; padding:0 10px; border-radius:999px; background:#EEF4FF; border:1px solid #D6E4FF; color:#2563EB; font-weight:800;">
+                        @loans.Count
+                    </span>
                 </div>
 
                 @if (!loans.Any())
                 {
-                    <div class="details-empty-state">
+                    <div style="padding:18px; color:#64748B; font-weight:600;">
                         Няма активни заеми.
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table details-table align-middle mb-0">
+                        <table class="table align-middle mb-0" style="margin:0;">
                             <thead>
                                 <tr>
-                                    <th>Книга</th>
-                                    <th>Автор</th>
-                                    <th>Заета на</th>
-                                    <th>Срок</th>
-                                    <th class="text-end">Действие</th>
+                                    <th style="background:#F3F6F9; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Книга</th>
+                                    <th style="background:#F3F6F9; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Автор</th>
+                                    <th style="background:#F3F6F9; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Заета на</th>
+                                    <th style="background:#F3F6F9; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Срок</th>
+                                    <th style="background:#F3F6F9; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7; text-align:right;">Действие</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var l in loans)
                                 {
+                                    var isOverdue = l.DueDate.Date < DateTime.Today;
+
                                     <tr>
-                                        <td class="details-book-title">@l.BookCopy?.Book?.Title</td>
-                                        <td>@l.BookCopy?.Book?.Author</td>
-                                        <td>@l.LoanDate.ToString("dd.MM.yyyy")</td>
-                                        <td>@l.DueDate.ToString("dd.MM.yyyy")</td>
-                                        <td class="text-end">
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:@(isOverdue ? "#FFFDFD" : "#FFFFFF"); min-width:280px;">
+                                            <div style="font-weight:700; color:#1F2937;">
+                                                @l.BookCopy?.Book?.Title
+                                            </div>
+                                        </td>
+
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:@(isOverdue ? "#FFFDFD" : "#FFFFFF");">
+                                            @l.BookCopy?.Book?.Author
+                                        </td>
+
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:@(isOverdue ? "#FFFDFD" : "#FFFFFF");">
+                                            @l.LoanDate.ToString("dd.MM.yyyy")
+                                        </td>
+
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:@(isOverdue ? "#FFFDFD" : "#FFFFFF"); color:@(isOverdue ? "#B91C1C" : "#0F172A"); font-weight:@(isOverdue ? "800" : "400");">
+                                            @l.DueDate.ToString("dd.MM.yyyy")
+                                        </td>
+
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:@(isOverdue ? "#FFFDFD" : "#FFFFFF"); text-align:right;">
                                             <button type="button"
                                                     class="btn btn-sm btn-outline-danger"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#returnModal"
-                                                    data-loan-id="@l.Id">
+                                                    data-loan-id="@l.Id"
+                                                    onmouseover="this.style.background='#FEF2F2'; this.style.borderColor='#EF4444'; this.style.color='#DC2626'; this.style.transform='translateY(-1px)'"
+                                                    onmouseout="this.style.background='transparent'; this.style.borderColor='#EF4444'; this.style.color='#DC2626'; this.style.transform='translateY(0)'"
+                                                    style="transition:all .18s ease;">
                                                 Върни
                                             </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+
+            <section style="margin-top:18px; background:#FCFDFE; border:1px solid #E6EDF5; border-radius:18px; overflow:hidden; box-shadow:0 10px 24px rgba(15,23,42,.03);">
+                <div style="padding:16px 18px 14px 18px; border-bottom:1px solid #E5EAF0; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; background:linear-gradient(180deg,#FBFCFE 0%,#F7FAFD 100%);">
+                    <div>
+                        <h5 class="section-title mb-0" style="margin:0;">Върнати книги</h5>
+                        <div style="margin-top:4px; color:#94A3B8; font-size:.9rem; font-weight:600;">
+                            Последните 3 върнати заема
+                        </div>
+                    </div>
+
+                    <a asp-controller="Archive"
+                       asp-action="Loans"
+                       asp-route-search="@Model.CardNumber"
+                       onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#60A5FA'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 8px 18px rgba(37,99,235,.10)'"
+                       onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#3B82F6'; this.style.transform='translateY(0)'; this.style.boxShadow='none'"
+                       style="display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:0 14px; border-radius:12px; border:1px solid #3B82F6; background:#FFFFFF; color:#2563EB; text-decoration:none; font-weight:800; transition:all .18s ease;">
+                        Виж всички
+                    </a>
+                </div>
+
+                @if (!returnedLoans.Any())
+                {
+                    <div style="padding:18px; color:#64748B; font-weight:600;">
+                        Няма върнати книги в архива.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0" style="margin:0;">
+                            <thead>
+                                <tr>
+                                    <th style="background:#F8FAFC; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Книга</th>
+                                    <th style="background:#F8FAFC; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Взета на</th>
+                                    <th style="background:#F8FAFC; color:#64748B; font-size:.82rem; text-transform:uppercase; letter-spacing:.03em; font-weight:800; padding:14px 16px; border-bottom:1px solid #D9E0E7;">Върната на</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var l in returnedLoans)
+                                {
+                                    <tr>
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:#FCFDFE; font-weight:700; color:#1F2937;">
+                                            @l.BookCopy?.Book?.Title
+                                        </td>
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:#FCFDFE;">
+                                            @l.LoanDate.ToString("dd.MM.yyyy")
+                                        </td>
+                                        <td style="padding:16px; border-bottom:1px solid #E5EAF0; background:#FCFDFE;">
+                                            @(l.ReturnDate?.ToString("dd.MM.yyyy") ?? "—")
                                         </td>
                                     </tr>
                                 }
@@ -188,14 +285,14 @@
 
     <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content" style="border-radius:18px; border:1px solid #D9E2EC; overflow:hidden;">
 
-                <div class="modal-header">
+                <div class="modal-header" style="border-bottom:1px solid #E5EAF0;">
                     <h5 class="modal-title">Потвърждение</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
                 </div>
 
-                <div class="modal-body">
+                <div class="modal-body" style="color:#0F172A; font-weight:600;">
                     Сигурни ли сте, че книгата е върната в библиотеката?
                 </div>
 
@@ -210,12 +307,16 @@
 
                         <button type="button"
                                 data-bs-dismiss="modal"
-                                style="min-height:40px; padding:0 1.1rem; border-radius:12px; border:1px solid #CBD5E1; background:#fff; font-weight:700;">
+                                onmouseover="this.style.background='#F8FAFC'; this.style.borderColor='#94A3B8'; this.style.transform='translateY(-1px)'"
+                                onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.transform='translateY(0)'"
+                                style="min-height:40px; padding:0 18px; border-radius:12px; border:1px solid #CBD5E1; background:#FFFFFF; font-weight:700; transition:all .18s ease;">
                             Отказ
                         </button>
 
                         <button type="submit"
-                                style="min-height:40px; padding:0 1.2rem; border-radius:12px; border:1px solid #3B82F6; background:#3B82F6; color:#fff; font-weight:800;">
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 10px 20px rgba(37,99,235,.20)'; this.style.filter='brightness(1.03)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.filter='none'"
+                                style="min-height:40px; padding:0 18px; border-radius:12px; border:1px solid #3B82F6; background:#3B82F6; color:#FFFFFF; font-weight:800; transition:all .18s ease;">
                             Да
                         </button>
                     </form>
@@ -243,9 +344,9 @@
                 <div style="padding:0 20px 20px 20px; display:flex; justify-content:center;">
                     <button type="button"
                             id="closeReturnSuccessModal"
-                            onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#3B82F6'; this.style.color='#1D4ED8';"
-                            onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569';"
-                            style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 1.2rem; border-radius:14px; background:#FFFFFF; color:#475569; font-weight:800; border:1px solid #CBD5E1; min-width:120px;">
+                            onmouseover="this.style.background='#EFF6FF'; this.style.borderColor='#60A5FA'; this.style.color='#1D4ED8'; this.style.transform='translateY(-1px)'"
+                            onmouseout="this.style.background='#FFFFFF'; this.style.borderColor='#CBD5E1'; this.style.color='#475569'; this.style.transform='translateY(0)'"
+                            style="display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 20px; border-radius:14px; background:#FFFFFF; color:#475569; font-weight:800; border:1px solid #CBD5E1; min-width:120px; transition:all .18s ease;">
                         Затвори
                     </button>
                 </div>

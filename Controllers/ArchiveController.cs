@@ -206,70 +206,81 @@ namespace ObreshkovLibrary.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> readers(string? search, string? classFilter)
+        public async Task<IActionResult> Readers(string? search, string? classFilter)
         {
             search = (search ?? "").Trim();
-            classFilter = (classFilter ?? "").Trim();
 
-            var q = _context.Readers
+            var readers = await _context.Readers
                 .IgnoreQueryFilters()
                 .AsNoTracking()
-                .Where(c => !c.IsActive)
-                .AsQueryable();
+                .Where(r => !r.IsActive)
+                .ToListAsync();
+
+            var availableClasses = readers
+                .Where(c => c.Grade.HasValue)
+                .Select(c => new
+                {
+                    Grade = c.Grade.Value,
+                    Section = (c.Section ?? "").Trim().ToUpper()
+                })
+                .Distinct()
+                .OrderBy(c => c.Grade)
+                .ThenBy(c => c.Section)
+                .Select(c => string.IsNullOrWhiteSpace(c.Section)
+                    ? c.Grade.ToString()
+                    : $"{c.Grade}{c.Section}")
+                .ToList();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {
-                var cf = classFilter.Replace(" ", "").ToUpper();
+                var normalizedClass = classFilter.Trim().Replace(" ", "").ToUpper();
 
-                q = q.Where(c =>
-                    (((c.Grade != null ? c.Grade.ToString() : "") + (c.Section ?? ""))
-                        .Replace(" ", "")
-                        .ToUpper()) == cf);
+                readers = readers
+                    .Where(c =>
+                    {
+                        var grade = c.Grade.HasValue ? c.Grade.Value.ToString() : "";
+                        var section = (c.Section ?? "").Trim().ToUpper();
+
+                        var readerClass = string.IsNullOrWhiteSpace(section)
+                            ? grade
+                            : $"{grade}{section}";
+
+                        return readerClass == normalizedClass;
+                    })
+                    .ToList();
             }
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                var s = search.ToLower();
-                var compact = s.Replace(" ", "").Replace("-", "");
+                var normalizedSearch = search.Trim();
 
-                q = q.Where(c =>
-                    (((c.FirstName ?? "") + " " + (c.MiddleName ?? "") + " " + (c.LastName ?? "")).ToLower().Contains(s)) ||
-                    (c.PhoneNumber ?? "").ToLower().Contains(s) ||
-                    (c.CardNumber ?? "").ToLower().Contains(s) ||
-                    ((c.CardNumber ?? "").Replace(" ", "").Replace("-", "").ToLower().Contains(compact)));
+                readers = readers
+                    .Where(c =>
+                    {
+                        var fullName = $"{c.FirstName} {c.MiddleName} {c.LastName}"
+                            .Replace("  ", " ")
+                            .Trim();
+
+                        return
+                            fullName.Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.PhoneNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase) ||
+                            (c.CardNumber ?? "").Contains(normalizedSearch, StringComparison.OrdinalIgnoreCase);
+                    })
+                    .ToList();
             }
 
-            var allArchived = await _context.Readers
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .Where(c => !c.IsActive)
-                .ToListAsync();
-
-            var availableClasses = allArchived
-                .Where(c => c.Grade.HasValue)
-                .Select(c =>
-                {
-                    var grade = c.Grade.Value.ToString();
-                    var section = (c.Section ?? "").Trim();
-                    return string.IsNullOrWhiteSpace(section) ? grade : $"{grade}{section}".Replace(" ", "").ToUpper();
-                })
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .OrderBy(x => x)
+            readers = readers
+                .OrderBy(c => c.Grade ?? int.MaxValue)
+                .ThenBy(c => (c.Section ?? "").Trim().ToUpper())
+                .ThenBy(c => c.LastName)
+                .ThenBy(c => c.FirstName)
                 .ToList();
 
             ViewBag.Search = search;
-            ViewBag.ClassFilter = classFilter;
+            ViewBag.ClassFilter = classFilter ?? "";
             ViewBag.AvailableClasses = availableClasses;
 
-            var items = await q
-                .OrderBy(c => c.Grade ?? int.MaxValue)
-                .ThenBy(c => c.Section)
-                .ThenBy(c => c.FirstName)
-                .ThenBy(c => c.LastName)
-                .ToListAsync();
-
-            return View(items);
+            return View(readers);
         }
 
         [HttpGet]
@@ -321,7 +332,6 @@ namespace ObreshkovLibrary.Controllers
                 var s = search.ToLower();
 
                 q = q.Where(c =>
-                    c.Id.ToString().Contains(search) ||
                     (c.Book.Title ?? "").ToLower().Contains(s) ||
                     (c.Book.Author ?? "").ToLower().Contains(s) ||
                     (c.Book.Category != null && (c.Book.Category.Name ?? "").ToLower().Contains(s)));
@@ -333,6 +343,32 @@ namespace ObreshkovLibrary.Controllers
                 .OrderBy(c => c.Book.Title)
                 .ThenBy(c => c.Id)
                 .ToListAsync();
+
+            var archivedBookIds = items
+                .Select(c => c.BookId)
+                .Distinct()
+                .ToList();
+
+            var allCopiesForShownBooks = await _context.BookCopies
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .Where(c => archivedBookIds.Contains(c.BookId))
+                .OrderBy(c => c.BookId)
+                .ThenBy(c => c.Id)
+                .ToListAsync();
+
+            var copyOrderMap = allCopiesForShownBooks
+                .GroupBy(c => c.BookId)
+                .SelectMany(group => group
+                    .OrderBy(c => c.Id)
+                    .Select((copy, index) => new
+                    {
+                        CopyId = copy.Id,
+                        Order = index + 1
+                    }))
+                .ToDictionary(x => x.CopyId, x => x.Order);
+
+            ViewBag.CopyOrderMap = copyOrderMap;
 
             return View(items);
         }
@@ -480,7 +516,7 @@ namespace ObreshkovLibrary.Controllers
 
             TempData["Success"] = "Читателят беше възстановен успешно.";
 
-            return RedirectToAction(nameof(readers));
+            return RedirectToAction(nameof(Readers));
         }
 
         [HttpPost]

@@ -1,0 +1,26 @@
+﻿.archive-search-input:focus {
+    border-color: #3B82F6 !important;
+    box-shadow: 0 0 0 4px rgba(59,130,246,.14) !important;
+    outline: none !important;
+}
+
+.archive-main-btn:hover {
+    transform: translateY(-1px);
+}
+
+.archive-search-btn:hover,
+.archive-restore-btn:hover {
+    box-shadow: 0 14px 28px rgba(37,99,235,.24) !important;
+    filter: brightness(1.02);
+}
+
+.archive-inline-link:hover {
+    background: #EFF6FF !important;
+    color: #1D4ED8 !important;
+    border-color: #93C5FD !important;
+    transform: translateY(-1px);
+}
+
+.archive-news-row:hover td {
+    background: #FCFDFE;
+}

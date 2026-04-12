@@ -1,59 +1,90 @@
-﻿@model IEnumerable<ObreshkovLibrary.Models.SchoolNews>
+﻿@model IEnumerable<ObreshkovLibrary.Models.Reader>
 
 @{
-    ViewData["Title"] = "Архив актуално в ППМГ";
-    string search = (ViewBag.Search ?? "").ToString();
-}
+    ViewData["Title"] = "Архив читатели";
 
-@if (TempData["Success"] != null)
-{
-    <div style="margin-bottom:1rem; padding:12px 14px; border:1px solid #CBD5E1; background:#F8FAFC; color:#1E293B; border-radius:12px; font-weight:600;">
-        @TempData["Success"]
-    </div>
+    string search = (ViewBag.Search ?? "").ToString();
+    string classFilter = (ViewBag.ClassFilter ?? "").ToString();
+    var availableClasses = ViewBag.AvailableClasses as IEnumerable<string> ?? Enumerable.Empty<string>();
+    string? archiveError = TempData["ArchiveError"]?.ToString();
 }
 
 <div style="width:100%; padding-top:6px; padding-bottom:28px;">
 
     <div style="display:flex; align-items:end; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
         <div>
-            <h2 class="section-title mb-1">Архив — актуално в ППМГ</h2>
+            <h2 class="section-title mb-1">Архив — читатели</h2>
             <div class="accent-line"></div>
         </div>
     </div>
 
-    <section style="background:#ffffff; border:1px solid #D9E0E7; border-radius:18px; overflow:hidden; margin-bottom:1rem; box-shadow:0 10px 30px rgba(15,23,42,.05);">
-        <div id="archiveNewsTabsGrid" style="display:grid; grid-template-columns:repeat(8,1fr);">
+    <section style="background:#ffffff; border:1px solid #D9E0E7; border-radius:18px; overflow:hidden; margin-bottom:1rem;">
+        <div style="display:grid; grid-template-columns:repeat(8,1fr); border-radius:18px; overflow:hidden;">
             <a asp-action="Index" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Скоро архивирани</a>
             <a asp-action="Books" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Книги</a>
-            <a asp-action="Readers" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Читатели</a>
+            <a asp-action="Readers" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#1F2937; font-weight:800;">Читатели</a>
             <a asp-action="Categories" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Категории</a>
             <a asp-action="Copies" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Копия</a>
-            <a asp-action="Loans" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Заеми</a>
-            <a asp-action="SchoolNews" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#FFFFFF; color:#1F2937; font-weight:800;">Актуално в ППМГ</a>
+            <a asp-action="Loans" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#FFFFFF; color:#64748B; font-weight:700;">Заеми</a>            
+            <a asp-action="SchoolNews" style="padding:14px 8px; text-align:center; text-decoration:none; border-right:1px solid #E5EAF0; background:#F8FBFF; color:#64748B; font-weight:700;">Актуално в ППМГ</a>
             <a asp-action="PasswordRequests" style="padding:14px 8px; text-align:center; text-decoration:none; background:#F8FBFF; color:#64748B; font-weight:700;">Пароли</a>
         </div>
     </section>
 
-    <section class="card-soft" style="padding:1rem; margin-bottom:1rem; background:#FFFFFF; border:1px solid #D9E0E7; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.05);">
-        <form method="get" asp-action="SchoolNews" style="display:flex; align-items:center; gap:12px; width:100%; flex-wrap:nowrap;">
+    @if (TempData["Success"] != null)
+    {
+        <div style="margin-bottom:1rem; padding:12px 14px; border:1px solid #BBF7D0; background:#F0FDF4; color:#166534; border-radius:14px; font-weight:700;">
+            @TempData["Success"]
+        </div>
+    }
 
-            <div style="position:relative; flex:1 1 auto; min-width:0;">
+    @if (!string.IsNullOrWhiteSpace(archiveError))
+    {
+        <div style="margin-bottom:1rem; padding:12px 14px; border:1px solid #FECACA; background:#FEF2F2; color:#B91C1C; border-radius:14px; font-weight:700;">
+            @archiveError
+        </div>
+    }
+
+    <section class="card-soft" style="padding:1rem; margin-bottom:1rem; background:#FFFFFF; border:1px solid #D9E0E7; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.05);">
+        <form method="get" asp-action="Readers" style="display:flex; align-items:center; gap:12px; width:100%; flex-wrap:wrap;">
+
+            <div style="position:relative; flex:1 1 560px; min-width:260px;">
                 <span style="position:absolute; left:15px; top:50%; transform:translateY(-50%); color:#94A3B8; font-size:1rem; pointer-events:none; z-index:2;">⌕</span>
 
                 <input type="text"
                        name="search"
                        value="@search"
-                       id="archiveNewsSearch"
-                       placeholder="Търси по заглавие или текст..."
+                       id="archiveReadersSearch"
+                       placeholder="Търси име, телефон или № карта..."
                        class="form-control archive-search-input"
-                       style="width:100%; height:50px; border-radius:16px; border:1px solid #D7DFEA; background:#fff; color:#0F172A; padding-left:40px; padding-right:42px; font-weight:600; box-shadow:none;" />
+                       style="width:100%; height:50px; border-radius:16px; border:1px solid #D7DFEA; background:#FFFFFF; color:#0F172A; padding-left:40px; padding-right:42px; font-weight:600; box-shadow:none;" />
 
                 <button type="button"
-                        id="archiveNewsClearBtn"
+                        id="archiveReadersClearBtn"
                         aria-label="Изчисти търсенето"
                         style="position:absolute; right:12px; top:50%; transform:translateY(-50%); width:22px; height:22px; border:none; background:#E2E8F0; color:#475569; border-radius:50%; @(string.IsNullOrWhiteSpace(search) ? "display:none;" : "display:inline-flex;") align-items:center; justify-content:center; font-size:15px; line-height:1; cursor:pointer; padding:0;">
                     ×
                 </button>
+            </div>
+
+            <div style="flex:0 0 150px;">
+                <select name="classFilter"
+                        id="archiveReadersClassFilter"
+                        class="form-select archive-search-input"
+                        style="width:100%; height:50px; border-radius:16px; border:1px solid #D7DFEA; background:#FFFFFF; color:#0F172A; font-weight:700; box-shadow:none;">
+                    <option value="">Клас</option>
+                    @foreach (var c in availableClasses)
+                    {
+                        if (classFilter == c)
+                        {
+                            <option value="@c" selected>@c</option>
+                        }
+                        else
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    }
+                </select>
             </div>
 
             <button type="submit"
@@ -67,7 +98,7 @@
     <section class="card-soft" style="padding:0; overflow:hidden; background:#FFFFFF; border:1px solid #D9E0E7; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.05);">
         @if (!Model.Any())
         {
-            <div style="padding:1.15rem; color:#6B7280; font-weight:600;">Няма архивирани новини.</div>
+            <div style="padding:1.2rem 1.25rem; color:#6B7280; font-weight:600;">Няма архивирани читатели.</div>
         }
         else
         {
@@ -75,57 +106,53 @@
                 <table class="table mb-0" style="margin-bottom:0;">
                     <thead>
                         <tr>
-                            <th style="padding:.95rem 1.2rem;">Заглавие</th>
-                            <th style="padding:.95rem 1.2rem;">Дата</th>
-                            <th style="padding:.95rem 1.2rem;">Линк</th>
-                            <th style="padding:.95rem 1.2rem; text-align:right;">Действия</th>
+                            <th style="padding:1rem 1.2rem;">Име</th>
+                            <th style="padding:1rem 1.2rem;">Телефон</th>
+                            <th style="padding:1rem 1.2rem;">№ карта</th>
+                            <th style="padding:1rem 1.2rem;">Клас</th>
+                            <th style="padding:1rem 1.2rem; text-align:right;">Действия</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr class="archive-news-row">
-                                <td style="padding:1rem 1.2rem;">
-                                    <div style="font-weight:800; color:#1F2937;">@item.Title</div>
-                                    <div style="margin-top:4px; color:#6B7280; font-weight:600;">@item.Summary</div>
+                            var fullName = $"{item.FirstName} {item.MiddleName} {item.LastName}".Replace("  ", " ").Trim();
+                            var classLabel = item.Grade.HasValue
+                            ? (string.IsNullOrWhiteSpace(item.Section) ? $"{item.Grade}" : $"{item.Grade}{item.Section}")
+                            : "—";
+
+                            <tr class="archive-reader-row">
+                                <td style="padding:1rem 1.2rem; font-weight:800; color:#0F172A;">
+                                    @fullName
                                 </td>
 
-                                <td style="padding:1rem 1.2rem; color:#334155;">
-                                    @item.PublishedOn.ToString("dd.MM.yyyy")
+                                <td style="padding:1rem 1.2rem; color:#0F172A;">
+                                    @(string.IsNullOrWhiteSpace(item.PhoneNumber) ? "—" : item.PhoneNumber)
                                 </td>
 
-                                <td style="padding:1rem 1.2rem;">
-                                    @if (!string.IsNullOrWhiteSpace(item.NewsUrl))
-                                    {
-                                        <a href="@item.NewsUrl"
-                                           target="_blank"
-                                           rel="noopener noreferrer"
-                                           class="archive-inline-link"
-                                           style="display:inline-flex; align-items:center; justify-content:center; min-width:110px; height:40px; padding:0 14px; border-radius:12px; text-decoration:none; background:#FFFFFF; color:#2563EB; font-weight:800; border:1px solid #BFDBFE; transition:all .18s ease;">
-                                            Отвори
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <span style="color:#94A3B8; font-weight:700;">Няма</span>
-                                    }
+                                <td style="padding:1rem 1.2rem; color:#0F172A;">
+                                    @(string.IsNullOrWhiteSpace(item.CardNumber) ? "—" : item.CardNumber)
+                                </td>
+
+                                <td style="padding:1rem 1.2rem; color:#0F172A; font-weight:700;">
+                                    @classLabel
                                 </td>
 
                                 <td style="padding:1rem 1.2rem; text-align:right; white-space:nowrap;">
                                     <div style="display:inline-flex; align-items:center; gap:10px; flex-wrap:nowrap; justify-content:flex-end;">
 
-                                        <a asp-controller="SchoolNews"
-                                           asp-action="Edit"
+                                        <a asp-controller="Readers"
+                                           asp-action="Details"
                                            asp-route-id="@item.Id"
                                            class="archive-inline-link"
                                            style="display:inline-flex; align-items:center; justify-content:center; min-width:120px; height:40px; padding:0 14px; border-radius:12px; text-decoration:none; background:#FFFFFF; color:#2563EB; font-weight:800; border:1px solid #BFDBFE; transition:all .18s ease;">
-                                            Редакция
+                                            Профил
                                         </a>
 
-                                        <form asp-action="RestoreSchoolNews"
+                                        <form asp-action="RestoreReader"
                                               method="post"
                                               style="display:inline; margin:0;"
-                                              onsubmit="return confirm('Сигурен ли си, че искаш да възстановиш тази новина?');">
+                                              onsubmit="return confirm('Сигурен ли си, че искаш да възстановиш този читател?');">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@item.Id" />
                                             <button type="submit"
@@ -149,11 +176,11 @@
 @section Scripts {
     <script>
         (() => {
-            const input = document.getElementById('archiveNewsSearch');
-            const clearBtn = document.getElementById('archiveNewsClearBtn');
-            const tabsGrid = document.getElementById('archiveNewsTabsGrid');
+            const input = document.getElementById('archiveReadersSearch');
+            const clearBtn = document.getElementById('archiveReadersClearBtn');
+            const tabsGrid = document.getElementById('archiveTabsGrid');
 
-            function applyArchiveNewsResponsive() {
+            function applyArchiveReadersResponsive() {
                 if (!tabsGrid) return;
 
                 if (window.innerWidth <= 820) {
@@ -178,8 +205,8 @@
                 toggleClearButton();
             }
 
-            applyArchiveNewsResponsive();
-            window.addEventListener('resize', applyArchiveNewsResponsive);
+            applyArchiveReadersResponsive();
+            window.addEventListener('resize', applyArchiveReadersResponsive);
         })();
     </script>
 }

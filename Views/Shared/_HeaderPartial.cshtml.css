@@ -1,0 +1,181 @@
+﻿.admin-header-nav .nav-link {
+    position: relative;
+    transition: color .18s ease, background-color .18s ease;
+}
+
+.admin-header-nav .nav-link.admin-main-link {
+    padding: 10px 12px !important;
+    border-radius: 10px;
+    font-weight: 800 !important;
+}
+
+    .admin-header-nav .nav-link.admin-main-link:hover {
+        background: #F3F7FC;
+        color: #2563EB !important;
+    }
+
+    .admin-header-nav .nav-link.admin-main-link::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 4px;
+        height: 2px;
+        border-radius: 999px;
+        background: #3B82F6;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform .18s ease;
+        opacity: .95;
+    }
+
+    .admin-header-nav .nav-link.admin-main-link:hover::after,
+    .admin-header-nav .nav-link.admin-main-link:focus::after {
+        transform: scaleX(1);
+    }
+
+.admin-header-nav .nav-item.dropdown {
+    position: relative;
+}
+
+.admin-header-nav .admin-dropdown-toggle {
+    padding-right: 18px !important;
+}
+
+    .admin-header-nav .admin-dropdown-toggle::after {
+        display: none !important;
+    }
+
+.admin-header-nav .admin-caret {
+    margin-left: 6px;
+    font-size: 11px;
+    color: #94A3B8;
+    transition: transform .18s ease, color .18s ease;
+    position: relative;
+    top: -1px;
+}
+
+.admin-header-nav .dropdown:hover .admin-caret,
+.admin-header-nav .dropdown.show .admin-caret {
+    transform: rotate(180deg);
+    color: #3B82F6;
+}
+
+.admin-header-nav .admin-dropdown-menu {
+    width: max-content;
+    min-width: 0;
+    max-width: 320px;
+    margin-top: 14px;
+    padding: 8px;
+    border: 1px solid #D9E0E7;
+    border-radius: 18px;
+    background: #FFFFFF;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+    .admin-header-nav .admin-dropdown-menu::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 22px;
+        width: 14px;
+        height: 14px;
+        background: #FFFFFF;
+        border-top: 1px solid #D9E0E7;
+        border-left: 1px solid #D9E0E7;
+        transform: rotate(45deg);
+    }
+
+.admin-header-nav .admin-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 700;
+    color: #1F2937 !important;
+    white-space: nowrap;
+    transition: background-color .18s ease, transform .18s ease, color .18s ease;
+}
+
+    .admin-header-nav .admin-dropdown-item:hover,
+    .admin-header-nav .admin-dropdown-item:focus {
+        background: #F4F8FC;
+        color: #2563EB !important;
+        transform: translateX(2px);
+    }
+
+.admin-header-nav .admin-dropdown-item-soft {
+    color: #93C5FD !important;
+}
+
+    .admin-header-nav .admin-dropdown-item-soft:hover,
+    .admin-header-nav .admin-dropdown-item-soft:focus {
+        color: #60A5FA !important;
+        background: #F7FBFF;
+    }
+
+.admin-header-nav .admin-dropdown-plus {
+    color: #3B82F6;
+    font-weight: 900;
+    font-size: 15px;
+    line-height: 1;
+    flex: 0 0 auto;
+}
+
+.admin-header-nav .admin-dropdown-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.admin-header-nav .admin-dropdown-subtle {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #94A3B8;
+    flex: 0 0 auto;
+}
+
+.admin-header-nav .admin-dropdown-divider {
+    margin: 6px 8px;
+    border: 0;
+    border-top: 1px solid #E2E8F0;
+}
+
+.admin-header-nav .admin-logout-form {
+    margin: 0;
+}
+
+.admin-header-nav .admin-logout-btn {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 700;
+    color: #B91C1C;
+    white-space: nowrap;
+    transition: background-color .18s ease, transform .18s ease, color .18s ease;
+}
+
+    .admin-header-nav .admin-logout-btn:hover,
+    .admin-header-nav .admin-logout-btn:focus {
+        background: #FEF2F2;
+        color: #DC2626;
+        transform: translateX(2px);
+    }
+
+@media (hover:hover) and (pointer:fine) {
+    .admin-header-nav .nav-item.dropdown:hover > .dropdown-menu {
+        display: block;
+    }
+}

@@ -11,15 +11,34 @@
     var relatedBooks = (ViewBag.RelatedBooks as List<Book>) ?? new List<Book>();
     var similarBooks = (ViewBag.SimilarBooks as List<Book>) ?? new List<Book>();
 
-    string categoryName = "Няма категория";
-    if (Model.Category != null)
+    string ResolveCoverUrl(string? path)
     {
-        categoryName = Model.Category.ParentCategory != null
-            ? $"{Model.Category.ParentCategory.Name} / {Model.Category.Name}"
-            : Model.Category.Name;
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        return path.StartsWith("/")
+            ? Url.Content("~" + path)
+            : Url.Content("~/" + path.TrimStart('/'));
     }
-}
-@{
+
+    var coverPathProp = Model.GetType().GetProperty("CoverPath");
+    var coverUrlProp = Model.GetType().GetProperty("CoverUrl");
+    var coverValue = coverPathProp?.GetValue(Model)?.ToString() ?? coverUrlProp?.GetValue(Model)?.ToString();
+    var coverUrl = ResolveCoverUrl(coverValue);
+
+    string? subCategoryName = Model.Category?.Name;
+    string? parentCategoryName = Model.Category?.ParentCategory?.Name;
+
+    string genreText = "Няма";
+    if (!string.IsNullOrWhiteSpace(parentCategoryName) && !string.IsNullOrWhiteSpace(subCategoryName))
+    {
+        genreText = $"{parentCategoryName} / {subCategoryName}";
+    }
+    else if (!string.IsNullOrWhiteSpace(subCategoryName))
+    {
+        genreText = subCategoryName!;
+    }
+
     List<string> tagNames = new();
 
     if ((Model.Tags & BookTags.BulgarianLiterature) == BookTags.BulgarianLiterature) tagNames.Add("Българска литература");
@@ -54,208 +73,222 @@
     if ((Model.Tags & BookTags.Poetry) == BookTags.Poetry) tagNames.Add("Поезия");
     if ((Model.Tags & BookTags.Prose) == BookTags.Prose) tagNames.Add("Проза");
     if ((Model.Tags & BookTags.Dramaturgy) == BookTags.Dramaturgy) tagNames.Add("Драматургия");
+
+    if ((Model.Tags & BookTags.Mathematics) == BookTags.Mathematics) tagNames.Add("Математика");
+    if ((Model.Tags & BookTags.BulgarianLanguage) == BookTags.BulgarianLanguage) tagNames.Add("Български език");
+    if ((Model.Tags & BookTags.History) == BookTags.History) tagNames.Add("История");
+    if ((Model.Tags & BookTags.Geography) == BookTags.Geography) tagNames.Add("География");
+    if ((Model.Tags & BookTags.Biology) == BookTags.Biology) tagNames.Add("Биология");
+    if ((Model.Tags & BookTags.Chemistry) == BookTags.Chemistry) tagNames.Add("Химия");
+    if ((Model.Tags & BookTags.Physics) == BookTags.Physics) tagNames.Add("Физика");
+    if ((Model.Tags & BookTags.Philosophy) == BookTags.Philosophy) tagNames.Add("Философия");
+    if ((Model.Tags & BookTags.IT) == BookTags.IT) tagNames.Add("Информационни технологии/Информатика");
 }
 
-<div style="width:100%; min-height:calc(100vh - 80px); background:#f3f6fa; padding:28px 0 42px;">
-    <div style="width:min(1220px, calc(100% - 24px)); margin:0 auto;">
+<div style="width:min(1380px, calc(100% - 40px)); margin:28px auto 46px auto;">
 
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:20px;">
-            <div>
-                <h1 style="margin:0; color:#17325c; font-size:2.45rem; line-height:1.08; font-weight:900;">
-                    @Model.Title
-                </h1>
-                <div style="width:60px; height:4px; border-radius:999px; margin-top:10px; background:linear-gradient(90deg,#2563eb 0%,#4f8cff 100%);"></div>
+    <div style="margin-bottom:24px;">
+        <h1 style="margin:0; color:#17325c; font-size:2.15rem; line-height:1.14; font-weight:900; letter-spacing:-0.02em;">
+            @Model.Title
+        </h1>
+
+        <div style="width:68px; height:4px; border-radius:999px; background:linear-gradient(90deg,#2563eb 0%,#60a5fa 100%); margin-top:12px;"></div>
+    </div>
+
+    <section style="background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); border:1px solid #d8e1eb; border-radius:24px; overflow:hidden; margin-bottom:24px; box-shadow:0 16px 36px rgba(15,23,42,.06);">
+        <div class="guest-book-layout" style="display:grid; grid-template-columns:320px minmax(0,1fr); gap:0; align-items:stretch;">
+
+            <div class="guest-book-cover-panel" style="position:relative; background:linear-gradient(180deg,#f8fbff 0%,#f2f7fc 100%); border-right:1px solid #e2e8f0; padding:28px; display:flex; align-items:center; justify-content:center; min-height:460px;">
+                @if (!string.IsNullOrWhiteSpace(coverUrl))
+                {
+                    <img src="@coverUrl"
+                         alt="@Model.Title"
+                         style="display:block; width:100%; max-width:240px; max-height:390px; object-fit:contain; filter:drop-shadow(0 18px 28px rgba(15,23,42,0.14)); transition:transform .2s ease;"
+                         onmouseover="this.style.transform='translateY(-3px) scale(1.01)';"
+                         onmouseout="this.style.transform='translateY(0) scale(1)';"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                    <div style="display:none; width:100%; min-height:340px; border:2px dashed #cad5e0; border-radius:18px; align-items:center; justify-content:center; color:#94a3b8; font-size:.95rem; font-weight:800; background:#f8fbff;">
+                        Няма корица
+                    </div>
+                }
+                else
+                {
+                    <div style="width:100%; min-height:340px; border:2px dashed #cad5e0; border-radius:18px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:.95rem; font-weight:800; background:#f8fbff;">
+                        Няма корица
+                    </div>
+                }
             </div>
 
-            <a asp-controller="Catalog"
-               asp-action="Index"
-               style="display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 17px; border-radius:10px; border:1px solid #cfd8e3; background:#ffffff; color:#2563eb; text-decoration:none; font-size:.95rem; font-weight:800;"
-               onmouseover="this.style.background='#f8fbff'; this.style.borderColor='#bdd0ea';"
-               onmouseout="this.style.background='#ffffff'; this.style.borderColor='#cfd8e3';">
-                Назад към каталога
-            </a>
-        </div>
+            <div style="min-width:0;">
+                <div class="guest-book-info-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr);">
+                    <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Заглавие</div>
+                    <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
+                        @(string.IsNullOrWhiteSpace(Model.Title) ? "Няма" : Model.Title)
+                    </div>
 
-        <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
-            <div style="display:grid; grid-template-columns:340px minmax(0,1fr); gap:24px; padding:24px;">
+                    <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Автор</div>
+                    <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
+                        @(string.IsNullOrWhiteSpace(Model.Author) ? "Няма" : Model.Author)
+                    </div>
 
-                <div>
-                    <div style="width:100%; min-height:500px; border:1px solid #dbe3ec; border-radius:20px; background:linear-gradient(180deg,#f8fafc 0%,#eef3f8 100%); padding:16px; display:flex; align-items:center; justify-content:center;">
-                        @if (!string.IsNullOrWhiteSpace(Model.CoverPath))
+                    <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Жанр</div>
+                    <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
+                        @genreText
+                    </div>
+
+                    <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Година</div>
+                    <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
+                        @(Model.Year.HasValue? Model.Year.ToString() : "Няма")
+                    </div>
+
+                    <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Класове</div>
+                    <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
+                        @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
+                    </div>
+
+                    <div style="padding:20px 18px; color:#64748b; font-weight:800;">Статус</div>
+                    <div style="padding:20px 22px; text-align:right;">
+                        @if (isAvailable)
                         {
-                            <img src="@Model.CoverPath"
-                                 alt="@Model.Title"
-                                 style="width:100%; height:100%; max-height:620px; object-fit:contain; display:block; border-radius:14px; background:#ffffff;" />
+                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:0 16px; border-radius:999px; font-size:.9rem; font-weight:900; background:linear-gradient(180deg,#e8f7ee 0%,#e0f4e9 100%); color:#2f7d32; border:1px solid #cfe7d3; box-shadow:0 6px 14px rgba(47,125,50,.08);">
+                                Налична
+                            </span>
                         }
                         else
                         {
-                            <div style="width:100%; min-height:460px; border:2px dashed #cad5e0; border-radius:16px; background:#f8fbff; display:flex; align-items:center; justify-content:center; text-align:center; padding:18px; color:#6b7c8e; font-size:1rem; font-weight:800;">
-                                Няма корица
-                            </div>
+                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:38px; padding:0 16px; border-radius:999px; font-size:.9rem; font-weight:900; background:linear-gradient(180deg,#fff7e8 0%,#fff2d7 100%); color:#c77a00; border:1px solid #ffe4a8; box-shadow:0 6px 14px rgba(199,122,0,.08);">
+                                Заета
+                            </span>
                         }
                     </div>
                 </div>
-
-                <div style="display:flex; flex-direction:column; gap:18px; min-width:0;">
-                    <div>
-                        <div style="color:#64748b; font-size:1rem; font-weight:800; margin-bottom:6px;">
-                            Автор
-                        </div>
-                        <div style="color:#17325c; font-size:1.35rem; line-height:1.25; font-weight:900;">
-                            @Model.Author
-                        </div>
-                    </div>
-
-                    <div style="border:1px solid #d9e1ea; border-radius:18px; overflow:hidden; background:#ffffff;">
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Статус</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem;">
-                                <span style="display:inline-flex; align-items:center; justify-content:center; min-height:36px; padding:0 15px; border-radius:999px; font-size:.92rem; font-weight:900; white-space:nowrap; @(isAvailable ? "background:#e8f7ee; color:#2f7d32; border:1px solid #cfe7d3;" : "background:#fff1ee; color:#c2410c; border:1px solid #ffd6c8;")">
-                                    @(isAvailable ? "Налична" : "Не е налична")
-                                </span>
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Година</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
-                                @(Model.Year.HasValue? Model.Year.ToString() : "Няма данни")
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Категория</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
-                                @categoryName
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Класове</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800;">
-                                @(string.IsNullOrWhiteSpace(Model.SchoolClass) ? "Не е посочен" : Model.SchoolClass)
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:64px; border-bottom:1px solid #e4ebf2;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Ключови думи</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem; color:#0f172a; font-size:1rem; font-weight:800; white-space:pre-line;">
-                                @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
-                            </div>
-                        </div>
-
-                        <div style="display:grid; grid-template-columns:210px minmax(0,1fr); min-height:74px;">
-                            <div style="display:flex; align-items:center; padding:1rem 1.15rem; background:#fbfcfe; color:#64748b; font-size:.96rem; font-weight:900;">Тагове</div>
-                            <div style="display:flex; align-items:center; justify-content:flex-end; text-align:right; padding:1rem 1.15rem;">
-                                @if (tagNames.Any())
-                                {
-                                    <div style="display:flex; justify-content:flex-end; flex-wrap:wrap; gap:8px; width:100%;">
-                                        @foreach (var tag in tagNames)
-                                        {
-                                            <span style="display:inline-flex; align-items:center; padding:.5rem .92rem; border-radius:999px; border:1px solid #d8e6ff; background:#eef4ff; color:#2563eb; font-size:.88rem; font-weight:800;">
-                                                @tag
-                                            </span>
-                                        }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span style="color:#6b7c8e; font-size:.97rem; font-weight:700;">Няма тагове</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
+    <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
+        <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+            <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Ключови думи / съдържание</h3>
+        </div>
+
+        <div class="guest-keywords-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr); border-bottom:1px solid #e2e8f0;">
+            <div style="padding:16px 18px; color:#64748b; font-weight:800; border-right:1px solid #e2e8f0;">Ключови думи</div>
+            <div style="padding:16px 18px; color:#0f172a; line-height:1.8;">
+                @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
+            </div>
+        </div>
+
+        <div class="guest-tags-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr);">
+            <div style="padding:16px 18px; color:#64748b; font-weight:800; border-right:1px solid #e2e8f0;">Етикети</div>
+            <div style="padding:16px 18px;">
+                @if (tagNames.Any())
+                {
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        @foreach (var tag in tagNames)
+                        {
+                            <span style="display:inline-flex; align-items:center; padding:.5rem .9rem; border-radius:999px; background:#eef4ff; color:#2563eb; font-weight:800; font-size:.9rem; border:1px solid #d7e4ff;">
+                                @tag
+                            </span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <span style="color:#0f172a;">Няма</span>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; box-shadow:0 12px 28px rgba(15,23,42,.05); margin-bottom:24px;">
+        <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+            <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Описание</h3>
+        </div>
+
+        <div class="guest-description-text" style="padding:18px 22px 20px 22px;">
+            @(string.IsNullOrWhiteSpace(Model.Description) ? "Няма описание за тази книга." : Model.Description)
+        </div>
+    </section>
+
+    @if (relatedBooks.Any())
+    {
+        var shownRelatedBooks = relatedBooks.Take(5).ToList();
+
+        <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
             <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
-                <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
-                    Описание
-                </h3>
+                <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Още книги от същия автор</h3>
             </div>
 
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
-            {
-                <div style="padding:20px;">
-                    <p style="margin:0; color:#334155; font-size:1rem; line-height:1.85; white-space:pre-line;">
-                        @Model.Description
-                    </p>
-                </div>
-            }
-            else
-            {
-                <div style="padding:20px; color:#6b7c8e; font-weight:700;">
-                    Няма добавено описание за тази книга.
-                </div>
-            }
+            <div class="guest-catalog-strip" style="padding:18px;">
+                @foreach (var book in shownRelatedBooks)
+                {
+                    var relatedCover = ResolveCoverUrl(book.CoverPath);
+
+                    <a asp-controller="Catalog"
+                       asp-action="Details"
+                       asp-route-id="@book.Id"
+                       class="guest-catalog-mini-card">
+                        <div class="guest-catalog-mini-cover">
+                            @if (!string.IsNullOrWhiteSpace(relatedCover))
+                            {
+                                <img src="@relatedCover" alt="@book.Title" />
+                            }
+                            else
+                            {
+                                <div style="width:100%; height:100%; border:2px dashed #cad5e0; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:.9rem; font-weight:800;">
+                                    Няма корица
+                                </div>
+                            }
+
+                            <div class="guest-catalog-mini-overlay">
+                                <div class="guest-catalog-mini-overlay-title">@book.Title</div>
+                                <div class="guest-catalog-mini-overlay-author">@book.Author</div>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
         </section>
+    }
 
-        @if (relatedBooks.Any())
-        {
-            <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden; margin-bottom:20px;">
-                <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
-                    <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
-                        Още книги от същия автор
-                    </h3>
-                </div>
+    @if (similarBooks.Any())
+    {
+        var shownSimilarBooks = similarBooks.Take(5).ToList();
 
-                <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
-                    @foreach (var book in relatedBooks)
-                    {
-                        <a asp-controller="Catalog"
-                           asp-action="Details"
-                           asp-route-id="@book.Id"
-                           style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
-                           onmouseover="this.style.transform='translateY(-4px)';"
-                           onmouseout="this.style.transform='translateY(0)'">
-                            <div style="height:210px; border-radius:12px; background:#f4f7fb; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                @if (!string.IsNullOrWhiteSpace(book.CoverPath))
-                                {
-                                    <img src="@book.CoverPath" alt="@book.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
-                                }
-                            </div>
-                            <div style="margin-top:10px; color:#0f172a; font-size:.95rem; font-weight:900; line-height:1.35;">
-                                @book.Title
-                            </div>
-                        </a>
-                    }
-                </div>
-            </section>
-        }
+        <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; box-shadow:0 12px 28px rgba(15,23,42,.05);">
+            <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+                <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Подобни книги</h3>
+            </div>
 
-        @if (similarBooks.Any())
-        {
-            <section style="border:1px solid #d8e1eb; border-radius:22px; background:#ffffff; overflow:hidden;">
-                <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
-                    <h3 style="margin:0; color:#17325c; font-size:1.14rem; font-weight:900;">
-                        Подобни книги
-                    </h3>
-                </div>
+            <div class="guest-catalog-strip" style="padding:18px;">
+                @foreach (var book in shownSimilarBooks)
+                {
+                    var similarCover = ResolveCoverUrl(book.CoverPath);
 
-                <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
-                    @foreach (var book in similarBooks)
-                    {
-                        <a asp-controller="Catalog"
-                           asp-action="Details"
-                           asp-route-id="@book.Id"
-                           style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:16px; background:#ffffff; padding:12px;"
-                           onmouseover="this.style.transform='translateY(-4px)';"
-                           onmouseout="this.style.transform='translateY(0)'">
-                            <div style="height:210px; border-radius:12px; background:#f4f7fb; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-                                @if (!string.IsNullOrWhiteSpace(book.CoverPath))
-                                {
-                                    <img src="@book.CoverPath" alt="@book.Title" style="max-width:100%; max-height:100%; object-fit:contain;" />
-                                }
+                    <a asp-controller="Catalog"
+                       asp-action="Details"
+                       asp-route-id="@book.Id"
+                       class="guest-catalog-mini-card">
+                        <div class="guest-catalog-mini-cover">
+                            @if (!string.IsNullOrWhiteSpace(similarCover))
+                            {
+                                <img src="@similarCover" alt="@book.Title" />
+                            }
+                            else
+                            {
+                                <div style="width:100%; height:100%; border:2px dashed #cad5e0; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:.9rem; font-weight:800;">
+                                    Няма корица
+                                </div>
+                            }
+
+                            <div class="guest-catalog-mini-overlay">
+                                <div class="guest-catalog-mini-overlay-title">@book.Title</div>
+                                <div class="guest-catalog-mini-overlay-author">@book.Author</div>
                             </div>
-                            <div style="margin-top:10px; color:#0f172a; font-size:.95rem; font-weight:900; line-height:1.35;">
-                                @book.Title
-                            </div>
-                        </a>
-                    }
-                </div>
-            </section>
-        }
-    </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
 </div>

@@ -1,0 +1,244 @@
+﻿.reader-catalog-strip {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.reader-catalog-mini-card {
+    width: 100%;
+    min-width: 0;
+    text-decoration: none;
+    border: 1px solid #dbe5f0;
+    border-radius: 22px;
+    background: #ffffff;
+    padding: 12px;
+    box-shadow: 0 10px 22px rgba(15,23,42,.05);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    overflow: hidden;
+}
+
+    .reader-catalog-mini-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 30px rgba(15,23,42,.10);
+        border-color: #cddcf0;
+    }
+
+.reader-catalog-mini-cover {
+    position: relative;
+    height: 220px;
+    border-radius: 16px;
+    background: linear-gradient(180deg,#f8fbff 0%,#f1f6fb 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 10px;
+}
+
+    .reader-catalog-mini-cover img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        transition: transform .22s ease;
+    }
+
+.reader-catalog-mini-card:hover .reader-catalog-mini-cover img {
+    transform: scale(1.05);
+}
+
+.reader-catalog-mini-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 14px;
+    background: linear-gradient(180deg, rgba(15,23,42,.02) 15%, rgba(15,23,42,.30) 48%, rgba(15,23,42,.90) 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity .18s ease;
+    pointer-events: none;
+}
+
+.reader-catalog-mini-card:hover .reader-catalog-mini-overlay {
+    opacity: 1;
+}
+
+.reader-catalog-mini-overlay-title {
+    font-size: .98rem;
+    font-weight: 900;
+    line-height: 1.28;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.reader-catalog-mini-overlay-author {
+    margin-top: 6px;
+    font-size: .83rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.88);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* dynamic notes rendered with JS */
+::deep .reader-book-note-card,
+::deep .reader-book-empty-card {
+    aspect-ratio: 1 / 1;
+    min-height: 180px;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+::deep .reader-book-note-card {
+    border: 1px solid #e7d98c;
+    background: repeating-linear-gradient( to bottom, #fff7bf 0px, #fff7bf 26px, #eadf9f 27px );
+    box-shadow: 0 10px 22px rgba(148,122,24,.11);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+    ::deep .reader-book-note-card:hover {
+        transform: translateY(-4px) rotate(-0.7deg);
+        box-shadow: 0 18px 32px rgba(148,122,24,.18);
+        border-color: #dcc76d;
+    }
+
+::deep .reader-book-empty-card {
+    border: 2px dashed #e7d98c;
+    background: repeating-linear-gradient( to bottom, #fffbe0 0px, #fffbe0 26px, #f2e8b5 27px );
+    box-shadow: 0 8px 18px rgba(148,122,24,.08);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+    ::deep .reader-book-empty-card:hover {
+        transform: translateY(-4px) rotate(-0.7deg);
+        box-shadow: 0 16px 28px rgba(148,122,24,.15);
+        border-color: #dcc76d;
+    }
+
+::deep .reader-book-empty-plus {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: #fff3bf;
+    color: #a16207;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.9rem;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px #f2e29a;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+::deep .reader-book-empty-card:hover .reader-book-empty-plus {
+    transform: scale(1.08);
+    box-shadow: 0 10px 18px rgba(202,138,4,.16);
+    background: #ffe89a;
+}
+
+/* modal buttons can also use deep safely */
+::deep .note-modal-close-btn,
+::deep .note-modal-secondary-btn,
+::deep .note-modal-primary-btn,
+::deep .note-modal-danger-btn {
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease;
+}
+
+    ::deep .note-modal-close-btn:hover {
+        transform: translateY(-2px);
+        background: #ffe89a !important;
+        box-shadow: 0 10px 22px rgba(202,138,4,.18);
+    }
+
+    ::deep .note-modal-secondary-btn:hover {
+        transform: translateY(-2px);
+        border-color: #c6d3e1 !important;
+        box-shadow: 0 10px 22px rgba(15,23,42,.08);
+        background: #f8fafc !important;
+    }
+
+    ::deep .note-modal-primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(234,179,8,.32) !important;
+        filter: saturate(1.05);
+    }
+
+    ::deep .note-modal-danger-btn:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(180deg,#ffe4e4 0%,#ffd4d4 100%) !important;
+        border-color: #e99a9a !important;
+        box-shadow: 0 12px 24px rgba(185,28,28,.14);
+    }
+
+.reader-description-text {
+    color: #334155;
+    font-size: 1.01rem;
+    line-height: 1.72;
+    white-space: pre-line;
+}
+
+@media (max-width: 1240px) {
+    .reader-catalog-strip,
+    #readerBookNotesGrid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    .reader-catalog-strip,
+    #readerBookNotesGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 820px) {
+    .reader-catalog-strip,
+    #readerBookNotesGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 720px) {
+    .reader-book-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    .reader-book-cover-panel {
+        border-right: none !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        min-height: 360px !important;
+    }
+
+    .reader-book-info-grid,
+    .reader-keywords-grid,
+    .reader-tags-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+        .reader-book-info-grid > div:nth-child(odd),
+        .reader-keywords-grid > div:first-child,
+        .reader-tags-grid > div:first-child {
+            border-right: none !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+
+        .reader-book-info-grid > div:nth-child(even) {
+            text-align: left !important;
+        }
+}
+
+@media (max-width: 560px) {
+    .reader-catalog-strip,
+    #readerBookNotesGrid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .reader-catalog-mini-cover {
+        height: 240px;
+    }
+}

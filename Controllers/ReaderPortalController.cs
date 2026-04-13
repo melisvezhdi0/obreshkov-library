@@ -274,6 +274,14 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
             }
 
+            var notesCount = await _context.ReaderBookNotes
+            .CountAsync(n => n.ReaderId == reader.Id && n.BookId == bookId);
+
+            if (notesCount >= 5)
+            {
+                return BadRequest("Можеш да имаш най-много 5 бележки към една книга.");
+            }
+
             var note = new ReaderBookNote
             {
                 ReaderId = reader.Id,

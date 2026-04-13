@@ -94,11 +94,7 @@
 <div style="width:min(1380px, calc(100% - 40px)); margin:28px auto 46px auto;">
 
     <div style="margin-bottom:24px;">
-        <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; background:#eef4ff; border:1px solid #d7e4ff; color:#2563eb; font-size:.82rem; font-weight:900;">
-            Детайли за книга
-        </div>
-
-        <h1 style="margin:14px 0 0 0; color:#17325c; font-size:2.15rem; line-height:1.14; font-weight:900; letter-spacing:-0.02em;">
+        <h1 style="margin:0; color:#17325c; font-size:2.15rem; line-height:1.14; font-weight:900; letter-spacing:-0.02em;">
             @Model.Title
         </h1>
 
@@ -106,9 +102,9 @@
     </div>
 
     <section style="background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); border:1px solid #d8e1eb; border-radius:24px; overflow:hidden; margin-bottom:24px; box-shadow:0 16px 36px rgba(15,23,42,.06);">
-        <div style="display:grid; grid-template-columns:320px minmax(0,1fr); gap:0; align-items:stretch;">
+        <div class="reader-book-layout" style="display:grid; grid-template-columns:320px minmax(0,1fr); gap:0; align-items:stretch;">
 
-            <div style="position:relative; background:linear-gradient(180deg,#f8fbff 0%,#f2f7fc 100%); border-right:1px solid #e2e8f0; padding:28px; display:flex; align-items:center; justify-content:center; min-height:460px;">
+            <div class="reader-book-cover-panel" style="position:relative; background:linear-gradient(180deg,#f8fbff 0%,#f2f7fc 100%); border-right:1px solid #e2e8f0; padding:28px; display:flex; align-items:center; justify-content:center; min-height:460px;">
                 <form asp-controller="ReaderPortal"
                       asp-action="ToggleFavorite"
                       method="post"
@@ -125,23 +121,13 @@
                             onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 10px 24px rgba(15,23,42,.10)';">
                         @if (isInReadingList)
                         {
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 width="18"
-                                 height="18"
-                                 viewBox="0 0 16 16"
-                                 fill="currentColor"
-                                 style="display:block;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" style="display:block;">
                                 <path d="M2 2a2 2 0 0 1 2-2h7a1 1 0 0 1 1 1v13l-4-2-4 2V2z" />
                             </svg>
                         }
                         else
                         {
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 width="18"
-                                 height="18"
-                                 viewBox="0 0 16 16"
-                                 fill="currentColor"
-                                 style="display:block;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" style="display:block;">
                                 <path d="M2 1.5A1.5 1.5 0 0 1 3.5 0h7A1.5 1.5 0 0 1 12 1.5V14l-5-2.5L2 14V1.5zM3.5 1a.5.5 0 0 0-.5.5v10.691l4-2 4 2V1.5a.5.5 0 0 0-.5-.5h-7z" />
                             </svg>
                         }
@@ -169,7 +155,7 @@
             </div>
 
             <div style="min-width:0;">
-                <div style="display:grid; grid-template-columns:220px minmax(0,1fr);">
+                <div class="reader-book-info-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr);">
                     <div style="padding:20px 18px; border-bottom:1px solid #e2e8f0; color:#64748b; font-weight:800;">Заглавие</div>
                     <div style="padding:20px 22px; border-bottom:1px solid #e2e8f0; color:#0f172a; font-weight:800; text-align:right;">
                         @(string.IsNullOrWhiteSpace(Model.Title) ? "Няма" : Model.Title)
@@ -217,17 +203,17 @@
 
     <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
         <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
-            <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Ключови думи и етикети</h3>
+            <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Ключови думи / съдържание</h3>
         </div>
 
-        <div style="display:grid; grid-template-columns:220px minmax(0,1fr); border-bottom:1px solid #e2e8f0;">
+        <div class="reader-keywords-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr); border-bottom:1px solid #e2e8f0;">
             <div style="padding:16px 18px; color:#64748b; font-weight:800; border-right:1px solid #e2e8f0;">Ключови думи</div>
             <div style="padding:16px 18px; color:#0f172a; line-height:1.8;">
                 @(string.IsNullOrWhiteSpace(Model.SearchKeywords) ? "Не са добавени" : Model.SearchKeywords)
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns:220px minmax(0,1fr);">
+        <div class="reader-tags-grid" style="display:grid; grid-template-columns:220px minmax(0,1fr);">
             <div style="padding:16px 18px; color:#64748b; font-weight:800; border-right:1px solid #e2e8f0;">Етикети</div>
             <div style="padding:16px 18px;">
                 @if (tagNames.Any())
@@ -249,75 +235,54 @@
         </div>
     </section>
 
-    <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
+    <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; box-shadow:0 12px 28px rgba(15,23,42,.05); margin-bottom:24px;">
         <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
             <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Описание</h3>
         </div>
 
-        <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
-            <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
-                <div>
-                    <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Моите бележки</h3>
-                    <div style="margin-top:6px; color:#64748b; font-size:.94rem; font-weight:700;">
-                        Лични бележки към тази книга. Видими са само за теб.
-                    </div>
-                </div>
+        <div class="reader-description-text" style="padding:18px 22px 20px 22px;">
+            @(string.IsNullOrWhiteSpace(Model.Description) ? "Няма описание за тази книга." : Model.Description)
+        </div>
+    </section>
 
-                <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#fff8cc; border:1px solid #f2e29a; color:#8a6f14; font-size:.82rem; font-weight:900;">
-                    Само за reader
-                </div>
+    <section id="readerBookNotesSection"
+             style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; box-shadow:0 12px 28px rgba(15,23,42,.05); margin-bottom:24px;">
+        <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+            <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Моите бележки</h3>
+        </div>
+
+        <div style="padding:16px 18px 18px 18px;">
+            <div id="readerBookNotesGrid"
+                 data-book-id="@Model.Id"
+                 style="display:grid;
+                        grid-template-columns:repeat(5, minmax(0, 1fr));
+                        gap:14px;
+                        align-items:stretch;">
             </div>
-
-            <div style="padding:20px;">
-                <div id="readerBookNotesGrid"
-                     data-book-id="@Model.Id"
-                     style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px;">
-                </div>
-            </div>
-        </section>
-
-        <div style="padding:22px;">
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
-            {
-                <div style="color:#334155; font-size:1rem; line-height:1.92; white-space:pre-line;">
-                    @Model.Description
-                </div>
-            }
-            else
-            {
-                <div style="color:#64748b; font-weight:700;">
-                    Няма описание за тази книга.
-                </div>
-            }
         </div>
     </section>
 
     @if (relatedBooks.Any())
     {
+        var shownRelatedBooks = relatedBooks.Take(5).ToList();
         <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
             <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
                 <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Още книги от същия автор</h3>
             </div>
 
-            <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
-                @foreach (var book in relatedBooks)
+            <div class="reader-catalog-strip" style="padding:18px;">
+                @foreach (var book in shownRelatedBooks)
                 {
                     var relatedCover = ResolveCoverUrl(book.CoverPath);
 
                     <a asp-controller="Catalog"
                        asp-action="ReaderDetails"
                        asp-route-id="@book.Id"
-                       style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:18px; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); padding:12px; box-shadow:0 10px 20px rgba(15,23,42,.04); transition:all .18s ease;"
-                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 28px rgba(15,23,42,.10)'; this.style.borderColor='#d7e4ff';"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.04)'; this.style.borderColor='#e6edf5';">
-                        <div style="height:220px; border-radius:13px; background:linear-gradient(180deg,#f8fbff 0%,#f1f6fb 100%); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:10px;">
+                       class="reader-catalog-mini-card">
+                        <div class="reader-catalog-mini-cover">
                             @if (!string.IsNullOrWhiteSpace(relatedCover))
                             {
-                                <img src="@relatedCover"
-                                     alt="@book.Title"
-                                     style="max-width:100%; max-height:100%; object-fit:contain; transition:transform .18s ease;"
-                                     onmouseover="this.style.transform='scale(1.04)';"
-                                     onmouseout="this.style.transform='scale(1)';" />
+                                <img src="@relatedCover" alt="@book.Title" />
                             }
                             else
                             {
@@ -325,14 +290,11 @@
                                     Няма корица
                                 </div>
                             }
-                        </div>
 
-                        <div style="margin-top:12px; color:#0f172a; font-size:.96rem; font-weight:900; line-height:1.38; min-height:52px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
-                            @book.Title
-                        </div>
-
-                        <div style="margin-top:6px; color:#94a3b8; font-size:.88rem; font-weight:700; min-height:20px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
-                            @book.Author
+                            <div class="reader-catalog-mini-overlay">
+                                <div class="reader-catalog-mini-overlay-title">@book.Title</div>
+                                <div class="reader-catalog-mini-overlay-author">@book.Author</div>
+                            </div>
                         </div>
                     </a>
                 }
@@ -342,30 +304,25 @@
 
     @if (similarBooks.Any())
     {
+        var shownSimilarBooks = similarBooks.Take(5).ToList();
         <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; box-shadow:0 12px 28px rgba(15,23,42,.05);">
             <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
                 <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Подобни книги</h3>
             </div>
 
-            <div style="padding:20px; display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:18px;">
-                @foreach (var book in similarBooks)
+            <div class="reader-catalog-strip" style="padding:18px;">
+                @foreach (var book in shownSimilarBooks)
                 {
                     var similarCover = ResolveCoverUrl(book.CoverPath);
 
                     <a asp-controller="Catalog"
                        asp-action="ReaderDetails"
                        asp-route-id="@book.Id"
-                       style="display:flex; flex-direction:column; text-decoration:none; border:1px solid #e6edf5; border-radius:18px; background:linear-gradient(180deg,#ffffff 0%,#fbfdff 100%); padding:12px; box-shadow:0 10px 20px rgba(15,23,42,.04); transition:all .18s ease;"
-                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 16px 28px rgba(15,23,42,.10)'; this.style.borderColor='#d7e4ff';"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 20px rgba(15,23,42,.04)'; this.style.borderColor='#e6edf5';">
-                        <div style="height:220px; border-radius:13px; background:linear-gradient(180deg,#f8fbff 0%,#f1f6fb 100%); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:10px;">
+                       class="reader-catalog-mini-card">
+                        <div class="reader-catalog-mini-cover">
                             @if (!string.IsNullOrWhiteSpace(similarCover))
                             {
-                                <img src="@similarCover"
-                                     alt="@book.Title"
-                                     style="max-width:100%; max-height:100%; object-fit:contain; transition:transform .18s ease;"
-                                     onmouseover="this.style.transform='scale(1.04)';"
-                                     onmouseout="this.style.transform='scale(1)';" />
+                                <img src="@similarCover" alt="@book.Title" />
                             }
                             else
                             {
@@ -373,14 +330,11 @@
                                     Няма корица
                                 </div>
                             }
-                        </div>
 
-                        <div style="margin-top:12px; color:#0f172a; font-size:.96rem; font-weight:900; line-height:1.38; min-height:52px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">
-                            @book.Title
-                        </div>
-
-                        <div style="margin-top:6px; color:#94a3b8; font-size:.88rem; font-weight:700; min-height:20px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
-                            @book.Author
+                            <div class="reader-catalog-mini-overlay">
+                                <div class="reader-catalog-mini-overlay-title">@book.Title</div>
+                                <div class="reader-catalog-mini-overlay-author">@book.Author</div>
+                            </div>
                         </div>
                     </a>
                 }
@@ -423,6 +377,7 @@
 
             <button type="button"
                     onclick="closeReaderBookNoteModal()"
+                    class="note-modal-close-btn"
                     style="width:40px; height:40px; border:none; border-radius:12px; background:#fff3bf; color:#7c5d00; font-size:1.2rem; font-weight:900; cursor:pointer;">
                 ×
             </button>
@@ -430,46 +385,55 @@
 
         <input type="hidden" id="readerBookCurrentNoteId" value="" />
 
-        <div id="readerBookNotePaper"
-             contenteditable="true"
-             spellcheck="true"
-             style="min-height:360px;
-                    padding:18px;
-                    border:1px solid #e7d98c;
-                    border-radius:18px;
-                    outline:none;
-                    background:
-                        repeating-linear-gradient(
-                            to bottom,
-                            #fff7bf 0px,
-                            #fff7bf 30px,
-                            #eadf9f 31px
-                        );
-                    color:#5f4b00;
-                    font-size:1rem;
-                    line-height:31px;
-                    white-space:pre-wrap;
-                    overflow-wrap:anywhere;"></div>
+        <textarea id="readerBookNotePaper"
+                  spellcheck="true"
+                  style="width:100%;
+                         min-height:360px;
+                         resize:vertical;
+                         padding:10px 18px 14px 18px;
+                         border:1px solid #e7d98c;
+                         border-radius:18px;
+                         outline:none;
+                         background:
+                            repeating-linear-gradient(
+                                to bottom,
+                                #fff7bf 0px,
+                                #fff7bf 31px,
+                                #eadf9f 32px
+                            );
+                         background-position:0 10px;
+                         color:#5f4b00;
+                         font-size:1rem;
+                         line-height:32px;
+                         overflow-wrap:anywhere;
+                         box-sizing:border-box;"></textarea>
 
         <div style="margin-top:18px; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
             <button type="button"
                     id="readerBookDeleteBtn"
                     onclick="deleteReaderBookNote()"
+                    class="note-modal-danger-btn"
                     style="display:none;
-                           min-height:44px;
-                           padding:0 16px;
-                           border:none;
-                           border-radius:12px;
-                           background:#fee2e2;
-                           color:#b42318;
-                           font-size:.92rem;
-                           font-weight:900;
-                           cursor:pointer;">
+               height:44px;
+               padding:0 20px;
+               border:1px solid #f3b4b4;
+               border-radius:14px;
+               background:linear-gradient(180deg,#fff1f1 0%,#ffe3e3 100%);
+               color:#b42318;
+               font-size:.92rem;
+               font-weight:900;
+               letter-spacing:.01em;
+               line-height:1;
+               align-items:center;
+               justify-content:center;
+               cursor:pointer;
+               box-shadow:0 8px 18px rgba(185,28,28,.08);">
                 Изтрий
             </button>
 
             <button type="button"
                     onclick="closeReaderBookNoteModal()"
+                    class="note-modal-secondary-btn"
                     style="min-height:44px;
                            padding:0 18px;
                            border:1px solid #d8e1eb;
@@ -484,6 +448,7 @@
 
             <button type="button"
                     onclick="saveReaderBookNote()"
+                    class="note-modal-primary-btn"
                     style="min-height:44px;
                            padding:0 20px;
                            border:none;
@@ -496,6 +461,76 @@
                            box-shadow:0 10px 22px rgba(234,179,8,.24);">
                 Запази
             </button>
+            <div id="readerBookDeleteConfirmModal"
+                 style="display:none;
+            position:fixed;
+            inset:0;
+            z-index:10000;
+            background:rgba(15,23,42,.36);
+            backdrop-filter:blur(4px);
+            align-items:center;
+            justify-content:center;
+            padding:18px;">
+
+                <div style="width:min(460px, 100%);
+                border-radius:24px;
+                background:#fffefb;
+                border:1px solid #f1d8d8;
+                box-shadow:0 24px 50px rgba(15,23,42,.18);
+                overflow:hidden;">
+
+                    <div style="padding:20px 22px 14px 22px; border-bottom:1px solid #f5e7e7;">
+                        <div style="color:#17325c; font-size:1.15rem; font-weight:900; line-height:1.25;">
+                            Изтриване на бележка
+                        </div>
+
+                        <div style="margin-top:10px; color:#475569; font-size:.97rem; line-height:1.65;">
+                            Сигурна ли си, че искаш да изтриеш тази бележка?
+                        </div>
+                    </div>
+
+                    <div style="padding:16px 22px 20px 22px; display:flex; justify-content:flex-end; gap:12px;">
+                        <button type="button"
+                                onclick="closeReaderBookDeleteConfirmModal()"
+                                class="note-modal-secondary-btn"
+                                style="height:44px;
+                           padding:0 18px;
+                           border:1px solid #d8e1eb;
+                           border-radius:14px;
+                           background:#ffffff;
+                           color:#334155;
+                           font-size:.92rem;
+                           font-weight:900;
+                           display:inline-flex;
+                           align-items:center;
+                           justify-content:center;
+                           cursor:pointer;">
+                            Отказ
+                        </button>
+
+                        <button type="button"
+                                onclick="confirmReaderBookNoteDelete()"
+                                class="note-modal-danger-btn"
+                                style="height:44px;
+                           padding:0 20px;
+                           border:1px solid #f3b4b4;
+                           border-radius:14px;
+                           background:linear-gradient(180deg,#fff1f1 0%,#ffe3e3 100%);
+                           color:#b42318;
+                           font-size:.92rem;
+                           font-weight:900;
+                           letter-spacing:.01em;
+                           line-height:1;
+                           display:inline-flex;
+                           align-items:center;
+                           justify-content:center;
+                           cursor:pointer;
+                           box-shadow:0 8px 18px rgba(185,28,28,.08);">
+                            Изтрий
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -503,6 +538,9 @@
 <script>
     const readerBookNotesGrid = document.getElementById("readerBookNotesGrid");
     const readerBookId = readerBookNotesGrid?.getAttribute("data-book-id");
+    const maxReaderBookNotes = 5;
+    let selectedEmptySlotIndex = null;
+    let cachedReaderBookNotes = [];
 
     function escapeHtml(text) {
         return (text || "")
@@ -514,106 +552,73 @@
     }
 
     function buildReaderBookNoteCard(note) {
-        const preview = (note.text || "").length > 260
-            ? note.text.substring(0, 260) + "..."
+        const preview = (note.text || "").length > 115
+            ? note.text.substring(0, 115) + "..."
             : (note.text || "");
 
-        const dateLabel = note.updatedOn ? "Редактирана" : "Създадена";
-        const dateValue = note.updatedOn || note.createdOn || "";
+        const safePreview = escapeHtml(preview).replaceAll("\n", "<br>");
 
         return `
             <div class="reader-book-note-card"
                  data-note-id="${note.id}"
                  data-note-text="${escapeHtml(note.text || "")}"
                  onclick="openReaderBookNoteModal(this)"
-                 style="position:relative;
-                        min-height:240px;
-                        border:1px solid #e7d98c;
-                        border-radius:18px;
-                        background:
-                            repeating-linear-gradient(
-                                to bottom,
-                                #fff7bf 0px,
-                                #fff7bf 30px,
-                                #eadf9f 31px
-                            );
-                        box-shadow:0 14px 28px rgba(148, 122, 24, .16);
-                        padding:18px 18px 16px 18px;
-                        cursor:pointer;
-                        transition:transform .18s ease, box-shadow .18s ease;
-                        overflow:hidden;"
-                 onmouseover="this.style.transform='translateY(-3px) rotate(-0.5deg)'; this.style.boxShadow='0 18px 34px rgba(148,122,24,.22)';"
-                 onmouseout="this.style.transform='translateY(0) rotate(0deg)'; this.style.boxShadow='0 14px 28px rgba(148,122,24,.16)';">
-
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px;">
-                    <div style="color:#7c5d00; font-size:.75rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em;">
+                 style="padding:12px 12px 10px 12px; cursor:pointer;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px;">
+                    <div style="color:#7c5d00; font-size:.74rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em;">
                         Бележка
                     </div>
 
-                    <div style="flex:0 0 auto; color:#b08900; font-size:1.15rem;">✎</div>
+                    <div style="flex:0 0 auto; color:#b08900; font-size:.95rem;">✎</div>
                 </div>
 
-                <div style="white-space:pre-line;
-                            color:#5f4b00;
-                            font-size:.95rem;
-                            line-height:31px;
-                            min-height:124px;
-                            max-height:124px;
+                <div style="color:#5f4b00;
+                            font-size:.89rem;
+                            line-height:27px;
+                            height:130px;
                             overflow:hidden;
-                            padding-top:2px;">
-                    ${escapeHtml(preview)}
-                </div>
-
-                <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                    <div style="color:#8a6f14; font-size:.76rem; font-weight:800;">
-                        ${dateLabel}
-                    </div>
-
-                    <div style="color:#8a6f14; font-size:.76rem; font-weight:900;">
-                        ${dateValue}
-                    </div>
+                            padding-top:1px;">
+                    ${safePreview}
                 </div>
             </div>
         `;
     }
 
-    function buildReaderBookAddCard() {
+    function buildReaderBookEmptyCard(slotIndex) {
         return `
-            <div onclick="openCreateReaderBookNoteModal()"
-                 style="min-height:240px;
-                        border:2px dashed #e7d98c;
-                        border-radius:18px;
-                        background:
-                            repeating-linear-gradient(
-                                to bottom,
-                                #fffbe0 0px,
-                                #fffbe0 30px,
-                                #f2e8b5 31px
-                            );
-                        box-shadow:0 10px 24px rgba(148, 122, 24, .10);
-                        padding:18px;
-                        cursor:pointer;
-                        display:flex;
-                        flex-direction:column;
-                        align-items:center;
-                        justify-content:center;
-                        text-align:center;
-                        transition:transform .18s ease, box-shadow .18s ease;"
-                 onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 16px 30px rgba(148,122,24,.16)';"
-                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 24px rgba(148,122,24,.10)';">
-                <div style="width:56px; height:56px; border-radius:16px; background:#fff3bf; color:#a16207; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:500; box-shadow:inset 0 0 0 1px #f2e29a;">
-                    +
-                </div>
+            <div class="reader-book-empty-card"
+                 data-empty-slot="${slotIndex}"
+                 onclick="openCreateReaderBookNoteModal(${slotIndex})"
+                 style="padding:14px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                <div class="reader-book-empty-plus">+</div>
 
-                <div style="margin-top:14px; color:#7c5d00; font-size:1rem; font-weight:900;">
+                <div style="margin-top:12px; color:#7c5d00; font-size:.96rem; font-weight:900;">
                     Нова бележка
-                </div>
-
-                <div style="margin-top:6px; color:#8a6f14; font-size:.87rem; font-weight:700; line-height:1.5;">
-                    Натисни, за да запишеш мисъл, цитат или кратка идея за книгата.
                 </div>
             </div>
         `;
+    }
+
+    function renderReaderBookNotes(notes) {
+        if (!readerBookNotesGrid) {
+            return;
+        }
+
+        cachedReaderBookNotes = [...notes];
+
+        let html = "";
+
+        for (let i = 0; i < Math.min(notes.length, maxReaderBookNotes); i++) {
+            html += buildReaderBookNoteCard(notes[i]);
+        }
+
+        const emptyCount = Math.max(0, maxReaderBookNotes - notes.length);
+
+        for (let i = 0; i < emptyCount; i++) {
+            html += buildReaderBookEmptyCard(notes.length + i);
+        }
+
+        readerBookNotesGrid.innerHTML = html;
     }
 
     async function loadReaderBookNotes() {
@@ -640,13 +645,7 @@
             }
 
             const notes = await response.json();
-            let html = buildReaderBookAddCard();
-
-            for (const note of notes) {
-                html += buildReaderBookNoteCard(note);
-            }
-
-            readerBookNotesGrid.innerHTML = html;
+            renderReaderBookNotes(notes);
         } catch {
             readerBookNotesGrid.innerHTML = `
                 <div style="grid-column:1/-1; color:#b42318; font-weight:700; padding:8px 2px;">
@@ -656,9 +655,14 @@
         }
     }
 
-    function openCreateReaderBookNoteModal() {
+    function openCreateReaderBookNoteModal(slotIndex) {
+        if (cachedReaderBookNotes.length >= maxReaderBookNotes) {
+            return;
+        }
+
+        selectedEmptySlotIndex = slotIndex;
         document.getElementById("readerBookCurrentNoteId").value = "";
-        document.getElementById("readerBookNotePaper").innerText = "";
+        document.getElementById("readerBookNotePaper").value = "";
         document.getElementById("readerBookDeleteBtn").style.display = "none";
         document.getElementById("readerBookNoteModalMode").textContent = "Нова бележка";
         document.getElementById("readerBookNoteModal").style.display = "flex";
@@ -668,21 +672,23 @@
         const noteId = card.getAttribute("data-note-id") || "";
         const text = card.getAttribute("data-note-text") || "";
 
+        selectedEmptySlotIndex = null;
         document.getElementById("readerBookCurrentNoteId").value = noteId;
-        document.getElementById("readerBookNotePaper").innerText = text;
+        document.getElementById("readerBookNotePaper").value = text;
         document.getElementById("readerBookDeleteBtn").style.display = noteId ? "inline-flex" : "none";
         document.getElementById("readerBookNoteModalMode").textContent = "Редакция на бележка";
         document.getElementById("readerBookNoteModal").style.display = "flex";
     }
 
     function closeReaderBookNoteModal() {
+        selectedEmptySlotIndex = null;
         document.getElementById("readerBookNoteModal").style.display = "none";
     }
 
     async function saveReaderBookNote() {
         const noteId = document.getElementById("readerBookCurrentNoteId").value;
         const paper = document.getElementById("readerBookNotePaper");
-        const text = (paper.innerText || "").trim();
+        const text = (paper.value || "").trim();
 
         if (!text) {
             alert("Бележката не може да бъде празна.");
@@ -702,6 +708,11 @@
         if (isEdit) {
             formData.append("noteId", noteId);
         } else {
+            if (cachedReaderBookNotes.length >= maxReaderBookNotes) {
+                alert("Можеш да имаш най-много 5 бележки към една книга.");
+                return;
+            }
+
             formData.append("bookId", readerBookId);
         }
 
@@ -716,23 +727,38 @@
             body: formData.toString()
         });
 
-        if (response.ok) {
-            closeReaderBookNoteModal();
-            await loadReaderBookNotes();
+        if (!response.ok) {
+            alert("Възникна проблем при запазването на бележката.");
             return;
         }
 
-        alert("Възникна проблем при запазването на бележката.");
+        closeReaderBookNoteModal();
+        await loadReaderBookNotes();
     }
 
-    async function deleteReaderBookNote() {
+    function openReaderBookDeleteConfirmModal() {
+        document.getElementById("readerBookDeleteConfirmModal").style.display = "flex";
+    }
+
+    function closeReaderBookDeleteConfirmModal() {
+        document.getElementById("readerBookDeleteConfirmModal").style.display = "none";
+    }
+
+    function deleteReaderBookNote() {
         const noteId = document.getElementById("readerBookCurrentNoteId").value;
 
         if (!noteId) {
             return;
         }
 
-        if (!confirm("Сигурна ли си, че искаш да изтриеш тази бележка?")) {
+        openReaderBookDeleteConfirmModal();
+    }
+
+    async function confirmReaderBookNoteDelete() {
+        const noteId = document.getElementById("readerBookCurrentNoteId").value;
+
+        if (!noteId) {
+            closeReaderBookDeleteConfirmModal();
             return;
         }
 
@@ -752,16 +778,19 @@
         });
 
         if (response.ok) {
+            closeReaderBookDeleteConfirmModal();
             closeReaderBookNoteModal();
             await loadReaderBookNotes();
             return;
         }
 
+        closeReaderBookDeleteConfirmModal();
         alert("Възникна проблем при изтриването на бележката.");
     }
 
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") {
+            closeReaderBookDeleteConfirmModal();
             closeReaderBookNoteModal();
         }
     });
@@ -769,6 +798,12 @@
     document.getElementById("readerBookNoteModal")?.addEventListener("click", function (e) {
         if (e.target === this) {
             closeReaderBookNoteModal();
+        }
+    });
+
+    document.getElementById("readerBookDeleteConfirmModal")?.addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeReaderBookDeleteConfirmModal();
         }
     });
 

@@ -42,6 +42,8 @@ namespace ObreshkovLibrary.Models
 
         public ICollection<ReaderNotification> Notifications { get; set; } = new List<ReaderNotification>();
 
+        public ICollection<ReaderBookNote> ReaderNotes { get; set; } = new List<ReaderBookNote>();
+
         [NotMapped]
         public int AvailableCopies { get; set; }
     }

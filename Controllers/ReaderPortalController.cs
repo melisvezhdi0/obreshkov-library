@@ -23,21 +23,7 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            var cardNumber = user.UserName?.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(cardNumber))
-            {
-                return Challenge();
-            }
-
-            var reader = await _context.Readers
-                .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
-
+            var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
                 return Challenge();
@@ -50,6 +36,12 @@ namespace ObreshkovLibrary.Controllers
                 .OrderByDescending(l => l.LoanDate)
                 .Take(5)
                 .ToListAsync();
+
+            var bookNotes = await _context.ReaderBookNotes
+               .Where(n => n.ReaderId == reader.Id)
+               .Include(n => n.Book)
+               .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
+               .ToListAsync();
 
             var vm = new ReaderDashboardVM
             {
@@ -66,6 +58,18 @@ namespace ObreshkovLibrary.Controllers
                     DueDate = l.DueDate,
                     IsOverdue = l.DueDate.Date < DateTime.Today,
                     IsExtended = l.IsExtended
+                }).ToList(),
+
+                BookNotes = bookNotes.Select(n => new ReaderBookNoteVM
+                {
+                    NoteId = n.Id,
+                    BookId = n.BookId,
+                    BookTitle = n.Book?.Title ?? "Неизвестна книга",
+                    BookAuthor = n.Book?.Author,
+                    CoverPath = n.Book?.CoverPath,
+                    Text = n.Text,
+                    CreatedOn = n.CreatedOn,
+                    UpdatedOn = n.UpdatedOn
                 }).ToList()
             };
 
@@ -76,21 +80,7 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Favorites(string? sort)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            var cardNumber = user.UserName?.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(cardNumber))
-            {
-                return Challenge();
-            }
-
-            var reader = await _context.Readers
-                .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
-
+            var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
                 return Challenge();
@@ -145,24 +135,10 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleFavorite(int bookId, string? returnUrl)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            var cardNumber = user.UserName?.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(cardNumber))
-            {
-                return Challenge();
-            }
-
-            var reader = await _context.Readers
-                .FirstOrDefaultAsync(c => c.CardNumber != null && c.CardNumber.ToUpper() == cardNumber);
-
+            var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
-                return NotFound();
+                return Challenge();
             }
 
             var existing = await _context.ReaderFavoriteBooks
@@ -194,24 +170,10 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Notifications()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            var cardNumber = user.UserName?.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(cardNumber))
-            {
-                return Challenge();
-            }
-
-            var reader = await _context.Readers
-                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
-
+            var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
-                return NotFound();
+                return Challenge();
             }
 
             var notifications = await _context.ReaderNotifications
@@ -239,24 +201,10 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MarkNotificationAsRead(int id, string? returnUrl = null)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Challenge();
-            }
-
-            var cardNumber = user.UserName?.Trim().ToUpper();
-            if (string.IsNullOrWhiteSpace(cardNumber))
-            {
-                return Challenge();
-            }
-
-            var reader = await _context.Readers
-                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
-
+            var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
-                return NotFound();
+                return Challenge();
             }
 
             var notification = await _context.ReaderNotifications
@@ -279,6 +227,142 @@ namespace ObreshkovLibrary.Controllers
             }
 
             return RedirectToAction(nameof(Notifications));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotesForBook(int bookId)
+        {
+            var reader = await GetCurrentReaderAsync();
+            if (reader == null)
+            {
+                return Unauthorized();
+            }
+
+            var notes = await _context.ReaderBookNotes
+                .Where(n => n.ReaderId == reader.Id && n.BookId == bookId)
+                .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
+                .Select(n => new
+                {
+                    id = n.Id,
+                    text = n.Text,
+                    createdOn = n.CreatedOn.ToString("dd.MM.yyyy"),
+                    updatedOn = n.UpdatedOn.HasValue ? n.UpdatedOn.Value.ToString("dd.MM.yyyy") : null
+                })
+                .ToListAsync();
+
+            return Json(notes);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateNote(int bookId, string text)
+        {
+            var reader = await GetCurrentReaderAsync();
+            if (reader == null)
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return BadRequest("Бележката не може да бъде празна.");
+            }
+
+            var bookExists = await _context.Books.AnyAsync(b => b.Id == bookId);
+            if (!bookExists)
+            {
+                return NotFound();
+            }
+
+            var note = new ReaderBookNote
+            {
+                ReaderId = reader.Id,
+                BookId = bookId,
+                Text = text.Trim(),
+                CreatedOn = DateTime.Now
+            };
+
+            _context.ReaderBookNotes.Add(note);
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                id = note.Id
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateNote(int noteId, string text)
+        {
+            var reader = await GetCurrentReaderAsync();
+            if (reader == null)
+            {
+                return Unauthorized();
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return BadRequest("Бележката не може да бъде празна.");
+            }
+
+            var note = await _context.ReaderBookNotes
+                .FirstOrDefaultAsync(n => n.Id == noteId && n.ReaderId == reader.Id);
+
+            if (note == null)
+            {
+                return NotFound();
+            }
+
+            note.Text = text.Trim();
+            note.UpdatedOn = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteNote(int noteId)
+        {
+            var reader = await GetCurrentReaderAsync();
+            if (reader == null)
+            {
+                return Unauthorized();
+            }
+
+            var note = await _context.ReaderBookNotes
+                .FirstOrDefaultAsync(n => n.Id == noteId && n.ReaderId == reader.Id);
+
+            if (note == null)
+            {
+                return NotFound();
+            }
+
+            _context.ReaderBookNotes.Remove(note);
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
+        }
+
+        private async Task<Reader?> GetCurrentReaderAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var cardNumber = user.UserName?.Trim().ToUpper();
+            if (string.IsNullOrWhiteSpace(cardNumber))
+            {
+                return null;
+            }
+
+            return await _context.Readers
+                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
         }
     }
 }

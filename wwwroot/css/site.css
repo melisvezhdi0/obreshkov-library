@@ -21,3 +21,67 @@ footer.footer {
     margin-top: auto;
     width: 100%;
 }
+
+@media (max-width: 991.98px) {
+
+    .section-title {
+        font-size: 1.4rem;
+    }
+
+    .card-soft {
+        padding: 16px !important;
+    }
+
+    form[method="get"] {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+
+        form[method="get"] > div {
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        form[method="get"] select {
+            width: 100% !important;
+        }
+
+        form[method="get"] button {
+            width: 100% !important;
+        }
+
+    .btn.btn-accent {
+        width: 100%;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .document-panel {
+        overflow-x: auto;
+    }
+}
+
+
+@media (max-width: 575.98px) {
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    .accent-line {
+        width: 40px;
+    }
+
+    table {
+        font-size: .9rem;
+    }
+
+    .btn {
+        font-size: .9rem;
+        padding: 8px 12px;
+    }
+}

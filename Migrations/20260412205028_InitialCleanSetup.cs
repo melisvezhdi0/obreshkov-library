@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ObreshkovLibrary.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCleanSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -296,6 +296,35 @@ namespace ObreshkovLibrary.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ReaderBookNotes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReaderId = table.Column<int>(type: "int", nullable: false),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReaderBookNotes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReaderBookNotes_Books_BookId",
+                        column: x => x.BookId,
+                        principalTable: "Books",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ReaderBookNotes_Readers_ReaderId",
+                        column: x => x.ReaderId,
+                        principalTable: "Readers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ReaderFavoriteBooks",
                 columns: table => new
                 {
@@ -353,28 +382,6 @@ namespace ObreshkovLibrary.Migrations
                         name: "FK_Loans_Readers_ReaderId",
                         column: x => x.ReaderId,
                         principalTable: "Readers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "LoanPersonalNotes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    LoanId = table.Column<int>(type: "int", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_LoanPersonalNotes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_LoanPersonalNotes_Loans_LoanId",
-                        column: x => x.LoanId,
-                        principalTable: "Loans",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -478,11 +485,6 @@ namespace ObreshkovLibrary.Migrations
                 column: "ParentCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_LoanPersonalNotes_LoanId",
-                table: "LoanPersonalNotes",
-                column: "LoanId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Loans_BookCopyId_ReturnDate",
                 table: "Loans",
                 columns: new[] { "BookCopyId", "ReturnDate" });
@@ -496,6 +498,16 @@ namespace ObreshkovLibrary.Migrations
                 name: "IX_PasswordResetRequests_ReaderId",
                 table: "PasswordResetRequests",
                 column: "ReaderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReaderBookNotes_BookId",
+                table: "ReaderBookNotes",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReaderBookNotes_ReaderId_BookId_CreatedOn",
+                table: "ReaderBookNotes",
+                columns: new[] { "ReaderId", "BookId", "CreatedOn" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReaderFavoriteBooks_BookId",
@@ -555,10 +567,10 @@ namespace ObreshkovLibrary.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "LoanPersonalNotes");
+                name: "PasswordResetRequests");
 
             migrationBuilder.DropTable(
-                name: "PasswordResetRequests");
+                name: "ReaderBookNotes");
 
             migrationBuilder.DropTable(
                 name: "ReaderFavoriteBooks");

@@ -43,3 +43,9 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+
+@media (max-width: 991.98px) {
+    body {
+        padding-top: 82px;
+    }
+}

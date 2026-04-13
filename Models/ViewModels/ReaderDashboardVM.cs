@@ -11,5 +11,7 @@
         public List<ReaderCurrentLoanVM> CurrentLoans { get; set; } = new();
         public List<ReaderFavoriteBookVM> FavoriteBooks { get; set; } = new();
         public List<ReaderNotificationItemVM> LatestNotifications { get; set; } = new();
+
+        public List<ReaderBookNoteVM> BookNotes { get; set; } = new();
     }
 }

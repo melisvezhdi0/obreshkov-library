@@ -87,6 +87,10 @@
     if ((Model.Tags & BookTags.IT) == BookTags.IT) tagNames.Add("Информационни технологии/Информатика");
 }
 
+<form style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
 <div style="width:min(1380px, calc(100% - 40px)); margin:28px auto 46px auto;">
 
     <div style="margin-bottom:24px;">
@@ -250,6 +254,28 @@
             <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Описание</h3>
         </div>
 
+        <section style="background:#ffffff; border:1px solid #d8e1eb; border-radius:22px; overflow:hidden; margin-bottom:24px; box-shadow:0 12px 28px rgba(15,23,42,.05);">
+            <div style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+                <div>
+                    <h3 style="margin:0; color:#17325c; font-size:1.16rem; font-weight:900;">Моите бележки</h3>
+                    <div style="margin-top:6px; color:#64748b; font-size:.94rem; font-weight:700;">
+                        Лични бележки към тази книга. Видими са само за теб.
+                    </div>
+                </div>
+
+                <div style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; background:#fff8cc; border:1px solid #f2e29a; color:#8a6f14; font-size:.82rem; font-weight:900;">
+                    Само за reader
+                </div>
+            </div>
+
+            <div style="padding:20px;">
+                <div id="readerBookNotesGrid"
+                     data-book-id="@Model.Id"
+                     style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px;">
+                </div>
+            </div>
+        </section>
+
         <div style="padding:22px;">
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
@@ -363,3 +389,388 @@
     }
 
 </div>
+
+<div id="readerBookNoteModal"
+     style="display:none;
+            position:fixed;
+            inset:0;
+            z-index:9998;
+            background:rgba(15,23,42,.40);
+            backdrop-filter:blur(4px);
+            align-items:center;
+            justify-content:center;
+            padding:18px;">
+
+    <div style="width:min(760px, 100%);
+                max-height:88vh;
+                overflow:auto;
+                border-radius:26px;
+                background:#fffef7;
+                border:1px solid #eadf9f;
+                box-shadow:0 30px 70px rgba(15,23,42,.20);
+                padding:24px;">
+
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px;">
+            <div>
+                <div style="color:#17325c; font-size:1.3rem; font-weight:900; line-height:1.2;">
+                    @Model.Title
+                </div>
+                <div id="readerBookNoteModalMode"
+                     style="margin-top:6px; color:#8a6f14; font-size:.85rem; font-weight:800;">
+                    Нова бележка
+                </div>
+            </div>
+
+            <button type="button"
+                    onclick="closeReaderBookNoteModal()"
+                    style="width:40px; height:40px; border:none; border-radius:12px; background:#fff3bf; color:#7c5d00; font-size:1.2rem; font-weight:900; cursor:pointer;">
+                ×
+            </button>
+        </div>
+
+        <input type="hidden" id="readerBookCurrentNoteId" value="" />
+
+        <div id="readerBookNotePaper"
+             contenteditable="true"
+             spellcheck="true"
+             style="min-height:360px;
+                    padding:18px;
+                    border:1px solid #e7d98c;
+                    border-radius:18px;
+                    outline:none;
+                    background:
+                        repeating-linear-gradient(
+                            to bottom,
+                            #fff7bf 0px,
+                            #fff7bf 30px,
+                            #eadf9f 31px
+                        );
+                    color:#5f4b00;
+                    font-size:1rem;
+                    line-height:31px;
+                    white-space:pre-wrap;
+                    overflow-wrap:anywhere;"></div>
+
+        <div style="margin-top:18px; display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+            <button type="button"
+                    id="readerBookDeleteBtn"
+                    onclick="deleteReaderBookNote()"
+                    style="display:none;
+                           min-height:44px;
+                           padding:0 16px;
+                           border:none;
+                           border-radius:12px;
+                           background:#fee2e2;
+                           color:#b42318;
+                           font-size:.92rem;
+                           font-weight:900;
+                           cursor:pointer;">
+                Изтрий
+            </button>
+
+            <button type="button"
+                    onclick="closeReaderBookNoteModal()"
+                    style="min-height:44px;
+                           padding:0 18px;
+                           border:1px solid #d8e1eb;
+                           border-radius:12px;
+                           background:#ffffff;
+                           color:#334155;
+                           font-size:.92rem;
+                           font-weight:900;
+                           cursor:pointer;">
+                Затвори
+            </button>
+
+            <button type="button"
+                    onclick="saveReaderBookNote()"
+                    style="min-height:44px;
+                           padding:0 20px;
+                           border:none;
+                           border-radius:12px;
+                           background:linear-gradient(180deg,#facc15 0%,#eab308 100%);
+                           color:#5f4b00;
+                           font-size:.92rem;
+                           font-weight:900;
+                           cursor:pointer;
+                           box-shadow:0 10px 22px rgba(234,179,8,.24);">
+                Запази
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const readerBookNotesGrid = document.getElementById("readerBookNotesGrid");
+    const readerBookId = readerBookNotesGrid?.getAttribute("data-book-id");
+
+    function escapeHtml(text) {
+        return (text || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+
+    function buildReaderBookNoteCard(note) {
+        const preview = (note.text || "").length > 260
+            ? note.text.substring(0, 260) + "..."
+            : (note.text || "");
+
+        const dateLabel = note.updatedOn ? "Редактирана" : "Създадена";
+        const dateValue = note.updatedOn || note.createdOn || "";
+
+        return `
+            <div class="reader-book-note-card"
+                 data-note-id="${note.id}"
+                 data-note-text="${escapeHtml(note.text || "")}"
+                 onclick="openReaderBookNoteModal(this)"
+                 style="position:relative;
+                        min-height:240px;
+                        border:1px solid #e7d98c;
+                        border-radius:18px;
+                        background:
+                            repeating-linear-gradient(
+                                to bottom,
+                                #fff7bf 0px,
+                                #fff7bf 30px,
+                                #eadf9f 31px
+                            );
+                        box-shadow:0 14px 28px rgba(148, 122, 24, .16);
+                        padding:18px 18px 16px 18px;
+                        cursor:pointer;
+                        transition:transform .18s ease, box-shadow .18s ease;
+                        overflow:hidden;"
+                 onmouseover="this.style.transform='translateY(-3px) rotate(-0.5deg)'; this.style.boxShadow='0 18px 34px rgba(148,122,24,.22)';"
+                 onmouseout="this.style.transform='translateY(0) rotate(0deg)'; this.style.boxShadow='0 14px 28px rgba(148,122,24,.16)';">
+
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:10px;">
+                    <div style="color:#7c5d00; font-size:.75rem; font-weight:900; text-transform:uppercase; letter-spacing:.08em;">
+                        Бележка
+                    </div>
+
+                    <div style="flex:0 0 auto; color:#b08900; font-size:1.15rem;">✎</div>
+                </div>
+
+                <div style="white-space:pre-line;
+                            color:#5f4b00;
+                            font-size:.95rem;
+                            line-height:31px;
+                            min-height:124px;
+                            max-height:124px;
+                            overflow:hidden;
+                            padding-top:2px;">
+                    ${escapeHtml(preview)}
+                </div>
+
+                <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="color:#8a6f14; font-size:.76rem; font-weight:800;">
+                        ${dateLabel}
+                    </div>
+
+                    <div style="color:#8a6f14; font-size:.76rem; font-weight:900;">
+                        ${dateValue}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function buildReaderBookAddCard() {
+        return `
+            <div onclick="openCreateReaderBookNoteModal()"
+                 style="min-height:240px;
+                        border:2px dashed #e7d98c;
+                        border-radius:18px;
+                        background:
+                            repeating-linear-gradient(
+                                to bottom,
+                                #fffbe0 0px,
+                                #fffbe0 30px,
+                                #f2e8b5 31px
+                            );
+                        box-shadow:0 10px 24px rgba(148, 122, 24, .10);
+                        padding:18px;
+                        cursor:pointer;
+                        display:flex;
+                        flex-direction:column;
+                        align-items:center;
+                        justify-content:center;
+                        text-align:center;
+                        transition:transform .18s ease, box-shadow .18s ease;"
+                 onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 16px 30px rgba(148,122,24,.16)';"
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 24px rgba(148,122,24,.10)';">
+                <div style="width:56px; height:56px; border-radius:16px; background:#fff3bf; color:#a16207; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:500; box-shadow:inset 0 0 0 1px #f2e29a;">
+                    +
+                </div>
+
+                <div style="margin-top:14px; color:#7c5d00; font-size:1rem; font-weight:900;">
+                    Нова бележка
+                </div>
+
+                <div style="margin-top:6px; color:#8a6f14; font-size:.87rem; font-weight:700; line-height:1.5;">
+                    Натисни, за да запишеш мисъл, цитат или кратка идея за книгата.
+                </div>
+            </div>
+        `;
+    }
+
+    async function loadReaderBookNotes() {
+        if (!readerBookNotesGrid || !readerBookId) {
+            return;
+        }
+
+        readerBookNotesGrid.innerHTML = `
+            <div style="grid-column:1/-1; color:#64748b; font-weight:700; padding:8px 2px;">
+                Зареждане на бележките...
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`@Url.Action("GetNotesForBook", "ReaderPortal")?bookId=${readerBookId}`);
+
+            if (!response.ok) {
+                readerBookNotesGrid.innerHTML = `
+                    <div style="grid-column:1/-1; color:#b42318; font-weight:700; padding:8px 2px;">
+                        Бележките не можаха да бъдат заредени.
+                    </div>
+                `;
+                return;
+            }
+
+            const notes = await response.json();
+            let html = buildReaderBookAddCard();
+
+            for (const note of notes) {
+                html += buildReaderBookNoteCard(note);
+            }
+
+            readerBookNotesGrid.innerHTML = html;
+        } catch {
+            readerBookNotesGrid.innerHTML = `
+                <div style="grid-column:1/-1; color:#b42318; font-weight:700; padding:8px 2px;">
+                    Бележките не можаха да бъдат заредени.
+                </div>
+            `;
+        }
+    }
+
+    function openCreateReaderBookNoteModal() {
+        document.getElementById("readerBookCurrentNoteId").value = "";
+        document.getElementById("readerBookNotePaper").innerText = "";
+        document.getElementById("readerBookDeleteBtn").style.display = "none";
+        document.getElementById("readerBookNoteModalMode").textContent = "Нова бележка";
+        document.getElementById("readerBookNoteModal").style.display = "flex";
+    }
+
+    function openReaderBookNoteModal(card) {
+        const noteId = card.getAttribute("data-note-id") || "";
+        const text = card.getAttribute("data-note-text") || "";
+
+        document.getElementById("readerBookCurrentNoteId").value = noteId;
+        document.getElementById("readerBookNotePaper").innerText = text;
+        document.getElementById("readerBookDeleteBtn").style.display = noteId ? "inline-flex" : "none";
+        document.getElementById("readerBookNoteModalMode").textContent = "Редакция на бележка";
+        document.getElementById("readerBookNoteModal").style.display = "flex";
+    }
+
+    function closeReaderBookNoteModal() {
+        document.getElementById("readerBookNoteModal").style.display = "none";
+    }
+
+    async function saveReaderBookNote() {
+        const noteId = document.getElementById("readerBookCurrentNoteId").value;
+        const paper = document.getElementById("readerBookNotePaper");
+        const text = (paper.innerText || "").trim();
+
+        if (!text) {
+            alert("Бележката не може да бъде празна.");
+            return;
+        }
+
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenInput ? tokenInput.value : "";
+
+        const isEdit = !!noteId;
+        const url = isEdit
+            ? '@Url.Action("UpdateNote", "ReaderPortal")'
+            : '@Url.Action("CreateNote", "ReaderPortal")';
+
+        const formData = new URLSearchParams();
+
+        if (isEdit) {
+            formData.append("noteId", noteId);
+        } else {
+            formData.append("bookId", readerBookId);
+        }
+
+        formData.append("text", text);
+        formData.append("__RequestVerificationToken", token);
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: formData.toString()
+        });
+
+        if (response.ok) {
+            closeReaderBookNoteModal();
+            await loadReaderBookNotes();
+            return;
+        }
+
+        alert("Възникна проблем при запазването на бележката.");
+    }
+
+    async function deleteReaderBookNote() {
+        const noteId = document.getElementById("readerBookCurrentNoteId").value;
+
+        if (!noteId) {
+            return;
+        }
+
+        if (!confirm("Сигурна ли си, че искаш да изтриеш тази бележка?")) {
+            return;
+        }
+
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenInput ? tokenInput.value : "";
+
+        const formData = new URLSearchParams();
+        formData.append("noteId", noteId);
+        formData.append("__RequestVerificationToken", token);
+
+        const response = await fetch('@Url.Action("DeleteNote", "ReaderPortal")', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: formData.toString()
+        });
+
+        if (response.ok) {
+            closeReaderBookNoteModal();
+            await loadReaderBookNotes();
+            return;
+        }
+
+        alert("Възникна проблем при изтриването на бележката.");
+    }
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            closeReaderBookNoteModal();
+        }
+    });
+
+    document.getElementById("readerBookNoteModal")?.addEventListener("click", function (e) {
+        if (e.target === this) {
+            closeReaderBookNoteModal();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", loadReaderBookNotes);
+</script>

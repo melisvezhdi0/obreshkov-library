@@ -29,8 +29,5 @@ namespace ObreshkovLibrary.Models
         public bool Reminder3DaysSent { get; set; } = false;
         public bool Reminder1DaySent { get; set; } = false;
         public DateTime? LastOverdueReminderSentOn { get; set; }
-
-        public ICollection<LoanPersonalNote> PersonalNotes { get; set; } = new List<LoanPersonalNote>();
-
     }
 }

@@ -19,8 +19,8 @@ namespace ObreshkovLibrary.Data
         public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
         public DbSet<SchoolNews> SchoolNews { get; set; } = null!;
         public DbSet<ReaderFavoriteBook> ReaderFavoriteBooks { get; set; } = null!;
-        public DbSet<LoanPersonalNote> LoanPersonalNotes { get; set; } = null!;
         public DbSet<ReaderNotification> ReaderNotifications { get; set; } = null!;
+        public DbSet<ReaderBookNote> ReaderBookNotes { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -73,12 +73,6 @@ namespace ObreshkovLibrary.Data
                 .HasIndex(x => new { x.ReaderId, x.BookId })
                 .IsUnique();
 
-            modelBuilder.Entity<LoanPersonalNote>()
-                .HasOne(x => x.Loan)
-                .WithMany(x => x.PersonalNotes)
-                .HasForeignKey(x => x.LoanId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<ReaderNotification>()
                 .HasOne(x => x.Reader)
                 .WithMany(x => x.Notifications)
@@ -114,6 +108,21 @@ namespace ObreshkovLibrary.Data
 
             modelBuilder.Entity<PasswordResetRequest>()
                 .HasQueryFilter(x => x.Reader != null && x.Reader.IsActive);
+
+            modelBuilder.Entity<ReaderBookNote>()
+                .HasOne(x => x.Reader)
+                .WithMany(x => x.BookNotes)
+                .HasForeignKey(x => x.ReaderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReaderBookNote>()
+                .HasOne(x => x.Book)
+                .WithMany(x => x.ReaderNotes)
+                .HasForeignKey(x => x.BookId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ReaderBookNote>()
+                .HasIndex(x => new { x.ReaderId, x.BookId, x.CreatedOn });
         }
     }
 }

@@ -51,13 +51,14 @@ namespace ObreshkovLibrary.ViewComponents
                 .AsNoTracking()
                 .Where(n => n.ReaderId == reader.Id)
                 .OrderByDescending(n => n.CreatedOn)
-                .Take(10)
                 .Select(n => new ReaderNotificationDropdownItemVM
                 {
                     NotificationId = n.Id,
                     Title = n.Title,
+                    Message = n.Message,
                     CreatedOn = n.CreatedOn,
                     IsRead = n.IsRead,
+                    CategoryId = n.CategoryId,
                     Type = n.Type
                 })
                 .ToListAsync();

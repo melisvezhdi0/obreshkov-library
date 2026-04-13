@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
-using ObreshkovLibrary.Models.Enums;
 using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Controllers
@@ -38,10 +37,28 @@ namespace ObreshkovLibrary.Controllers
                 .ToListAsync();
 
             var bookNotes = await _context.ReaderBookNotes
-               .Where(n => n.ReaderId == reader.Id)
-               .Include(n => n.Book)
-               .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
-               .ToListAsync();
+                .Where(n => n.ReaderId == reader.Id)
+                .Include(n => n.Book)
+                .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
+                .ToListAsync();
+
+            var latestNotifications = await _context.ReaderNotifications
+                .AsNoTracking()
+                .Where(n => n.ReaderId == reader.Id)
+                .OrderByDescending(n => n.CreatedOn)
+                .Take(5)
+                .Select(n => new ReaderNotificationItemVM
+                {
+                    NotificationId = n.Id,
+                    Title = n.Title,
+                    Message = n.Message,
+                    CreatedOn = n.CreatedOn,
+                    IsRead = n.IsRead,
+                    BookId = n.BookId,
+                    CategoryId = n.CategoryId,
+                    Type = n.Type
+                })
+                .ToListAsync();
 
             var vm = new ReaderDashboardVM
             {
@@ -49,6 +66,7 @@ namespace ObreshkovLibrary.Controllers
                 CurrentLoansCount = await _context.Loans.CountAsync(l => l.ReaderId == reader.Id && l.ReturnDate == null),
                 FavoritesCount = await _context.ReaderFavoriteBooks.CountAsync(f => f.ReaderId == reader.Id),
                 UnreadNotificationsCount = await _context.ReaderNotifications.CountAsync(n => n.ReaderId == reader.Id && !n.IsRead),
+
                 CurrentLoans = currentLoans.Select(l => new ReaderCurrentLoanVM
                 {
                     BookId = l.BookCopy.Book.Id,
@@ -70,7 +88,9 @@ namespace ObreshkovLibrary.Controllers
                     Text = n.Text,
                     CreatedOn = n.CreatedOn,
                     UpdatedOn = n.UpdatedOn
-                }).ToList()
+                }).ToList(),
+
+                LatestNotifications = latestNotifications
             };
 
             ViewBag.RequirePasswordChange = !reader.PasswordChangedByReader;
@@ -168,33 +188,31 @@ namespace ObreshkovLibrary.Controllers
             return RedirectToAction("ReaderDetails", "Catalog", new { id = bookId });
         }
 
-        public async Task<IActionResult> Notifications()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkAllNotificationsAsRead()
         {
             var reader = await GetCurrentReaderAsync();
             if (reader == null)
             {
-                return Challenge();
+                return Unauthorized();
             }
 
-            var notifications = await _context.ReaderNotifications
-                .Where(n => n.ReaderId == reader.Id)
-                .OrderByDescending(n => n.CreatedOn)
-                .Select(n => new ReaderNotificationItemVM
-                {
-                    NotificationId = n.Id,
-                    Title = n.Title,
-                    Message = n.Message,
-                    CreatedOn = n.CreatedOn,
-                    IsRead = n.IsRead,
-                    BookId = n.BookId,
-                    CategoryId = n.CategoryId,
-                    Type = n.Type
-                })
+            var unreadNotifications = await _context.ReaderNotifications
+                .Where(n => n.ReaderId == reader.Id && !n.IsRead)
                 .ToListAsync();
 
-            ViewBag.UnreadCount = notifications.Count(n => !n.IsRead);
+            if (unreadNotifications.Any())
+            {
+                foreach (var notification in unreadNotifications)
+                {
+                    notification.IsRead = true;
+                }
 
-            return View(notifications);
+                await _context.SaveChangesAsync();
+            }
+
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -226,7 +244,7 @@ namespace ObreshkovLibrary.Controllers
                 return Redirect(returnUrl);
             }
 
-            return RedirectToAction(nameof(Notifications));
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
@@ -275,7 +293,7 @@ namespace ObreshkovLibrary.Controllers
             }
 
             var notesCount = await _context.ReaderBookNotes
-            .CountAsync(n => n.ReaderId == reader.Id && n.BookId == bookId);
+                .CountAsync(n => n.ReaderId == reader.Id && n.BookId == bookId);
 
             if (notesCount >= 5)
             {

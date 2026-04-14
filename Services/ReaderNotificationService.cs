@@ -14,7 +14,7 @@ namespace ObreshkovLibrary.Services
             _context = context;
         }
 
-        public async Task CreateNotificationAsync(
+        public Task CreateNotificationAsync(
             int readerId,
             string title,
             string message,
@@ -36,7 +36,7 @@ namespace ObreshkovLibrary.Services
                 CategoryId = categoryId
             });
 
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
         public async Task ProcessLoanDueRemindersAsync()
@@ -139,26 +139,6 @@ namespace ObreshkovLibrary.Services
                     null,
                     null,
                     category.Id);
-            }
-        }
-
-        public async Task SendAdminNotificationToAllAsync(string title, string message)
-        {
-            var readerIds = await _context.Readers
-                .Select(c => c.Id)
-                .ToListAsync();
-
-            foreach (var readerId in readerIds)
-            {
-                _context.ReaderNotifications.Add(new ReaderNotification
-                {
-                    ReaderId = readerId,
-                    Title = title,
-                    Message = message,
-                    Type = ReaderNotificationType.Admin,
-                    IsRead = false,
-                    CreatedOn = DateTime.Now
-                });
             }
 
             await _context.SaveChangesAsync();

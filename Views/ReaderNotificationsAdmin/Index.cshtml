@@ -14,32 +14,6 @@
     }
 
     <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h2 class="mb-3">Административно съобщение</h2>
-
-                    <form asp-action="SendAdminMessage" method="post">
-                        @Html.AntiForgeryToken()
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Заглавие</label>
-                            <input name="title" class="form-control" />
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Съобщение</label>
-                            <textarea name="message" rows="6" class="form-control"></textarea>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">
-                            Изпрати до всички ученици
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <div class="col-lg-5">
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body">

@@ -17,7 +17,5 @@ namespace ObreshkovLibrary.Services
         Task ProcessLoanDueRemindersAsync();
 
         Task NotifyForNewCategoryAsync(Category category);
-
-        Task SendAdminNotificationToAllAsync(string title, string message);
     }
 }

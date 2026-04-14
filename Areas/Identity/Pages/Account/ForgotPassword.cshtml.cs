@@ -29,6 +29,7 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
             [Required(ErrorMessage = "Избери роля.")]
             public string Role { get; set; } = "Reader";
 
+            [EmailAddress(ErrorMessage = "Въведи валиден имейл адрес.")]
             public string? Email { get; set; }
 
             public string? CardNumber { get; set; }
@@ -38,15 +39,29 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
 
         public void OnGet(string? role = null)
         {
-            Input.Role = string.IsNullOrWhiteSpace(role) ? "Reader" : role;
+            Input.Role = NormalizeRole(role);
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            Input.Role = NormalizeRole(Input.Role);
+
             if (Input.Role == "Admin")
             {
-                StatusMessage = "За администраторски профил се обърнете към системния администратор.";
-                return RedirectToPage();
+                if (string.IsNullOrWhiteSpace(Input.Email))
+                {
+                    ModelState.AddModelError(string.Empty, "Въведи служебен имейл.");
+                    return Page();
+                }
+
+                if (!new EmailAddressAttribute().IsValid(Input.Email))
+                {
+                    ModelState.AddModelError(string.Empty, "Въведи валиден имейл адрес.");
+                    return Page();
+                }
+
+                StatusMessage = "Заявката за администраторски профил е приета формално. Реално автоматично съобщение не се изпраща. Свържете се със системния администратор.";
+                return RedirectToPage(new { role = "Admin" });
             }
 
             if (string.IsNullOrWhiteSpace(Input.CardNumber))
@@ -61,13 +76,15 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 return Page();
             }
 
-            var normalizedCard = Input.CardNumber.Trim().ToUpper();
+            var normalizedCard = Input.CardNumber.Trim().Replace(" ", "").ToUpper();
             var normalizedPhone = Input.PhoneNumber.Trim();
 
             var reader = await _context.Readers
-                .FirstOrDefaultAsync(c =>
-                    c.CardNumber.ToUpper() == normalizedCard &&
-                    c.PhoneNumber == normalizedPhone);
+                .FirstOrDefaultAsync(r =>
+                    r.CardNumber != null &&
+                    r.PhoneNumber != null &&
+                    r.CardNumber.Replace(" ", "").ToUpper() == normalizedCard &&
+                    r.PhoneNumber == normalizedPhone);
 
             if (reader == null)
             {
@@ -83,8 +100,8 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 var request = new PasswordResetRequest
                 {
                     ReaderId = reader.Id,
-                    CardNumber = reader.CardNumber,
-                    PhoneNumber = reader.PhoneNumber,
+                    CardNumber = reader.CardNumber ?? string.Empty,
+                    PhoneNumber = reader.PhoneNumber ?? string.Empty,
                     RequestedOn = DateTime.Now,
                     IsCompleted = false
                 };
@@ -93,8 +110,18 @@ namespace ObreshkovLibrary.Areas.Identity.Pages.Account
                 await _context.SaveChangesAsync();
             }
 
-            StatusMessage = "Заявката е приета. Обърнете се към библиотекар или администратор за нова временна парола.";
+            StatusMessage = alreadyOpen
+                ? "Вече има активна заявка за този ученик. Обърнете се към библиотекар или администратор."
+                : "Заявката е приета. Обърнете се към библиотекар или администратор за нова временна парола.";
+
             return RedirectToPage(new { role = "Reader" });
+        }
+
+        private static string NormalizeRole(string? role)
+        {
+            return string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase)
+                ? "Admin"
+                : "Reader";
         }
     }
 }

@@ -25,7 +25,16 @@ namespace ObreshkovLibrary.Controllers
                 .Take(3)
                 .ToListAsync();
 
+            var latestBooks = await _context.Books
+                .AsNoTracking()
+                .Where(b => b.IsActive)
+                .OrderByDescending(b => b.CreatedOn)
+                .ThenBy(b => b.Title)
+                .Take(5)
+                .ToListAsync();
+
             ViewBag.HomeNews = latestNews;
+            ViewBag.LatestBooks = latestBooks;
 
             return View();
         }
@@ -42,7 +51,16 @@ namespace ObreshkovLibrary.Controllers
                 .Take(3)
                 .ToListAsync();
 
+            var latestBooks = await _context.Books
+                .AsNoTracking()
+                .Where(b => b.IsActive)
+                .OrderByDescending(b => b.CreatedOn)
+                .ThenBy(b => b.Title)
+                .Take(5)
+                .ToListAsync();
+
             ViewBag.HomeNews = latestNews;
+            ViewBag.LatestBooks = latestBooks;
 
             return View();
         }

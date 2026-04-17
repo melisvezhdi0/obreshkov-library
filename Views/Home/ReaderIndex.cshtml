@@ -1,100 +1,882 @@
 ﻿@using ObreshkovLibrary.Models
+@using System.Linq
 @{
-    var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new List<SchoolNews>();
-}
-@{
-    Layout = "~/Views/Shared/_ReaderLayout.cshtml";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
     ViewData["Title"] = "Начало";
+
+    var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new();
+    var latestBooks = ViewBag.LatestBooks as List<Book> ?? new();
+
+    string ResolveCoverUrl(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return "";
+
+        return path.StartsWith("/")
+            ? Url.Content("~" + path)
+            : Url.Content("~/" + path.TrimStart('/'));
+    }
 }
 
-<div class="guest-home-page">
+<style>
+    .guest-home-page {
+        width: 100%;
+        padding: 22px 0 34px 0;
+        background: radial-gradient(circle at top right, rgba(96,165,250,.10) 0%, rgba(96,165,250,0) 26%), linear-gradient(180deg, #eef3f8 0%, #f5f8fc 45%, #edf3f8 100%);
+    }
+
+    .guest-home-container {
+        width: min(1240px, calc(100% - 32px));
+        margin: 0 auto;
+    }
+
+    .guest-hero {
+        position: relative;
+        min-height: 470px;
+        border-radius: 30px;
+        overflow: hidden;
+        border: 1px solid #d7e1ec;
+        box-shadow: 0 22px 54px rgba(15, 23, 42, 0.08);
+        background: #dfe8f2;
+        margin-bottom: 20px;
+    }
+
+    .guest-hero-slider {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .guest-hero-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transform: scale(1.04);
+        transition: opacity .85s ease, transform 6s linear;
+    }
+
+        .guest-hero-slide.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+    .guest-hero-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: linear-gradient(90deg, rgba(15,23,42,.72) 0%, rgba(15,23,42,.44) 30%, rgba(15,23,42,.16) 56%, rgba(15,23,42,.06) 100%);
+    }
+
+    .guest-hero-content {
+        position: relative;
+        z-index: 2;
+        min-height: 470px;
+        padding: 28px 30px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(340px, 420px);
+        gap: 26px;
+        align-items: center;
+    }
+
+    .guest-hero-left {
+        max-width: 660px;
+    }
+
+    .guest-kicker {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.22);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #f8fbff;
+        font-size: .85rem;
+        font-weight: 800;
+        letter-spacing: .03em;
+        margin-bottom: 18px;
+        box-shadow: 0 10px 24px rgba(15,23,42,.14);
+    }
+
+    .guest-hero-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(2.2rem, 4.3vw, 3.95rem);
+        line-height: 1.02;
+        font-weight: 900;
+        letter-spacing: -.03em;
+        text-shadow: 0 12px 28px rgba(15,23,42,.20);
+        max-width: 610px;
+        opacity: 0;
+        transform: translateY(16px) scale(.98);
+        animation: heroTitleReveal .9s ease forwards;
+        animation-delay: .18s;
+    }
+
+    .guest-hero-title-accent {
+        display: block;
+        color: #d7e7ff;
+    }
+
+    @@keyframes heroTitleReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(16px) scale(.98);
+        }
+
+        65% {
+            opacity: 1;
+            transform: translateY(-4px) scale(1.01);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .guest-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .guest-main-btn,
+    .guest-soft-btn {
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-weight: 800;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .guest-main-btn {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #ffffff;
+        border: 1px solid rgba(255,255,255,.08);
+        box-shadow: 0 18px 34px rgba(37,99,235,.28);
+    }
+
+        .guest-main-btn:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 22px 40px rgba(37,99,235,.36);
+        }
+
+    .guest-soft-btn {
+        background: rgba(255,255,255,.10);
+        color: #ffffff;
+        border: 1px solid rgba(255,255,255,.20);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+        .guest-soft-btn:hover {
+            color: #ffffff;
+            transform: translateY(-2px);
+            background: rgba(255,255,255,.16);
+        }
+
+    .guest-search-card {
+        padding: 26px;
+        border-radius: 30px;
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.28);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 18px 40px rgba(15,23,42,.16), inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    .guest-search-kicker,
+    .guest-section-kicker,
+    .guest-bottom-kicker {
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: .81rem;
+        font-weight: 900;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: #ffffff;
+    }
+
+    .guest-section-kicker,
+    .guest-bottom-kicker {
+        color: #2563eb;
+    }
+
+    .guest-search-title,
+    .guest-section-title,
+    .guest-bottom-title {
+        margin: 0;
+        line-height: 1.14;
+        font-weight: 900;
+        letter-spacing: -.02em;
+    }
+
+    .guest-search-title {
+        font-size: 1.55rem;
+        color: #ffffff;
+        text-shadow: 0 8px 20px rgba(15,23,42,.18);
+    }
+
+    .guest-section-title {
+        font-size: 1.35rem;
+        color: #0f172a;
+    }
+
+    .guest-bottom-title {
+        font-size: 1.04rem;
+        color: #0f172a;
+    }
+
+    .guest-search-form {
+        margin-top: 18px;
+    }
+
+    .guest-search-row {
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 116px;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .guest-search-input {
+        width: 100%;
+        min-height: 56px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,.28);
+        background: rgba(255,255,255,.20);
+        padding: 0 18px;
+        font-size: 1rem;
+        color: #ffffff;
+        outline: none;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+        .guest-search-input::placeholder {
+            color: rgba(255,255,255,.74);
+        }
+
+        .guest-search-input:focus {
+            border-color: rgba(191,219,254,.95);
+            box-shadow: 0 0 0 4px rgba(191,219,254,.14);
+            background: rgba(255,255,255,.24);
+        }
+
+    .guest-search-btn {
+        width: 100%;
+        min-height: 56px;
+        border: none;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 14px 28px rgba(37,99,235,.22);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+        .guest-search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 34px rgba(37,99,235,.30);
+        }
+
+    .guest-section {
+        padding: 22px;
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255,255,255,.86) 0%, rgba(249,251,254,.96) 100%);
+        border: 1px solid #dbe5ef;
+        box-shadow: 0 16px 34px rgba(15,23,42,.05);
+        margin-bottom: 18px;
+    }
+
+    .guest-section-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .guest-section-link {
+        min-height: 40px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 14px;
+        border: 1px solid #cfdef0;
+        background: rgba(255,255,255,.80);
+        color: #2563eb;
+        font-weight: 800;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+        .guest-section-link:hover {
+            transform: translateY(-2px);
+            color: #1d4ed8;
+            background: #f6faff;
+            border-color: #b7d2f8;
+            box-shadow: 0 12px 24px rgba(15,23,42,.06);
+        }
+
+    .guest-books-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .guest-book-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        border-radius: 22px;
+        overflow: hidden;
+        background: rgba(255,255,255,.72);
+        border: 1px solid #dde7f1;
+        box-shadow: 0 8px 18px rgba(15,23,42,.04);
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+        .guest-book-card:hover {
+            transform: translateY(-5px);
+            border-color: #cfe0f9;
+            box-shadow: 0 18px 34px rgba(15,23,42,.10);
+        }
+
+    .guest-book-cover-wrap {
+        position: relative;
+        min-height: 232px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 10px 6px 10px;
+        background: linear-gradient(180deg, rgba(248,251,255,.84) 0%, rgba(238,244,250,.94) 100%);
+    }
+
+    .guest-book-cover {
+        width: 100%;
+        height: 210px;
+        object-fit: contain;
+        display: block;
+        transition: transform .22s ease;
+    }
+
+    .guest-book-card:hover .guest-book-cover {
+        transform: scale(1.03);
+    }
+
+    .guest-book-fallback {
+        width: 100%;
+        height: 210px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 10px;
+        border-radius: 16px;
+        border: 2px dashed #d6dfeb;
+        background: #ffffff;
+        color: #94a3b8;
+        font-size: .86rem;
+        font-weight: 800;
+    }
+
+    .guest-book-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 14px;
+        background: linear-gradient(180deg, rgba(15,23,42,.02) 0%, rgba(15,23,42,.14) 36%, rgba(15,23,42,.90) 100%);
+        opacity: 0;
+        transition: opacity .2s ease;
+    }
+
+    .guest-book-card:hover .guest-book-overlay {
+        opacity: 1;
+    }
+
+    .guest-book-title {
+        color: #ffffff;
+        font-size: .95rem;
+        font-weight: 900;
+        line-height: 1.28;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .guest-book-author {
+        color: rgba(255,255,255,.86);
+        font-size: .84rem;
+        font-weight: 700;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .guest-book-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 12px 11px 12px;
+        border-top: 1px solid #eef3f8;
+        background: rgba(255,255,255,.84);
+    }
+
+    .guest-book-class {
+        color: #64748b;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .guest-book-year {
+        color: #94a3b8;
+        font-size: .76rem;
+        font-weight: 800;
+        flex: 0 0 auto;
+    }
+
+    .guest-news-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+        width: 100%;
+    }
+
+    .guest-news-card {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 220px minmax(0, 1fr);
+        border-radius: 22px;
+        overflow: hidden;
+        background: rgba(255,255,255,.78);
+        border: 1px solid #e0e9f2;
+        box-shadow: 0 8px 18px rgba(15,23,42,.04);
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+        .guest-news-card:hover {
+            transform: translateY(-4px);
+            border-color: #d0e2fb;
+            box-shadow: 0 18px 28px rgba(15,23,42,.08);
+        }
+
+    .guest-news-image-wrap {
+        height: 100%;
+        min-height: 220px;
+        background: linear-gradient(180deg, #edf4fb 0%, #e4edf8 100%);
+        overflow: hidden;
+    }
+
+    .guest-news-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform .25s ease;
+    }
+
+    .guest-news-card:hover .guest-news-image {
+        transform: scale(1.04);
+    }
+
+    .guest-news-content {
+        padding: 18px 18px 18px 20px;
+        display: flex;
+        flex-direction: column;
+        min-height: 220px;
+    }
+
+    .guest-news-date {
+        color: #2563eb;
+        font-size: .79rem;
+        font-weight: 900;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .guest-news-title {
+        margin: 0 0 10px 0;
+        color: #0f172a;
+        font-size: 1.08rem;
+        font-weight: 900;
+        line-height: 1.35;
+    }
+
+    .guest-news-text {
+        margin: 0;
+        color: #5c6b7e;
+        font-size: .95rem;
+        line-height: 1.72;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .guest-news-btn {
+        margin-top: 16px;
+        width: max-content;
+        min-height: 38px;
+        padding: 0 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 14px;
+        background: #eef5ff;
+        border: 1px solid #d6e5fb;
+        color: #2563eb;
+        font-weight: 800;
+        transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+        .guest-news-btn:hover {
+            transform: translateY(-2px);
+            background: #e9f2ff;
+            border-color: #bdd6fa;
+            color: #1d4ed8;
+        }
+
+    .guest-bottom-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        align-items: stretch;
+    }
+
+    .guest-bottom-card {
+        padding: 22px;
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(249,251,254,.96) 100%);
+        border: 1px solid #dbe5ef;
+        box-shadow: 0 12px 28px rgba(15,23,42,.05);
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .guest-bottom-text {
+        color: #506277;
+        font-size: .94rem;
+        line-height: 1.6;
+        margin: 10px 0 0 0;
+    }
+
+    .guest-bottom-map {
+        margin-top: 14px;
+        width: 100%;
+        height: 190px;
+        border: 0;
+        border-radius: 18px;
+        box-shadow: inset 0 0 0 1px rgba(219,229,239,.9);
+    }
+
+    .guest-bottom-list {
+        margin: 14px 0 0 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+        .guest-bottom-list li,
+        .guest-bottom-list a {
+            color: #506277;
+            font-size: .93rem;
+            line-height: 1.55;
+            text-decoration: none;
+        }
+
+            .guest-bottom-list a:hover {
+                color: #2563eb;
+            }
+
+    .guest-bottom-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .guest-bottom-link {
+        min-height: 36px;
+        padding: 0 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        border-radius: 12px;
+        background: #f2f7ff;
+        border: 1px solid #d8e6fb;
+        color: #2559a6;
+        font-weight: 800;
+        font-size: .88rem;
+        transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+
+        .guest-bottom-link:hover {
+            transform: translateY(-2px);
+            background: #ebf3ff;
+            border-color: #bfd7fb;
+            color: #1d4ed8;
+        }
+
+    @@media (max-width: 1200px) {
+        .guest-hero-content {
+            grid-template-columns: 1fr;
+            min-height: auto;
+        }
+
+        .guest-books-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .guest-news-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 992px) {
+        .guest-home-container {
+            width: min(100%, calc(100% - 18px));
+        }
+
+        .guest-hero {
+            min-height: auto;
+        }
+
+        .guest-hero-content {
+            padding: 20px;
+        }
+
+        .guest-hero-overlay {
+            background: linear-gradient(180deg, rgba(15,23,42,.70) 0%, rgba(15,23,42,.42) 38%, rgba(15,23,42,.16) 100%);
+        }
+
+        .guest-books-grid,
+        .guest-bottom-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .guest-news-card {
+            grid-template-columns: 200px minmax(0, 1fr);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .guest-search-row {
+            grid-template-columns: 1fr;
+        }
+
+        .guest-books-grid,
+        .guest-bottom-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .guest-book-cover-wrap {
+            min-height: 226px;
+        }
+
+        .guest-book-cover,
+        .guest-book-fallback {
+            height: 200px;
+        }
+
+        .guest-news-card {
+            grid-template-columns: 1fr;
+        }
+
+        .guest-news-image-wrap {
+            min-height: 170px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .guest-hero-content,
+        .guest-section,
+        .guest-bottom-card {
+            padding: 18px;
+        }
+
+        .guest-hero-title {
+            font-size: 1.95rem;
+        }
+
+        .guest-hero-actions {
+            flex-direction: column;
+        }
+
+        .guest-main-btn,
+        .guest-soft-btn,
+        .guest-search-btn,
+        .guest-section-link {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="guest-home-page" id="page-top">
     <div class="guest-home-container">
 
         <section class="guest-hero">
-
-            <div class="guest-hero-slider">
-                <img src="/images/school-6.png" class="hero-slide active" />
-                <img src="/images/school-2.png" class="hero-slide" />
-                <img src="/images/school-3.png" class="hero-slide" />
-                <img src="/images/school-4.png" class="hero-slide" />
-                <img src="/images/school-5.png" class="hero-slide" />
-            </div>
-            <div class="guest-hero-left">
-                <div class="guest-hero-badge">
-                    Училищна библиотека • ППМГ „Акад. Никола Обрешков“
-                </div>
-
-                <h1 class="guest-hero-title">
-                    Пространство за четене,
-                    <span class="guest-hero-title-accent">търсене и откриване.</span>
-                </h1>
-
-                <p class="guest-hero-text">
-                    Добре дошли в библиотечната система на училището. Началната страница е създадена
-                    така, че гостът бързо да се ориентира, да отвори каталога и да разгледа наличните
-                    книги в по-ясна и подредена среда.
-                </p>
-
-                <div class="guest-hero-actions">
-                    <a asp-controller="Catalog" asp-action="Index" class="guest-primary-btn">
-                        Разгледай каталога
-                    </a>
-                </div>
+            <div class="guest-hero-slider" aria-hidden="true">
+                <img src="/images/school-6.png" alt="ППМГ Разград" class="guest-hero-slide active" />
+                <img src="/images/school-2.png" alt="ППМГ Разград" class="guest-hero-slide" />
+                <img src="/images/school-3.png" alt="ППМГ Разград" class="guest-hero-slide" />
+                <img src="/images/school-4.png" alt="ППМГ Разград" class="guest-hero-slide" />
+                <img src="/images/school-5.png" alt="ППМГ Разград" class="guest-hero-slide" />
             </div>
 
-            <div class="guest-hero-right">
-                <aside class="guest-search-card">
-                    <h2 class="guest-search-title">Бързо търсене</h2>
+            <div class="guest-hero-overlay"></div>
 
-                    <p class="guest-search-subtitle">
-                        Потърси по заглавие, автор, жанр или учебна насоченост.
-                    </p>
+            <div class="guest-hero-content">
+                <div class="guest-hero-left">
+                    <div class="guest-kicker">Училищна библиотека • ППМГ „Акад. Никола Обрешков“ • Разград</div>
+
+                    <h1 class="guest-hero-title">
+                        Училищна библиотека
+                        <span class="guest-hero-title-accent">за търсене, четене и вдъхновение.</span>
+                    </h1>
+
+                    <div class="guest-hero-actions">
+                        <a asp-controller="Catalog" asp-action="Index" class="guest-main-btn">Разгледай каталога</a>
+                        <a href="#latest-books" class="guest-soft-btn">Последно добавени книги</a>
+                    </div>
+                </div>
+
+                <div class="guest-search-card">
+                    <div class="guest-search-kicker">Търсене</div>
+                    <h2 class="guest-search-title">Намери книга бързо</h2>
 
                     <form method="get" asp-controller="Catalog" asp-action="Index" class="guest-search-form">
-                        <label class="guest-search-label" for="guestSearch">Търси в каталога</label>
-
                         <div class="guest-search-row">
-                            <input id="guestSearch"
-                                   type="text"
-                                   name="searchTerm"
+                            <input type="text"
+                                   name="search"
                                    class="guest-search-input"
-                                   placeholder="Например: Ботев, роман" />
-                            <button type="submit" class="guest-search-button">Търси</button>
+                                   placeholder="" />
+                            <button type="submit" class="guest-search-btn">Търси</button>
                         </div>
                     </form>
-                </aside>
+                </div>
             </div>
+        </section>
+
+        <section id="latest-books" class="guest-section">
+            <div class="guest-section-header">
+                <div>
+                    <div class="guest-section-kicker">Книги</div>
+                    <h2 class="guest-section-title">Последно добавени книги</h2>
+                </div>
+
+                <a asp-controller="Catalog" asp-action="Index" class="guest-section-link">Виж всички книги</a>
+            </div>
+
+            @if (!latestBooks.Any())
+            {
+                <div style="color:#64748b; font-weight:700;">Няма налични книги за показване.</div>
+            }
+            else
+            {
+                <div class="guest-books-grid">
+                    @foreach (var book in latestBooks.Take(5))
+                    {
+                        var coverUrl = ResolveCoverUrl(book.CoverPath);
+                        var hasCover = !string.IsNullOrWhiteSpace(coverUrl);
+                        var classText = !string.IsNullOrWhiteSpace(book.SchoolClass)
+                        ? book.SchoolClass
+                        : (!string.IsNullOrWhiteSpace(book.Category?.Name) ? book.Category!.Name : "Книга");
+
+                        <a asp-controller="Catalog"
+                           asp-action="Details"
+                           asp-route-id="@book.Id"
+                           class="guest-book-card">
+                            <div class="guest-book-cover-wrap">
+                                @if (hasCover)
+                                {
+                                    <img src="@coverUrl"
+                                         alt="@book.Title"
+                                         class="guest-book-cover"
+                                         onerror="this.style.display='none'; this.parentElement.querySelector('.guest-book-fallback').style.display='flex';" />
+                                }
+
+                                <div class="guest-book-fallback" style="display:@(hasCover ? "none" : "flex");">
+                                    Няма корица
+                                </div>
+
+                                <div class="guest-book-overlay">
+                                    <div class="guest-book-title">@book.Title</div>
+                                    <div class="guest-book-author">@book.Author</div>
+                                </div>
+                            </div>
+
+                            <div class="guest-book-meta">
+                                <div class="guest-book-class">@classText</div>
+                                @if (book.Year.HasValue)
+                                {
+                                    <div class="guest-book-year">@book.Year</div>
+                                }
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
         </section>
 
         @if (homeNews.Any())
         {
-            <section class="school-news-section">
-                <div class="school-news-header">
+            <section class="guest-section">
+                <div class="guest-section-header">
                     <div>
-                        <div class="school-news-label">Новини</div>
-                        <h2 class="school-news-title">Актуално в ППМГ</h2>
+                        <div class="guest-section-kicker">Актуално в ППМГ</div>
+                        <h2 class="guest-section-title">Новини от училището</h2>
                     </div>
                 </div>
 
-                <div class="school-news-grid news-count-@homeNews.Count">
-                    @foreach (var item in homeNews)
+                <div class="guest-news-grid">
+                    @foreach (var item in homeNews.Take(2))
                     {
-                        <article class="school-news-card">
-                            <div class="school-news-image-wrap">
+                        <article class="guest-news-card">
+                            <div class="guest-news-image-wrap">
                                 @if (!string.IsNullOrWhiteSpace(item.ImagePath))
                                 {
-                                    <img src="@Url.Content(item.ImagePath)" alt="@item.Title" class="school-news-image" />
+                                    <img src="@Url.Content(item.ImagePath)" alt="@item.Title" class="guest-news-image" />
                                 }
                             </div>
 
-                            <div class="school-news-body">
-                                <div class="school-news-date">@item.PublishedOn.ToString("dd.MM.yyyy")</div>
-                                <h3 class="school-news-card-title">@item.Title</h3>
-                                <p class="school-news-text">@item.Summary</p>
+                            <div class="guest-news-content">
+                                <div class="guest-news-date">@item.PublishedOn.ToString("dd.MM.yyyy")</div>
+                                <h3 class="guest-news-title">@item.Title</h3>
+                                <p class="guest-news-text">@item.Summary</p>
 
-                                <a href="@item.NewsUrl" target="_blank" class="school-news-button">
-                                    Прочети повече
-                                </a>
+                                <a href="@item.NewsUrl" target="_blank" class="guest-news-btn">Прочети повече</a>
                             </div>
                         </article>
                     }
@@ -102,86 +884,58 @@
             </section>
         }
 
-        <section class="guest-section-grid">
-            <article id="about-school" class="guest-section-card">
-                <div class="guest-section-label">За училището</div>
-                <h2 class="guest-section-title">Училищна среда с място за знание и четене</h2>
-                <p class="guest-section-text">
-                    ППМГ „Акад. Никола Обрешков“ – Разград е училище с традиции, академична насоченост
-                    и активен училищен живот. Библиотеката е естествена част от тази среда – пространство,
-                    което подпомага подготовката, любознателността и интереса към литературата.
+        <section class="guest-bottom-grid">
+            <article class="guest-bottom-card">
+                <div class="guest-bottom-kicker">Библиотеката</div>
+                <h3 class="guest-bottom-title">ППМГ „Акад. Никола Обрешков“</h3>
+                <p class="guest-bottom-text">
+                    Онлайн каталог и бърз достъп до училищната библиотека.
                 </p>
 
-                <ul class="guest-list">
-                    <li><span class="guest-list-dot"></span><span>По-ясна ориентация за ученици, учители и гости.</span></li>
-                    <li><span class="guest-list-dot"></span><span>Лесен достъп до каталога и основната информация.</span></li>
-                    <li><span class="guest-list-dot"></span><span>Визия, близка до училищен уебсайт, а не до тъмен промоционален landing page.</span></li>
-                </ul>
-            </article>
-
-            <article id="about-library" class="guest-section-card">
-                <div class="guest-section-label">За библиотеката</div>
-                <h2 class="guest-section-title">Достъпна и подредена библиотечна система</h2>
-                <p class="guest-section-text">
-                    Библиотечната система е създадена, за да представя по ясен и подреден начин
-                    наличните книги и основната информация за библиотеката. Началната страница
-                    насочва гостите към най-важното, без излишно повторение и без претрупани елементи.
-                </p>
-
-                <ul class="guest-list">
-                    <li><span class="guest-list-dot"></span><span>Прегледно представяне на библиотечния каталог.</span></li>
-                    <li><span class="guest-list-dot"></span><span>По-лесна ориентация за гости и потребители.</span></li>
-                    <li><span class="guest-list-dot"></span><span>Визия, съобразена с училищната среда и останалата част от проекта.</span></li>
-                </ul>
-            </article>
-        </section>
-
-        <section class="guest-stats">
-            <article class="guest-stat-card">
-                <h3 class="guest-stat-title">Местоположение</h3>
-                <p class="guest-stat-number">01</p>
-                <p class="guest-stat-text">
-                    гр. Разград, ППМГ „Акад. Никола Обрешков“
-                </p>
-                <a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград"
-                   target="_blank"
-                   class="guest-stat-link">
-                    Отвори в Google Maps
-                </a>
-            </article>
-
-            <article class="guest-stat-card">
-                <h3 class="guest-stat-title">Връзка с нас</h3>
-                <p class="guest-stat-number">02</p>
-                <p class="guest-stat-text">
-                    Телефон: 08XXXXXXXX
-                </p>
-                <a href="tel:08XXXXXXXX" class="guest-stat-link">
-                    Обади се
-                </a>
-            </article>
-
-            <article class="guest-stat-card">
-                <h3 class="guest-stat-title">Последвайте училището</h3>
-                <p class="guest-stat-number">03</p>
-                <div class="guest-social-links">
-                    <a href="https://www.facebook.com/" target="_blank" class="guest-stat-link">Facebook</a>
-                    <a href="https://www.instagram.com/" target="_blank" class="guest-stat-link">Instagram</a>
-                    <a href="https://www.pmgrz.net/" target="_blank" class="guest-stat-link">Уебсайт</a>
+                <div class="guest-bottom-links">
+                    <a href="https://www.pmgrz.net/" target="_blank" class="guest-bottom-link">Уебсайт</a>
+                    <a asp-controller="Catalog" asp-action="Index" class="guest-bottom-link">Каталог</a>
+                    <a href="#page-top" class="guest-bottom-link">Нагоре</a>
                 </div>
             </article>
 
-            <script>
-                const slides = document.querySelectorAll(".hero-slide");
-                let index = 0;
+            <article class="guest-bottom-card">
+                <div class="guest-bottom-kicker">Локация</div>
+                <h3 class="guest-bottom-title">Карта</h3>
 
-                setInterval(() => {
-                    slides[index].classList.remove("active");
-                    index = (index + 1) % slides.length;
-                    slides[index].classList.add("active");
-                }, 6000);
-            </script>
+                <iframe class="guest-bottom-map"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград&output=embed">
+                </iframe>
+            </article>
+
+            <article class="guest-bottom-card guest-bottom-card--contact">
+                <div class="guest-bottom-kicker">Контакт</div>
+                <h3 class="guest-bottom-title">Данни</h3>
+                <ul class="guest-bottom-list">
+                    <li>Работно време: 08:00 – 14:00</li>
+                    <li>гр. Разград 7200</li>
+                    <li>ул. „Дъбрава“ №2</li>
+                    <li><a href="https://www.google.com/maps?q=ППМГ+Акад.+Никола+Обрешков+Разград" target="_blank">Отвори в Google Maps</a></li>
+                </ul>
+            </article>
         </section>
 
     </div>
 </div>
+
+<script>
+    (() => {
+        const slides = document.querySelectorAll('.guest-hero-slide');
+        if (!slides.length) return;
+
+        let currentIndex = 0;
+
+        setInterval(() => {
+            slides[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].classList.add('active');
+        }, 5500);
+    })();
+</script>

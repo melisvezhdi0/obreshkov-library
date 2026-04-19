@@ -29,24 +29,43 @@ namespace ObreshkovLibrary.Controllers
             }
 
             var currentLoans = await _context.Loans
+                .AsNoTracking()
                 .Where(l => l.ReaderId == reader.Id && l.ReturnDate == null)
                 .Include(l => l.BookCopy)
                     .ThenInclude(bc => bc.Book)
                 .OrderByDescending(l => l.LoanDate)
-                .Take(5)
                 .ToListAsync();
 
-            var bookNotes = await _context.ReaderBookNotes
-                .Where(n => n.ReaderId == reader.Id)
-                .Include(n => n.Book)
-                .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
+            var favorites = await _context.ReaderFavoriteBooks
+                .AsNoTracking()
+                .Where(f => f.ReaderId == reader.Id)
+                .Include(f => f.Book)
+                    .ThenInclude(b => b.Category)
+                        .ThenInclude(c => c.ParentCategory)
+                .Include(f => f.Book)
+                    .ThenInclude(b => b.Copies)
+                .OrderByDescending(f => f.CreatedOn)
                 .ToListAsync();
 
-            var latestNotifications = await _context.ReaderNotifications
+            var favoriteCopyIds = favorites
+                .SelectMany(f => f.Book.Copies)
+                .Where(c => c.IsActive)
+                .Select(c => c.Id)
+                .Distinct()
+                .ToList();
+
+            var activeLoanCopyIds = favoriteCopyIds.Count == 0
+                ? new List<int>()
+                : await _context.Loans
+                    .AsNoTracking()
+                    .Where(l => favoriteCopyIds.Contains(l.BookCopyId) && l.ReturnDate == null)
+                    .Select(l => l.BookCopyId)
+                    .ToListAsync();
+
+            var notifications = await _context.ReaderNotifications
                 .AsNoTracking()
                 .Where(n => n.ReaderId == reader.Id)
                 .OrderByDescending(n => n.CreatedOn)
-                .Take(5)
                 .Select(n => new ReaderNotificationItemVM
                 {
                     NotificationId = n.Id,
@@ -56,27 +75,84 @@ namespace ObreshkovLibrary.Controllers
                     IsRead = n.IsRead,
                     BookId = n.BookId,
                     CategoryId = n.CategoryId,
+                    LoanId = n.LoanId,
                     Type = n.Type
                 })
+                .ToListAsync();
+
+            var history = await _context.Loans
+                .AsNoTracking()
+                .Where(l => l.ReaderId == reader.Id)
+                .Include(l => l.BookCopy)
+                    .ThenInclude(bc => bc.Book)
+                .OrderByDescending(l => l.LoanDate)
+                .Select(l => new ReaderLoanHistoryItemVM
+                {
+                    LoanId = l.Id,
+                    BookId = l.BookCopy.Book.Id,
+                    Title = l.BookCopy.Book.Title,
+                    Author = l.BookCopy.Book.Author,
+                    CoverPath = l.BookCopy.Book.CoverPath,
+                    LoanDate = l.LoanDate,
+                    DueDate = l.DueDate,
+                    ReturnDate = l.ReturnDate
+                })
+                .ToListAsync();
+
+            var bookNotes = await _context.ReaderBookNotes
+                .AsNoTracking()
+                .Where(n => n.ReaderId == reader.Id)
+                .Include(n => n.Book)
+                .OrderByDescending(n => n.UpdatedOn ?? n.CreatedOn)
                 .ToListAsync();
 
             var vm = new ReaderDashboardVM
             {
                 ReaderName = $"{reader.FirstName} {reader.LastName}".Trim(),
-                CurrentLoansCount = await _context.Loans.CountAsync(l => l.ReaderId == reader.Id && l.ReturnDate == null),
-                FavoritesCount = await _context.ReaderFavoriteBooks.CountAsync(f => f.ReaderId == reader.Id),
-                UnreadNotificationsCount = await _context.ReaderNotifications.CountAsync(n => n.ReaderId == reader.Id && !n.IsRead),
+                FirstName = reader.FirstName,
+                MiddleName = reader.MiddleName,
+                LastName = reader.LastName,
+                PhoneNumber = reader.PhoneNumber,
+                CardNumber = reader.CardNumber,
+                Grade = reader.Grade,
+                Section = reader.Section,
+                IsActive = reader.IsActive,
+                CreatedOn = reader.CreatedOn,
+
+                CurrentLoansCount = currentLoans.Count,
+                FavoritesCount = favorites.Count,
+                UnreadNotificationsCount = notifications.Count(n => !n.IsRead),
 
                 CurrentLoans = currentLoans.Select(l => new ReaderCurrentLoanVM
                 {
+                    LoanId = l.Id,
                     BookId = l.BookCopy.Book.Id,
                     Title = l.BookCopy.Book.Title,
                     Author = l.BookCopy.Book.Author,
+                    CoverPath = l.BookCopy.Book.CoverPath,
                     LoanDate = l.LoanDate,
                     DueDate = l.DueDate,
                     IsOverdue = l.DueDate.Date < DateTime.Today,
                     IsExtended = l.IsExtended
                 }).ToList(),
+
+                FavoriteBooks = favorites.Select(f => new ReaderFavoriteBookVM
+                {
+                    BookId = f.BookId,
+                    Title = f.Book.Title,
+                    Author = f.Book.Author,
+                    CoverPath = f.Book.CoverPath,
+                    CategoryName = f.Book.Category != null
+                        ? (f.Book.Category.ParentCategory != null
+                            ? f.Book.Category.ParentCategory.Name + " / " + f.Book.Category.Name
+                            : f.Book.Category.Name)
+                        : "Без категория",
+                    IsAvailable = f.Book.Copies.Any(c => c.IsActive && !activeLoanCopyIds.Contains(c.Id)),
+                    CreatedOn = f.CreatedOn
+                }).ToList(),
+
+                LatestNotifications = notifications,
+                LoanHistory = history,
 
                 BookNotes = bookNotes.Select(n => new ReaderBookNoteVM
                 {
@@ -88,9 +164,7 @@ namespace ObreshkovLibrary.Controllers
                     Text = n.Text,
                     CreatedOn = n.CreatedOn,
                     UpdatedOn = n.UpdatedOn
-                }).ToList(),
-
-                LatestNotifications = latestNotifications
+                }).ToList()
             };
 
             ViewBag.RequirePasswordChange = !reader.PasswordChangedByReader;
@@ -281,20 +355,19 @@ namespace ObreshkovLibrary.Controllers
                 return Unauthorized();
             }
 
+            text = (text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(text))
             {
                 return BadRequest("Бележката не може да бъде празна.");
             }
 
-            var bookExists = await _context.Books.AnyAsync(b => b.Id == bookId);
+            var bookExists = await _context.Books.AnyAsync(b => b.Id == bookId && b.IsActive);
             if (!bookExists)
             {
-                return NotFound();
+                return NotFound("Книгата не беше намерена.");
             }
 
-            var notesCount = await _context.ReaderBookNotes
-                .CountAsync(n => n.ReaderId == reader.Id && n.BookId == bookId);
-
+            var notesCount = await _context.ReaderBookNotes.CountAsync(n => n.ReaderId == reader.Id && n.BookId == bookId);
             if (notesCount >= 5)
             {
                 return BadRequest("Можеш да имаш най-много 5 бележки към една книга.");
@@ -304,18 +377,14 @@ namespace ObreshkovLibrary.Controllers
             {
                 ReaderId = reader.Id,
                 BookId = bookId,
-                Text = text.Trim(),
+                Text = text,
                 CreatedOn = DateTime.Now
             };
 
             _context.ReaderBookNotes.Add(note);
             await _context.SaveChangesAsync();
 
-            return Json(new
-            {
-                success = true,
-                id = note.Id
-            });
+            return Ok(new { success = true, id = note.Id });
         }
 
         [HttpPost]
@@ -328,6 +397,7 @@ namespace ObreshkovLibrary.Controllers
                 return Unauthorized();
             }
 
+            text = (text ?? string.Empty).Trim();
             if (string.IsNullOrWhiteSpace(text))
             {
                 return BadRequest("Бележката не може да бъде празна.");
@@ -341,12 +411,11 @@ namespace ObreshkovLibrary.Controllers
                 return NotFound();
             }
 
-            note.Text = text.Trim();
+            note.Text = text;
             note.UpdatedOn = DateTime.Now;
-
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         [HttpPost]
@@ -370,7 +439,7 @@ namespace ObreshkovLibrary.Controllers
             _context.ReaderBookNotes.Remove(note);
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true });
+            return Ok(new { success = true });
         }
 
         private async Task<Reader?> GetCurrentReaderAsync()
@@ -381,14 +450,13 @@ namespace ObreshkovLibrary.Controllers
                 return null;
             }
 
-            var cardNumber = user.UserName?.Trim().ToUpper();
+            var cardNumber = user.UserName;
             if (string.IsNullOrWhiteSpace(cardNumber))
             {
                 return null;
             }
 
-            return await _context.Readers
-                .FirstOrDefaultAsync(r => r.CardNumber != null && r.CardNumber.ToUpper() == cardNumber);
+            return await _context.Readers.FirstOrDefaultAsync(r => r.CardNumber == cardNumber && r.IsActive);
         }
     }
 }

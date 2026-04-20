@@ -46,15 +46,29 @@
     var booksCount = Model.Books?.Count ?? 0;
 }
 
+<style>
+    body.reader-catalog-fixed-nav {
+        padding-top: 72px;
+    }
+
+        body.reader-catalog-fixed-nav header nav {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 2000 !important;
+        }
+</style>
+
 <div style="width:100%; margin:0; padding:0; background:
     radial-gradient(circle at 10% 12%, rgba(37,99,235,.03), transparent 24%),
     radial-gradient(circle at 92% 8%, rgba(59,130,246,.025), transparent 20%),
     linear-gradient(180deg, #f8fafc 0%, #f4f7fb 100%);">
 
-    <div style="display:grid; grid-template-columns:214px minmax(0,1fr); min-height:calc(100vh - 78px); border-top:1px solid #e5e7eb;">
+    <div style="display:grid; grid-template-columns:214px minmax(0,1fr); min-height:calc(100vh - 72px);">
 
         <aside style="background:linear-gradient(180deg,#f8fafc 0%,#f4f7fb 100%); border-right:1px solid #e2e8f0; min-width:0;">
-            <div style="position:sticky; top:0; height:calc(100vh - 78px); overflow-y:auto; overflow-x:hidden;">
+            <div style="position:sticky; top:72px; height:calc(100vh - 72px); overflow-y:auto; overflow-x:hidden;">
 
                 <div style="padding:16px 12px 10px 12px; border-bottom:1px solid #e5e7eb; background:rgba(248,250,252,.95); backdrop-filter:blur(8px);">
                     <div style="color:#64748b; font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;">
@@ -334,6 +348,10 @@
 
 @section Scripts {
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.classList.add("reader-catalog-fixed-nav");
+        });
+
         document.querySelectorAll(".tree-toggle-btn").forEach(btn => {
             btn.addEventListener("click", () => {
                 const target = document.getElementById(btn.dataset.target);

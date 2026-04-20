@@ -1,7 +1,7 @@
 ﻿@using ObreshkovLibrary.Models
 @using System.Linq
 @{
-    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+    Layout = "~/Views/Shared/_ReaderLayout.cshtml";
     ViewData["Title"] = "Начало";
 
     var homeNews = ViewBag.HomeNews as List<SchoolNews> ?? new();
@@ -767,7 +767,7 @@
                     </h1>
 
                     <div class="guest-hero-actions">
-                        <a asp-controller="Catalog" asp-action="Index" class="guest-main-btn">Разгледай каталога</a>
+                        <a asp-controller="Catalog" asp-action="ReaderIndex" class="guest-main-btn">Разгледай каталога</a>
                         <a href="#latest-books" class="guest-soft-btn">Последно добавени книги</a>
                     </div>
                 </div>
@@ -776,7 +776,8 @@
                     <div class="guest-search-kicker">Търсене</div>
                     <h2 class="guest-search-title">Намери книга бързо</h2>
 
-                    <form method="get" asp-controller="Catalog" asp-action="Index" class="guest-search-form">
+                    <form method="get" asp-controller="Catalog" asp-action="ReaderIndex" class="guest-search-form">
+                        <a asp-controller="Catalog" asp-action="ReaderIndex" class="guest-section-link">Виж всички книги</a>
                         <div class="guest-search-row">
                             <input type="text"
                                    name="search"
@@ -796,7 +797,7 @@
                     <h2 class="guest-section-title">Последно добавени книги</h2>
                 </div>
 
-                <a asp-controller="Catalog" asp-action="Index" class="guest-section-link">Виж всички книги</a>
+                <a asp-controller="Catalog" asp-action="ReaderIndex" class="guest-section-link">Виж всички книги</a>
             </div>
 
             @if (!latestBooks.Any())
@@ -815,7 +816,7 @@
                         : (!string.IsNullOrWhiteSpace(book.Category?.Name) ? book.Category!.Name : "Книга");
 
                         <a asp-controller="Catalog"
-                           asp-action="Details"
+                           asp-action="ReaderDetails"
                            asp-route-id="@book.Id"
                            class="guest-book-card">
                             <div class="guest-book-cover-wrap">
@@ -894,7 +895,7 @@
 
                 <div class="guest-bottom-links">
                     <a href="https://www.pmgrz.net/" target="_blank" class="guest-bottom-link">Уебсайт</a>
-                    <a asp-controller="Catalog" asp-action="Index" class="guest-bottom-link">Каталог</a>
+                    <a asp-controller="Catalog" asp-action="ReaderIndex" class="guest-bottom-link">Каталог</a>
                     <a href="#page-top" class="guest-bottom-link">Нагоре</a>
                 </div>
             </article>

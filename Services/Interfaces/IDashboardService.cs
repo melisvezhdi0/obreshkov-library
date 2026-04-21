@@ -1,4 +1,5 @@
-﻿using ObreshkovLibrary.Models.ViewModels;
+﻿using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Models.ViewModels;
 
 namespace ObreshkovLibrary.Services.Interfaces
 {
@@ -6,5 +7,6 @@ namespace ObreshkovLibrary.Services.Interfaces
     {
         Task<HomeDashboardVM> BuildDashboardAsync(int latestLoansPage);
         Task<int?> FindReaderIdByCardNumberAsync(string cardNumber);
+        Task<Book?> GetBookByIdAsync(int id);
     }
 }

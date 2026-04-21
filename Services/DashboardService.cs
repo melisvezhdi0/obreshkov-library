@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
+using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
 using ObreshkovLibrary.Services.Interfaces;
 
@@ -98,6 +99,12 @@ namespace ObreshkovLibrary.Services
                 .FirstOrDefaultAsync(c => c.CardNumber == cardNumber);
 
             return reader?.Id;
+        }
+
+        public async Task<Book?> GetBookByIdAsync(int id)
+        {
+            return await _context.Books
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
     }
 }

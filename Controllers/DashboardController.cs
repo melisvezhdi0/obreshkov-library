@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Services.Interfaces;
 using System.Text.RegularExpressions;
 
@@ -9,14 +8,10 @@ namespace ObreshkovLibrary.Controllers
     [Authorize(Roles = "Admin")]
     public class DashboardController : Controller
     {
-        private readonly ObreshkovLibraryContext _context;
         private readonly IDashboardService _dashboardService;
 
-        public DashboardController(
-            ObreshkovLibraryContext context,
-            IDashboardService dashboardService)
+        public DashboardController(IDashboardService dashboardService)
         {
-            _context = context;
             _dashboardService = dashboardService;
         }
 
@@ -27,10 +22,9 @@ namespace ObreshkovLibrary.Controllers
             return View(vm);
         }
 
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var book = _context.Books
-                .FirstOrDefault(b => b.Id == id);
+            var book = await _dashboardService.GetBookByIdAsync(id);
 
             if (book == null)
             {

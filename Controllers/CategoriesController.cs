@@ -1,69 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
-
+using ObreshkovLibrary.Services.Interfaces;
 
 namespace ObreshkovLibrary.Controllers
-{     
+{
     [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
- 
         private readonly ObreshkovLibraryContext _context;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(ObreshkovLibraryContext context)
+        public CategoriesController(
+            ObreshkovLibraryContext context,
+            ICategoryService categoryService)
         {
             _context = context;
+            _categoryService = categoryService;
         }
+
         public async Task<IActionResult> Index()
         {
-            var categories = await _context.Categories
-                .IgnoreQueryFilters()
-                .OrderBy(c => c.Name)
-                .ToListAsync();
-
-            var directBookCounts = await _context.Books
-                .Where(b => b.IsActive && b.CategoryId != null)
-                .GroupBy(b => b.CategoryId!.Value)
-                .Select(g => new { CategoryId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.CategoryId, x => x.Count);
-
-            ViewBag.DirectBookCounts = directBookCounts;
-
-            return View(categories);
+            var data = await _categoryService.GetIndexDataAsync();
+            ViewBag.DirectBookCounts = data.DirectBookCounts;
+            return View(data.Categories);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
 
-            var category = await _context.Categories
-                .IgnoreQueryFilters()
-                .Include(c => c.ParentCategory)
-                .Include(c => c.Children)
-                .Include(c => c.Books)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
+            var category = await _categoryService.GetDetailsAsync(id.Value);
             if (category == null) return NotFound();
 
             return View(category);
         }
 
-        // GET: Categories/Create
         public IActionResult Create()
         {
             return RedirectToAction(nameof(CreatePath));
         }
 
-        // POST: Categories/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ParentCategoryId")] Category category)
@@ -84,7 +65,6 @@ namespace ObreshkovLibrary.Controllers
             return View(category);
         }
 
-        // GET: Categories/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -96,7 +76,6 @@ namespace ObreshkovLibrary.Controllers
             return View(category);
         }
 
-        // POST: Categories/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ParentCategoryId")] Category category)
@@ -123,7 +102,6 @@ namespace ObreshkovLibrary.Controllers
             return View(category);
         }
 
-        // GET: Categories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -137,40 +115,22 @@ namespace ObreshkovLibrary.Controllers
             return View(category);
         }
 
-        // POST: Categories/Deactivate/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
         {
-            var category = await _context.Categories
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(c => c.Id == id);
+            var result = await _categoryService.DeactivateAsync(id);
 
-            if (category == null)
+            if (!result.Success)
+            {
+                if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+                {
+                    TempData["Error"] = result.ErrorMessage;
+                    return RedirectToAction(nameof(Edit), new { id });
+                }
+
                 return NotFound();
-
-            bool hasBooks = await _context.Books
-                .IgnoreQueryFilters()
-                .AnyAsync(b => b.CategoryId == id);
-
-            if (hasBooks)
-            {
-                TempData["Error"] = "Категорията не може да бъде деактивирана, защото в нея има книги.";
-                return RedirectToAction(nameof(Edit), new { id });
             }
-
-            bool hasActiveChildren = await _context.Categories
-                .IgnoreQueryFilters()
-                .AnyAsync(c => c.ParentCategoryId == id && c.IsActive);
-
-            if (hasActiveChildren)
-            {
-                TempData["Error"] = "Категорията не може да бъде деактивирана, защото има активни подкатегории.";
-                return RedirectToAction(nameof(Edit), new { id });
-            }
-
-            category.IsActive = false;
-            await _context.SaveChangesAsync();
 
             TempData["Success"] = "Категорията е преместена в архива.";
             return RedirectToAction(nameof(Edit), new { id });
@@ -208,27 +168,8 @@ namespace ObreshkovLibrary.Controllers
                 return View(vm);
             }
 
-            var root = await _context.Categories
-                .FirstOrDefaultAsync(c => c.ParentCategoryId == null && c.Name == l1);
-
-            if (root == null)
-            {
-                root = new Category { Name = l1, ParentCategoryId = null, IsActive = true };
-                _context.Categories.Add(root);
-                await _context.SaveChangesAsync();
-            }
-
-            var exists = await _context.Categories
-                .FirstOrDefaultAsync(c => c.ParentCategoryId == root.Id && c.Name == l2);
-
-            if (exists == null)
-            {
-                var child = new Category { Name = l2, ParentCategoryId = root.Id, IsActive = true };
-                _context.Categories.Add(child);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction("Index");
+            await _categoryService.CreatePathAsync(vm);
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
@@ -240,57 +181,22 @@ namespace ObreshkovLibrary.Controllers
             if (string.IsNullOrWhiteSpace(name))
                 return BadRequest("Името е задължително.");
 
-            var existing = await _context.Categories
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(c =>
-                    c.ParentCategoryId == parentCategoryId &&
-                    c.Name.ToLower() == name.ToLower());
+            var result = await _categoryService.QuickCreateAsync(name, parentCategoryId);
 
-            if (existing != null)
-            {
-                if (!existing.IsActive)
-                {
-                    existing.IsActive = true;
-                    await _context.SaveChangesAsync();
-                }
-
-                return Json(new { id = existing.Id, name = existing.Name });
-            }
-
-            var category = new Category
-            {
-                Name = name,
-                ParentCategoryId = parentCategoryId,
-                IsActive = true
-            };
-
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return Json(new { id = category.Id, name = category.Name });
+            return Json(new { id = result.Id, name = result.Name });
         }
 
         [HttpGet]
         public async Task<IActionResult> GetRoots()
         {
-            var items = await _context.Categories
-                .Where(c => c.ParentCategoryId == null && c.IsActive)
-                .OrderBy(c => c.Name)
-                .Select(c => new { c.Id, c.Name })
-                .ToListAsync();
-
+            var items = await _categoryService.GetRootsAsync();
             return Json(items);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetChildren(int parentId)
         {
-            var items = await _context.Categories
-                .Where(c => c.ParentCategoryId == parentId && c.IsActive)
-                .OrderBy(c => c.Name)
-                .Select(c => new { c.Id, c.Name })
-                .ToListAsync();
-
+            var items = await _categoryService.GetChildrenAsync(parentId);
             return Json(items);
         }
     }

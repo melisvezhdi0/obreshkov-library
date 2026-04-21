@@ -2,10 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
-using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Models.ViewModels;
-using ObreshkovLibrary.Services;
-using System;
+using ObreshkovLibrary.Services.Interfaces;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,10 +13,14 @@ namespace ObreshkovLibrary.Controllers
     public class LoansController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
+        private readonly ILoanService _loanService;
 
-        public LoansController(ObreshkovLibraryContext context)
+        public LoansController(
+            ObreshkovLibraryContext context,
+            ILoanService loanService)
         {
             _context = context;
+            _loanService = loanService;
         }
 
         public IActionResult Index()
@@ -153,51 +155,13 @@ namespace ObreshkovLibrary.Controllers
                 return View("Create", vm);
             }
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(b => b.Id == vm.BookId.Value && b.IsActive);
+            var success = await _loanService.CreateLoanAsync(vm.ReaderId, vm.BookId.Value);
 
-            if (book == null)
+            if (!success)
             {
-                vm.ErrorMessage = "Избраната книга не беше намерена.";
+                vm.ErrorMessage = "Неуспешно създаване на заем. Ученикът може вече да има тази книга или няма свободни копия.";
                 return View("Create", vm);
             }
-
-            bool alreadyHasThisBook = await _context.Loans
-                .Include(l => l.BookCopy)
-                .AnyAsync(l =>
-                    l.ReaderId == reader.Id &&
-                    l.ReturnDate == null &&
-                    l.BookCopy != null && l.BookCopy.BookId == book.Id);
-
-            if (alreadyHasThisBook)
-            {
-                vm.ErrorMessage = "Ученикът вече има заета тази книга.";
-                return View("Create", vm);
-            }
-
-            var availableCopy = await _context.BookCopies
-                .Where(c => c.BookId == book.Id && c.IsActive)
-                .Where(c => !_context.Loans
-                    .Any(l => l.BookCopyId == c.Id && l.ReturnDate == null))
-                .OrderBy(c => c.Id)
-                .FirstOrDefaultAsync();
-
-            if (availableCopy == null)
-            {
-                vm.ErrorMessage = "Няма свободни копия от тази книга.";
-                return View("Create", vm);
-            }
-
-            var loan = new Loan
-            {
-                ReaderId = reader.Id,
-                BookCopyId = availableCopy.Id,
-                LoanDate = DateTime.Now,
-                ReturnDate = null
-            };
-
-            _context.Loans.Add(loan);
-            await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", "Readers", new { id = reader.Id });
         }
@@ -212,14 +176,12 @@ namespace ObreshkovLibrary.Controllers
             if (loan == null)
                 return NotFound();
 
-            if (loan.ReturnDate == null)
-            {
-                loan.ReturnDate = DateTime.Now;
-                await _context.SaveChangesAsync();
+            var success = await _loanService.ReturnLoanAsync(id);
 
+            if (!success)
+                return NotFound();
 
-                TempData["SuccessMessage"] = "Успешно върната книга.";
-            }
+            TempData["SuccessMessage"] = "Успешно върната книга.";
 
             return RedirectToAction("Details", "Readers", new { id = loan.ReaderId });
         }

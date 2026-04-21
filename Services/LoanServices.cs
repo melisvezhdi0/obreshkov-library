@@ -1,55 +1,79 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Services.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ObreshkovLibrary.Services
 {
-    public class LoanService
+    public class LoanService : ILoanService
     {
-        private readonly ObreshkovLibraryContext _db;
+        private readonly ObreshkovLibraryContext _context;
 
-        public LoanService(ObreshkovLibraryContext db)
+        public LoanService(ObreshkovLibraryContext context)
         {
-            _db = db;
+            _context = context;
         }
 
-        public async Task<int> LoanByTitleAsync(int readerId, int bookTitleId, int days = 14)
+        public async Task<bool> CreateLoanAsync(int readerId, int bookId)
         {
-            var availableCopy = await _db.BookCopies
-                .Where(c => c.
-               BookId == bookTitleId && c.IsActive)
-                .Where(c => !_db.Loans.Any(l => l.BookCopyId == c.Id && l.ReturnDate == null))
+            var book = await _context.Books
+                .FirstOrDefaultAsync(b => b.Id == bookId && b.IsActive);
+
+            if (book == null)
+                return false;
+
+            bool alreadyHasThisBook = await _context.Loans
+                .Include(l => l.BookCopy)
+                .AnyAsync(l =>
+                    l.ReaderId == readerId &&
+                    l.ReturnDate == null &&
+                    l.BookCopy != null &&
+                    l.BookCopy.BookId == book.Id);
+
+            if (alreadyHasThisBook)
+                return false;
+
+            var availableCopy = await _context.BookCopies
+                .Where(c => c.BookId == book.Id && c.IsActive)
+                .Where(c => !_context.Loans.Any(l => l.BookCopyId == c.Id && l.ReturnDate == null))
                 .OrderBy(c => c.Id)
                 .FirstOrDefaultAsync();
 
             if (availableCopy == null)
-                throw new InvalidOperationException("Няма свободни копия от тази книга.");
+                return false;
 
             var loan = new Loan
             {
                 ReaderId = readerId,
                 BookCopyId = availableCopy.Id,
                 LoanDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(days)
+                ReturnDate = null
             };
 
-            _db.Loans.Add(loan);
-            await _db.SaveChangesAsync();
+            _context.Loans.Add(loan);
+            await _context.SaveChangesAsync();
 
-            return loan.Id;
+            return true;
         }
 
-        public async Task ReturnAsync(int loanId)
+        public async Task<bool> ReturnLoanAsync(int loanId)
         {
-            var loan = await _db.Loans.FirstOrDefaultAsync(l => l.Id == loanId);
+            var loan = await _context.Loans
+                .FirstOrDefaultAsync(l => l.Id == loanId);
+
             if (loan == null)
-                throw new InvalidOperationException("Това заемане не съществува.");
+                return false;
 
             if (loan.ReturnDate != null)
-                throw new InvalidOperationException("Книгата вече е върната.");
+                return false;
 
             loan.ReturnDate = DateTime.Now;
-            await _db.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+
+            return true;
         }
     }
 }

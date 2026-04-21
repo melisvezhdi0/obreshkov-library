@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using ObreshkovLibrary.Models.Enums;
+using ObreshkovLibrary.Services.Interfaces;
 
 namespace ObreshkovLibrary.Controllers
 {

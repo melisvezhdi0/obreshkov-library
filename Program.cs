@@ -5,6 +5,7 @@ using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Data.Seed;
 using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Services;
+using ObreshkovLibrary.Services.Interfaces;
 
 namespace ObreshkovLibrary
 {
@@ -66,6 +67,13 @@ namespace ObreshkovLibrary
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
             builder.Services.AddScoped<TemporaryPasswordService>();
+            builder.Services.AddScoped<ILoanService, LoanService>();
+            builder.Services.AddScoped<ReaderService>();
+            builder.Services.AddScoped<IReaderPortalService, ReaderPortalService>();
+            builder.Services.AddScoped<ICatalogService, CatalogService>();
+            builder.Services.AddScoped<IReaderNotificationService, ReaderNotificationService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
@@ -78,8 +86,6 @@ namespace ObreshkovLibrary
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
             });
-
-            builder.Services.AddScoped<IReaderNotificationService, ReaderNotificationService>();
 
             var app = builder.Build();
 

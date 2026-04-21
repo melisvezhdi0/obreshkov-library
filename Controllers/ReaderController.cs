@@ -19,15 +19,18 @@ namespace ObreshkovLibrary.Controllers
         private readonly ObreshkovLibraryContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly TemporaryPasswordService _temporaryPasswordService;
+        private readonly ReaderService _readerService;
 
         public readersController(
             ObreshkovLibraryContext context,
             UserManager<IdentityUser> userManager,
-            TemporaryPasswordService temporaryPasswordService)
+            TemporaryPasswordService temporaryPasswordService,
+            ReaderService readerService)
         {
             _context = context;
             _userManager = userManager;
             _temporaryPasswordService = temporaryPasswordService;
+            _readerService = readerService;
         }
 
         public async Task<IActionResult> Index(string? search, string? classFilter)
@@ -35,20 +38,21 @@ namespace ObreshkovLibrary.Controllers
             var readers = await _context.Readers
                 .Where(c => c.IsActive)
                 .ToListAsync();
+
             var availableClasses = readers
-     .Where(c => c.Grade.HasValue)
-     .Select(c => new
-     {
-         Grade = c.Grade.Value,
-         Section = (c.Section ?? "").Trim().ToUpper()
-     })
-     .Distinct()
-     .OrderBy(c => c.Grade)
-     .ThenBy(c => c.Section)
-     .Select(c => string.IsNullOrWhiteSpace(c.Section)
-         ? c.Grade.ToString()
-         : $"{c.Grade}{c.Section}")
-     .ToList();
+                .Where(c => c.Grade.HasValue)
+                .Select(c => new
+                {
+                    Grade = c.Grade.Value,
+                    Section = (c.Section ?? "").Trim().ToUpper()
+                })
+                .Distinct()
+                .OrderBy(c => c.Grade)
+                .ThenBy(c => c.Section)
+                .Select(c => string.IsNullOrWhiteSpace(c.Section)
+                    ? c.Grade.ToString()
+                    : $"{c.Grade}{c.Section}")
+                .ToList();
 
             if (!string.IsNullOrWhiteSpace(classFilter))
             {
@@ -200,66 +204,25 @@ namespace ObreshkovLibrary.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,PhoneNumber,Grade,Section")] Reader reader)
         {
-            reader.CardNumber = await GenerateUniqueCardNumberAsync();
-            reader.CreatedOn = DateTime.Now;
-            reader.IsActive = true;
-
             ModelState.Clear();
             TryValidateModel(reader);
 
             if (!ModelState.IsValid)
                 return View(reader);
 
-            _context.Add(reader);
-            await _context.SaveChangesAsync();
+            var result = await _readerService.CreateReaderAsync(reader);
 
-            var generatedPassword = _temporaryPasswordService.Generate();
-            reader.LastTemporaryPassword = generatedPassword;
-            reader.PasswordChangedByReader = false;
-            reader.LastPasswordChangeOn = null;
-
-            _context.Update(reader);
-            await _context.SaveChangesAsync();
-
-            var ReaderUser = new IdentityUser
+            if (!result.Success)
             {
-                UserName = reader.CardNumber.Trim().ToUpper(),
-                Email = $"Reader_{reader.CardNumber.Trim().Replace("-", "").ToLower()}@obreshkov.local",
-                EmailConfirmed = true
-            };
-
-            var createUserResult = await _userManager.CreateAsync(ReaderUser, generatedPassword);
-
-            if (!createUserResult.Succeeded)
-            {
-                _context.Readers.Remove(reader);
-                await _context.SaveChangesAsync();
-
-                foreach (var error in createUserResult.Errors)
+                foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    ModelState.AddModelError(string.Empty, error);
                 }
 
                 return View(reader);
             }
 
-            var addRoleResult = await _userManager.AddToRoleAsync(ReaderUser, "Reader");
-
-            if (!addRoleResult.Succeeded)
-            {
-                await _userManager.DeleteAsync(ReaderUser);
-                _context.Readers.Remove(reader);
-                await _context.SaveChangesAsync();
-
-                foreach (var error in addRoleResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
-
-                return View(reader);
-            }
-
-            TempData["CreatedReaderPassword"] = generatedPassword;
+            TempData["CreatedReaderPassword"] = result.GeneratedPassword;
             TempData["CreatedReaderCard"] = reader.CardNumber;
             TempData["CreatedReaderName"] = $"{reader.FirstName} {reader.LastName}";
 
@@ -332,6 +295,7 @@ namespace ObreshkovLibrary.Controllers
 
             return View(readerToUpdate);
         }
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -463,6 +427,7 @@ namespace ObreshkovLibrary.Controllers
             TempData["Success"] = $"Нова временна парола: {tempPassword}";
             return RedirectToAction(nameof(PasswordResetRequests));
         }
+
         private bool readerExists(int id)
         {
             return _context.Readers
@@ -503,6 +468,7 @@ namespace ObreshkovLibrary.Controllers
 
             await _context.SaveChangesAsync();
         }
+
         private string GenerateTemporaryPasswordValue()
         {
             const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";

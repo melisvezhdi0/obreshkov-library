@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 using ObreshkovLibrary.Models.Enums;
-using ObreshkovLibrary.Services.Interfaces;
 
 namespace ObreshkovLibrary.Controllers
 {
@@ -22,18 +21,15 @@ namespace ObreshkovLibrary.Controllers
         private readonly ObreshkovLibraryContext _context;
         private readonly BookDeactivateService _bookDeactivate;
         private readonly IWebHostEnvironment _environment;
-        private readonly IReaderNotificationService _ReaderNotificationService;
 
         public BookController(
             ObreshkovLibraryContext context,
             BookDeactivateService bookDeactivate,
-            IWebHostEnvironment environment,
-            IReaderNotificationService ReaderNotificationService)
+            IWebHostEnvironment environment)
         {
             _context = context;
             _bookDeactivate = bookDeactivate;
             _environment = environment;
-            _ReaderNotificationService = ReaderNotificationService;
         }
 
         private static List<SelectListItem> BuildTagOptions()
@@ -48,6 +44,7 @@ namespace ObreshkovLibrary.Controllers
                 })
                 .ToList();
         }
+
         private static string TagToBg(BookTags t) => t switch
         {
             BookTags.BulgarianLiterature => "Българска литература",
@@ -118,7 +115,6 @@ namespace ObreshkovLibrary.Controllers
                 .Distinct()
                 .ToList();
         }
-
 
         private static List<string> ParseSelectedSchoolClasses(string? schoolClass)
         {

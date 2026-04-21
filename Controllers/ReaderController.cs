@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Services.Interfaces;
 using ObreshkovLibrary.Services;
 
 namespace ObreshkovLibrary.Controllers
@@ -19,13 +20,13 @@ namespace ObreshkovLibrary.Controllers
         private readonly ObreshkovLibraryContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly TemporaryPasswordService _temporaryPasswordService;
-        private readonly ReaderService _readerService;
+        private readonly IReaderService _readerService;
 
         public readersController(
             ObreshkovLibraryContext context,
             UserManager<IdentityUser> userManager,
             TemporaryPasswordService temporaryPasswordService,
-            ReaderService readerService)
+            IReaderService readerService)
         {
             _context = context;
             _userManager = userManager;

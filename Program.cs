@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Data.Seed;
-using ObreshkovLibrary.Models;
 using ObreshkovLibrary.Services;
 using ObreshkovLibrary.Services.Interfaces;
 
@@ -15,14 +14,18 @@ namespace ObreshkovLibrary
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // MVC
             builder.Services.AddControllersWithViews();
+            builder.Services.AddRazorPages();
 
+            // Database
             string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new ArgumentException("Connection string was not found.");
 
             builder.Services.AddDbContext<ObreshkovLibraryContext>(options =>
                 options.UseSqlServer(connectionString));
 
+            // Data Protection
             var keysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys");
             Directory.CreateDirectory(keysPath);
 
@@ -30,7 +33,8 @@ namespace ObreshkovLibrary
                 .AddDataProtection()
                 .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
                 .SetApplicationName("ObreshkovLibrary");
- 
+
+            // Identity
             builder.Services
                 .AddDefaultIdentity<IdentityUser>(options =>
                 {
@@ -64,17 +68,20 @@ namespace ObreshkovLibrary
                 options.SlidingExpiration = true;
             });
 
+            // Application services
             builder.Services.AddScoped<CardNumberGenerator>();
             builder.Services.AddScoped<BookDeactivateService>();
             builder.Services.AddScoped<TemporaryPasswordService>();
+
             builder.Services.AddScoped<ILoanService, LoanService>();
-            builder.Services.AddScoped<ReaderService>();
+            builder.Services.AddScoped<IReaderService, ReaderService>();
             builder.Services.AddScoped<IReaderPortalService, ReaderPortalService>();
             builder.Services.AddScoped<ICatalogService, CatalogService>();
             builder.Services.AddScoped<IReaderNotificationService, ReaderNotificationService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+            // Session
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
@@ -89,6 +96,7 @@ namespace ObreshkovLibrary
 
             var app = builder.Build();
 
+            // Middleware pipeline
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
@@ -133,7 +141,7 @@ namespace ObreshkovLibrary
                     (
                         path.StartsWithSegments("/readers/Deactivate") ||
                         path.StartsWithSegments("/Categories/Deactivate") ||
-                        path.StartsWithSegments("/Book/Deactivate") 
+                        path.StartsWithSegments("/Book/Deactivate")
                     );
 
                 if (needsGate)
@@ -149,12 +157,14 @@ namespace ObreshkovLibrary
                 await next();
             });
 
+            // Routes
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.MapRazorPages();
 
+            // Seed
             await SeedData.InitializeAsync(app.Services);
 
             app.Run();

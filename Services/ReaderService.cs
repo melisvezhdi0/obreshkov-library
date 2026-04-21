@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ObreshkovLibrary.Data;
 using ObreshkovLibrary.Models;
+using ObreshkovLibrary.Services.Interfaces;
 
 namespace ObreshkovLibrary.Services
 {
-    public class ReaderService
+    public class ReaderService : IReaderService
     {
         private readonly ObreshkovLibraryContext _context;
         private readonly UserManager<IdentityUser> _userManager;

@@ -15,14 +15,14 @@ using ObreshkovLibrary.Services;
 namespace ObreshkovLibrary.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class readersController : Controller
+    public class ReadersController : Controller
     {
         private readonly ObreshkovLibraryContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly TemporaryPasswordService _temporaryPasswordService;
         private readonly IReaderService _readerService;
 
-        public readersController(
+        public ReadersController(
             ObreshkovLibraryContext context,
             UserManager<IdentityUser> userManager,
             TemporaryPasswordService temporaryPasswordService,

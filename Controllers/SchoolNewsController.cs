@@ -216,18 +216,11 @@ namespace ObreshkovLibrary.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Archive(int id, string password)
+        public async Task<IActionResult> Archive(int id)
         {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-                return Unauthorized();
-
-            var validPassword = await _userManager.CheckPasswordAsync(user, password);
-
-            if (!validPassword)
+            if (HttpContext.Session.GetString("GateOk") != "1")
             {
-                TempData["Error"] = "Грешна парола.";
+                TempData["Error"] = "Моля, потвърди действието с парола.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -240,6 +233,8 @@ namespace ObreshkovLibrary.Controllers
             entity.IsActive = false;
 
             await _context.SaveChangesAsync();
+
+            HttpContext.Session.Remove("GateOk");
 
             TempData["SuccessMessage"] = "Новината е архивирана успешно.";
 

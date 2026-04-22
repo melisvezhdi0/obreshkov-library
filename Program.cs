@@ -141,7 +141,8 @@ namespace ObreshkovLibrary
                     (
                         path.StartsWithSegments("/readers/Deactivate") ||
                         path.StartsWithSegments("/Categories/Deactivate") ||
-                        path.StartsWithSegments("/Book/Deactivate")
+                        path.StartsWithSegments("/Book/Deactivate") ||
+                        path.StartsWithSegments("/SchoolNews/Archive")
                     );
 
                 if (needsGate)

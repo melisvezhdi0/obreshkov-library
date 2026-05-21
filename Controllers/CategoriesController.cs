@@ -67,12 +67,22 @@ namespace ObreshkovLibrary.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null) return NotFound();
+            var category = await _context.Categories
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-            ViewData["ParentCategoryId"] = new SelectList(_context.Categories, "Id", "Name", category.ParentCategoryId);
+            if (category == null)
+                return NotFound();
+
+            ViewData["ParentCategoryId"] = new SelectList(
+                _context.Categories.IgnoreQueryFilters(),
+                "Id",
+                "Name",
+                category.ParentCategoryId);
+
             return View(category);
         }
 
@@ -86,7 +96,17 @@ namespace ObreshkovLibrary.Controllers
             {
                 try
                 {
-                    _context.Update(category);
+                    var existingCategory = await _context.Categories
+                   .IgnoreQueryFilters()
+                   .FirstOrDefaultAsync(c => c.Id == id);
+
+                    if (existingCategory == null)
+                        return NotFound();
+
+                    existingCategory.Name = category.Name;
+                    existingCategory.ParentCategoryId = category.ParentCategoryId;
+
+                    await _context.SaveChangesAsync();
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

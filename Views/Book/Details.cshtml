@@ -114,10 +114,14 @@
                      style="width:240px; min-height:340px; padding:14px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                     @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
-                        <img src="@Url.Content("~/" + coverValue)"
+                        <img src="@coverValue"
                              alt="@Model.Title"
                              style="display:block; width:100%; max-width:100%; height:310px; object-fit:contain;"
                              onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
+                    }
+                    else
+                    {
+                        <span>Няма корица</span>
                     }
                 </div>
             </div>

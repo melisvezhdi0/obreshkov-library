@@ -19,6 +19,7 @@ namespace ObreshkovLibrary.Data.Seed
                 .IgnoreQueryFilters()
                 .Where(r => r.IsActive)
                 .OrderBy(r => r.Id)
+                .Take(8)
                 .ToListAsync();
 
             if (!readers.Any())
@@ -36,18 +37,23 @@ namespace ObreshkovLibrary.Data.Seed
                 .IgnoreQueryFilters()
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Id)
+                .Take(4)
                 .ToListAsync();
 
             var notifications = new List<ReaderNotification>();
             var rng = new Random(42);
 
-            foreach (var reader in readers.Take(Math.Max(3, readers.Count)))
+            foreach (var reader in readers)
             {
-                var readerLoans = loans.Where(l => l.ReaderId == reader.Id).ToList();
+                var readerLoans = loans
+                    .Where(l => l.ReaderId == reader.Id)
+                    .ToList();
 
                 if (readerLoans.Any())
                 {
-                    var normalLoan = readerLoans.FirstOrDefault(l => l.DueDate.Date >= DateTime.Today);
+                    var normalLoan = readerLoans
+                        .FirstOrDefault(l => l.DueDate.Date >= new DateTime(2026, 5, 28));
+
                     if (normalLoan != null)
                     {
                         notifications.Add(new ReaderNotification
@@ -55,7 +61,8 @@ namespace ObreshkovLibrary.Data.Seed
                             ReaderId = reader.Id,
                             Title = $"Напомняне за връщане: {normalLoan.BookCopy.Book.Title}",
                             Message = $"Seed notification: Книгата „{normalLoan.BookCopy.Book.Title}“ трябва да се върне скоро.",
-                            CreatedOn = DateTime.Now.AddDays(-rng.Next(0, 3)).AddHours(-rng.Next(1, 10)),
+                            CreatedOn = new DateTime(2026, 5, 26)
+                                .AddHours(rng.Next(8, 18)),
                             IsRead = rng.Next(0, 2) == 0,
                             Type = ReaderNotificationType.LoanReminder,
                             LoanId = normalLoan.Id,
@@ -63,7 +70,9 @@ namespace ObreshkovLibrary.Data.Seed
                         });
                     }
 
-                    var overdueLoan = readerLoans.FirstOrDefault(l => l.DueDate.Date < DateTime.Today);
+                    var overdueLoan = readerLoans
+                        .FirstOrDefault(l => l.DueDate.Date < new DateTime(2026, 5, 28));
+
                     if (overdueLoan != null)
                     {
                         notifications.Add(new ReaderNotification
@@ -71,7 +80,8 @@ namespace ObreshkovLibrary.Data.Seed
                             ReaderId = reader.Id,
                             Title = $"Просрочена книга: {overdueLoan.BookCopy.Book.Title}",
                             Message = $"Seed notification: Книгата „{overdueLoan.BookCopy.Book.Title}“ е просрочена.",
-                            CreatedOn = DateTime.Now.AddDays(-rng.Next(0, 5)).AddHours(-rng.Next(1, 10)),
+                            CreatedOn = new DateTime(2026, 5, 27)
+                                .AddHours(rng.Next(8, 18)),
                             IsRead = false,
                             Type = ReaderNotificationType.OverdueReminder,
                             LoanId = overdueLoan.Id,
@@ -85,12 +95,16 @@ namespace ObreshkovLibrary.Data.Seed
                     ReaderId = reader.Id,
                     Title = "Важно съобщение от библиотеката",
                     Message = "Seed notification: Библиотеката ще работи с променено работно време тази седмица.",
-                    CreatedOn = DateTime.Now.AddDays(-rng.Next(1, 7)).AddHours(-rng.Next(1, 10)),
+                    CreatedOn = new DateTime(2026, 5, 26)
+                        .AddHours(rng.Next(8, 18)),
                     IsRead = rng.Next(0, 2) == 0,
                     Type = ReaderNotificationType.Admin
                 });
 
-                var category = categories.OrderBy(_ => rng.Next()).FirstOrDefault();
+                var category = categories
+                    .OrderBy(_ => rng.Next())
+                    .FirstOrDefault();
+
                 if (category != null)
                 {
                     notifications.Add(new ReaderNotification
@@ -98,7 +112,8 @@ namespace ObreshkovLibrary.Data.Seed
                         ReaderId = reader.Id,
                         Title = $"Нова категория: {category.Name}",
                         Message = $"Seed notification: Добавена е нова категория: {category.Name}.",
-                        CreatedOn = DateTime.Now.AddDays(-rng.Next(1, 8)).AddHours(-rng.Next(1, 10)),
+                        CreatedOn = new DateTime(2026, 5, 25)
+                            .AddHours(rng.Next(8, 18)),
                         IsRead = rng.Next(0, 2) == 0,
                         Type = ReaderNotificationType.NewCategory,
                         CategoryId = category.Id

@@ -108,23 +108,20 @@ namespace ObreshkovLibrary.Data.Seed
 
                 for (int grade = 5; grade <= 12; grade++)
                 {
-                    for (int i = 0; i < 4; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         readers.Add(CreateReader(
                             grade: grade,
                             index: i,
                             isActive: true,
-                            createdDaysOffset: grade * 10 + i));
+                            createdDaysOffset: grade * 2 + i));
                     }
 
-                    for (int i = 0; i < 2; i++)
-                    {
-                        readers.Add(CreateReader(
-                            grade: grade,
-                            index: i + 20,
-                            isActive: false,
-                            createdDaysOffset: 300 + grade * 5 + i));
-                    }
+                    readers.Add(CreateReader(
+                        grade: grade,
+                        index: 20,
+                        isActive: false,
+                        createdDaysOffset: 120 + grade));
                 }
 
                 await context.Readers.AddRangeAsync(readers);

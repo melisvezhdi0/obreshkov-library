@@ -11,62 +11,49 @@ namespace ObreshkovLibrary.Data.Seed
             {
                 new SchoolNews
                 {
+                    Title = "Над 50 награди за ученици от ППМГ „Акад. Н. Обрешков“",
+                    Summary = "Ученици от гимназията бяха отличени във Великденското математическо състезание и „Европейско кенгуру“.",
+                    NewsUrl = "https://www.pmgrz.net/index.php/ychenitci/olimpiadi-i-sastezaniya/899-vreme-e-matematitzite-da-se-zabavlyavat",
+                    ImagePath = "/uploads/school-news/math-awards.png",
+                    PublishedOn = new DateTime(2026, 5, 20),
+                    CreatedOn = new DateTime(2026, 5, 20),
+                    DisplayOrder = 1,
+                    IsActive = true
+                },
+
+                new SchoolNews
+                {
+                    Title = "Ученическият съвет посети Дома за стари хора",
+                    Summary = "Ученици от ППМГ организираха посещение и театрална програма за възрастните хора в Разград.",
+                    NewsUrl = "https://www.pmgrz.net/index.php/novini/897-nai-sardechnite-aplodismenti-za-teatralite-i-berna",
+                    ImagePath = "/uploads/school-news/theater-visit.png",
+                    PublishedOn = new DateTime(2026, 5, 18),
+                    CreatedOn = new DateTime(2026, 5, 18),
+                    DisplayOrder = 2,
+                    IsActive = true
+                },
+
+                new SchoolNews
+                {
                     Title = "Архив: Ден на отворените врати 2025",
-                    Summary = "Информация за проведен ден на отворените врати в ППМГ с демонстрации и срещи с бъдещи ученици.",
+                    Summary = "Информация за проведения ден на отворените врати с демонстрации и срещи с бъдещи ученици.",
                     NewsUrl = "https://ppmg.example.com/archive/open-day-2025",
-                    PublishedOn = DateTime.Today.AddMonths(-8),
-                    CreatedOn = DateTime.Now.AddMonths(-8),
+                    ImagePath = "/uploads/school-news/archive-open-day.png",
+                    PublishedOn = new DateTime(2025, 11, 12),
+                    CreatedOn = new DateTime(2025, 11, 12),
                     DisplayOrder = 101,
                     IsActive = false
                 },
+
                 new SchoolNews
                 {
                     Title = "Архив: Коледен благотворителен базар",
                     Summary = "Публикация за благотворителния базар и събраните средства за училищна кауза.",
                     NewsUrl = "https://ppmg.example.com/archive/christmas-bazaar",
-                    PublishedOn = DateTime.Today.AddMonths(-7),
-                    CreatedOn = DateTime.Now.AddMonths(-7),
+                    ImagePath = "/uploads/school-news/archive-bazaar.png",
+                    PublishedOn = new DateTime(2025, 12, 18),
+                    CreatedOn = new DateTime(2025, 12, 18),
                     DisplayOrder = 102,
-                    IsActive = false
-                },
-                new SchoolNews
-                {
-                    Title = "Архив: Областен кръг по математика",
-                    Summary = "Новина за участието на ученици от ППМГ в областния кръг по математика.",
-                    NewsUrl = "https://ppmg.example.com/archive/math-round",
-                    PublishedOn = DateTime.Today.AddMonths(-6),
-                    CreatedOn = DateTime.Now.AddMonths(-6),
-                    DisplayOrder = 103,
-                    IsActive = false
-                },
-                new SchoolNews
-                {
-                    Title = "Архив: Седмица на четенето",
-                    Summary = "Материал за инициативите на библиотеката и литературните срещи по време на седмицата на четенето.",
-                    NewsUrl = "https://ppmg.example.com/archive/reading-week",
-                    PublishedOn = DateTime.Today.AddMonths(-5),
-                    CreatedOn = DateTime.Now.AddMonths(-5),
-                    DisplayOrder = 104,
-                    IsActive = false
-                },
-                new SchoolNews
-                {
-                    Title = "Архив: Турнир по информатика",
-                    Summary = "Кратка новина за училищния турнир по информатика и отличените участници.",
-                    NewsUrl = "https://ppmg.example.com/archive/informatics-tournament",
-                    PublishedOn = DateTime.Today.AddMonths(-4),
-                    CreatedOn = DateTime.Now.AddMonths(-4),
-                    DisplayOrder = 105,
-                    IsActive = false
-                },
-                new SchoolNews
-                {
-                    Title = "Архив: Пролетен концерт на училището",
-                    Summary = "Съобщение за проведен пролетен концерт с участие на ученици и гости.",
-                    NewsUrl = "https://ppmg.example.com/archive/spring-concert",
-                    PublishedOn = DateTime.Today.AddMonths(-3),
-                    CreatedOn = DateTime.Now.AddMonths(-3),
-                    DisplayOrder = 106,
                     IsActive = false
                 }
             };

@@ -49,10 +49,10 @@ namespace ObreshkovLibrary.Data.Seed
 
             int totalReaders = shuffledReaders.Count;
 
-            int returnedReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.70));
-            int twoCurrentReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.30));
-            int oneCurrentReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.40));
-            int overdueReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.25));
+            int returnedReadersCount = Math.Max(2, (int)Math.Round(totalReaders * 0.45));
+            int twoCurrentReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.12));
+            int oneCurrentReadersCount = Math.Max(2, (int)Math.Round(totalReaders * 0.28));
+            int overdueReadersCount = Math.Max(1, (int)Math.Round(totalReaders * 0.10));
 
             var returnedReaders = shuffledReaders
                 .Take(returnedReadersCount)
@@ -88,14 +88,14 @@ namespace ObreshkovLibrary.Data.Seed
             {
                 var returnedCopies = copies
                     .OrderBy(_ => rng.Next())
-                    .Take(Math.Min(3, copies.Count))
+                    .Take(Math.Min(2, copies.Count))
                     .ToList();
 
                 for (int i = 0; i < returnedCopies.Count; i++)
                 {
-                    var loanDate = DateTime.Today.AddDays(-(90 + rng.Next(10, 120)));
+                    var loanDate = new DateTime(2026, 4, 10).AddDays(rng.Next(0, 12));
                     var dueDate = loanDate.AddDays(14);
-                    var returnDate = dueDate.AddDays(rng.Next(0, 8));
+                    var returnDate = dueDate.AddDays(rng.Next(0, 4));
 
                     loansToAdd.Add(new Loan
                     {
@@ -128,9 +128,13 @@ namespace ObreshkovLibrary.Data.Seed
                 {
                     availableActiveCopyIds.Remove(copy.Id);
 
-                    var loanDate = DateTime.Today.AddDays(-rng.Next(1, 10));
-                    var dueOffsets = new[] { 7, 3, 1, 5, 9 };
-                    var dueDate = DateTime.Today.AddDays(dueOffsets[rng.Next(dueOffsets.Length)]);
+                    var loanDate = new DateTime(2026, 5, 18)
+                        .AddDays(-rng.Next(0, 5));
+
+                    var dueOffsets = new[] { 2, 3, 5 };
+
+                    var dueDate = new DateTime(2026, 5, 28)
+                        .AddDays(dueOffsets[rng.Next(dueOffsets.Length)]);
 
                     loansToAdd.Add(new Loan
                     {
@@ -163,9 +167,13 @@ namespace ObreshkovLibrary.Data.Seed
 
                 availableActiveCopyIds.Remove(copy.Id);
 
-                var loanDate = DateTime.Today.AddDays(-rng.Next(1, 10));
-                var dueOffsets = new[] { 7, 3, 1, 6, 8 };
-                var dueDate = DateTime.Today.AddDays(dueOffsets[rng.Next(dueOffsets.Length)]);
+                var loanDate = new DateTime(2026, 5, 19)
+                    .AddDays(-rng.Next(0, 4));
+
+                var dueOffsets = new[] { 1, 2, 4 };
+
+                var dueDate = new DateTime(2026, 5, 28)
+                    .AddDays(dueOffsets[rng.Next(dueOffsets.Length)]);
 
                 loansToAdd.Add(new Loan
                 {
@@ -195,8 +203,11 @@ namespace ObreshkovLibrary.Data.Seed
 
                 availableActiveCopyIds.Remove(copy.Id);
 
-                var loanDate = DateTime.Today.AddDays(-rng.Next(20, 40));
-                var dueDate = DateTime.Today.AddDays(-rng.Next(4, 15));
+                var loanDate = new DateTime(2026, 5, 2)
+                    .AddDays(rng.Next(0, 6));
+
+                var dueDate = new DateTime(2026, 5, 20)
+                    .AddDays(-rng.Next(1, 4));
 
                 loansToAdd.Add(new Loan
                 {
@@ -227,14 +238,14 @@ namespace ObreshkovLibrary.Data.Seed
                 .IgnoreQueryFilters()
                 .CountAsync(l => l.Notes != null && l.Notes.StartsWith(ArchivedPrefix));
 
-            if (existingArchivedSeedLoans >= 6)
+            if (existingArchivedSeedLoans >= 3)
                 return;
 
             var readers = await context.Readers
                 .IgnoreQueryFilters()
                 .Where(r => r.IsActive)
                 .OrderBy(r => r.Id)
-                .Take(6)
+                .Take(3)
                 .ToListAsync();
 
             var copies = await context.BookCopies
@@ -242,10 +253,10 @@ namespace ObreshkovLibrary.Data.Seed
                 .Include(c => c.Book)
                 .Where(c => c.IsActive && c.Book.IsActive)
                 .OrderBy(c => c.Id)
-                .Take(20)
+                .Take(10)
                 .ToListAsync();
 
-            if (readers.Count < 6 || copies.Count < 6)
+            if (readers.Count < 3 || copies.Count < 3)
                 return;
 
             var availableCopies = new List<BookCopy>();
@@ -259,22 +270,22 @@ namespace ObreshkovLibrary.Data.Seed
                 if (!hasOpenLoan)
                     availableCopies.Add(copy);
 
-                if (availableCopies.Count == 6)
+                if (availableCopies.Count == 3)
                     break;
             }
 
-            if (availableCopies.Count < 6)
+            if (availableCopies.Count < 3)
                 return;
 
-            for (int i = existingArchivedSeedLoans; i < 6; i++)
+            for (int i = existingArchivedSeedLoans; i < 3; i++)
             {
                 context.Loans.Add(new Loan
                 {
                     ReaderId = readers[i].Id,
                     BookCopyId = availableCopies[i].Id,
-                    LoanDate = DateTime.Now.AddDays(-(45 + i * 3)),
-                    DueDate = DateTime.Now.AddDays(-(15 + i * 2)),
-                    ReturnDate = DateTime.Now.AddDays(-(4 + i)),
+                    LoanDate = new DateTime(2026, 4, 12).AddDays(i * 2),
+                    DueDate = new DateTime(2026, 4, 26).AddDays(i * 2),
+                    ReturnDate = new DateTime(2026, 5, 1).AddDays(i),
                     Notes = $"{ArchivedPrefix}_{i + 1}",
                     IsExtended = i % 2 == 0,
                     Reminder7DaysSent = false,

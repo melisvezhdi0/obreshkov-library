@@ -559,7 +559,7 @@ namespace ObreshkovLibrary.Controllers
             copy.IsActive = false;
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Копието беше деактивирано успешно.";
+            TempData["SuccessMessage"] = "Копието беше деактивирано успешно.";
             return RedirectToAction(nameof(Details), new { id = copy.BookId });
         }
 
@@ -578,7 +578,7 @@ namespace ObreshkovLibrary.Controllers
             copy.IsActive = true;
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Копието беше активирано успешно.";
+            TempData["SuccessMessage"] = "Копието беше активирано успешно.";
             return RedirectToAction(nameof(Details), new { id = copy.BookId });
         }
 

@@ -56,6 +56,24 @@ namespace ObreshkovLibrary.Data.Seed
                 var sections = new[] { "А", "Б", "В", "Г" };
                 var readers = new List<Reader>();
 
+                var demoReader = new Reader
+                {
+                    FirstName = "Иван",
+                    MiddleName = "Петров",
+                    LastName = "Димитров",
+                    PhoneNumber = "0899999999",
+                    CardNumber = "009999",
+                    Grade = 11,
+                    Section = "А",
+                    IsActive = true,
+                    CreatedOn = DateTime.Now.AddMonths(-4),
+                    LastTemporaryPassword = "111111",
+                    PasswordChangedByReader = true,
+                    LastPasswordChangeOn = DateTime.Now.AddMonths(-3)
+                };
+
+                readers.Add(demoReader);
+
                 int cardCounter = 1001;
                 int phoneCounter = 895082100;
 
@@ -126,6 +144,81 @@ namespace ObreshkovLibrary.Data.Seed
 
                 await context.Readers.AddRangeAsync(readers);
                 await context.SaveChangesAsync();
+                var demoReaderFromDb = await context.Readers
+    .FirstOrDefaultAsync(r => r.CardNumber == "009999");
+
+                if (demoReaderFromDb != null)
+                {
+                    var availableCopies = await context.BookCopies
+                        .Where(c => c.IsActive)
+                        .Take(6)
+                        .ToListAsync();
+
+                    if (availableCopies.Count >= 6)
+                    {
+                        var loans = new List<Loan>
+        {
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[0].Id,
+                LoanDate = new DateTime(2026, 3, 1),
+                DueDate = new DateTime(2026, 3, 15),
+                ReturnDate = new DateTime(2026, 3, 10)
+            },
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[1].Id,
+                LoanDate = new DateTime(2026, 4, 1),
+                DueDate = new DateTime(2026, 4, 15),
+                ReturnDate = new DateTime(2026, 4, 13)
+            },
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[2].Id,
+                LoanDate = new DateTime(2026, 5, 1),
+                DueDate = new DateTime(2026, 5, 15),
+                ReturnDate = new DateTime(2026, 5, 14)
+            },
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[3].Id,
+                LoanDate = new DateTime(2026, 5, 20),
+                DueDate = new DateTime(2026, 5, 28),
+                ReturnDate = null
+            },
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[4].Id,
+                LoanDate = new DateTime(2026, 5, 22),
+                DueDate = new DateTime(2026, 6, 5),
+                ReturnDate = null
+            },
+
+            new Loan
+            {
+                ReaderId = demoReaderFromDb.Id,
+                BookCopyId = availableCopies[5].Id,
+                LoanDate = new DateTime(2026, 4, 10),
+                DueDate = new DateTime(2026, 4, 25),
+                ReturnDate = null
+            }
+        };
+
+                        await context.Loans.AddRangeAsync(loans);
+                        await context.SaveChangesAsync();
+                    }
+                }
+
             }
 
             await EnsureSeededReaderUsersAsync(context, userManager);

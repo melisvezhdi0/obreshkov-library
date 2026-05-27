@@ -11,9 +11,7 @@
     var activeCopies = copies.Count(c => c.IsActive);
     var inactiveCopies = copies.Count(c => !c.IsActive);
 
-    var coverPathProp = Model.GetType().GetProperty("CoverPath");
-    var coverUrlProp = Model.GetType().GetProperty("CoverUrl");
-    var coverValue = coverPathProp?.GetValue(Model)?.ToString() ?? coverUrlProp?.GetValue(Model)?.ToString();
+    string? coverValue = Model.CoverPath;
 
     string? subCategoryName = Model.Category?.Name;
     string? parentCategoryName = Model.Category?.ParentCategory?.Name;
@@ -114,7 +112,7 @@
                      style="width:240px; min-height:340px; padding:14px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                     @if (!string.IsNullOrWhiteSpace(coverValue))
                     {
-                        <img src="@coverValue"
+                        <img src="@Url.Content(coverValue)"
                              alt="@Model.Title"
                              style="display:block; width:100%; max-width:100%; height:310px; object-fit:contain;"
                              onerror="this.style.display='none'; this.parentElement.classList.add('no-cover');" />
